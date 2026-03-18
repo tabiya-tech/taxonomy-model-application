@@ -1,6 +1,6 @@
 import { SchemaObject } from "ajv";
 import { _basePaginationResponseProperties } from "../../schemas.base";
-import { _baseResponseSchema as OccupationBaseResponseSchema } from "../../../occupation/schemas.base";
+import { _baseResponseSchema as OccupationBaseResponseSchema } from "../../../occupation/_shared/schemas.base";
 import SkillEnums from "../../enums";
 import SkillConstants from "../../constants";
 

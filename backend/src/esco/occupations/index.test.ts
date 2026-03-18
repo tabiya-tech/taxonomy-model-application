@@ -101,7 +101,7 @@ describe("Test for occupation handler", () => {
       // GIVEN a valid request (method & header & payload)
       const givenModelId = getMockStringId(1);
 
-      const givenPayload: OccupationAPISpecs.Types.POST.Request.Payload = {
+      const givenPayload: OccupationAPISpecs.POSTOccupation.Types.Request.Payload = {
         modelId: givenModelId,
         code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
@@ -294,7 +294,7 @@ describe("Test for occupation handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody = {
-        errorCode: OccupationAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
+        errorCode: OccupationAPISpecs.POSTOccupation.Errors.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION,
         message: "Failed to create the occupation in the DB",
         details: "",
       };
@@ -429,7 +429,7 @@ describe("Test for occupation handler", () => {
       const actualResponse = await occupationHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       const body = JSON.parse(actualResponse.body);
-      expect(body.errorCode).toEqual(OccupationAPISpecs.Enums.POST.Response.Status404.ErrorCodes.MODEL_NOT_FOUND);
+      expect(body.errorCode).toEqual(OccupationAPISpecs.POSTOccupation.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND);
       expect(body.message).toEqual("Model not found by the provided ID");
     });
 
@@ -477,7 +477,7 @@ describe("Test for occupation handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       const body = JSON.parse(actualResponse.body);
       expect(body.errorCode).toEqual(
-        OccupationAPISpecs.Enums.POST.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL
+        OccupationAPISpecs.POSTOccupation.Errors.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL
       );
       expect(body.message).toEqual("Cannot add occupations to a released model");
     });
@@ -775,7 +775,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
         // AND the response body contains the error information
         const expectedErrorBody = {
-          errorCode: OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          errorCode: OccupationAPISpecs.GETOccupations.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
           message: "Model not found",
           details: `No model found with id: ${givenModelId}`,
         };
@@ -808,7 +808,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
         // AND the response body contains the error information
         const expectedErrorBody = {
-          errorCode: OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          errorCode: OccupationAPISpecs.GETOccupations.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
           message: "Failed to fetch the model details from the DB",
           details: "",
         };
@@ -838,7 +838,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
         // AND the response body contains the error information
         const expectedErrorBody = {
-          errorCode: OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
+          errorCode: OccupationAPISpecs.GETOccupations.Errors.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
           message: "occupation not found",
           details: `No occupation found with id: ${givenId}`,
         };
@@ -1087,7 +1087,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
         // AND the response body contains the error information
         const expectedErrorBody = {
-          errorCode: OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          errorCode: OccupationAPISpecs.GETOccupations.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
           message: "Failed to retrieve the occupation from the DB",
           details: "",
         };
@@ -1681,7 +1681,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
         // AND the response body contains the error information
         const expectedErrorBody = {
-          errorCode: OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          errorCode: OccupationAPISpecs.GETOccupations.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
           message: "Failed to retrieve the occupations from the DB",
           details: "",
         };
@@ -1735,7 +1735,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
         // AND the response body contains the error information
         const expectedErrorBody = {
-          errorCode: OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          errorCode: OccupationAPISpecs.GETOccupations.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
           message: "Model not found",
           details: `No model found with id: ${givenModelId}`,
         };
@@ -1768,7 +1768,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
         // AND the response body contains the error information
         const expectedErrorBody = {
-          errorCode: OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          errorCode: OccupationAPISpecs.GETOccupations.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
           message: "Failed to fetch the model details from the DB",
           details: "",
         };
@@ -1801,7 +1801,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
         // AND the response body contains the error information
         const expectedErrorBody = {
-          errorCode: OccupationAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
+          errorCode: OccupationAPISpecs.GETOccupations.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
           message: "Failed to fetch the model details from the DB",
           details: "",
         };
@@ -1920,7 +1920,7 @@ describe("Test for occupation handler", () => {
         // THEN expect NOT_FOUND
         expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
         const body = JSON.parse(actualResponse.body);
-        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_NOT_FOUND);
+        expect(body.errorCode).toBe(OccupationAPISpecs.GETOccupations.Errors.Status404.ErrorCodes.OCCUPATION_NOT_FOUND);
       });
 
       test("should return NOT_FOUND when model doesn't exist", async () => {
@@ -1947,7 +1947,7 @@ describe("Test for occupation handler", () => {
         // THEN expect NOT_FOUND
         expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
         const body = JSON.parse(actualResponse.body);
-        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND);
+        expect(body.errorCode).toBe(OccupationAPISpecs.GETOccupations.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND);
       });
 
       test("should return INTERNAL_SERVER_ERROR when model fetch fails", async () => {
@@ -2008,7 +2008,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
         const body = JSON.parse(actualResponse.body);
         expect(body.errorCode).toBe(
-          OccupationAPISpecs.Enums.GET.Response.Status500.Parent.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT
+          OccupationAPISpecs.Detail.parent.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT
         );
       });
 
@@ -2193,7 +2193,7 @@ describe("Test for occupation handler", () => {
         // THEN expect NOT_FOUND
         expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
         const body = JSON.parse(actualResponse.body);
-        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_NOT_FOUND);
+        expect(body.errorCode).toBe(OccupationAPISpecs.GETOccupations.Errors.Status404.ErrorCodes.OCCUPATION_NOT_FOUND);
       });
 
       test("should return NOT_FOUND when model doesn't exist", async () => {
@@ -2220,7 +2220,7 @@ describe("Test for occupation handler", () => {
         // THEN expect NOT_FOUND
         expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
         const body = JSON.parse(actualResponse.body);
-        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND);
+        expect(body.errorCode).toBe(OccupationAPISpecs.GETOccupations.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND);
       });
 
       test("should return INTERNAL_SERVER_ERROR when model fetch fails", async () => {
@@ -2332,7 +2332,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
         const body = JSON.parse(actualResponse.body);
         expect(body.errorCode).toBe(
-          OccupationAPISpecs.Enums.GET.Response.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN
+          OccupationAPISpecs.Detail.children.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN
         );
         expect(body.message).toBe("Failed to retrieve the occupation children from the DB");
       });
@@ -2751,7 +2751,7 @@ describe("Test for occupation handler", () => {
         // THEN expect NOT_FOUND
         expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
         const body = JSON.parse(actualResponse.body);
-        expect(body.errorCode).toBe(OccupationAPISpecs.Enums.GET.Response.Status404.ErrorCodes.OCCUPATION_NOT_FOUND);
+        expect(body.errorCode).toBe(OccupationAPISpecs.GETOccupations.Errors.Status404.ErrorCodes.OCCUPATION_NOT_FOUND);
       });
 
       test("should return 500 if failing to fetch model from DB", async () => {
@@ -3072,7 +3072,7 @@ describe("Test for occupation handler", () => {
         expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
         const body = JSON.parse(actualResponse.body);
         expect(body.errorCode).toBe(
-          OccupationAPISpecs.Enums.GET.Response.Status500.Skills.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS
+          OccupationAPISpecs.Detail.skills.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS
         );
       });
     });

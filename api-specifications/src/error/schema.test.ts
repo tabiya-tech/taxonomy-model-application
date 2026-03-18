@@ -82,12 +82,12 @@ describe("Validate JSON against the APIError Schema", () => {
         ...Object.values(
           OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status500.ErrorCodes
         ),
-        ...Object.values(OccupationAPI.Enums.POST.Response.Status400.ErrorCodes),
-        ...Object.values(OccupationAPI.Enums.POST.Response.Status404.ErrorCodes),
-        ...Object.values(OccupationAPI.Enums.POST.Response.Status500.ErrorCodes),
-        ...Object.values(OccupationAPI.Enums.GET.Response.Status400.ErrorCodes),
-        ...Object.values(OccupationAPI.Enums.GET.Response.Status404.ErrorCodes),
-        ...Object.values(OccupationAPI.Enums.GET.Response.Status500.ErrorCodes),
+        ...Object.values(OccupationAPI.POSTOccupation.Errors.Status400.ErrorCodes),
+        ...Object.values(OccupationAPI.POSTOccupation.Errors.Status404.ErrorCodes),
+        ...Object.values(OccupationAPI.POSTOccupation.Errors.Status500.ErrorCodes),
+        ...Object.values(OccupationAPI.GETOccupations.Errors.Status400.ErrorCodes),
+        ...Object.values(OccupationAPI.GETOccupations.Errors.Status404.ErrorCodes),
+        ...Object.values(OccupationAPI.GETOccupations.Errors.Status500.ErrorCodes),
         ...Object.values(SkillGroupAPI.Enums.POST.Response.Status400.ErrorCodes),
         ...Object.values(SkillGroupAPI.Enums.POST.Response.Status404.ErrorCodes),
         ...Object.values(SkillGroupAPI.Enums.POST.Response.Status500.ErrorCodes),

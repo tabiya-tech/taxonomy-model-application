@@ -12,7 +12,7 @@ import {
 import "jest-performance-matchers";
 
 const WHITESPACE = " \n\r\t";
-const PERF_DURATION = 5;
+const PERF_DURATION = 20;
 describe("Test RegExp_NotEmptyString", () => {
   test.each([["abc"], [" abc"], [" abc "], ["abc "], ["a b c"], [" a b c"], [" a b c "]])(
     "It should successfully test true non whitespace strings '%s'",

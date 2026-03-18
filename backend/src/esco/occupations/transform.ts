@@ -210,7 +210,7 @@ export function transformPaginated(
   baseURL: string,
   limit: number,
   cursor: string | null
-): OccupationAPISpecs.Types.GET.Response.Payload {
+): OccupationAPISpecs.GETOccupations.Types.Response.Payload {
   return {
     data: data.map((item) => transform(item, baseURL)),
     limit,
@@ -221,7 +221,7 @@ export function transformPaginated(
 export function transformOccupationSkill(
   skillData: ISkillWithRelation,
   baseURL: string
-): OccupationAPISpecs.Types.GET.Skills.Response.SkillItem {
+): OccupationAPISpecs.Detail.skills.GET.Types.Response.SkillItem {
   const transformedSkill = transformSkill(skillData, baseURL);
   return {
     ...transformedSkill,
@@ -236,7 +236,7 @@ export function transformPaginatedSkills(
   baseURL: string,
   limit: number,
   cursor: string | null
-): OccupationAPISpecs.Types.GET.Skills.Response.Payload {
+): OccupationAPISpecs.Detail.skills.GET.Types.Response.Payload {
   return {
     data: data.map((item) => transformOccupationSkill(item, baseURL)),
     limit,
