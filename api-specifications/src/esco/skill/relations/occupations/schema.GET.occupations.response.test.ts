@@ -11,9 +11,10 @@ import { randomUUID } from "crypto";
 import SkillConstants from "../../constants";
 import SkillAPISpecs from "../../index";
 import SkillEnums from "../../enums";
-import OccupationEnums from "../../../occupation/enums";
+import OccupationAPISpecs from "../../../occupation";
 import { getTestESCOOccupationCode } from "../../../_test_utilities/testUtils";
-import OccupationConstants from "../../../occupation/constants";
+const OccupationEnums = OccupationAPISpecs.Enums;
+const OccupationConstants = OccupationAPISpecs.Constants;
 
 describe("Test Skill Occupations Response Schema Validity", () => {
   testValidSchema(

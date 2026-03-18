@@ -70,44 +70,44 @@ ajvInstance.addSchema(
   OccupationGroupAPISpecs.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Children.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationAPISpecs.Schemas.POST.Request.Payload,
-  OccupationAPISpecs.Schemas.POST.Request.Payload.$id
+  OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload,
+  OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationAPISpecs.Schemas.GET.Response.Payload,
-  OccupationAPISpecs.Schemas.GET.Response.Payload.$id
+  OccupationAPISpecs.GETOccupations.Schemas.Response.Payload,
+  OccupationAPISpecs.GETOccupations.Schemas.Response.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationAPISpecs.Schemas.GET.Request.Param.Payload,
-  OccupationAPISpecs.Schemas.GET.Request.Param.Payload.$id
+  OccupationAPISpecs.GETOccupations.Schemas.Request.Param.Payload,
+  OccupationAPISpecs.GETOccupations.Schemas.Request.Param.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationAPISpecs.Schemas.GET.Request.Query.Payload,
-  OccupationAPISpecs.Schemas.GET.Request.Query.Payload.$id
+  OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload,
+  OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationAPISpecs.Schemas.GET.Request.ById.Param.Payload,
-  OccupationAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id
+  OccupationAPISpecs.Detail.GET.Schemas.Request.Param.Payload,
+  OccupationAPISpecs.Detail.GET.Schemas.Request.Param.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationAPISpecs.Schemas.GET.Parent.Response.Payload,
-  OccupationAPISpecs.Schemas.GET.Parent.Response.Payload.$id
+  OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload,
+  OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationAPISpecs.Schemas.GET.Children.Response.Payload,
-  OccupationAPISpecs.Schemas.GET.Children.Response.Payload.$id
+  OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload,
+  OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationAPISpecs.Schemas.GET.Children.Request.Query.Payload,
-  OccupationAPISpecs.Schemas.GET.Children.Request.Query.Payload.$id
+  OccupationAPISpecs.Detail.children.GET.Schemas.Request.Query.Payload,
+  OccupationAPISpecs.Detail.children.GET.Schemas.Request.Query.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationAPISpecs.Schemas.GET.Skills.Response.Payload,
-  OccupationAPISpecs.Schemas.GET.Skills.Response.Payload.$id
+  OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload,
+  OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationAPISpecs.Schemas.GET.Skills.Request.Query.Payload,
-  OccupationAPISpecs.Schemas.GET.Skills.Request.Query.Payload.$id
+  OccupationAPISpecs.Detail.skills.GET.Schemas.Request.Query.Payload,
+  OccupationAPISpecs.Detail.skills.GET.Schemas.Request.Query.Payload.$id
 );
 ajvInstance.addSchema(
   SkillGroupAPISpecs.Schemas.POST.Request.Payload,

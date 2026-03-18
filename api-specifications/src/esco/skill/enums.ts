@@ -1,5 +1,5 @@
 import { ObjectTypes as CommonObjectTypes } from "../common/objectTypes";
-import OccupationEnums from "../occupation/enums";
+import OccupationEnums from "../occupation/_shared/enums";
 import * as ParentEnums from "./relations/parents/enums";
 import * as ChildrenEnums from "./relations/children/enums";
 import * as OccupationsEnums from "./relations/occupations/enums";

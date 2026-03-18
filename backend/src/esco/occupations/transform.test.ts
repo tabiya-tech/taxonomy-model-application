@@ -43,7 +43,7 @@ describe("test the transformation of IOccupation -> IOccupationResponse", () => 
     const givenBasePath = "https://some/root/path";
 
     // WHEN the transformation function is called
-    const actual: OccupationAPISpecs.Types.POST.Response.Payload = transform(givenObject, givenBasePath);
+    const actual: OccupationAPISpecs.POSTOccupation.Types.Response.Payload = transform(givenObject, givenBasePath);
 
     // THEN expect the transformation function to return a IOccupationResponse
     // that contains the input from the IOccupation
@@ -98,7 +98,7 @@ describe("test the transformation of IOccupation -> IOccupationResponse", () => 
     const givenBasePath = "https://some/root/path";
 
     // WHEN the transformation function is called
-    const actual: OccupationAPISpecs.Types.POST.Response.Payload = transform(givenObject, givenBasePath);
+    const actual: OccupationAPISpecs.POSTOccupation.Types.Response.Payload = transform(givenObject, givenBasePath);
 
     // THEN expect the transformation function to return a IOccupationResponse
     // that contains the input from the IOccupation
@@ -160,7 +160,7 @@ describe("test the transformation of IOccupation[] -> IOccupationResponse[]", ()
     );
 
     const givenObjectsPaginated = givenObjects.slice(0, limit);
-    const actual: OccupationAPISpecs.Types.GET.Response.Payload = transformPaginated(
+    const actual: OccupationAPISpecs.GETOccupations.Types.Response.Payload = transformPaginated(
       givenObjectsPaginated,
       givenBasePath,
       limit,
