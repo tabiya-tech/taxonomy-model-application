@@ -1,6 +1,6 @@
 import OccupationEnums from "./enums";
 import SkillTypes from "../skill/types";
-import OccupationGroupTypes from "../occupationGroup/types";
+import OccupationGroupTypes from "../occupationGroup/_shared/types";
 
 interface IOccupationParent {
   id: string;

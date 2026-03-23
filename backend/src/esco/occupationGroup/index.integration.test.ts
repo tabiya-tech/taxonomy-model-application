@@ -63,13 +63,13 @@ describe("Test for occupationGroup handler with a DB", () => {
   });
   addFormats(ajv);
   ajv
-    .addSchema(OccupationGroupAPISpecs.Schemas.GET.Response.Payload)
-    .addSchema(OccupationGroupAPISpecs.Schemas.POST.Response.Payload);
+    .addSchema(OccupationGroupAPISpecs.GETAPISpecs.Schemas.Response.Payload)
+    .addSchema(OccupationGroupAPISpecs.POSTAPISpecs.Schemas.Response.Payload);
   const validateGETResponse: ValidateFunction = ajv.getSchema(
-    OccupationGroupAPISpecs.Schemas.GET.Response.Payload.$id as string
+    OccupationGroupAPISpecs.GETAPISpecs.Schemas.Response.Payload.$id as string
   ) as ValidateFunction;
   const validatePOSTResponse: ValidateFunction = ajv.getSchema(
-    OccupationGroupAPISpecs.Schemas.POST.Response.Payload.$id as string
+    OccupationGroupAPISpecs.POSTAPISpecs.Schemas.Response.Payload.$id as string
   ) as ValidateFunction;
 
   let dbConnection: Connection | undefined;

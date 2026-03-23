@@ -6,12 +6,17 @@ describe("Test the occupationGroup module", () => {
     const occupationGroupModule = await import("./");
 
     // THEN check if Schemas is defined in it
-    expect(occupationGroupModule.default.Schemas.GET.Response.Payload).toBeDefined();
-    expect(occupationGroupModule.default.Schemas.GET.Response.Parent.Payload).toBeDefined();
-    expect(occupationGroupModule.default.Schemas.GET.Response.Child.Payload).toBeDefined();
-    expect(occupationGroupModule.default.Schemas.GET.Response.Children.Payload).toBeDefined();
-    expect(occupationGroupModule.default.Schemas.POST.Response.Payload).toBeDefined();
-    expect(occupationGroupModule.default.Schemas.POST.Request.Payload).toBeDefined();
+    expect(occupationGroupModule.default.GETAPISpecs.Schemas.Response.Payload).toBeDefined();
+    expect(occupationGroupModule.default.POSTAPISpecs.Schemas.Request.Payload).toBeDefined();
+    expect(occupationGroupModule.default.GETDetailAPISpecs.Schemas.Request.Param.Payload).toBeDefined();
+    expect(
+      occupationGroupModule.default.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Child.Payload
+    ).toBeDefined();
+    expect(
+      occupationGroupModule.default.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Children.Payload
+    ).toBeDefined();
+    expect(occupationGroupModule.default.GETDetailAPISpecs.GETParentAPISpecs.Schemas.Response.Payload).toBeDefined();
+
     // AND check if constants are defined in it
     const Constants = occupationGroupModule.default.Constants;
     expect(Constants.DESCRIPTION_MAX_LENGTH).toBeDefined();

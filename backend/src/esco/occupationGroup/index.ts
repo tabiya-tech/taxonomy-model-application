@@ -13,6 +13,9 @@ import { ajvInstance, ParseValidationError } from "validator";
 import AuthAPISpecs from "api-specifications/auth";
 
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
+import OccupationGroupPOSTAPISpecs from "api-specifications/esco/occupationGroup/POST";
+import OccupationGroupGETAPISpecs from "api-specifications/esco/occupationGroup/GET";
+import OccupationGroupDetailAPISpecs from "api-specifications/esco/occupationGroup/[id]";
 
 import { ValidateFunction } from "ajv";
 import { transform, transformPaginated, transformPaginatedChildren, transformParent } from "./transform";
@@ -176,7 +179,7 @@ export class OccupationGroupController {
       return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR(error.message);
     }
     const validateFunction = ajvInstance.getSchema(
-      OccupationGroupAPISpecs.Schemas.POST.Request.Payload.$id as string
+      OccupationGroupPOSTAPISpecs.Schemas.Request.Payload.$id as string
     ) as ValidateFunction;
 
     const isValid = validateFunction(payload);
@@ -188,7 +191,7 @@ export class OccupationGroupController {
     if (!resolvedModelId) {
       return errorResponsePOST(
         StatusCodes.BAD_REQUEST,
-        OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        OccupationGroupPOSTAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "modelId is missing in the path",
         JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
       );
@@ -198,7 +201,7 @@ export class OccupationGroupController {
     if (payload.modelId !== resolvedModelId) {
       return errorResponsePOST(
         StatusCodes.BAD_REQUEST,
-        OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+        OccupationGroupPOSTAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
         "modelId in payload does not match modelId in path",
         `Payload modelId: ${payload.modelId}, Path modelId: ${resolvedModelId}`
       );
@@ -226,28 +229,28 @@ export class OccupationGroupController {
           case ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID:
             return errorResponsePOST(
               StatusCodes.NOT_FOUND,
-              OccupationGroupAPISpecs.Enums.POST.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+              OccupationGroupPOSTAPISpecs.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
               "Model not found by the provided ID",
               ""
             );
           case ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB:
             return errorResponsePOST(
               StatusCodes.INTERNAL_SERVER_ERROR,
-              OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+              OccupationGroupPOSTAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
               "Failed to fetch the model detail from the DB",
               ""
             );
           case ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED:
             return errorResponsePOST(
               StatusCodes.BAD_REQUEST,
-              OccupationGroupAPISpecs.Enums.POST.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL,
+              OccupationGroupPOSTAPISpecs.Enums.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL,
               "Model is released and cannot be modified",
               ""
             );
           default:
             return errorResponsePOST(
               StatusCodes.INTERNAL_SERVER_ERROR,
-              OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+              OccupationGroupPOSTAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
               "Failed to create the occupation group in the DB",
               ""
             );
@@ -255,7 +258,7 @@ export class OccupationGroupController {
       } else {
         return errorResponsePOST(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupAPISpecs.Enums.POST.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
+          OccupationGroupPOSTAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
           "Failed to create the occupation group in the DB",
           ""
         );
@@ -339,7 +342,7 @@ export class OccupationGroupController {
       };
 
       const validatePathFunction = ajvInstance.getSchema(
-        OccupationGroupAPISpecs.Schemas.GET.Request.Param.Payload.$id as string
+        OccupationGroupGETAPISpecs.Schemas.Request.Param.Payload.$id as string
       ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Param.Payload>;
 
       const isValid = validatePathFunction(requestPathParameter);
@@ -358,7 +361,7 @@ export class OccupationGroupController {
       if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          OccupationGroupGETAPISpecs.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
@@ -366,7 +369,7 @@ export class OccupationGroupController {
       if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+          OccupationGroupGETAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
           "Failed to fetch the model details from the DB",
           ""
         );
@@ -379,7 +382,7 @@ export class OccupationGroupController {
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
-        OccupationGroupAPISpecs.Schemas.GET.Request.Query.Payload.$id as string
+        OccupationGroupGETAPISpecs.Schemas.Request.Query.Payload.$id as string
       ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Query.Payload>;
       const isQueryValid = validateQueryFunction(queryParams);
       if (!isQueryValid) {
@@ -435,7 +438,7 @@ export class OccupationGroupController {
       errorLoggerInstance.logError("Failed to retrieve the occupation groups from the DB", error.name);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
+        OccupationGroupGETAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
         "Failed to retrieve the occupation groups from the DB",
         ""
       );
@@ -498,7 +501,7 @@ export class OccupationGroupController {
       );
 
       const validatePathFunction = ajvInstance.getSchema(
-        OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+        OccupationGroupDetailAPISpecs.Schemas.Request.Param.Payload.$id as string
       ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
 
       const isValidPathParameter = validatePathFunction(requestPathParameter);
@@ -613,7 +616,7 @@ export class OccupationGroupController {
       );
 
       const validatePathFunction = ajvInstance.getSchema(
-        OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+        OccupationGroupDetailAPISpecs.Schemas.Request.Param.Payload.$id as string
       ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
 
       const isValidPathParameter = validatePathFunction(requestPathParameter);
@@ -726,7 +729,7 @@ export class OccupationGroupController {
       );
 
       const validatePathFunction = ajvInstance.getSchema(
-        OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+        OccupationGroupDetailAPISpecs.Schemas.Request.Param.Payload.$id as string
       ) as ValidateFunction<OccupationGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
 
       const isValidPathParameter = validatePathFunction(requestPathParameter);
