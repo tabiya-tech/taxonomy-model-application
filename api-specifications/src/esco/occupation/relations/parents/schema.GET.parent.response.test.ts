@@ -31,7 +31,7 @@ import OccupationConstants from "../../constants";
 import OccupationAPISpecs from "../../index";
 import OccupationEnums from "../../enums";
 import OccupationGroupAPISpecs from "../../../occupationGroup/index";
-import OccupationGroupEnums from "../../../occupationGroup/enums";
+import OccupationGroupEnums from "../../../occupationGroup/_shared/enums";
 
 describe("Test Occupation Parent Response Schema Validity", () => {
   // WHEN the OccupationAPISpecs.GET.Parent.Response.Payload schema
@@ -168,7 +168,7 @@ describe("Test objects against the OccupationAPISpecs.Schemas.GET.Parent.Respons
     // We use the individual base schemas for field validation to avoid false positive errors from anyOf branches
     const itemSchema = OccupationAPISpecs.Schemas.GET.Parent.Response.Payload;
     const occupationSchema = OccupationAPISpecs.Schemas.POST.Response.Payload;
-    const occupationGroupSchema = OccupationGroupAPISpecs.Schemas.POST.Response.Payload;
+    const occupationGroupSchema = OccupationGroupAPISpecs.GETDetailAPISpecs.GETDetailAPISpecs.Schemas.Response.Payload;
 
     const givenValidOccupationGETResponse = givenValidParent;
 

@@ -1,0 +1,382 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the occupationGroup GET Detail module The export module matches the snapshot 1`] = `
+{
+  "Enums": {
+    "GET": {
+      "Response": {
+        "Status400": {
+          "ErrorCodes": {},
+        },
+        "Status404": {
+          "ErrorCodes": {
+            "MODEL_NOT_FOUND": "GET_MODEL_NOT_FOUND",
+            "OCCUPATION_GROUP_NOT_FOUND": "OCCUPATION_GROUP_NOT_FOUND",
+          },
+        },
+        "Status500": {
+          "ErrorCodes": {
+            "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL": "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL",
+          },
+        },
+      },
+    },
+    "ObjectTypes": {
+      "ISCOGroup": "iscogroup",
+      "LocalGroup": "localgroup",
+    },
+    "Relations": {
+      "Children": {
+        "ObjectTypes": {
+          "ESCOOccupation": "escooccupation",
+          "ISCOGroup": "iscogroup",
+          "LocalGroup": "localgroup",
+          "LocalOccupation": "localoccupation",
+        },
+      },
+      "Parent": {
+        "ObjectTypes": {
+          "ISCOGroup": "iscogroup",
+          "LocalGroup": "localgroup",
+        },
+      },
+    },
+  },
+  "Schemas": {
+    "Response": {
+      "Payload": {
+        "$id": "/components/schemas/OccupationGroupResponseSchemaGETDetail",
+        "additionalProperties": false,
+        "else": {
+          "properties": {
+            "code": {
+              "maxLength": 256,
+              "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+              "type": "string",
+            },
+          },
+        },
+        "if": {
+          "properties": {
+            "groupType": {
+              "enum": [
+                "iscogroup",
+              ],
+            },
+          },
+        },
+        "properties": {
+          "UUID": {
+            "description": "The UUID of the occupation group. It can be used to identify the occupation group across systems.",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+          },
+          "UUIDHistory": {
+            "description": "The UUIDs history of the occupation group.",
+            "items": {
+              "maxLength": 36,
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string",
+            },
+            "maxItems": 10000,
+            "minItems": 0,
+            "type": "array",
+            "uniqueItems": true,
+          },
+          "altLabels": {
+            "description": "The alternative labels of the occupation group.",
+            "items": {
+              "maxLength": 256,
+              "type": "string",
+            },
+            "maxItems": 100,
+            "minItems": 0,
+            "type": "array",
+            "uniqueItems": true,
+          },
+          "children": {
+            "description": "The children of this occupation group, which can be either occupation groups or occupations.",
+            "items": {
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "objectType": {
+                        "const": "iscogroup",
+                      },
+                    },
+                  },
+                  "then": {
+                    "properties": {
+                      "code": {
+                        "maxLength": 256,
+                        "pattern": "^\\d{1,4}$",
+                        "type": "string",
+                      },
+                    },
+                  },
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "objectType": {
+                        "const": "localgroup",
+                      },
+                    },
+                  },
+                  "then": {
+                    "properties": {
+                      "code": {
+                        "maxLength": 256,
+                        "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                        "type": "string",
+                      },
+                    },
+                  },
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "objectType": {
+                        "const": "escooccupation",
+                      },
+                    },
+                  },
+                  "then": {
+                    "properties": {
+                      "code": {
+                        "maxLength": 256,
+                        "pattern": "^\\d{4}(?:\\.\\d+)+$",
+                        "type": "string",
+                      },
+                    },
+                  },
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "objectType": {
+                        "const": "localoccupation",
+                      },
+                    },
+                  },
+                  "then": {
+                    "properties": {
+                      "code": {
+                        "maxLength": 256,
+                        "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                        "type": "string",
+                      },
+                    },
+                  },
+                },
+              ],
+              "properties": {
+                "UUID": {
+                  "description": "The UUID of the occupation group. It can be used to identify the parent occupation group.",
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                  "type": "string",
+                },
+                "code": {
+                  "description": "The code of the parent occupation group.",
+                  "maxLength": 256,
+                  "type": "string",
+                },
+                "id": {
+                  "description": "The id of the parent occupation group.",
+                  "pattern": "^[0-9a-f]{24}$",
+                  "type": "string",
+                },
+                "objectType": {
+                  "description": "The type of the occupation group | occupation, e.g., ISCOGroup, LocalGroup, ESCOOccupation, LocalOccupation.",
+                  "enum": [
+                    "iscogroup",
+                    "localgroup",
+                    "escooccupation",
+                    "localoccupation",
+                  ],
+                  "type": "string",
+                },
+                "preferredLabel": {
+                  "description": "The preferred label of the parent occupation group.",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+              },
+              "type": "object",
+            },
+            "minItems": 0,
+            "type": "array",
+          },
+          "code": {
+            "description": "The code of the occupation group.",
+            "maxLength": 256,
+            "type": "string",
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+          },
+          "description": {
+            "description": "The description of the occupation group.",
+            "maxLength": 6000,
+            "type": "string",
+          },
+          "groupType": {
+            "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+            "enum": [
+              "iscogroup",
+              "localgroup",
+            ],
+            "type": "string",
+          },
+          "id": {
+            "description": "The id of the occupation group. It can be used to retrieve the occupation group from the server.",
+            "pattern": "^[0-9a-f]{24}$",
+            "type": "string",
+          },
+          "modelId": {
+            "description": "The identifier of the model for occupation group.",
+            "pattern": "^[0-9a-f]{24}$",
+            "type": "string",
+          },
+          "originUUID": {
+            "description": "The last UUID in the UUIDHistory of occupation group. It can be used to identify the occupation group across systems.",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string",
+          },
+          "originUri": {
+            "description": "The origin URI of the occupation group.",
+            "format": "uri",
+            "maxLength": 4096,
+            "pattern": "\\S",
+            "type": "string",
+          },
+          "parent": {
+            "additionalProperties": false,
+            "description": "The parent occupation group of this occupation group.",
+            "else": {
+              "properties": {
+                "code": {
+                  "maxLength": 256,
+                  "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                  "type": "string",
+                },
+              },
+            },
+            "if": {
+              "properties": {
+                "objectType": {
+                  "enum": [
+                    "iscogroup",
+                  ],
+                },
+              },
+            },
+            "properties": {
+              "UUID": {
+                "description": "The UUID of the occupation group. It can be used to identify the parent occupation group.",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string",
+              },
+              "code": {
+                "description": "The code of the parent occupation group.",
+                "maxLength": 256,
+                "type": "string",
+              },
+              "id": {
+                "description": "The id of the parent occupation group.",
+                "pattern": "^[0-9a-f]{24}$",
+                "type": "string",
+              },
+              "objectType": {
+                "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
+                "enum": [
+                  "iscogroup",
+                  "localgroup",
+                ],
+                "type": "string",
+              },
+              "preferredLabel": {
+                "description": "The preferred label of the parent occupation group.",
+                "maxLength": 256,
+                "pattern": "\\S",
+                "type": "string",
+              },
+            },
+            "then": {
+              "properties": {
+                "code": {
+                  "maxLength": 256,
+                  "pattern": "^\\d{1,4}$",
+                  "type": "string",
+                },
+              },
+            },
+            "type": [
+              "object",
+              "null",
+            ],
+          },
+          "path": {
+            "description": "The path to the occupation group resource using the resource id",
+            "format": "uri",
+            "maxLength": 4096,
+            "pattern": "^https://.*",
+            "type": "string",
+          },
+          "preferredLabel": {
+            "description": "The preferred label of the occupation group.",
+            "maxLength": 256,
+            "pattern": "\\S",
+            "type": "string",
+          },
+          "tabiyaPath": {
+            "description": "The path to the occupation group resource using the resource UUID",
+            "format": "uri",
+            "maxLength": 4096,
+            "pattern": "^https://.*",
+            "type": "string",
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+          },
+        },
+        "required": [
+          "id",
+          "UUID",
+          "originUUID",
+          "path",
+          "UUIDHistory",
+          "tabiyaPath",
+          "originUri",
+          "code",
+          "description",
+          "preferredLabel",
+          "parent",
+          "children",
+          "altLabels",
+          "groupType",
+          "modelId",
+          "createdAt",
+          "updatedAt",
+        ],
+        "then": {
+          "properties": {
+            "code": {
+              "maxLength": 256,
+              "pattern": "^\\d{1,4}$",
+              "type": "string",
+            },
+          },
+        },
+        "type": "object",
+      },
+    },
+  },
+  "Types": {},
+}
+`;

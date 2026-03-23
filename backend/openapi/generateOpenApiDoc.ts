@@ -40,14 +40,16 @@ delete APIError.Schemas.POST.Payload.$id;
 delete APIError.Schemas.GET.Payload.$id;
 delete APIError.Schemas.PATCH.Payload.$id;
 delete Export.Schemas.POST.Request.Payload.$id;
-delete OccupationGroup.Schemas.POST.Request.Payload.$id;
-delete OccupationGroup.Schemas.POST.Response.Payload.$id;
-delete OccupationGroup.Schemas.GET.Response.Payload.$id;
-delete OccupationGroup.Schemas.GET.Request.Param.Payload.$id;
-delete OccupationGroup.Schemas.GET.Request.Query.Payload.$id;
-delete OccupationGroup.Schemas.GET.Request.ById.Param.Payload.$id;
-delete OccupationGroup.Schemas.GET.Response.Parent.Payload.$id;
-delete OccupationGroup.Schemas.GET.Response.Children.Payload.$id;
+delete OccupationGroup.POSTAPISpecs.Schemas.Request.Payload.$id,
+delete OccupationGroup.POSTAPISpecs.Schemas.Response.Payload.$id,
+delete OccupationGroup.GETAPISpecs.Schemas.Response.Payload.$id,
+delete OccupationGroup.GETAPISpecs.Schemas.Request.Param.Payload.$id,
+delete OccupationGroup.GETAPISpecs.Schemas.Request.Query.Payload.$id,
+delete OccupationGroup.GETDetailAPISpecs.Schemas.Request.Param.Payload.$id,
+delete OccupationGroup.GETDetailAPISpecs.GETDetailAPISpecs.Schemas.Response.Payload.$id,
+delete OccupationGroup.GETDetailAPISpecs.GETParentAPISpecs.Schemas.Response.Payload.$id,
+delete OccupationGroup.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Child.Payload.$id,
+delete OccupationGroup.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Children.Payload.$id,
 delete Occupation.Schemas.POST.Request.Payload.$id;
 delete Occupation.Schemas.POST.Response.Payload.$id;
 delete Occupation.Schemas.GET.Response.Payload.$id;
@@ -379,14 +381,16 @@ function getOpenAPISpecification(
           ExportSchema: Export.Schemas.POST.Request.Payload,
           InfoSchema: Info.Schemas.GET.Response.Payload,
           AuthContextSchema: Auth.Schemas.Request.Context,
-          OccupationGroupRequestSchemaPOST: OccupationGroup.Schemas.POST.Request.Payload,
-          OccupationGroupResponseSchemaPOST: OccupationGroup.Schemas.POST.Response.Payload,
-          OccupationGroupParentResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Parent.Payload,
-          OccupationGroupChildrenResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Children.Payload,
-          OccupationGroupRequestParamSchemaGET: OccupationGroup.Schemas.GET.Request.Param.Payload,
-          OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.Schemas.GET.Request.Query.Payload,
-          OccupationGroupResponseSchemaGET: OccupationGroup.Schemas.GET.Response.Payload,
-          OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.Schemas.GET.Request.ById.Param.Payload,
+          OccupationGroupRequestSchemaPOST: OccupationGroup.POSTAPISpecs.Schemas.Request.Payload,
+          OccupationGroupResponseSchemaPOST: OccupationGroup.POSTAPISpecs.Schemas.Response.Payload,
+          OccupationGroupParentResponseSchemaGET:
+            OccupationGroup.GETDetailAPISpecs.GETParentAPISpecs.Schemas.Response.Payload,
+          OccupationGroupChildrenResponseSchemaGET:
+            OccupationGroup.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Children.Payload,
+          OccupationGroupRequestParamSchemaGET: OccupationGroup.GETAPISpecs.Schemas.Request.Param.Payload,
+          OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.GETAPISpecs.Schemas.Request.Query.Payload,
+          OccupationGroupResponseSchemaGET: OccupationGroup.GETAPISpecs.Schemas.Response.Payload,
+          OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.GETDetailAPISpecs.Schemas.Request.Param.Payload,
           OccupationRequestSchemaPOST: Occupation.Schemas.POST.Request.Payload,
           OccupationResponseSchemaPOST: Occupation.Schemas.POST.Response.Payload,
           OccupationRequestParamSchemaGET: Occupation.Schemas.GET.Request.Param.Payload,

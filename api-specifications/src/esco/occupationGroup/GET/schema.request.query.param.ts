@@ -1,0 +1,13 @@
+import { SchemaObject } from "ajv";
+import { _baseQueryParameterSchema } from "../_shared/schemas.base";
+
+const SchemaGETRequestQueryParam: SchemaObject = {
+  $id: "/components/schemas/OccupationGroupRequestQueryParamSchemaGET",
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    ...JSON.parse(JSON.stringify(_baseQueryParameterSchema)),
+  },
+};
+
+export default SchemaGETRequestQueryParam;

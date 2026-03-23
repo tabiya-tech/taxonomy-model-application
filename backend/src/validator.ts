@@ -29,24 +29,45 @@ ajvInstance.addSchema(ImportAPISpecs.Schemas.POST.Request.Payload, ImportAPISpec
 ajvInstance.addSchema(ExportAPISpecs.Schemas.POST.Request.Payload, ExportAPISpecs.Schemas.POST.Request.Payload.$id);
 ajvInstance.addSchema(AuthAPISpecs.Schemas.Request.Context, AuthAPISpecs.Schemas.Request.Context.$id);
 ajvInstance.addSchema(
-  OccupationGroupAPISpecs.Schemas.POST.Request.Payload,
-  OccupationGroupAPISpecs.Schemas.POST.Request.Payload.$id
+  OccupationGroupAPISpecs.POSTAPISpecs.Schemas.Request.Payload,
+  OccupationGroupAPISpecs.POSTAPISpecs.Schemas.Request.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationGroupAPISpecs.Schemas.GET.Response.Payload,
-  OccupationGroupAPISpecs.Schemas.GET.Response.Payload.$id
+  OccupationGroupAPISpecs.POSTAPISpecs.Schemas.Response.Payload,
+  OccupationGroupAPISpecs.POSTAPISpecs.Schemas.Response.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationGroupAPISpecs.Schemas.GET.Request.Param.Payload,
-  OccupationGroupAPISpecs.Schemas.GET.Request.Param.Payload.$id
+  OccupationGroupAPISpecs.GETAPISpecs.Schemas.Request.Param.Payload,
+  OccupationGroupAPISpecs.GETAPISpecs.Schemas.Request.Param.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationGroupAPISpecs.Schemas.GET.Request.Query.Payload,
-  OccupationGroupAPISpecs.Schemas.GET.Request.Query.Payload.$id
+  OccupationGroupAPISpecs.GETAPISpecs.Schemas.Request.Query.Payload,
+  OccupationGroupAPISpecs.GETAPISpecs.Schemas.Request.Query.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload,
-  OccupationGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id
+  OccupationGroupAPISpecs.GETAPISpecs.Schemas.Response.Payload,
+  OccupationGroupAPISpecs.GETAPISpecs.Schemas.Response.Payload.$id
+);
+
+ajvInstance.addSchema(
+  OccupationGroupAPISpecs.GETDetailAPISpecs.Schemas.Request.Param.Payload,
+  OccupationGroupAPISpecs.GETDetailAPISpecs.Schemas.Request.Param.Payload.$id
+);
+ajvInstance.addSchema(
+  OccupationGroupAPISpecs.GETDetailAPISpecs.GETDetailAPISpecs.Schemas.Response.Payload,
+  OccupationGroupAPISpecs.GETDetailAPISpecs.GETDetailAPISpecs.Schemas.Response.Payload.$id
+);
+ajvInstance.addSchema(
+  OccupationGroupAPISpecs.GETDetailAPISpecs.GETParentAPISpecs.Schemas.Response.Payload,
+  OccupationGroupAPISpecs.GETDetailAPISpecs.GETParentAPISpecs.Schemas.Response.Payload.$id
+);
+ajvInstance.addSchema(
+  OccupationGroupAPISpecs.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Child.Payload,
+  OccupationGroupAPISpecs.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Child.Payload.$id
+);
+ajvInstance.addSchema(
+  OccupationGroupAPISpecs.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Children.Payload,
+  OccupationGroupAPISpecs.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Children.Payload.$id
 );
 ajvInstance.addSchema(
   OccupationAPISpecs.Schemas.POST.Request.Payload,
