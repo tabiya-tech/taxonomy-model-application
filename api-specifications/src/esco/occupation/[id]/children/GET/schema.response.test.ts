@@ -59,7 +59,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.children.GET.Schema
     code: getTestLocalOccupationCode(),
     occupationGroupCode: getTestLocalGroupCode(),
     preferredLabel: getTestString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+    objectType: OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
   };
 
   // GIVEN a full child object (which mimics a full occupation response)

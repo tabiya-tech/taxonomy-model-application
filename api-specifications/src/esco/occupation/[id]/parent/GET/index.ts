@@ -1,5 +1,5 @@
-import OccupationEnums from "../../../_shared/enums";
 import OccupationTypes from "../../../_shared/types";
+import GETOccupationParentErrors from "./enums";
 import SchemaGETParentResponse from "./schema.response";
 
 // ─── Detail.parent.GET ───
@@ -14,7 +14,7 @@ namespace Detail.parent.GETOperation {
       export type Payload = OccupationTypes.Detail.parent.GET.Response.Payload;
     }
   }
-  export import Errors = OccupationEnums.GETParentErrors;
+  export import Errors = GETOccupationParentErrors;
 }
 
 export default Detail.parent.GETOperation;

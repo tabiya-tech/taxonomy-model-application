@@ -192,7 +192,7 @@ export const _baseParentSchema = {
     objectType: {
       description: "The type of the occupation parent (LocalOccupation, ESCOOccupation, ISCOGroup or LocalGroup).",
       type: "string",
-      enum: Object.values(OccupationEnums.Relations.Parent.ObjectTypes),
+      enum: [...Object.values(OccupationEnums.Relations.Parent.ObjectTypes)],
     },
   },
   allOf: [
@@ -292,7 +292,10 @@ export const _baseChildSchema = {
     objectType: {
       description: "The type of the occupation child (EscoOccupation or LocalOccupation).",
       type: "string",
-      enum: Object.values(OccupationEnums.Relations.Children.ObjectTypes),
+      enum: [
+        OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+        OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+      ],
     },
   },
   allOf: [
@@ -357,7 +360,7 @@ export const _baseRequiresSkills = {
       objectType: {
         description: "The object type of the required skill.",
         type: "string",
-        enum: Object.values(OccupationEnums.Relations.RequiredSkills.ObjectTypes),
+        enum: [OccupationEnums.Relations.RequiredSkills.ObjectTypes.Skill],
       },
       relationType: {
         description: "Used for ESCOOccupations only.",

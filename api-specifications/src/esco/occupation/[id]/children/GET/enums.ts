@@ -1,16 +1,4 @@
-import { ObjectTypes as CommonObjectTypes } from "../../common/objectTypes";
-
-export enum ObjectTypes {
-  Skill = CommonObjectTypes.Skill,
-}
-
-export enum OccupationToSkillRelationType {
-  NONE = "",
-  ESSENTIAL = "essential",
-  OPTIONAL = "optional",
-}
-
-export namespace Errors {
+namespace GETOccupationChildrenErrors {
   export namespace Status400 {
     export enum ErrorCodes {
       INVALID_OCCUPATION_ID = "INVALID_OCCUPATION_ID",
@@ -25,7 +13,9 @@ export namespace Errors {
   }
   export namespace Status500 {
     export enum ErrorCodes {
-      DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS = "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS",
+      DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN = "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN",
     }
   }
 }
+
+export default GETOccupationChildrenErrors;

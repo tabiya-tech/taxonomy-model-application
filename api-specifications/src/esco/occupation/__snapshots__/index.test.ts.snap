@@ -10,9 +10,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     "DEFINITION_MAX_LENGTH": 4000,
     "DESCRIPTION_MAX_LENGTH": 6000,
     "MAX_CURSOR_LENGTH": 1024,
-    "MAX_JSON_OVERHEAD": 10000,
     "MAX_LIMIT": 100,
-    "MAX_POST_PAYLOAD_LENGTH": 566656,
     "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
     "ORIGIN_URI_MAX_LENGTH": 4096,
     "PATH_URI_MAX_LENGTH": 4096,
@@ -35,9 +33,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
       "DEFINITION_MAX_LENGTH": 4000,
       "DESCRIPTION_MAX_LENGTH": 6000,
       "MAX_CURSOR_LENGTH": 1024,
-      "MAX_JSON_OVERHEAD": 10000,
       "MAX_LIMIT": 100,
-      "MAX_POST_PAYLOAD_LENGTH": 566656,
       "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
       "ORIGIN_URI_MAX_LENGTH": 4096,
       "PATH_URI_MAX_LENGTH": 4096,
@@ -52,82 +48,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
       "UUID_HISTORY_MAX_LENGTH": 50,
     },
     "Enums": {
-      "GETChildrenErrors": {
-        "Status400": {
-          "ErrorCodes": {
-            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-            "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-          },
-        },
-        "Status404": {
-          "ErrorCodes": {
-            "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-          },
-        },
-        "Status500": {
-          "ErrorCodes": {
-            "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN": "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN",
-          },
-        },
-      },
-      "GETErrors": {
-        "Status400": {
-          "ErrorCodes": {
-            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-            "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-            "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-          },
-        },
-        "Status404": {
-          "ErrorCodes": {
-            "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-            "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-          },
-        },
-        "Status500": {
-          "ErrorCodes": {
-            "DB_FAILED_TO_RETRIEVE_OCCUPATIONS": "DB_FAILED_TO_RETRIEVE_OCCUPATIONS",
-          },
-        },
-      },
-      "GETParentErrors": {
-        "Status400": {
-          "ErrorCodes": {
-            "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-          },
-        },
-        "Status404": {
-          "ErrorCodes": {
-            "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-          },
-        },
-        "Status500": {
-          "ErrorCodes": {
-            "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT": "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT",
-          },
-        },
-      },
-      "GETSkillsErrors": {
-        "Status400": {
-          "ErrorCodes": {
-            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-            "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-          },
-        },
-        "Status404": {
-          "ErrorCodes": {
-            "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-          },
-        },
-        "Status500": {
-          "ErrorCodes": {
-            "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS": "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS",
-          },
-        },
-      },
       "OccupationToSkillRelationType": {
         "ESSENTIAL": "essential",
         "NONE": "",
@@ -136,25 +56,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
       "OccupationType": {
         "ESCOOccupation": "escooccupation",
         "LocalOccupation": "localoccupation",
-      },
-      "POSTErrors": {
-        "Status400": {
-          "ErrorCodes": {
-            "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-            "OCCUPATION_COULD_NOT_VALIDATE": "OCCUPATION_COULD_NOT_VALIDATE",
-            "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
-          },
-        },
-        "Status404": {
-          "ErrorCodes": {
-            "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-          },
-        },
-        "Status500": {
-          "ErrorCodes": {
-            "DB_FAILED_TO_CREATE_OCCUPATION": "DB_FAILED_TO_CREATE_OCCUPATION",
-          },
-        },
       },
       "Relations": {
         "Children": {
@@ -181,27 +82,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
       },
     },
     "GET": {
-      "Errors": {
-        "Status400": {
-          "ErrorCodes": {
-            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-            "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-            "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-          },
-        },
-        "Status404": {
-          "ErrorCodes": {
-            "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-            "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-          },
-        },
-        "Status500": {
-          "ErrorCodes": {
-            "DB_FAILED_TO_RETRIEVE_OCCUPATIONS": "DB_FAILED_TO_RETRIEVE_OCCUPATIONS",
-          },
-        },
-      },
       "Schemas": {
         "Request": {
           "Param": {
@@ -258,9 +138,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "DEFINITION_MAX_LENGTH": 4000,
         "DESCRIPTION_MAX_LENGTH": 6000,
         "MAX_CURSOR_LENGTH": 1024,
-        "MAX_JSON_OVERHEAD": 10000,
         "MAX_LIMIT": 100,
-        "MAX_POST_PAYLOAD_LENGTH": 566656,
         "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
         "ORIGIN_URI_MAX_LENGTH": 4096,
         "PATH_URI_MAX_LENGTH": 4096,
@@ -275,82 +153,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "UUID_HISTORY_MAX_LENGTH": 50,
       },
       "Enums": {
-        "GETChildrenErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN": "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN",
-            },
-          },
-        },
-        "GETErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-              "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATIONS": "DB_FAILED_TO_RETRIEVE_OCCUPATIONS",
-            },
-          },
-        },
-        "GETParentErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT": "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT",
-            },
-          },
-        },
-        "GETSkillsErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS": "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS",
-            },
-          },
-        },
         "OccupationToSkillRelationType": {
           "ESSENTIAL": "essential",
           "NONE": "",
@@ -359,25 +161,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "OccupationType": {
           "ESCOOccupation": "escooccupation",
           "LocalOccupation": "localoccupation",
-        },
-        "POSTErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-              "OCCUPATION_COULD_NOT_VALIDATE": "OCCUPATION_COULD_NOT_VALIDATE",
-              "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_CREATE_OCCUPATION": "DB_FAILED_TO_CREATE_OCCUPATION",
-            },
-          },
         },
         "Relations": {
           "Children": {
@@ -664,8 +447,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                             "objectType": {
                               "description": "The type of the occupation child (EscoOccupation or LocalOccupation).",
                               "enum": [
-                                "iscogroup",
-                                "localgroup",
                                 "escooccupation",
                                 "localoccupation",
                               ],
@@ -1084,9 +865,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "DEFINITION_MAX_LENGTH": 4000,
         "DESCRIPTION_MAX_LENGTH": 6000,
         "MAX_CURSOR_LENGTH": 1024,
-        "MAX_JSON_OVERHEAD": 10000,
         "MAX_LIMIT": 100,
-        "MAX_POST_PAYLOAD_LENGTH": 566656,
         "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
         "ORIGIN_URI_MAX_LENGTH": 4096,
         "PATH_URI_MAX_LENGTH": 4096,
@@ -1101,82 +880,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "UUID_HISTORY_MAX_LENGTH": 50,
       },
       "Enums": {
-        "GETChildrenErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN": "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN",
-            },
-          },
-        },
-        "GETErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-              "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATIONS": "DB_FAILED_TO_RETRIEVE_OCCUPATIONS",
-            },
-          },
-        },
-        "GETParentErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT": "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT",
-            },
-          },
-        },
-        "GETSkillsErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS": "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS",
-            },
-          },
-        },
         "OccupationToSkillRelationType": {
           "ESSENTIAL": "essential",
           "NONE": "",
@@ -1185,25 +888,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "OccupationType": {
           "ESCOOccupation": "escooccupation",
           "LocalOccupation": "localoccupation",
-        },
-        "POSTErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-              "OCCUPATION_COULD_NOT_VALIDATE": "OCCUPATION_COULD_NOT_VALIDATE",
-              "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_CREATE_OCCUPATION": "DB_FAILED_TO_CREATE_OCCUPATION",
-            },
-          },
         },
         "Relations": {
           "Children": {
@@ -1460,8 +1144,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                           "objectType": {
                             "description": "The type of the occupation child (EscoOccupation or LocalOccupation).",
                             "enum": [
-                              "iscogroup",
-                              "localgroup",
                               "escooccupation",
                               "localoccupation",
                             ],
@@ -2190,9 +1872,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "DEFINITION_MAX_LENGTH": 4000,
         "DESCRIPTION_MAX_LENGTH": 6000,
         "MAX_CURSOR_LENGTH": 1024,
-        "MAX_JSON_OVERHEAD": 10000,
         "MAX_LIMIT": 100,
-        "MAX_POST_PAYLOAD_LENGTH": 566656,
         "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
         "ORIGIN_URI_MAX_LENGTH": 4096,
         "PATH_URI_MAX_LENGTH": 4096,
@@ -2207,82 +1887,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "UUID_HISTORY_MAX_LENGTH": 50,
       },
       "Enums": {
-        "GETChildrenErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN": "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN",
-            },
-          },
-        },
-        "GETErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-              "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATIONS": "DB_FAILED_TO_RETRIEVE_OCCUPATIONS",
-            },
-          },
-        },
-        "GETParentErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT": "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT",
-            },
-          },
-        },
-        "GETSkillsErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-              "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS": "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS",
-            },
-          },
-        },
         "OccupationToSkillRelationType": {
           "ESSENTIAL": "essential",
           "NONE": "",
@@ -2291,25 +1895,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "OccupationType": {
           "ESCOOccupation": "escooccupation",
           "LocalOccupation": "localoccupation",
-        },
-        "POSTErrors": {
-          "Status400": {
-            "ErrorCodes": {
-              "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-              "OCCUPATION_COULD_NOT_VALIDATE": "OCCUPATION_COULD_NOT_VALIDATE",
-              "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
-            },
-          },
-          "Status404": {
-            "ErrorCodes": {
-              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-            },
-          },
-          "Status500": {
-            "ErrorCodes": {
-              "DB_FAILED_TO_CREATE_OCCUPATION": "DB_FAILED_TO_CREATE_OCCUPATION",
-            },
-          },
         },
         "Relations": {
           "Children": {
@@ -2988,82 +2573,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     },
   },
   "Enums": {
-    "GETChildrenErrors": {
-      "Status400": {
-        "ErrorCodes": {
-          "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-          "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-          "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-        },
-      },
-      "Status404": {
-        "ErrorCodes": {
-          "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-        },
-      },
-      "Status500": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN": "DB_FAILED_TO_RETRIEVE_OCCUPATION_CHILDREN",
-        },
-      },
-    },
-    "GETErrors": {
-      "Status400": {
-        "ErrorCodes": {
-          "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-          "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-          "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-          "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-        },
-      },
-      "Status404": {
-        "ErrorCodes": {
-          "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-          "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-        },
-      },
-      "Status500": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_RETRIEVE_OCCUPATIONS": "DB_FAILED_TO_RETRIEVE_OCCUPATIONS",
-        },
-      },
-    },
-    "GETParentErrors": {
-      "Status400": {
-        "ErrorCodes": {
-          "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-        },
-      },
-      "Status404": {
-        "ErrorCodes": {
-          "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-        },
-      },
-      "Status500": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT": "DB_FAILED_TO_RETRIEVE_OCCUPATION_PARENT",
-        },
-      },
-    },
-    "GETSkillsErrors": {
-      "Status400": {
-        "ErrorCodes": {
-          "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-          "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-          "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
-        },
-      },
-      "Status404": {
-        "ErrorCodes": {
-          "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
-        },
-      },
-      "Status500": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS": "DB_FAILED_TO_RETRIEVE_OCCUPATION_SKILLS",
-        },
-      },
-    },
     "OccupationToSkillRelationType": {
       "ESSENTIAL": "essential",
       "NONE": "",
@@ -3072,25 +2581,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     "OccupationType": {
       "ESCOOccupation": "escooccupation",
       "LocalOccupation": "localoccupation",
-    },
-    "POSTErrors": {
-      "Status400": {
-        "ErrorCodes": {
-          "INVALID_MODEL_ID": "INVALID_MODEL_ID",
-          "OCCUPATION_COULD_NOT_VALIDATE": "OCCUPATION_COULD_NOT_VALIDATE",
-          "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
-        },
-      },
-      "Status404": {
-        "ErrorCodes": {
-          "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
-        },
-      },
-      "Status500": {
-        "ErrorCodes": {
-          "DB_FAILED_TO_CREATE_OCCUPATION": "DB_FAILED_TO_CREATE_OCCUPATION",
-        },
-      },
     },
     "Relations": {
       "Children": {
@@ -3117,6 +2607,40 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     },
   },
   "GETOccupations": {
+    "Enums": {
+      "OccupationToSkillRelationType": {
+        "ESSENTIAL": "essential",
+        "NONE": "",
+        "OPTIONAL": "optional",
+      },
+      "OccupationType": {
+        "ESCOOccupation": "escooccupation",
+        "LocalOccupation": "localoccupation",
+      },
+      "Relations": {
+        "Children": {
+          "ObjectTypes": {
+            "ESCOOccupation": "escooccupation",
+            "ISCOGroup": "iscogroup",
+            "LocalGroup": "localgroup",
+            "LocalOccupation": "localoccupation",
+          },
+        },
+        "Parent": {
+          "ObjectTypes": {
+            "ESCOOccupation": "escooccupation",
+            "ISCOGroup": "iscogroup",
+            "LocalGroup": "localgroup",
+            "LocalOccupation": "localoccupation",
+          },
+        },
+        "RequiredSkills": {
+          "ObjectTypes": {
+            "Skill": "skill",
+          },
+        },
+      },
+    },
     "Errors": {
       "Status400": {
         "ErrorCodes": {
@@ -3396,8 +2920,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                         "objectType": {
                           "description": "The type of the occupation child (EscoOccupation or LocalOccupation).",
                           "enum": [
-                            "iscogroup",
-                            "localgroup",
                             "escooccupation",
                             "localoccupation",
                           ],
@@ -3788,6 +3310,44 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     },
   },
   "POSTOccupation": {
+    "Constants": {
+      "MAX_JSON_OVERHEAD": 10000,
+      "MAX_POST_PAYLOAD_LENGTH": 566656,
+    },
+    "Enums": {
+      "OccupationToSkillRelationType": {
+        "ESSENTIAL": "essential",
+        "NONE": "",
+        "OPTIONAL": "optional",
+      },
+      "OccupationType": {
+        "ESCOOccupation": "escooccupation",
+        "LocalOccupation": "localoccupation",
+      },
+      "Relations": {
+        "Children": {
+          "ObjectTypes": {
+            "ESCOOccupation": "escooccupation",
+            "ISCOGroup": "iscogroup",
+            "LocalGroup": "localgroup",
+            "LocalOccupation": "localoccupation",
+          },
+        },
+        "Parent": {
+          "ObjectTypes": {
+            "ESCOOccupation": "escooccupation",
+            "ISCOGroup": "iscogroup",
+            "LocalGroup": "localgroup",
+            "LocalOccupation": "localoccupation",
+          },
+        },
+        "RequiredSkills": {
+          "ObjectTypes": {
+            "Skill": "skill",
+          },
+        },
+      },
+    },
     "Errors": {
       "Status400": {
         "ErrorCodes": {
@@ -4160,8 +3720,6 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                   "objectType": {
                     "description": "The type of the occupation child (EscoOccupation or LocalOccupation).",
                     "enum": [
-                      "iscogroup",
-                      "localgroup",
                       "escooccupation",
                       "localoccupation",
                     ],

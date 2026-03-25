@@ -1,5 +1,7 @@
 import OccupationEnums from "../_shared/enums";
 import OccupationTypes from "../_shared/types";
+import POSTOccupationErrors from "./enums";
+import POSTOccupationConstants from "./constants";
 import SchemaPOSTRequest from "./schema.request";
 import SchemaPOSTResponse from "./schema.response";
 
@@ -21,7 +23,9 @@ namespace POSTOccupationOperation {
       export type Payload = OccupationTypes.POSTOccupation.Response.Payload;
     }
   }
-  export import Errors = OccupationEnums.POSTErrors;
+  export import Errors = POSTOccupationErrors;
+  export import Constants = POSTOccupationConstants;
+  export import Enums = OccupationEnums;
 }
 
 export default POSTOccupationOperation;

@@ -180,9 +180,9 @@ export class OccupationController {
       return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR("Body is empty");
     }
 
-    if (event.body.length > OccupationAPISpecs.Constants.MAX_POST_PAYLOAD_LENGTH) {
+    if (event.body.length > OccupationAPISpecs.POSTOccupation.Constants.MAX_POST_PAYLOAD_LENGTH) {
       return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(
-        `Expected maximum length is ${OccupationAPISpecs.Constants.MAX_POST_PAYLOAD_LENGTH}`
+        `Expected maximum length is ${OccupationAPISpecs.POSTOccupation.Constants.MAX_POST_PAYLOAD_LENGTH}`
       );
     }
 

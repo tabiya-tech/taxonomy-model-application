@@ -1,5 +1,5 @@
-import OccupationEnums from "../../../_shared/enums";
 import OccupationTypes from "../../../_shared/types";
+import GETOccupationChildrenErrors from "./enums";
 import SchemaGETChildrenResponse from "./schema.response";
 import SchemaGETChildrenRequestQueryParam from "./schema.request.query.param";
 
@@ -26,7 +26,7 @@ namespace Detail.children.GETOperation {
       }
     }
   }
-  export import Errors = OccupationEnums.GETChildrenErrors;
+  export import Errors = GETOccupationChildrenErrors;
 }
 
 export default Detail.children.GETOperation;

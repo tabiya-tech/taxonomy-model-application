@@ -1,13 +1,4 @@
-import { ObjectTypes as CommonObjectTypes } from "../../common/objectTypes";
-
-export enum ObjectTypes {
-  ISCOGroup = CommonObjectTypes.ISCOGroup,
-  LocalGroup = CommonObjectTypes.LocalGroup,
-  ESCOOccupation = CommonObjectTypes.ESCOOccupation,
-  LocalOccupation = CommonObjectTypes.LocalOccupation,
-}
-
-export namespace Errors {
+namespace GETOccupationParentErrors {
   export namespace Status400 {
     export enum ErrorCodes {
       INVALID_OCCUPATION_ID = "INVALID_OCCUPATION_ID",
@@ -24,3 +15,5 @@ export namespace Errors {
     }
   }
 }
+
+export default GETOccupationParentErrors;

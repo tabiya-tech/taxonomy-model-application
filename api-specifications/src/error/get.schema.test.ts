@@ -25,15 +25,9 @@ describe("Test the GetErrorSchema function", () => {
       ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status400.ErrorCodes),
       ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status404.ErrorCodes),
       ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status500.ErrorCodes),
-          ...Object.values(
-        OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status400.ErrorCodes
-      ),
-      ...Object.values(
-        OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status404.ErrorCodes
-      ),
-      ...Object.values(
-        OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status500.ErrorCodes
-      ),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status400.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status404.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status500.ErrorCodes),
       ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status400.ErrorCodes),
       ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status404.ErrorCodes),
       ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status500.ErrorCodes),

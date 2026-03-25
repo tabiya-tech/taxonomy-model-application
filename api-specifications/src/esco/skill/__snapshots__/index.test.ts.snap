@@ -1279,8 +1279,6 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                           "objectType": {
                             "description": "The type of the occupation child (EscoOccupation or LocalOccupation).",
                             "enum": [
-                              "iscogroup",
-                              "localgroup",
                               "escooccupation",
                               "localoccupation",
                             ],

@@ -61,7 +61,7 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
     UUID: randomUUID(),
     code: getTestLocalOccupationCode(),
     preferredLabel: getTestString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+    objectType: OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
   };
 
   const givenSkill = {

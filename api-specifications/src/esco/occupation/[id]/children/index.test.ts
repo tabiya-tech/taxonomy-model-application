@@ -11,7 +11,6 @@ describe("Test the Occupation Children Instance Detail module", () => {
     // AND check if constants are defined
     const Constants = module.default.Constants;
     expect(Constants.DESCRIPTION_MAX_LENGTH).toBeDefined();
-    expect(Constants.MAX_POST_PAYLOAD_LENGTH).toBeDefined();
 
     // AND check if Enums are defined
     const Enums = module.default.Enums;

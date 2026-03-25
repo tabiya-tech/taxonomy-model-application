@@ -359,7 +359,7 @@ describe("Test for occupation handler", () => {
 
     test("POST should respond with REQUEST_TOO_LONG when payload is too large", async () => {
       const givenModelId = getMockStringId(1);
-      const largePayload = "x".repeat(OccupationAPISpecs.Constants.MAX_POST_PAYLOAD_LENGTH + 1);
+      const largePayload = "x".repeat(OccupationAPISpecs.POSTOccupation.Constants.MAX_POST_PAYLOAD_LENGTH + 1);
       const givenEvent = {
         httpMethod: HTTP_VERBS.POST,
         body: largePayload,
@@ -655,7 +655,11 @@ describe("Test for occupation handler", () => {
     testUnsupportedMediaType(occupationHandler);
     testRequestJSONSchema(occupationHandler);
     testRequestJSONMalformed(occupationHandler);
-    testTooLargePayload(HTTP_VERBS.POST, OccupationAPISpecs.Constants.MAX_POST_PAYLOAD_LENGTH, occupationHandler);
+    testTooLargePayload(
+      HTTP_VERBS.POST,
+      OccupationAPISpecs.POSTOccupation.Constants.MAX_POST_PAYLOAD_LENGTH,
+      occupationHandler
+    );
 
     test("POST should return FORBIDDEN status code if the user does not have the required role", async () => {
       // GIVEN a valid request (method & header & payload)

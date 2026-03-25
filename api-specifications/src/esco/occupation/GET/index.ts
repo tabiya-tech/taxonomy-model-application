@@ -1,5 +1,6 @@
 import OccupationEnums from "../_shared/enums";
 import OccupationTypes from "../_shared/types";
+import GETOccupationsErrors from "./enums";
 import SchemaGETResponse from "./schema.response";
 import SchemaGETRequestParam from "./schema.request.param";
 import SchemaGETRequestQueryParam from "./schema.request.query.param";
@@ -33,7 +34,8 @@ namespace GETOccupationsOperation {
       }
     }
   }
-  export import Errors = OccupationEnums.GETErrors;
+  export import Errors = GETOccupationsErrors;
+  export import Enums = OccupationEnums;
 }
 
 export default GETOccupationsOperation;
