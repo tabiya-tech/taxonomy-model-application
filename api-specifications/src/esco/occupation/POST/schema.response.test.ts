@@ -69,7 +69,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
     UUID: randomUUID(),
     preferredLabel: getTestString(OccupationConstants.PREFERRED_LABEL_MAX_LENGTH),
     isLocalized: true,
-    objectType: "skill",
+    objectType: OccupationEnums.Relations.RequiredSkills.ObjectTypes.Skill,
     relationType: OccupationEnums.OccupationToSkillRelationType.ESSENTIAL,
     signallingValue: null,
     signallingValueLabel: null,
@@ -692,7 +692,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Failure,
             "empty string",
             "",
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -703,7 +703,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Failure,
             "an invalid code",
             "invalidCode",
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -714,7 +714,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Failure,
             "a valid code of different type",
             getTestLocalOccupationCode(),
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -725,14 +725,14 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Success,
             "a valid code",
             getTestESCOOccupationCode(),
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             undefined,
           ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -743,7 +743,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Failure,
             "an invalid code",
             "invalidCode",
-            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -754,7 +754,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Failure,
             "a valid code of different type",
             getTestESCOOccupationCode(),
-            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/parent/code",
               "pattern",
@@ -765,14 +765,14 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Success,
             "a valid local occupation code",
             getTestLocalOccupationCode(),
-            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
             undefined,
           ],
           [
             CaseType.Success,
             "a valid ESCO local occupation code",
             getTestESCOLocalOccupationCode(),
-            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
             undefined,
           ],
         ] as const)(
@@ -923,21 +923,21 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Success,
             "undefined",
             undefined,
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             undefined,
           ],
           [
             CaseType.Failure,
             "null",
             null,
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             constructSchemaError("/children/0/code", "type", "must be string"),
           ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -948,7 +948,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Failure,
             "an invalid code",
             "invalidCode",
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -959,7 +959,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Failure,
             "a valid code of different type",
             getTestLocalOccupationCode(),
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -970,14 +970,14 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Success,
             "a valid code",
             getTestESCOOccupationCode(),
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             undefined,
           ],
           [
             CaseType.Failure,
             "empty string",
             "",
-            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -988,7 +988,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Failure,
             "an invalid code",
             "invalidCode",
-            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -999,7 +999,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Failure,
             "a valid code of different type",
             getTestESCOOccupationCode(),
-            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
             constructSchemaError(
               "/children/0/code",
               "pattern",
@@ -1010,14 +1010,14 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             CaseType.Success,
             "a valid local occupation code",
             getTestLocalOccupationCode(),
-            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
             undefined,
           ],
           [
             CaseType.Success,
             "a valid ESCO local occupation code",
             getTestESCOLocalOccupationCode(),
-            OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
             undefined,
           ],
         ] as const)(
@@ -1084,7 +1084,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
           [
             CaseType.Success,
             "a valid objectType",
-            OccupationEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+            OccupationEnums.Relations.Parent.ObjectTypes.ESCOOccupation,
             undefined,
           ],
         ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {

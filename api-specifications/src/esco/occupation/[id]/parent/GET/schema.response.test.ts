@@ -60,7 +60,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     code: getTestLocalOccupationCode(),
     occupationGroupCode: getTestLocalGroupCode(),
     preferredLabel: getTestString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationEnums.Relations.Children.ObjectTypes.LocalOccupation,
+    objectType: OccupationEnums.Relations.Parent.ObjectTypes.LocalOccupation,
   };
 
   // GIVEN a minimal occupation group parent (for embedded field in group response)
@@ -78,7 +78,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     UUID: randomUUID(),
     code: getTestISCOGroupCode(),
     preferredLabel: getTestString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    objectType: OccupationGroupEnums.Relations.Children.ObjectTypes.ISCOGroup,
+    objectType: OccupationEnums.Relations.Parent.ObjectTypes.ISCOGroup,
   };
 
   // GIVEN a full parent object (which mimics a full occupation response)

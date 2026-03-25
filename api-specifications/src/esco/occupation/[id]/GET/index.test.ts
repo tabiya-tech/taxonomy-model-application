@@ -9,8 +9,4 @@ describe("Test the GETOccupationByIdOperation index", () => {
     expect(GETOccupationByIdOperation.Schemas).toBeDefined();
     expect(GETOccupationByIdOperation.Schemas.Request.Param.Payload).toBeDefined();
   });
-
-  test("it should have the Errors namespace defined", () => {
-    expect(GETOccupationByIdOperation.Errors).toBeDefined();
-  });
 });

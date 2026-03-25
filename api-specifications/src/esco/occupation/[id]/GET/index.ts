@@ -1,4 +1,3 @@
-import OccupationEnums from "../../_shared/enums";
 import OccupationTypes from "../../_shared/types";
 import SchemaGETDetailRequestParam from "./schema.request.param";
 
@@ -18,7 +17,6 @@ namespace Detail.GETOperation {
       }
     }
   }
-  export import Errors = OccupationEnums.GETErrors;
 }
 
 export default Detail.GETOperation;

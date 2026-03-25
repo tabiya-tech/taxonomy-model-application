@@ -1,5 +1,5 @@
-import OccupationEnums from "../../../_shared/enums";
 import OccupationTypes from "../../../_shared/types";
+import GETOccupationSkillsErrors from "./enums";
 import SchemaGETSkillsResponse from "./schema.response";
 import SchemaGETSkillsRequestQueryParam from "./schema.request.query.param";
 
@@ -26,7 +26,7 @@ namespace Detail.skills.GETOperation {
       }
     }
   }
-  export import Errors = OccupationEnums.GETSkillsErrors;
+  export import Errors = GETOccupationSkillsErrors;
 }
 
 export default Detail.skills.GETOperation;
