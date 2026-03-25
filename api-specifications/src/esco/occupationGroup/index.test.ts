@@ -30,8 +30,6 @@ describe("Test the occupationGroup module", () => {
     expect(Constants.MAX_UUID_HISTORY_ITEM_LENGTH).toBeDefined();
     expect(Constants.MAX_PATH_URI_LENGTH).toBeDefined();
     expect(Constants.MAX_TABIYA_PATH_LENGTH).toBeDefined();
-    expect(Constants.MAX_JSON_OVERHEAD).toBeDefined();
-    expect(Constants.MAX_POST_PAYLOAD_LENGTH).toBeDefined();
   });
 
   test("The export module matches the snapshot", () => {

@@ -100,7 +100,7 @@ describe("Test for occupationGroup handler with a DB", () => {
     // GIVEN a valid request (method & header & payload)
     const givenModelInfo = await createModelInDB();
 
-    const givenPayload: OccupationGroupAPISpecs.Types.POST.Request.Payload = {
+    const givenPayload: OccupationGroupAPISpecs.POSTAPISpecs.Types.Request.Payload = {
       modelId: givenModelInfo.id.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
@@ -131,7 +131,7 @@ describe("Test for occupationGroup handler with a DB", () => {
   test("POST should respond with the CREATED status code and response passes the JSON schema validation", async () => {
     // GIVEN a valid request (method & header & payload)
     const givenModelInfo = await createModelInDB();
-    const givenPayload: OccupationGroupAPISpecs.Types.POST.Request.Payload = {
+    const givenPayload: OccupationGroupAPISpecs.POSTAPISpecs.Types.Request.Payload = {
       modelId: givenModelInfo.id.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,

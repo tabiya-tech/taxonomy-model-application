@@ -22,7 +22,24 @@ describe("Test the GetErrorSchema function", () => {
   // THEN expect the function to return a valid schema object
   test("APIError.GetErrorSchema returns a valid schema object", () => {
     const schema = APIError.Schemas.getPayload("POST", "TestSchema", 500, [
-      ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status400.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status404.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status500.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status400.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status404.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status500.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status400.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status404.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status500.ErrorCodes),
+      ...Object.values(
+        OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status400.ErrorCodes
+      ),
+      ...Object.values(
+        OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status404.ErrorCodes
+      ),
+      ...Object.values(
+        OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status500.ErrorCodes
+      ),
     ]);
     expect(schema).toBeDefined();
     expect(schema.type).toBe("object");
@@ -36,12 +53,27 @@ describe("Test the GetErrorSchema function", () => {
       ...Object.values(ImportAPI.Enums.ImportResponseErrorCodes),
       ...Object.values(ExportAPI.Enums.POST.Response.ExportResponseErrorCodes),
       ...Object.values(ModelInfoAPI.Enums.POST.Response.ErrorCodes),
-      ...Object.values(OccupationGroupAPI.Enums.POST.Response.Status400.ErrorCodes),
-      ...Object.values(OccupationGroupAPI.Enums.POST.Response.Status404.ErrorCodes),
-      ...Object.values(OccupationGroupAPI.Enums.POST.Response.Status500.ErrorCodes),
-      ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
-      ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
-      ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status400.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status404.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status500.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status400.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status404.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status500.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status400.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status404.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status500.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status400.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status404.ErrorCodes),
+      ...Object.values(OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status500.ErrorCodes),
+      ...Object.values(
+        OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status400.ErrorCodes
+      ),
+      ...Object.values(
+        OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status404.ErrorCodes
+      ),
+      ...Object.values(
+        OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status500.ErrorCodes
+      ),
       ...Object.values(OccupationAPI.Enums.POST.Response.Status400.ErrorCodes),
       ...Object.values(OccupationAPI.Enums.POST.Response.Status404.ErrorCodes),
       ...Object.values(OccupationAPI.Enums.POST.Response.Status500.ErrorCodes),
@@ -93,12 +125,39 @@ describe("Validate JSON against the APIError GetErrorSchema function", () => {
           ...Object.values(ImportAPI.Enums.ImportResponseErrorCodes),
           ...Object.values(ExportAPI.Enums.POST.Response.ExportResponseErrorCodes),
           ...Object.values(ModelInfoAPI.Enums.POST.Response.ErrorCodes),
-          ...Object.values(OccupationGroupAPI.Enums.POST.Response.Status400.ErrorCodes),
-          ...Object.values(OccupationGroupAPI.Enums.POST.Response.Status404.ErrorCodes),
-          ...Object.values(OccupationGroupAPI.Enums.POST.Response.Status500.ErrorCodes),
-          ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
-          ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
-          ...Object.values(OccupationGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
+          ...Object.values(OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status400.ErrorCodes),
+          ...Object.values(OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status404.ErrorCodes),
+          ...Object.values(OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status500.ErrorCodes),
+          ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status400.ErrorCodes),
+          ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status404.ErrorCodes),
+          ...Object.values(OccupationGroupAPI.GETAPISpecs.Enums.Response.Status500.ErrorCodes),
+          ...Object.values(
+            OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status400.ErrorCodes
+          ),
+          ...Object.values(
+            OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status404.ErrorCodes
+          ),
+          ...Object.values(
+            OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status500.ErrorCodes
+          ),
+          ...Object.values(
+            OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status400.ErrorCodes
+          ),
+          ...Object.values(
+            OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status404.ErrorCodes
+          ),
+          ...Object.values(
+            OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status500.ErrorCodes
+          ),
+          ...Object.values(
+            OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status400.ErrorCodes
+          ),
+          ...Object.values(
+            OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status404.ErrorCodes
+          ),
+          ...Object.values(
+            OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status500.ErrorCodes
+          ),
           ...Object.values(OccupationAPI.Enums.POST.Response.Status400.ErrorCodes),
           ...Object.values(OccupationAPI.Enums.POST.Response.Status404.ErrorCodes),
           ...Object.values(OccupationAPI.Enums.POST.Response.Status500.ErrorCodes),
