@@ -9,64 +9,18 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
     "DEFAULT_LIMIT": 10,
     "DESCRIPTION_MAX_LENGTH": 6000,
     "MAX_CURSOR_LENGTH": 1720,
-    "MAX_JSON_OVERHEAD": 10000,
     "MAX_LIMIT": 100,
     "MAX_PATH_URI_LENGTH": 4096,
-    "MAX_POST_PAYLOAD_LENGTH": 414400,
     "MAX_TABIYA_PATH_LENGTH": 4096,
     "MAX_UUID_HISTORY_ITEM_LENGTH": 36,
     "ORIGIN_URI_MAX_LENGTH": 4096,
     "PREFERRED_LABEL_MAX_LENGTH": 256,
-    "TOTAL_ALT_LABELS_MAX_LENGTH": 25600,
-    "TOTAL_UUID_HISTORY_MAX_LENGTH": 360000,
     "UUID_HISTORY_MAX_ITEMS": 10000,
   },
   "Enums": {
-    "GET": {
-      "Response": {
-        "Status400": {
-          "ErrorCodes": {
-            "INVALID_LIMIT_PARAMETER": "INVALID_LIMIT_PARAMETER",
-            "INVALID_NEXT_CURSOR_PARAMETER": "INVALID_NEXT_CURSOR_PARAMETER",
-          },
-        },
-        "Status404": {
-          "ErrorCodes": {
-            "MODEL_NOT_FOUND": "GET_MODEL_NOT_FOUND",
-            "OCCUPATION_GROUP_NOT_FOUND": "OCCUPATION_GROUP_NOT_FOUND",
-            "OCCUPATION_GROUP_PARENT_NOT_FOUND": "OCCUPATION_GROUP_PARENT_NOT_FOUND",
-          },
-        },
-        "Status500": {
-          "ErrorCodes": {
-            "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS": "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS",
-          },
-        },
-      },
-    },
     "ObjectTypes": {
       "ISCOGroup": "iscogroup",
       "LocalGroup": "localgroup",
-    },
-    "POST": {
-      "Response": {
-        "Status400": {
-          "ErrorCodes": {
-            "OCCUPATION_GROUP_COULD_NOT_VALIDATE": "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
-            "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
-          },
-        },
-        "Status404": {
-          "ErrorCodes": {
-            "MODEL_NOT_FOUND": "POST_MODEL_NOT_FOUND",
-          },
-        },
-        "Status500": {
-          "ErrorCodes": {
-            "DB_FAILED_TO_CREATE_OCCUPATION_GROUP": "DB_FAILED_TO_CREATE_OCCUPATION_GROUP",
-          },
-        },
-      },
     },
     "Relations": {
       "Children": {

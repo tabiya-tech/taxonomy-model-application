@@ -53,7 +53,7 @@ export interface IOccupationGroupChildResponse {
   updatedAt: string;
 }
 
-interface PaginatedOccupationGroupResponse {
+export interface PaginatedOccupationGroupResponse {
   data: IOccupationGroupResponse[];
   limit: number;
   nextCursor: string | null;
@@ -95,46 +95,6 @@ namespace OccupationGroupTypes {
   const _ = 0;
   export namespace Response {
     export type IOccupationGroup = IOccupationGroupResponse;
-  }
-
-  export namespace POST {
-    export namespace Response {
-      export type Payload = IOccupationGroupResponse;
-    }
-
-    export namespace Request {
-      export type Payload = IOccupationGroupRequest;
-    }
-  }
-
-  export namespace GET {
-    export namespace Response {
-      export type OccupationGroupItem = IOccupationGroupResponse;
-      export type Payload = PaginatedOccupationGroupResponse;
-      export namespace Parent {
-        export type Payload = IOccupationGroupResponse;
-      }
-
-      export namespace Child {
-        export type Payload = IOccupationGroupChildResponse;
-      }
-      export namespace Children {
-        export type Payload = PaginatedOccupationGroupChildrenResponse;
-      }
-    }
-    export namespace Request {
-      export namespace Param {
-        export type Payload = IOccupationGroupParam;
-      }
-      export namespace Query {
-        export type Payload = IOccupationGroupQueryParams;
-      }
-      export namespace Detail {
-        export namespace Param {
-          export type Payload = IOccupationGroupDetailParam;
-        }
-      }
-    }
   }
 }
 

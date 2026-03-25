@@ -1,10 +1,4 @@
-import { IOccupationGroupResponse, IOccupationGroupParam, IOccupationGroupQueryParams } from "../_shared/types";
-
-interface PaginatedOccupationGroupResponse {
-  data: IOccupationGroupResponse[];
-  limit: number;
-  nextCursor: string | null;
-}
+import { IOccupationGroupParam, IOccupationGroupQueryParams, PaginatedOccupationGroupResponse } from "../_shared/types";
 
 namespace OccupationGroupGETTypes {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

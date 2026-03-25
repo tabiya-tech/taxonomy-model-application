@@ -71,7 +71,7 @@ export function transform(
 export function transformParent(
   data: IOccupationGroup,
   baseURL: string
-): OccupationGroupAPISpecs.Types.GET.Response.Parent.Payload {
+): OccupationGroupAPISpecs.GETDetailAPISpecs.GETParentAPISpecs.Types.Response.Payload {
   return {
     id: data.id,
     UUID: data.UUID,
@@ -136,7 +136,7 @@ export function transformParent(
 export function transformChild(
   data: IOccupationGroupChild,
   baseURL: string
-): OccupationGroupAPISpecs.Types.GET.Response.Child.Payload {
+): OccupationGroupAPISpecs.GETDetailAPISpecs.GETChildrenAPISpecs.Types.Response.Child.Payload {
   return {
     id: data.id,
     parentId: data.parentId,
@@ -169,7 +169,7 @@ export function transformPaginatedChildren(
   baseURL: string,
   limit: number | null,
   cursor: string | null
-): OccupationGroupAPISpecs.Types.GET.Response.Children.Payload {
+): OccupationGroupAPISpecs.GETDetailAPISpecs.GETChildrenAPISpecs.Types.Response.Payload {
   return {
     data: data.map((item) => transformChild(item, baseURL)),
     limit,
@@ -181,7 +181,7 @@ export function transformPaginated(
   baseURL: string,
   limit: number,
   cursor: string | null
-): OccupationGroupAPISpecs.Types.GET.Response.Payload {
+): OccupationGroupAPISpecs.GETAPISpecs.Types.Response.Payload {
   return {
     data: data.map((item) => transform(item, baseURL)),
     limit,
