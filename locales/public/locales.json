@@ -23,5 +23,10 @@
     "name": "Europe (Spanish)",
     "shortCode": "EU-es",
     "UUID": "86117f78-0211-458f-8b7e-4a2aef319e49"
+  },
+  {
+    "name": "Kenya (English)",
+    "shortCode": "KE-en",
+    "UUID": "d39a2669-1b09-41dd-8d13-250628cfa9ec"
   }
 ]
