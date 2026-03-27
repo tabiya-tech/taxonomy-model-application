@@ -38,4 +38,4 @@ jobs:
           export TARGET_FOLDER=$(for dir in /tmp/mongodump/*/; do basename "$dir"; done)
           echo "Restoring database from /tmp/mongodump/${TARGET_FOLDER}"
           ls /tmp/mongodump
-          mongorestore --uri="${TARGET_DB_URL}" /tmp/mongodump/${TARGET_FOLDER} --drop --numInsertionWorkersPerCollection=20 --noIndexRestore --compressors=snappy --numParallelCollections=10
+          mongorestore --uri="${TARGET_DB_URL}" /tmp/mongodump/${TARGET_FOLDER} --drop --numInsertionWorkersPerCollection=1 --noIndexRestore --compressors=snappy --numParallelCollections=10
