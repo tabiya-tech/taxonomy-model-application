@@ -63,13 +63,13 @@ describe("Test for occupationGroup handler with a DB", () => {
   });
   addFormats(ajv);
   ajv
-    .addSchema(OccupationGroupAPISpecs.GETAPISpecs.Schemas.Response.Payload)
-    .addSchema(OccupationGroupAPISpecs.POSTAPISpecs.Schemas.Response.Payload);
+    .addSchema(OccupationGroupAPISpecs.GET.Schemas.Response.Payload)
+    .addSchema(OccupationGroupAPISpecs.POST.Schemas.Response.Payload);
   const validateGETResponse: ValidateFunction = ajv.getSchema(
-    OccupationGroupAPISpecs.GETAPISpecs.Schemas.Response.Payload.$id as string
+    OccupationGroupAPISpecs.GET.Schemas.Response.Payload.$id as string
   ) as ValidateFunction;
   const validatePOSTResponse: ValidateFunction = ajv.getSchema(
-    OccupationGroupAPISpecs.POSTAPISpecs.Schemas.Response.Payload.$id as string
+    OccupationGroupAPISpecs.POST.Schemas.Response.Payload.$id as string
   ) as ValidateFunction;
 
   let dbConnection: Connection | undefined;
@@ -100,7 +100,7 @@ describe("Test for occupationGroup handler with a DB", () => {
     // GIVEN a valid request (method & header & payload)
     const givenModelInfo = await createModelInDB();
 
-    const givenPayload: OccupationGroupAPISpecs.POSTAPISpecs.Types.Request.Payload = {
+    const givenPayload: OccupationGroupAPISpecs.POST.Types.Request.Payload = {
       modelId: givenModelInfo.id.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
@@ -131,7 +131,7 @@ describe("Test for occupationGroup handler with a DB", () => {
   test("POST should respond with the CREATED status code and response passes the JSON schema validation", async () => {
     // GIVEN a valid request (method & header & payload)
     const givenModelInfo = await createModelInDB();
-    const givenPayload: OccupationGroupAPISpecs.POSTAPISpecs.Types.Request.Payload = {
+    const givenPayload: OccupationGroupAPISpecs.POST.Types.Request.Payload = {
       modelId: givenModelInfo.id.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,

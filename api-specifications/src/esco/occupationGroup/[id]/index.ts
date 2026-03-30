@@ -18,8 +18,9 @@ namespace OccupationGroupDetailAPISpecs {
   export import Schemas = OccupationGroupDetailParamSchemas;
   export import Types = OccupationGroupDetailURLParameter;
 
-  export import GETDetailAPISpecs = OccupationGroupGETDetailAPISpecs;
-  export import GETParentAPISpecs = OccupationGroupGETParentAPISpecs;
-  export import GETChildrenAPISpecs = OccupationGroupGETChildrenAPISpecs;
+  export import GET = OccupationGroupGETDetailAPISpecs;
+
+  export import Parent = OccupationGroupGETParentAPISpecs;
+  export import Children = OccupationGroupGETChildrenAPISpecs;
 }
 export default OccupationGroupDetailAPISpecs;

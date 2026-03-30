@@ -13,9 +13,10 @@ namespace OccupationGroupAPISpecs {
   export import Constants = OccupationGroupConstants;
   export import Patterns = OccupationGroupRegexes;
 
-  export import POSTAPISpecs = OccupationGroupPOSTAPISpecs;
-  export import GETAPISpecs = OccupationGroupGETAPISpecs;
-  export import GETDetailAPISpecs = OccupationGroupDetailAPISpecs;
+  export import POST = OccupationGroupPOSTAPISpecs;
+  export import GET = OccupationGroupGETAPISpecs;
+
+  export import OccupationGroup = OccupationGroupDetailAPISpecs;
 }
 
 export default OccupationGroupAPISpecs;

@@ -37,7 +37,7 @@ describe("Test Occupation Children Response Schema Validity", () => {
   // THEN expect the givenSchema to be valid
   testValidSchema(
     "OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload",
-    OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload
+    OccupationAPISpecs.Occupation.Children.GET.Schemas.Response.Payload
   );
 });
 
@@ -99,14 +99,14 @@ describe("Test objects against the OccupationAPISpecs.Detail.children.GET.Schema
   // Test with a valid paginated response
   testSchemaWithValidObject(
     "OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload",
-    OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload,
+    OccupationAPISpecs.Occupation.Children.GET.Schemas.Response.Payload,
     givenValidPaginatedResponse
   );
 
   // Test with additional properties
   testSchemaWithAdditionalProperties(
     "OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload",
-    OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload,
+    OccupationAPISpecs.Occupation.Children.GET.Schemas.Response.Payload,
     {
       ...givenValidPaginatedResponse,
       extraProperty: "extra test property",
@@ -114,7 +114,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.children.GET.Schema
   );
 
   describe("Validate OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload fields", () => {
-    const givenSchema = OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload;
+    const givenSchema = OccupationAPISpecs.Occupation.Children.GET.Schemas.Response.Payload;
 
     describe("Test validation of 'limit'", () => {
       const testCases = getStdLimitTestCases("limit", OccupationConstants.MAX_LIMIT, true);
@@ -137,7 +137,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.children.GET.Schema
     });
 
     describe("Test validation of child item fields", () => {
-      const itemSchema = OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload.properties.data.items;
+      const itemSchema = OccupationAPISpecs.Occupation.Children.GET.Schemas.Response.Payload.properties.data.items;
       const givenValidOccupationGETResponse = givenValidChild; // Alias for reused tests
 
       describe("Test validation of 'id'", () => {
@@ -145,15 +145,15 @@ describe("Test objects against the OccupationAPISpecs.Detail.children.GET.Schema
       });
 
       describe("Test validation of 'UUID'", () => {
-        testUUIDField<OccupationAPISpecs.Detail.children.GET.Types.Response.Payload>("UUID", itemSchema);
+        testUUIDField<OccupationAPISpecs.Occupation.Children.GET.Types.Response.Payload>("UUID", itemSchema);
       });
 
       describe("Test validation of 'originUUID'", () => {
-        testUUIDField<OccupationAPISpecs.Detail.children.GET.Types.Response.Payload>("originUUID", itemSchema);
+        testUUIDField<OccupationAPISpecs.Occupation.Children.GET.Types.Response.Payload>("originUUID", itemSchema);
       });
 
       describe("Test validation of 'UUIDHistory'", () => {
-        testUUIDArray<OccupationAPISpecs.Detail.children.GET.Types.Response.Payload>(
+        testUUIDArray<OccupationAPISpecs.Occupation.Children.GET.Types.Response.Payload>(
           "UUIDHistory",
           itemSchema,
           [],
@@ -163,7 +163,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.children.GET.Schema
       });
 
       describe("Test validation of 'path'", () => {
-        testURIField<OccupationAPISpecs.Detail.children.GET.Types.Response.Payload>(
+        testURIField<OccupationAPISpecs.Occupation.Children.GET.Types.Response.Payload>(
           "path",
           OccupationAPISpecs.Constants.PATH_URI_MAX_LENGTH,
           itemSchema
@@ -171,7 +171,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.children.GET.Schema
       });
 
       describe("Test validation of 'tabiyaPath'", () => {
-        testURIField<OccupationAPISpecs.Detail.children.GET.Types.Response.Payload>(
+        testURIField<OccupationAPISpecs.Occupation.Children.GET.Types.Response.Payload>(
           "tabiyaPath",
           OccupationAPISpecs.Constants.TABIYA_PATH_URI_MAX_LENGTH,
           itemSchema
@@ -354,7 +354,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.children.GET.Schema
       });
 
       describe("Test validation of 'preferredLabel'", () => {
-        testNonEmptyStringField<OccupationAPISpecs.Detail.children.GET.Types.Response.ChildItem>(
+        testNonEmptyStringField<OccupationAPISpecs.Occupation.Children.GET.Types.Response.ChildItem>(
           "preferredLabel",
           OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
           itemSchema
@@ -362,7 +362,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.children.GET.Schema
       });
 
       describe("Test validation of 'description'", () => {
-        testStringField<OccupationAPISpecs.Detail.children.GET.Types.Response.ChildItem>(
+        testStringField<OccupationAPISpecs.Occupation.Children.GET.Types.Response.ChildItem>(
           "description",
           OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
           itemSchema
@@ -370,7 +370,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.children.GET.Schema
       });
 
       describe("Test validation of 'definition'", () => {
-        testStringField<OccupationAPISpecs.Detail.children.GET.Types.Response.ChildItem>(
+        testStringField<OccupationAPISpecs.Occupation.Children.GET.Types.Response.ChildItem>(
           "definition",
           OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH,
           itemSchema

@@ -2,111 +2,7 @@
 
 exports[`Test the Occupation Instance module The export module matches the snapshot 1`] = `
 {
-  "Constants": {
-    "ALT_LABELS_MAX_ITEMS": 100,
-    "ALT_LABEL_MAX_LENGTH": 256,
-    "CODE_MAX_LENGTH": 256,
-    "DEFAULT_LIMIT": 10,
-    "DEFINITION_MAX_LENGTH": 4000,
-    "DESCRIPTION_MAX_LENGTH": 6000,
-    "MAX_CURSOR_LENGTH": 1024,
-    "MAX_LIMIT": 100,
-    "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
-    "ORIGIN_URI_MAX_LENGTH": 4096,
-    "PATH_URI_MAX_LENGTH": 4096,
-    "PREFERRED_LABEL_MAX_LENGTH": 256,
-    "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
-    "SCOPE_NOTE_MAX_LENGTH": 4000,
-    "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
-    "SIGNALLING_VALUE_MAX": 100,
-    "SIGNALLING_VALUE_MIN": 0,
-    "TABIYA_PATH_URI_MAX_LENGTH": 4096,
-    "UUID_HISTORY_MAX_ITEMS": 10000,
-    "UUID_HISTORY_MAX_LENGTH": 50,
-  },
-  "Enums": {
-    "OccupationToSkillRelationType": {
-      "ESSENTIAL": "essential",
-      "NONE": "",
-      "OPTIONAL": "optional",
-    },
-    "OccupationType": {
-      "ESCOOccupation": "escooccupation",
-      "LocalOccupation": "localoccupation",
-    },
-    "Relations": {
-      "Children": {
-        "ObjectTypes": {
-          "ESCOOccupation": "escooccupation",
-          "ISCOGroup": "iscogroup",
-          "LocalGroup": "localgroup",
-          "LocalOccupation": "localoccupation",
-        },
-      },
-      "Parent": {
-        "ObjectTypes": {
-          "ESCOOccupation": "escooccupation",
-          "ISCOGroup": "iscogroup",
-          "LocalGroup": "localgroup",
-          "LocalOccupation": "localoccupation",
-        },
-      },
-      "RequiredSkills": {
-        "ObjectTypes": {
-          "Skill": "skill",
-        },
-      },
-    },
-  },
-  "GET": {
-    "Schemas": {
-      "Request": {
-        "Param": {
-          "Payload": {
-            "$id": "/components/schemas/OccupationRequestByIdParamSchemaGET",
-            "additionalProperties": false,
-            "properties": {
-              "id": {
-                "description": "The id of the occupation. It can be used to retrieve the occupation from the server.",
-                "pattern": "^[0-9a-f]{24}$",
-                "type": "string",
-              },
-              "modelId": {
-                "description": "The identifier of the model for occupation.",
-                "pattern": "^[0-9a-f]{24}$",
-                "type": "string",
-              },
-            },
-            "required": [
-              "modelId",
-              "id",
-            ],
-            "type": "object",
-          },
-        },
-      },
-    },
-  },
-  "Patterns": {
-    "RegExp": {
-      "ESCO_LOCAL_OCCUPATION_CODE": /\\^\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\*\\(\\?:_\\\\d\\+\\)\\+\\$/,
-      "ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE": /\\^\\(\\?:\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\*\\(\\?:_\\\\d\\+\\)\\+\\|\\[a-zA-Z\\\\d\\]\\+\\(\\?:_\\\\d\\+\\)\\+\\)\\$/,
-      "ESCO_OCCUPATION_CODE": /\\^\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\+\\$/,
-      "ISCO_GROUP_CODE": /\\^\\\\d\\{1,4\\}\\$/,
-      "LOCAL_GROUP_CODE": /\\^\\(\\?:\\\\d\\{1,4\\}\\)\\?\\[a-zA-Z\\]\\+\\[a-zA-Z\\\\d\\]\\*\\$/,
-      "LOCAL_OCCUPATION_CODE": /\\(\\^\\[a-zA-Z\\\\d\\]\\+\\)\\(\\?:_\\\\d\\+\\)\\+\\$/,
-    },
-    "Str": {
-      "ESCO_LOCAL_OCCUPATION_CODE": "^\\d{4}(?:\\.\\d+)*(?:_\\d+)+$",
-      "ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
-      "ESCO_OCCUPATION_CODE": "^\\d{4}(?:\\.\\d+)+$",
-      "ISCO_GROUP_CODE": "^\\d{1,4}$",
-      "LOCAL_GROUP_CODE": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
-      "LOCAL_OCCUPATION_CODE": "(^[a-zA-Z\\d]+)(?:_\\d+)+$",
-    },
-  },
-  "Types": {},
-  "children": {
+  "Children": {
     "Constants": {
       "ALT_LABELS_MAX_ITEMS": 100,
       "ALT_LABEL_MAX_LENGTH": 256,
@@ -833,7 +729,92 @@ exports[`Test the Occupation Instance module The export module matches the snaps
     },
     "Types": {},
   },
-  "parent": {
+  "Constants": {
+    "ALT_LABELS_MAX_ITEMS": 100,
+    "ALT_LABEL_MAX_LENGTH": 256,
+    "CODE_MAX_LENGTH": 256,
+    "DEFAULT_LIMIT": 10,
+    "DEFINITION_MAX_LENGTH": 4000,
+    "DESCRIPTION_MAX_LENGTH": 6000,
+    "MAX_CURSOR_LENGTH": 1024,
+    "MAX_LIMIT": 100,
+    "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
+    "ORIGIN_URI_MAX_LENGTH": 4096,
+    "PATH_URI_MAX_LENGTH": 4096,
+    "PREFERRED_LABEL_MAX_LENGTH": 256,
+    "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
+    "SCOPE_NOTE_MAX_LENGTH": 4000,
+    "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
+    "SIGNALLING_VALUE_MAX": 100,
+    "SIGNALLING_VALUE_MIN": 0,
+    "TABIYA_PATH_URI_MAX_LENGTH": 4096,
+    "UUID_HISTORY_MAX_ITEMS": 10000,
+    "UUID_HISTORY_MAX_LENGTH": 50,
+  },
+  "Enums": {
+    "OccupationToSkillRelationType": {
+      "ESSENTIAL": "essential",
+      "NONE": "",
+      "OPTIONAL": "optional",
+    },
+    "OccupationType": {
+      "ESCOOccupation": "escooccupation",
+      "LocalOccupation": "localoccupation",
+    },
+    "Relations": {
+      "Children": {
+        "ObjectTypes": {
+          "ESCOOccupation": "escooccupation",
+          "ISCOGroup": "iscogroup",
+          "LocalGroup": "localgroup",
+          "LocalOccupation": "localoccupation",
+        },
+      },
+      "Parent": {
+        "ObjectTypes": {
+          "ESCOOccupation": "escooccupation",
+          "ISCOGroup": "iscogroup",
+          "LocalGroup": "localgroup",
+          "LocalOccupation": "localoccupation",
+        },
+      },
+      "RequiredSkills": {
+        "ObjectTypes": {
+          "Skill": "skill",
+        },
+      },
+    },
+  },
+  "GET": {
+    "Schemas": {
+      "Request": {
+        "Param": {
+          "Payload": {
+            "$id": "/components/schemas/OccupationRequestByIdParamSchemaGET",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "description": "The id of the occupation. It can be used to retrieve the occupation from the server.",
+                "pattern": "^[0-9a-f]{24}$",
+                "type": "string",
+              },
+              "modelId": {
+                "description": "The identifier of the model for occupation.",
+                "pattern": "^[0-9a-f]{24}$",
+                "type": "string",
+              },
+            },
+            "required": [
+              "modelId",
+              "id",
+            ],
+            "type": "object",
+          },
+        },
+      },
+    },
+  },
+  "Parent": {
     "Constants": {
       "ALT_LABELS_MAX_ITEMS": 100,
       "ALT_LABEL_MAX_LENGTH": 256,
@@ -1840,7 +1821,25 @@ exports[`Test the Occupation Instance module The export module matches the snaps
     },
     "Types": {},
   },
-  "skills": {
+  "Patterns": {
+    "RegExp": {
+      "ESCO_LOCAL_OCCUPATION_CODE": /\\^\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\*\\(\\?:_\\\\d\\+\\)\\+\\$/,
+      "ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE": /\\^\\(\\?:\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\*\\(\\?:_\\\\d\\+\\)\\+\\|\\[a-zA-Z\\\\d\\]\\+\\(\\?:_\\\\d\\+\\)\\+\\)\\$/,
+      "ESCO_OCCUPATION_CODE": /\\^\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\+\\$/,
+      "ISCO_GROUP_CODE": /\\^\\\\d\\{1,4\\}\\$/,
+      "LOCAL_GROUP_CODE": /\\^\\(\\?:\\\\d\\{1,4\\}\\)\\?\\[a-zA-Z\\]\\+\\[a-zA-Z\\\\d\\]\\*\\$/,
+      "LOCAL_OCCUPATION_CODE": /\\(\\^\\[a-zA-Z\\\\d\\]\\+\\)\\(\\?:_\\\\d\\+\\)\\+\\$/,
+    },
+    "Str": {
+      "ESCO_LOCAL_OCCUPATION_CODE": "^\\d{4}(?:\\.\\d+)*(?:_\\d+)+$",
+      "ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+      "ESCO_OCCUPATION_CODE": "^\\d{4}(?:\\.\\d+)+$",
+      "ISCO_GROUP_CODE": "^\\d{1,4}$",
+      "LOCAL_GROUP_CODE": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+      "LOCAL_OCCUPATION_CODE": "(^[a-zA-Z\\d]+)(?:_\\d+)+$",
+    },
+  },
+  "Skills": {
     "Constants": {
       "ALT_LABELS_MAX_ITEMS": 100,
       "ALT_LABEL_MAX_LENGTH": 256,
@@ -2548,5 +2547,6 @@ exports[`Test the Occupation Instance module The export module matches the snaps
     },
     "Types": {},
   },
+  "Types": {},
 }
 `;

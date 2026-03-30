@@ -21,9 +21,9 @@ namespace OccupationInstanceAPISpecs {
   // export import DELETE = DELETEOccupationOperation;
 
   // Child API Paths
-  export import parent = OccupationParentAPISpecs;
-  export import children = OccupationChildrenAPISpecs;
-  export import skills = OccupationSkillsAPISpecs;
+  export import Parent = OccupationParentAPISpecs;
+  export import Children = OccupationChildrenAPISpecs;
+  export import Skills = OccupationSkillsAPISpecs;
 }
 
 export default OccupationInstanceAPISpecs;

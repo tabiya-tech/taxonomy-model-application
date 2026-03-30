@@ -14,11 +14,11 @@ namespace OccupationAPISpecs {
   export import Patterns = OccupationRegexes;
 
   // Collection-level operations
-  export import GETOccupations = GETOccupationsOperation;
-  export import POSTOccupation = POSTOccupationOperation;
+  export import GET = GETOccupationsOperation;
+  export import POST = POSTOccupationOperation;
 
   // Instance-level operations (via [id] concept)
-  export import Detail = OccupationInstanceAPISpecs;
+  export import Occupation = OccupationInstanceAPISpecs;
 }
 
 export default OccupationAPISpecs;

@@ -39,7 +39,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
       },
     },
   },
-  "GETAPISpecs": {
+  "GET": {
     "Constants": {
       "DEFAULT_LIMIT": 10,
       "MAX_CURSOR_LENGTH": 1720,
@@ -473,8 +473,8 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
     },
     "Types": {},
   },
-  "GETDetailAPISpecs": {
-    "GETChildrenAPISpecs": {
+  "OccupationGroup": {
+    "Children": {
       "Constants": {
         "DEFAULT_LIMIT": 10,
         "MAX_CURSOR_LENGTH": 1720,
@@ -954,7 +954,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
       },
       "Types": {},
     },
-    "GETDetailAPISpecs": {
+    "GET": {
       "Enums": {
         "GET": {
           "Response": {
@@ -1332,7 +1332,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
       },
       "Types": {},
     },
-    "GETParentAPISpecs": {
+    "Parent": {
       "Enums": {
         "GET": {
           "Response": {
@@ -1739,7 +1739,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
     },
     "Types": {},
   },
-  "POSTAPISpecs": {
+  "POST": {
     "Constants": {
       "CODE_MAX_LENGTH": 256,
       "DESCRIPTION_MAX_LENGTH": 6000,

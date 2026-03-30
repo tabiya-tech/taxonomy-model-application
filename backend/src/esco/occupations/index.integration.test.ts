@@ -56,16 +56,16 @@ describe("Test for occupation handler with a DB", () => {
   });
   addFormats(ajv);
   ajv
-    .addSchema(OccupationAPISpecs.GETOccupations.Schemas.Response.Payload)
-    .addSchema(OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload)
-    .addSchema(OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload)
-    .addSchema(OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload)
-    .addSchema(OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload);
+    .addSchema(OccupationAPISpecs.GET.Schemas.Response.Payload)
+    .addSchema(OccupationAPISpecs.POST.Schemas.Response.Payload)
+    .addSchema(OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload)
+    .addSchema(OccupationAPISpecs.Occupation.Children.GET.Schemas.Response.Payload)
+    .addSchema(OccupationAPISpecs.Occupation.Skills.GET.Schemas.Response.Payload);
   const validateGETResponse: ValidateFunction = ajv.getSchema(
-    OccupationAPISpecs.GETOccupations.Schemas.Response.Payload.$id as string
+    OccupationAPISpecs.GET.Schemas.Response.Payload.$id as string
   ) as ValidateFunction;
   const validatePOSTResponse: ValidateFunction = ajv.getSchema(
-    OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload.$id as string
+    OccupationAPISpecs.POST.Schemas.Response.Payload.$id as string
   ) as ValidateFunction;
 
   let dbConnection: Connection | undefined;
@@ -93,7 +93,7 @@ describe("Test for occupation handler with a DB", () => {
 
   test("POST should respond with the FORBIDDEN status code if the user is not a model manager", async () => {
     // GIVEN a valid request (method & header & payload)
-    const givenPayload: OccupationAPISpecs.POSTOccupation.Types.Request.Payload = {
+    const givenPayload: OccupationAPISpecs.POST.Types.Request.Payload = {
       modelId: getMockStringId(1),
       code: getMockRandomOccupationCode(false),
       occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
@@ -135,7 +135,7 @@ describe("Test for occupation handler with a DB", () => {
       license: getTestString(5),
       UUIDHistory: [randomUUID()],
     });
-    const givenPayload: OccupationAPISpecs.POSTOccupation.Types.Request.Payload = {
+    const givenPayload: OccupationAPISpecs.POST.Types.Request.Payload = {
       modelId: modelInfo.id.toString(),
       code: getMockRandomOccupationCode(false),
       occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
@@ -614,7 +614,7 @@ describe("Test for occupation handler with a DB", () => {
 
     // AND the response validates against the schema
     const validateParentResponse = ajv.getSchema(
-      OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload.$id as string
+      OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload.$id as string
     ) as ValidateFunction;
     const body = JSON.parse(actualResponse.body);
     validateParentResponse(body);
@@ -680,7 +680,7 @@ describe("Test for occupation handler with a DB", () => {
 
     // AND the response validates against the schema
     const validateChildrenResponse = ajv.getSchema(
-      OccupationAPISpecs.Detail.children.GET.Schemas.Response.Payload.$id as string
+      OccupationAPISpecs.Occupation.Children.GET.Schemas.Response.Payload.$id as string
     ) as ValidateFunction;
     const body = JSON.parse(actualResponse.body);
     validateChildrenResponse(body);
@@ -776,7 +776,7 @@ describe("Test for occupation handler with a DB", () => {
 
     // AND the response validates against the schema
     const validateSkillsResponse = ajv.getSchema(
-      OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload.$id as string
+      OccupationAPISpecs.Occupation.Skills.GET.Schemas.Response.Payload.$id as string
     ) as ValidateFunction;
     const body = JSON.parse(actualResponse.body);
     validateSkillsResponse(body);
@@ -787,8 +787,8 @@ describe("Test for occupation handler with a DB", () => {
     // Sort by preferredLabel to check
     const sortedSkills = body.data.sort(
       (
-        a: OccupationAPISpecs.Detail.skills.GET.Types.Response.SkillItem,
-        b: OccupationAPISpecs.Detail.skills.GET.Types.Response.SkillItem
+        a: OccupationAPISpecs.Occupation.Skills.GET.Types.Response.SkillItem,
+        b: OccupationAPISpecs.Occupation.Skills.GET.Types.Response.SkillItem
       ) => (a.preferredLabel > b.preferredLabel ? 1 : -1)
     );
     expect(sortedSkills[0].preferredLabel).toEqual("Skill 1");

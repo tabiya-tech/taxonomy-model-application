@@ -31,7 +31,7 @@ describe("OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload schema", () 
   // THEN expect the givenSchema to be valid
   testValidSchema(
     "OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload",
-    OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload
+    OccupationAPISpecs.POST.Schemas.Request.Payload
   );
 });
 
@@ -62,7 +62,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
   // GIVEN a valid request payload object for ESCO occupation
   const validPayload = createValidRequestPayload(OccupationEnums.OccupationType.ESCOOccupation);
 
-  testSchemaWithValidObject("valid payload", OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload, validPayload, [
+  testSchemaWithValidObject("valid payload", OccupationAPISpecs.POST.Schemas.Request.Payload, validPayload, [
     LocaleAPISpecs.Schemas.Payload,
     ModelInfoAPISpecs.Schemas.POST.Request.Payload,
   ]);
@@ -70,13 +70,13 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
   const payloadWithEmptyUUIDHistory = { ...validPayload, UUIDHistory: [] };
   testSchemaWithValidObject(
     "payload with empty UUIDHistory",
-    OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload,
+    OccupationAPISpecs.POST.Schemas.Request.Payload,
     payloadWithEmptyUUIDHistory
   );
 
   testSchemaWithAdditionalProperties(
     "payload with additional properties",
-    OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload,
+    OccupationAPISpecs.POST.Schemas.Request.Payload,
     {
       ...validPayload,
       extraProperty: "extra test property (not defined in schema) for testing additionalProperties",
@@ -85,10 +85,10 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
 
   describe("OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload fields", () => {
     describe("Test validation of 'originUri'", () => {
-      testNonEmptyURIStringField<OccupationAPISpecs.POSTOccupation.Types.Request.Payload>(
+      testNonEmptyURIStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
         "originUri",
         OccupationAPISpecs.Constants.ORIGIN_URI_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload
+        OccupationAPISpecs.POST.Schemas.Request.Payload
       );
     });
 
@@ -206,7 +206,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
           assertCaseForProperty(
             "code",
             givenObject,
-            OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload,
+            OccupationAPISpecs.POST.Schemas.Request.Payload,
             caseType,
             failureMessage
           );
@@ -321,7 +321,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
           assertCaseForProperty(
             "occupationGroupCode",
             givenObject,
-            OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload,
+            OccupationAPISpecs.POST.Schemas.Request.Payload,
             caseType,
             failureMessage
           );
@@ -330,18 +330,18 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
     });
 
     describe("Test validation of description", () => {
-      testStringField<OccupationAPISpecs.POSTOccupation.Types.Request.Payload>(
+      testStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
         "description",
         OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload
+        OccupationAPISpecs.POST.Schemas.Request.Payload
       );
     });
 
     describe("Test validation of preferredLabel", () => {
-      testNonEmptyStringField<OccupationAPISpecs.POSTOccupation.Types.Request.Payload>(
+      testNonEmptyStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
         "preferredLabel",
         OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload
+        OccupationAPISpecs.POST.Schemas.Request.Payload
       );
     });
 
@@ -387,7 +387,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
         assertCaseForProperty(
           "altLabels",
           { altLabels: value },
-          OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload,
+          OccupationAPISpecs.POST.Schemas.Request.Payload,
           caseType,
           failure
         );
@@ -395,37 +395,37 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
     });
 
     describe("Test validation of 'definition'", () => {
-      testStringField<OccupationAPISpecs.POSTOccupation.Types.Request.Payload>(
+      testStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
         "definition",
         OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload
+        OccupationAPISpecs.POST.Schemas.Request.Payload
       );
     });
 
     describe("Test validation of 'regulatedProfessionNote'", () => {
-      testStringField<OccupationAPISpecs.POSTOccupation.Types.Request.Payload>(
+      testStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
         "regulatedProfessionNote",
         OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload
+        OccupationAPISpecs.POST.Schemas.Request.Payload
       );
     });
 
     describe("Test validation of 'scopeNote'", () => {
-      testStringField<OccupationAPISpecs.POSTOccupation.Types.Request.Payload>(
+      testStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
         "scopeNote",
         OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload
+        OccupationAPISpecs.POST.Schemas.Request.Payload
       );
     });
 
     describe("Test validation of 'modelId'", () => {
-      testObjectIdField("modelId", OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload);
+      testObjectIdField("modelId", OccupationAPISpecs.POST.Schemas.Request.Payload);
     });
 
     describe("Test validation of 'UUIDHistory'", () => {
-      testUUIDArray<OccupationAPISpecs.POSTOccupation.Types.Request.Payload>(
+      testUUIDArray<OccupationAPISpecs.POST.Types.Request.Payload>(
         "UUIDHistory",
-        OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload,
+        OccupationAPISpecs.POST.Schemas.Request.Payload,
         [],
         true,
         true
@@ -433,7 +433,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
     });
 
     describe("Test validation of occupationType", () => {
-      const givenSchema = OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload;
+      const givenSchema = OccupationAPISpecs.POST.Schemas.Request.Payload;
 
       test.each([
         [
@@ -478,7 +478,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
         assertCaseForProperty(
           "isLocalized",
           { isLocalized: value },
-          OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload,
+          OccupationAPISpecs.POST.Schemas.Request.Payload,
           caseType,
           failure
         );

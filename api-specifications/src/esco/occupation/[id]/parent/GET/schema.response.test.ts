@@ -38,7 +38,7 @@ describe("Test Occupation Parent Response Schema Validity", () => {
   // THEN expect the givenSchema to be valid
   testValidSchema(
     "OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload",
-    OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload
+    OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload
   );
 });
 
@@ -132,14 +132,14 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
   // Test with a valid parent object
   testSchemaWithValidObject(
     "OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload",
-    OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload,
+    OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload,
     givenValidParent
   );
 
   // Test with a valid occupation group parent object
   testSchemaWithValidObject(
     "OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload (OccupationGroup)",
-    OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload,
+    OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload,
     givenValidOccupationGroupParent
   );
 
@@ -148,7 +148,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     assertCaseForProperty(
       "",
       null,
-      OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload,
+      OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload,
       CaseType.Success,
       undefined
     );
@@ -157,7 +157,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
   // Test with additional properties
   testSchemaWithAdditionalProperties(
     "OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload",
-    OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload,
+    OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload,
     {
       ...givenValidParent,
       extraProperty: "extra test property",
@@ -166,8 +166,8 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
 
   describe("Validate OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload fields", () => {
     // We use the individual base schemas for field validation to avoid false positive errors from anyOf branches
-    const occupationSchema = OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload;
-    const occupationGroupSchema = OccupationGroupAPISpecs.GETDetailAPISpecs.GETDetailAPISpecs.Schemas.Response.Payload;
+    const occupationSchema = OccupationAPISpecs.POST.Schemas.Response.Payload;
+    const occupationGroupSchema = OccupationGroupAPISpecs.OccupationGroup.GET.Schemas.Response.Payload;
 
     const givenValidOccupationGETResponse = givenValidParent;
 
@@ -176,15 +176,15 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     });
 
     describe("Test validation of 'UUID'", () => {
-      testUUIDField<OccupationAPISpecs.Detail.parent.GET.Types.Response.Payload>("UUID", occupationSchema);
+      testUUIDField<OccupationAPISpecs.Occupation.Parent.GET.Types.Response.Payload>("UUID", occupationSchema);
     });
 
     describe("Test validation of 'originUUID'", () => {
-      testUUIDField<OccupationAPISpecs.Detail.parent.GET.Types.Response.Payload>("originUUID", occupationSchema);
+      testUUIDField<OccupationAPISpecs.Occupation.Parent.GET.Types.Response.Payload>("originUUID", occupationSchema);
     });
 
     describe("Test validation of 'UUIDHistory'", () => {
-      testUUIDArray<OccupationAPISpecs.Detail.parent.GET.Types.Response.Payload>(
+      testUUIDArray<OccupationAPISpecs.Occupation.Parent.GET.Types.Response.Payload>(
         "UUIDHistory",
         occupationSchema,
         [],
@@ -194,7 +194,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     });
 
     describe("Test validation of 'path'", () => {
-      testURIField<OccupationAPISpecs.Detail.parent.GET.Types.Response.Payload>(
+      testURIField<OccupationAPISpecs.Occupation.Parent.GET.Types.Response.Payload>(
         "path",
         OccupationAPISpecs.Constants.PATH_URI_MAX_LENGTH,
         occupationSchema
@@ -202,7 +202,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     });
 
     describe("Test validation of 'tabiyaPath'", () => {
-      testURIField<OccupationAPISpecs.Detail.parent.GET.Types.Response.Payload>(
+      testURIField<OccupationAPISpecs.Occupation.Parent.GET.Types.Response.Payload>(
         "tabiyaPath",
         OccupationAPISpecs.Constants.TABIYA_PATH_URI_MAX_LENGTH,
         occupationSchema
@@ -349,7 +349,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     });
 
     describe("Test validation of 'preferredLabel'", () => {
-      testNonEmptyStringField<OccupationAPISpecs.Detail.parent.GET.Types.Response.Payload>(
+      testNonEmptyStringField<OccupationAPISpecs.Occupation.Parent.GET.Types.Response.Payload>(
         "preferredLabel",
         OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
         occupationSchema
@@ -357,7 +357,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     });
 
     describe("Test validation of 'description'", () => {
-      testStringField<OccupationAPISpecs.Detail.parent.GET.Types.Response.Payload>(
+      testStringField<OccupationAPISpecs.Occupation.Parent.GET.Types.Response.Payload>(
         "description",
         OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
         occupationSchema
@@ -365,7 +365,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     });
 
     describe("Test validation of 'definition'", () => {
-      testStringField<OccupationAPISpecs.Detail.parent.GET.Types.Response.Payload>(
+      testStringField<OccupationAPISpecs.Occupation.Parent.GET.Types.Response.Payload>(
         "definition",
         OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH,
         occupationSchema
@@ -373,7 +373,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     });
 
     describe("Test validation of 'scopeNote'", () => {
-      testStringField<OccupationAPISpecs.Detail.parent.GET.Types.Response.Payload>(
+      testStringField<OccupationAPISpecs.Occupation.Parent.GET.Types.Response.Payload>(
         "scopeNote",
         OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH,
         occupationSchema
@@ -381,7 +381,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     });
 
     describe("Test validation of 'regulatedProfessionNote'", () => {
-      testStringField<OccupationAPISpecs.Detail.parent.GET.Types.Response.Payload>(
+      testStringField<OccupationAPISpecs.Occupation.Parent.GET.Types.Response.Payload>(
         "regulatedProfessionNote",
         OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH,
         occupationSchema
@@ -442,7 +442,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.parent.GET.Schemas.
     });
 
     describe("Test validation of parent fields", () => {
-      const parentSchema = OccupationAPISpecs.Detail.parent.GET.Schemas.Response.Payload;
+      const parentSchema = OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload;
 
       describe("Test validation of 'parent/id'", () => {
         const testCases = getStdObjectIdTestCases("/parent/id").filter((testCase) => testCase[1] !== "undefined");
