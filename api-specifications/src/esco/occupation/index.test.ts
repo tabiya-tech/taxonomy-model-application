@@ -6,13 +6,13 @@ describe("Test the Occupation module", () => {
     const occupationModule = await import("./");
 
     // THEN check if Schemas are defined
-    expect(occupationModule.default.GETOccupations.Schemas.Response.Payload).toBeDefined();
-    expect(occupationModule.default.POSTOccupation.Schemas.Response.Payload).toBeDefined();
-    expect(occupationModule.default.POSTOccupation.Schemas.Request.Payload).toBeDefined();
-    expect(occupationModule.default.Detail.GET.Schemas.Request.Param.Payload).toBeDefined();
-    expect(occupationModule.default.Detail.parent.GET.Schemas.Response.Payload).toBeDefined();
-    expect(occupationModule.default.Detail.children.GET.Schemas.Response.Payload).toBeDefined();
-    expect(occupationModule.default.Detail.skills.GET.Schemas.Response.Payload).toBeDefined();
+    expect(occupationModule.default.GET.Schemas.Response.Payload).toBeDefined();
+    expect(occupationModule.default.POST.Schemas.Response.Payload).toBeDefined();
+    expect(occupationModule.default.POST.Schemas.Request.Payload).toBeDefined();
+    expect(occupationModule.default.Occupation.GET.Schemas.Request.Param.Payload).toBeDefined();
+    expect(occupationModule.default.Occupation.Parent.GET.Schemas.Response.Payload).toBeDefined();
+    expect(occupationModule.default.Occupation.Children.GET.Schemas.Response.Payload).toBeDefined();
+    expect(occupationModule.default.Occupation.Skills.GET.Schemas.Response.Payload).toBeDefined();
 
     // AND check if constants are defined
     const Constants = occupationModule.default.Constants;

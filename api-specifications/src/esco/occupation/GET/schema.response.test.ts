@@ -42,7 +42,7 @@ describe("Test Occupation Schema Validity", () => {
   // THEN expect the givenSchema to be valid
   testValidSchema(
     "OccupationAPISpecs.GETOccupations.Schemas.Response.Payload",
-    OccupationAPISpecs.GETOccupations.Schemas.Response.Payload
+    OccupationAPISpecs.GET.Schemas.Response.Payload
   );
 });
 
@@ -111,14 +111,14 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
   // Test with a valid paginated response
   testSchemaWithValidObject(
     "OccupationAPISpecs.GETOccupations.Schemas.Response.Payload",
-    OccupationAPISpecs.GETOccupations.Schemas.Response.Payload,
+    OccupationAPISpecs.GET.Schemas.Response.Payload,
     givenValidPaginatedResponse
   );
 
   // Test with additional properties in the paginated response
   testSchemaWithAdditionalProperties(
     "OccupationAPISpecs.GETOccupations.Schemas.Response.Payload",
-    OccupationAPISpecs.GETOccupations.Schemas.Response.Payload,
+    OccupationAPISpecs.GET.Schemas.Response.Payload,
     {
       ...givenValidPaginatedResponse,
       extraProperty: "extra test property (not defined in schema) for testing additionalProperties",
@@ -126,7 +126,7 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
   );
 
   describe("Validate OccupationAPISpecs.GETOccupations.Schemas.Response.Payload fields", () => {
-    const givenSchema = OccupationAPISpecs.GETOccupations.Schemas.Response.Payload;
+    const givenSchema = OccupationAPISpecs.GET.Schemas.Response.Payload;
 
     describe("Test validation of 'limit'", () => {
       const testCases = getStdLimitTestCases("limit", OccupationConstants.MAX_LIMIT, true);
@@ -165,32 +165,26 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
 
     // Nested validation for individual occupation items
     describe("Test validation of occupation data", () => {
-      const itemSchema = OccupationAPISpecs.GETOccupations.Schemas.Response.Payload.properties.data.items;
+      const itemSchema = OccupationAPISpecs.GET.Schemas.Response.Payload.properties.data.items;
 
       describe("Test validation of 'id'", () => {
         testObjectIdField("id", itemSchema);
       });
 
       describe("Test validation of 'UUID'", () => {
-        testUUIDField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>("UUID", itemSchema);
+        testUUIDField<OccupationAPISpecs.GET.Types.Response.OccupationItem>("UUID", itemSchema);
       });
 
       describe("Test validation of 'originUUID'", () => {
-        testUUIDField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>("originUUID", itemSchema);
+        testUUIDField<OccupationAPISpecs.GET.Types.Response.OccupationItem>("originUUID", itemSchema);
       });
 
       describe("Test validation of 'UUIDHistory'", () => {
-        testUUIDArray<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>(
-          "UUIDHistory",
-          itemSchema,
-          [],
-          true,
-          true
-        );
+        testUUIDArray<OccupationAPISpecs.GET.Types.Response.OccupationItem>("UUIDHistory", itemSchema, [], true, true);
       });
 
       describe("Test validation of 'path'", () => {
-        testURIField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>(
+        testURIField<OccupationAPISpecs.GET.Types.Response.OccupationItem>(
           "path",
           OccupationAPISpecs.Constants.PATH_URI_MAX_LENGTH,
           itemSchema
@@ -198,7 +192,7 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
       });
 
       describe("Test validation of 'tabiyaPath'", () => {
-        testURIField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>(
+        testURIField<OccupationAPISpecs.GET.Types.Response.OccupationItem>(
           "tabiyaPath",
           OccupationAPISpecs.Constants.TABIYA_PATH_URI_MAX_LENGTH,
           itemSchema
@@ -460,7 +454,7 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
       });
 
       describe("Test validation of 'preferredLabel'", () => {
-        testNonEmptyStringField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>(
+        testNonEmptyStringField<OccupationAPISpecs.GET.Types.Response.OccupationItem>(
           "preferredLabel",
           OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
           itemSchema
@@ -468,7 +462,7 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
       });
 
       describe("Test validation of 'description'", () => {
-        testStringField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>(
+        testStringField<OccupationAPISpecs.GET.Types.Response.OccupationItem>(
           "description",
           OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
           itemSchema
@@ -476,7 +470,7 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
       });
 
       describe("Test validation of 'definition'", () => {
-        testStringField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>(
+        testStringField<OccupationAPISpecs.GET.Types.Response.OccupationItem>(
           "definition",
           OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH,
           itemSchema
@@ -484,7 +478,7 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
       });
 
       describe("Test validation of 'regulatedProfessionNote'", () => {
-        testStringField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>(
+        testStringField<OccupationAPISpecs.GET.Types.Response.OccupationItem>(
           "regulatedProfessionNote",
           OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH,
           itemSchema
@@ -492,7 +486,7 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
       });
 
       describe("Test validation of 'scopeNote'", () => {
-        testStringField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>(
+        testStringField<OccupationAPISpecs.GET.Types.Response.OccupationItem>(
           "scopeNote",
           OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH,
           itemSchema
@@ -1507,11 +1501,11 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Res
       });
 
       describe("Test validation of 'createdAt'", () => {
-        testTimestampField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>("createdAt", itemSchema);
+        testTimestampField<OccupationAPISpecs.GET.Types.Response.OccupationItem>("createdAt", itemSchema);
       });
 
       describe("Test validation of 'updatedAt'", () => {
-        testTimestampField<OccupationAPISpecs.GETOccupations.Types.Response.OccupationItem>("updatedAt", itemSchema);
+        testTimestampField<OccupationAPISpecs.GET.Types.Response.OccupationItem>("updatedAt", itemSchema);
       });
     });
   });

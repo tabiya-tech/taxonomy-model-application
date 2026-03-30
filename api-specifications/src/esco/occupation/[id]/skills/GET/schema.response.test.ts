@@ -31,7 +31,7 @@ import { getTestSkillGroupCode } from "../../../../_test_utilities/testUtils";
 describe("Test Occupation Skills Response Schema Validity", () => {
   testValidSchema(
     "OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload",
-    OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload
+    OccupationAPISpecs.Occupation.Skills.GET.Schemas.Response.Payload
   );
 });
 
@@ -139,13 +139,13 @@ describe("Test objects against the OccupationAPISpecs.Detail.skills.GET.Schemas.
 
   testSchemaWithValidObject(
     "OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload",
-    OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload,
+    OccupationAPISpecs.Occupation.Skills.GET.Schemas.Response.Payload,
     givenValidPaginatedResponse
   );
 
   testSchemaWithAdditionalProperties(
     "OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload",
-    OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload,
+    OccupationAPISpecs.Occupation.Skills.GET.Schemas.Response.Payload,
     {
       ...givenValidPaginatedResponse,
       extraProperty: "extra test property",
@@ -153,7 +153,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.skills.GET.Schemas.
   );
 
   describe("Validate OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload fields", () => {
-    const givenSchema = OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload;
+    const givenSchema = OccupationAPISpecs.Occupation.Skills.GET.Schemas.Response.Payload;
 
     describe("Test validation of 'limit'", () => {
       const testCases = getStdLimitTestCases("limit", OccupationConstants.MAX_LIMIT, true);
@@ -203,7 +203,7 @@ describe("Test objects against the OccupationAPISpecs.Detail.skills.GET.Schemas.
 
     // Test individual skill item fields
     describe("Test validation of skill item fields", () => {
-      const itemSchema = OccupationAPISpecs.Detail.skills.GET.Schemas.Response.Payload.properties.data.items;
+      const itemSchema = OccupationAPISpecs.Occupation.Skills.GET.Schemas.Response.Payload.properties.data.items;
 
       describe("Test validation of 'id'", () => {
         testObjectIdField("id", itemSchema);

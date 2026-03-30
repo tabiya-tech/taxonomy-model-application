@@ -22,42 +22,42 @@ namespace ErrorTypes {
       | ImportAPI.Enums.POST.Response.ImportResponseErrorCodes
       | ExportAPI.Enums.POST.Response.ExportResponseErrorCodes
       | ModelInfo.Enums.POST.Response.ErrorCodes
-      | OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.GETAPISpecs.Enums.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.GETAPISpecs.Enums.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.GETAPISpecs.Enums.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.POST.Enums.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.POST.Enums.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.POST.Enums.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.GET.Enums.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.GET.Enums.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.GET.Enums.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status500.ErrorCodes
       | SkillGroupAPI.Enums.POST.Response.Status400.ErrorCodes
       | SkillGroupAPI.Enums.POST.Response.Status404.ErrorCodes
       | SkillGroupAPI.Enums.POST.Response.Status500.ErrorCodes
       | SkillGroupAPI.Enums.GET.Response.Status400.ErrorCodes
       | SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes
       | SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationAPI.POSTOccupation.Errors.Status400.ErrorCodes
-      | OccupationAPI.POSTOccupation.Errors.Status404.ErrorCodes
-      | OccupationAPI.POSTOccupation.Errors.Status500.ErrorCodes
-      | OccupationAPI.GETOccupations.Errors.Status400.ErrorCodes
-      | OccupationAPI.Detail.parent.GET.Errors.Status400.ErrorCodes
-      | OccupationAPI.Detail.children.GET.Errors.Status400.ErrorCodes
-      | OccupationAPI.Detail.skills.GET.Errors.Status400.ErrorCodes
-      | OccupationAPI.GETOccupations.Errors.Status404.ErrorCodes
-      | OccupationAPI.Detail.parent.GET.Errors.Status404.ErrorCodes
-      | OccupationAPI.Detail.children.GET.Errors.Status404.ErrorCodes
-      | OccupationAPI.Detail.skills.GET.Errors.Status404.ErrorCodes
-      | OccupationAPI.GETOccupations.Errors.Status500.ErrorCodes
-      | OccupationAPI.Detail.parent.GET.Errors.Status500.ErrorCodes
-      | OccupationAPI.Detail.children.GET.Errors.Status500.ErrorCodes
-      | OccupationAPI.Detail.skills.GET.Errors.Status500.ErrorCodes
+      | OccupationAPI.POST.Errors.Status400.ErrorCodes
+      | OccupationAPI.POST.Errors.Status404.ErrorCodes
+      | OccupationAPI.POST.Errors.Status500.ErrorCodes
+      | OccupationAPI.GET.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.Parent.GET.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.Children.GET.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.Skills.GET.Errors.Status400.ErrorCodes
+      | OccupationAPI.GET.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.Parent.GET.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.Children.GET.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.Skills.GET.Errors.Status404.ErrorCodes
+      | OccupationAPI.GET.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.Parent.GET.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.Children.GET.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.Skills.GET.Errors.Status500.ErrorCodes
       | ModelInfo.Enums.GET.Response.ErrorCodes
       | SkillsAPI.Enums.POST.Response.Status400.ErrorCodes
       | SkillsAPI.Enums.POST.Response.Status404.ErrorCodes
@@ -99,15 +99,15 @@ namespace ErrorTypes {
       | ImportAPI.Enums.POST.Response.ImportResponseErrorCodes
       | ExportAPI.Enums.POST.Response.ExportResponseErrorCodes
       | ModelInfo.Enums.POST.Response.ErrorCodes
-      | OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.POSTAPISpecs.Enums.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.POST.Enums.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.POST.Enums.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.POST.Enums.Response.Status500.ErrorCodes
       | SkillGroupAPI.Enums.POST.Response.Status400.ErrorCodes
       | SkillGroupAPI.Enums.POST.Response.Status404.ErrorCodes
       | SkillGroupAPI.Enums.POST.Response.Status500.ErrorCodes
-      | OccupationAPI.POSTOccupation.Errors.Status400.ErrorCodes
-      | OccupationAPI.POSTOccupation.Errors.Status404.ErrorCodes
-      | OccupationAPI.POSTOccupation.Errors.Status500.ErrorCodes
+      | OccupationAPI.POST.Errors.Status400.ErrorCodes
+      | OccupationAPI.POST.Errors.Status404.ErrorCodes
+      | OccupationAPI.POST.Errors.Status500.ErrorCodes
       | SkillsAPI.Enums.POST.Response.Status400.ErrorCodes
       | SkillsAPI.Enums.POST.Response.Status404.ErrorCodes
       | SkillsAPI.Enums.POST.Response.Status500.ErrorCodes;
@@ -119,33 +119,33 @@ namespace ErrorTypes {
       | ErrorConstants.Common.ErrorCodes
       | ErrorConstants.GET.ErrorCodes
       | ModelInfo.Enums.GET.Response.ErrorCodes
-      | OccupationGroupAPI.GETAPISpecs.Enums.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.GETAPISpecs.Enums.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.GETAPISpecs.Enums.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETDetailAPISpecs.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.GET.Enums.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.GET.Enums.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.GET.Enums.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status500.ErrorCodes
       | SkillGroupAPI.Enums.GET.Response.Status400.ErrorCodes
       | SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes
       | SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationAPI.GETOccupations.Errors.Status400.ErrorCodes
-      | OccupationAPI.Detail.parent.GET.Errors.Status400.ErrorCodes
-      | OccupationAPI.Detail.children.GET.Errors.Status400.ErrorCodes
-      | OccupationAPI.Detail.skills.GET.Errors.Status400.ErrorCodes
-      | OccupationAPI.GETOccupations.Errors.Status404.ErrorCodes
-      | OccupationAPI.Detail.parent.GET.Errors.Status404.ErrorCodes
-      | OccupationAPI.Detail.children.GET.Errors.Status404.ErrorCodes
-      | OccupationAPI.Detail.skills.GET.Errors.Status404.ErrorCodes
-      | OccupationAPI.GETOccupations.Errors.Status500.ErrorCodes
-      | OccupationAPI.Detail.parent.GET.Errors.Status500.ErrorCodes
-      | OccupationAPI.Detail.children.GET.Errors.Status500.ErrorCodes
-      | OccupationAPI.Detail.skills.GET.Errors.Status500.ErrorCodes
+      | OccupationAPI.GET.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.Parent.GET.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.Children.GET.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.Skills.GET.Errors.Status400.ErrorCodes
+      | OccupationAPI.GET.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.Parent.GET.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.Children.GET.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.Skills.GET.Errors.Status404.ErrorCodes
+      | OccupationAPI.GET.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.Parent.GET.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.Children.GET.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.Skills.GET.Errors.Status500.ErrorCodes
       | SkillsAPI.Enums.GET.Response.Status400.ErrorCodes
       | SkillsAPI.Enums.GET.Response.Status404.ErrorCodes
       | SkillsAPI.Enums.GET.Response.Status500.ErrorCodes

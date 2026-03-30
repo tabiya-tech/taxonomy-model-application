@@ -9,7 +9,7 @@ import OccupationConstants from "../../../_shared/constants";
 describe("Test Occupation Children Request Query Param Schema Validity", () => {
   testValidSchema(
     "OccupationAPISpecs.Detail.children.GET.Schemas.Request.Query.Payload",
-    OccupationAPISpecs.Detail.children.GET.Schemas.Request.Query.Payload
+    OccupationAPISpecs.Occupation.Children.GET.Schemas.Request.Query.Payload
   );
 });
 
@@ -21,13 +21,13 @@ describe("Test objects against labels OccupationAPISpecs.Detail.GET.children.GET
 
   testSchemaWithValidObject(
     "OccupationAPISpecs.Detail.children.GET.Schemas.Request.Query.Payload",
-    OccupationAPISpecs.Detail.children.GET.Schemas.Request.Query.Payload,
+    OccupationAPISpecs.Occupation.Children.GET.Schemas.Request.Query.Payload,
     givenValidRequestQueryParam
   );
 
   testSchemaWithAdditionalProperties(
     "OccupationAPISpecs.Detail.children.GET.Schemas.Request.Query.Payload",
-    OccupationAPISpecs.Detail.children.GET.Schemas.Request.Query.Payload,
+    OccupationAPISpecs.Occupation.Children.GET.Schemas.Request.Query.Payload,
     {
       ...givenValidRequestQueryParam,
       extra: "foo",

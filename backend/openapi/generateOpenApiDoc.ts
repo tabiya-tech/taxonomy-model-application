@@ -40,27 +40,27 @@ delete APIError.Schemas.POST.Payload.$id;
 delete APIError.Schemas.GET.Payload.$id;
 delete APIError.Schemas.PATCH.Payload.$id;
 delete Export.Schemas.POST.Request.Payload.$id;
-delete OccupationGroup.POSTAPISpecs.Schemas.Request.Payload.$id;
-delete OccupationGroup.POSTAPISpecs.Schemas.Response.Payload.$id;
-delete OccupationGroup.GETAPISpecs.Schemas.Response.Payload.$id;
-delete OccupationGroup.GETAPISpecs.Schemas.Request.Param.Payload.$id;
-delete OccupationGroup.GETAPISpecs.Schemas.Request.Query.Payload.$id;
-delete OccupationGroup.GETDetailAPISpecs.Schemas.Request.Param.Payload.$id;
-delete OccupationGroup.GETDetailAPISpecs.GETDetailAPISpecs.Schemas.Response.Payload.$id;
-delete OccupationGroup.GETDetailAPISpecs.GETParentAPISpecs.Schemas.Response.Payload.$id;
-delete OccupationGroup.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Child.Payload.$id;
-delete OccupationGroup.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Children.Payload.$id;
-delete Occupation.POSTOccupation.Schemas.Request.Payload.$id;
-delete Occupation.POSTOccupation.Schemas.Response.Payload.$id;
-delete Occupation.GETOccupations.Schemas.Response.Payload.$id;
-delete Occupation.GETOccupations.Schemas.Request.Param.Payload.$id;
-delete Occupation.GETOccupations.Schemas.Request.Query.Payload.$id;
-delete Occupation.Detail.GET.Schemas.Request.Param.Payload.$id;
-delete Occupation.Detail.parent.GET.Schemas.Response.Payload.$id;
-delete Occupation.Detail.children.GET.Schemas.Response.Payload.$id;
-delete Occupation.Detail.children.GET.Schemas.Request.Query.Payload.$id;
-delete Occupation.Detail.skills.GET.Schemas.Response.Payload.$id;
-delete Occupation.Detail.skills.GET.Schemas.Request.Query.Payload.$id;
+delete OccupationGroup.POST.Schemas.Request.Payload.$id;
+delete OccupationGroup.POST.Schemas.Response.Payload.$id;
+delete OccupationGroup.GET.Schemas.Response.Payload.$id;
+delete OccupationGroup.GET.Schemas.Request.Param.Payload.$id;
+delete OccupationGroup.GET.Schemas.Request.Query.Payload.$id;
+delete OccupationGroup.OccupationGroup.Schemas.Request.Param.Payload.$id;
+delete OccupationGroup.OccupationGroup.GET.Schemas.Response.Payload.$id;
+delete OccupationGroup.OccupationGroup.GET.Schemas.Response.Payload.$id;
+delete OccupationGroup.OccupationGroup.Children.Schemas.Response.Child.Payload.$id;
+delete OccupationGroup.OccupationGroup.Children.Schemas.Response.Children.Payload.$id;
+delete Occupation.POST.Schemas.Request.Payload.$id;
+delete Occupation.POST.Schemas.Response.Payload.$id;
+delete Occupation.GET.Schemas.Response.Payload.$id;
+delete Occupation.GET.Schemas.Request.Param.Payload.$id;
+delete Occupation.GET.Schemas.Request.Query.Payload.$id;
+delete Occupation.Occupation.GET.Schemas.Request.Param.Payload.$id;
+delete Occupation.Occupation.Parent.GET.Schemas.Response.Payload.$id;
+delete Occupation.Occupation.Children.GET.Schemas.Response.Payload.$id;
+delete Occupation.Occupation.Children.GET.Schemas.Request.Query.Payload.$id;
+delete Occupation.Occupation.Skills.GET.Schemas.Response.Payload.$id;
+delete Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload.$id;
 delete SkillGroup.Schemas.POST.Request.Payload.$id;
 delete SkillGroup.Schemas.POST.Response.Payload.$id;
 delete SkillGroup.Schemas.GET.Response.Payload.$id;
@@ -212,70 +212,69 @@ function getOpenAPISpecification(
             "POST",
             "OccupationGroup",
             400,
-            Object.values(OccupationGroup.POSTAPISpecs.Enums.Response.Status400.ErrorCodes)
+            Object.values(OccupationGroup.POST.Enums.Response.Status400.ErrorCodes)
           ),
           GETOccupationGroup400ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationGroup", 400, [
-            ...Object.values(OccupationGroup.GETAPISpecs.Enums.Response.Status400.ErrorCodes),
+            ...Object.values(OccupationGroup.GET.Enums.Response.Status400.ErrorCodes),
           ]),
           GETOccupationGroupParent404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationGroupParent", 404, [
-            OccupationGroup.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
-            OccupationGroup.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status404.ErrorCodes
+            OccupationGroup.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+            OccupationGroup.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes
               .OCCUPATION_GROUP_PARENT_NOT_FOUND,
-            OccupationGroup.GETDetailAPISpecs.GETParentAPISpecs.Enums.GET.Response.Status404.ErrorCodes
+            OccupationGroup.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes
               .OCCUPATION_GROUP_PARENT_NOT_FOUND,
           ]),
           GETOccupationGroupChildren404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationGroupChildren", 404, [
-            OccupationGroup.GETDetailAPISpecs.GETChildrenAPISpecs.Enums.GET.Response.Status404.ErrorCodes
-              .MODEL_NOT_FOUND,
+            OccupationGroup.OccupationGroup.Children.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           ]),
           GETOccupationGroup404ErrorSchema: APIError.Schemas.getPayload(
             "GET",
             "OccupationGroup",
             404,
-            Object.values(OccupationGroup.GETAPISpecs.Enums.Response.Status404.ErrorCodes)
+            Object.values(OccupationGroup.GET.Enums.Response.Status404.ErrorCodes)
           ),
           GETOccupationGroups404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationGroups", 404, [
-            OccupationGroup.GETAPISpecs.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+            OccupationGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           ]),
           // Occupation-specific error schemas
           POSTOccupation400ErrorSchema: APIError.Schemas.getPayload(
             "POST",
             "Occupation",
             400,
-            Object.values(Occupation.POSTOccupation.Errors.Status400.ErrorCodes)
+            Object.values(Occupation.POST.Errors.Status400.ErrorCodes)
           ),
           GETOccupation400ErrorSchema: APIError.Schemas.getPayload(
             "GET",
             "Occupation",
             400,
-            Object.values(Occupation.GETOccupations.Errors.Status400.ErrorCodes)
+            Object.values(Occupation.GET.Errors.Status400.ErrorCodes)
           ),
           GETOccupation404ErrorSchema: APIError.Schemas.getPayload(
             "GET",
             "Occupation",
             404,
-            Object.values(Occupation.GETOccupations.Errors.Status404.ErrorCodes)
+            Object.values(Occupation.GET.Errors.Status404.ErrorCodes)
           ),
           GETOccupations404ErrorSchema: APIError.Schemas.getPayload("GET", "Occupations", 404, [
-            Occupation.GETOccupations.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
+            Occupation.GET.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
           ]),
           GETOccupationParent404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationParent", 404, [
-            ...new Set([
-              ...Object.values(Occupation.GETOccupations.Errors.Status404.ErrorCodes),
-              ...Object.values(Occupation.Detail.parent.GET.Errors.Status404.ErrorCodes),
-            ]) as unknown as string[],
+            ...(new Set([
+              ...Object.values(Occupation.GET.Errors.Status404.ErrorCodes),
+              ...Object.values(Occupation.Occupation.Parent.GET.Errors.Status404.ErrorCodes),
+            ]) as unknown as string[]),
           ]),
           GETOccupationChildren404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationChildren", 404, [
-            ...new Set([
-              ...Object.values(Occupation.GETOccupations.Errors.Status404.ErrorCodes),
-              ...Object.values(Occupation.Detail.children.GET.Errors.Status404.ErrorCodes),
-            ]) as unknown as string[],
+            ...(new Set([
+              ...Object.values(Occupation.GET.Errors.Status404.ErrorCodes),
+              ...Object.values(Occupation.Occupation.Skills.GET.Errors.Status404.ErrorCodes),
+            ]) as unknown as string[]),
           ]),
           GETOccupationSkills404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationSkills", 404, [
-            ...new Set([
-              ...Object.values(Occupation.GETOccupations.Errors.Status404.ErrorCodes),
-              ...Object.values(Occupation.Detail.skills.GET.Errors.Status404.ErrorCodes),
-            ]) as unknown as string[],
+            ...(new Set([
+              ...Object.values(Occupation.GET.Errors.Status404.ErrorCodes),
+              ...Object.values(Occupation.Occupation.Skills.GET.Errors.Status404.ErrorCodes),
+            ]) as unknown as string[]),
           ]),
           GETSkillGroup400ErrorSchema: APIError.Schemas.getPayload(
             "GET",
@@ -380,27 +379,27 @@ function getOpenAPISpecification(
           ExportSchema: Export.Schemas.POST.Request.Payload,
           InfoSchema: Info.Schemas.GET.Response.Payload,
           AuthContextSchema: Auth.Schemas.Request.Context,
-          OccupationGroupRequestSchemaPOST: OccupationGroup.POSTAPISpecs.Schemas.Request.Payload,
-          OccupationGroupResponseSchemaPOST: OccupationGroup.POSTAPISpecs.Schemas.Response.Payload,
-          OccupationGroupParentResponseSchemaGET:
-            OccupationGroup.GETDetailAPISpecs.GETParentAPISpecs.Schemas.Response.Payload,
+          OccupationGroupRequestSchemaPOST: OccupationGroup.POST.Schemas.Request.Payload,
+          OccupationGroupResponseSchemaPOST: OccupationGroup.POST.Schemas.Response.Payload,
+          OccupationGroupParentResponseSchemaGET: OccupationGroup.OccupationGroup.Parent.Schemas.Response.Payload,
           OccupationGroupChildrenResponseSchemaGET:
-            OccupationGroup.GETDetailAPISpecs.GETChildrenAPISpecs.Schemas.Response.Children.Payload,
-          OccupationGroupRequestParamSchemaGET: OccupationGroup.GETAPISpecs.Schemas.Request.Param.Payload,
-          OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.GETAPISpecs.Schemas.Request.Query.Payload,
-          OccupationGroupResponseSchemaGET: OccupationGroup.GETAPISpecs.Schemas.Response.Payload,
-          OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.GETDetailAPISpecs.Schemas.Request.Param.Payload,
-          OccupationRequestSchemaPOST: Occupation.POSTOccupation.Schemas.Request.Payload,
-          OccupationResponseSchemaPOST: Occupation.POSTOccupation.Schemas.Response.Payload,
-          OccupationRequestParamSchemaGET: Occupation.GETOccupations.Schemas.Request.Param.Payload,
-          OccupationRequestByIdParamSchemaGET: Occupation.Detail.GET.Schemas.Request.Param.Payload,
-          OccupationRequestQueryParamSchemaGET: Occupation.GETOccupations.Schemas.Request.Query.Payload,
-          OccupationResponseSchemaGET: Occupation.GETOccupations.Schemas.Response.Payload,
-          OccupationResponseSchemaGETParent: Occupation.Detail.parent.GET.Schemas.Response.Payload,
-          OccupationResponseSchemaGETChildren: Occupation.Detail.children.GET.Schemas.Response.Payload,
-          OccupationChildrenRequestQueryParamSchemaGET: Occupation.Detail.children.GET.Schemas.Request.Query.Payload,
-          OccupationResponseSchemaGETSkills: Occupation.Detail.skills.GET.Schemas.Response.Payload,
-          OccupationSkillsRequestQueryParamSchemaGET: Occupation.Detail.skills.GET.Schemas.Request.Query.Payload,
+            OccupationGroup.OccupationGroup.Children.Schemas.Response.Children.Payload,
+          OccupationGroupRequestParamSchemaGET: OccupationGroup.GET.Schemas.Request.Param.Payload,
+          OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.GET.Schemas.Request.Query.Payload,
+          OccupationGroupResponseSchemaGET: OccupationGroup.GET.Schemas.Response.Payload,
+          OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.OccupationGroup.Schemas.Request.Param.Payload,
+          OccupationRequestSchemaPOST: Occupation.POST.Schemas.Request.Payload,
+          OccupationResponseSchemaPOST: Occupation.POST.Schemas.Response.Payload,
+          OccupationRequestParamSchemaGET: Occupation.GET.Schemas.Request.Param.Payload,
+          OccupationRequestByIdParamSchemaGET: Occupation.Occupation.GET.Schemas.Request.Param.Payload,
+          OccupationRequestQueryParamSchemaGET: Occupation.GET.Schemas.Request.Query.Payload,
+          OccupationResponseSchemaGET: Occupation.GET.Schemas.Response.Payload,
+          OccupationResponseSchemaGETParent: Occupation.Occupation.Parent.GET.Schemas.Response.Payload,
+          OccupationResponseSchemaGETChildren: Occupation.Occupation.Children.GET.Schemas.Response.Payload,
+          OccupationChildrenRequestQueryParamSchemaGET:
+            Occupation.Occupation.Children.GET.Schemas.Request.Query.Payload,
+          OccupationResponseSchemaGETSkills: Occupation.Occupation.Skills.GET.Schemas.Response.Payload,
+          OccupationSkillsRequestQueryParamSchemaGET: Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload,
           SkillGroupRequestSchemaPOST: SkillGroup.Schemas.POST.Request.Payload,
           SkillGroupResponseSchemaPOST: SkillGroup.Schemas.POST.Response.Payload,
           SkillGroupResponseSchemaGETById: SkillGroup.Schemas.GET.Response.ById.Payload,

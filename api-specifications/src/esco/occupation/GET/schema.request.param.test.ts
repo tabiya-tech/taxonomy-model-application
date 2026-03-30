@@ -12,7 +12,7 @@ describe("Test OccupationAPISpecs.GETOccupations.Schemas.Request.Param validity"
   // THEN expect the givenSchema to be valid
   testValidSchema(
     "OccupationAPISpecs.GETOccupations.Schemas.Request.Param.Payload",
-    OccupationAPISpecs.GETOccupations.Schemas.Request.Param.Payload
+    OccupationAPISpecs.GET.Schemas.Request.Param.Payload
   );
 });
 
@@ -26,7 +26,7 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Req
   //THEN expect the object to validate successfully
   testSchemaWithValidObject(
     "OccupationAPISpecs.GETOccupations.Schemas.Request.Param.Payload",
-    OccupationAPISpecs.GETOccupations.Schemas.Request.Param.Payload,
+    OccupationAPISpecs.GET.Schemas.Request.Param.Payload,
     givenValidOccupationGETRequestParamPayload
   );
 
@@ -34,13 +34,13 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Req
   // THEN expect the object to not validate
   testSchemaWithAdditionalProperties(
     "OccupationAPISpecs.GETOccupations.Schemas.Request.Param.Payload",
-    OccupationAPISpecs.GETOccupations.Schemas.Request.Param.Payload,
+    OccupationAPISpecs.GET.Schemas.Request.Param.Payload,
     { ...givenValidOccupationGETRequestParamPayload, extraProperty: "foo" }
   );
 
   describe("Validate OccupationAPISpecs.GETOccupations.Schemas.Request.Param.Payload fields", () => {
     describe("Test validation of 'modelId'", () => {
-      testObjectIdField("modelId", OccupationAPISpecs.GETOccupations.Schemas.Request.Param.Payload);
+      testObjectIdField("modelId", OccupationAPISpecs.GET.Schemas.Request.Param.Payload);
     });
   });
 });

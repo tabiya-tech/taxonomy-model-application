@@ -41,7 +41,7 @@ describe("Test OccupationAPISpecs schema validity", () => {
   // THEN expect the givenSchema to be valid
   testValidSchema(
     "OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload",
-    OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+    OccupationAPISpecs.POST.Schemas.Response.Payload
   );
 });
 
@@ -105,7 +105,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
   // THEN expect the object to validation successfully
   testSchemaWithValidObject(
     "OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload",
-    OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+    OccupationAPISpecs.POST.Schemas.Response.Payload,
     givenValidOccupationPOSTResponse
   );
 
@@ -113,7 +113,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
   // THEN expect the object to not validation
   testSchemaWithAdditionalProperties(
     "OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload",
-    OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+    OccupationAPISpecs.POST.Schemas.Response.Payload,
     {
       ...givenValidOccupationPOSTResponse,
       extraProperty: "extra test property (not defined in schema) for testing additionalProperties",
@@ -122,22 +122,20 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
 
   describe("Validate OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload fields", () => {
     describe("Test validation of 'id'", () => {
-      testObjectIdField("id", OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload, [
-        LocaleAPISpecs.Schemas.Payload,
-      ]);
+      testObjectIdField("id", OccupationAPISpecs.POST.Schemas.Response.Payload, [LocaleAPISpecs.Schemas.Payload]);
     });
 
     describe("Test validation of 'UUID'", () => {
-      testUUIDField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+      testUUIDField<OccupationAPISpecs.POST.Types.Response.Payload>(
         "UUID",
-        OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+        OccupationAPISpecs.POST.Schemas.Response.Payload
       );
     });
 
     describe("Test validation of 'UUIDHistory'", () => {
-      testUUIDArray<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+      testUUIDArray<OccupationAPISpecs.POST.Types.Response.Payload>(
         "UUIDHistory",
-        OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+        OccupationAPISpecs.POST.Schemas.Response.Payload,
         [],
         true,
         true
@@ -145,26 +143,26 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
     });
 
     describe("Test validation of 'originUri'", () => {
-      testNonEmptyURIStringField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+      testNonEmptyURIStringField<OccupationAPISpecs.POST.Types.Response.Payload>(
         "originUri",
         OccupationAPISpecs.Constants.ORIGIN_URI_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+        OccupationAPISpecs.POST.Schemas.Response.Payload
       );
     });
 
     describe("Test validation of 'path'", () => {
-      testURIField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+      testURIField<OccupationAPISpecs.POST.Types.Response.Payload>(
         "path",
         OccupationAPISpecs.Constants.PATH_URI_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+        OccupationAPISpecs.POST.Schemas.Response.Payload
       );
     });
 
     describe("Test validation of 'tabiyaPath'", () => {
-      testURIField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+      testURIField<OccupationAPISpecs.POST.Types.Response.Payload>(
         "tabiyaPath",
         OccupationAPISpecs.Constants.TABIYA_PATH_URI_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+        OccupationAPISpecs.POST.Schemas.Response.Payload
       );
     });
 
@@ -196,7 +194,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
         assertCaseForProperty(
           "occupationType",
           givenObject,
-          OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+          OccupationAPISpecs.POST.Schemas.Response.Payload,
           caseType,
           failureMessage
         );
@@ -331,7 +329,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
           assertCaseForProperty(
             "code",
             givenObject,
-            OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+            OccupationAPISpecs.POST.Schemas.Response.Payload,
             caseType,
             failureMessage
           );
@@ -446,7 +444,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
           assertCaseForProperty(
             "occupationGroupCode",
             givenObject,
-            OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+            OccupationAPISpecs.POST.Schemas.Response.Payload,
             caseType,
             failureMessage
           );
@@ -455,18 +453,18 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
     });
 
     describe("Test validation of 'description'", () => {
-      testStringField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+      testStringField<OccupationAPISpecs.POST.Types.Response.Payload>(
         "description",
         OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+        OccupationAPISpecs.POST.Schemas.Response.Payload
       );
     });
 
     describe("Test validation of 'preferredLabel'", () => {
-      testNonEmptyStringField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+      testNonEmptyStringField<OccupationAPISpecs.POST.Types.Response.Payload>(
         "preferredLabel",
         OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+        OccupationAPISpecs.POST.Schemas.Response.Payload
       );
     });
 
@@ -518,7 +516,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
         assertCaseForProperty(
           "altLabels",
           givenObject,
-          OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+          OccupationAPISpecs.POST.Schemas.Response.Payload,
           caseType,
           failureMessage
         );
@@ -526,39 +524,37 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
     });
 
     describe("Test validation of 'definition'", () => {
-      testStringField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+      testStringField<OccupationAPISpecs.POST.Types.Response.Payload>(
         "definition",
         OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+        OccupationAPISpecs.POST.Schemas.Response.Payload
       );
     });
 
     describe("Test validation of 'regulatedProfessionNote'", () => {
-      testStringField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+      testStringField<OccupationAPISpecs.POST.Types.Response.Payload>(
         "regulatedProfessionNote",
         OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+        OccupationAPISpecs.POST.Schemas.Response.Payload
       );
     });
 
     describe("Test validation of 'scopeNote'", () => {
-      testStringField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+      testStringField<OccupationAPISpecs.POST.Types.Response.Payload>(
         "scopeNote",
         OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH,
-        OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+        OccupationAPISpecs.POST.Schemas.Response.Payload
       );
     });
 
     describe("Test validation of 'isLocalized'", () => {
-      testBooleanField("isLocalized", OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload, [
+      testBooleanField("isLocalized", OccupationAPISpecs.POST.Schemas.Response.Payload, [
         LocaleAPISpecs.Schemas.Payload,
       ]);
     });
 
     describe("Test validation of 'modelId'", () => {
-      testObjectIdField("modelId", OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload, [
-        LocaleAPISpecs.Schemas.Payload,
-      ]);
+      testObjectIdField("modelId", OccupationAPISpecs.POST.Schemas.Response.Payload, [LocaleAPISpecs.Schemas.Payload]);
     });
 
     describe("Test validation of 'parent'", () => {
@@ -578,7 +574,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
         assertCaseForProperty(
           "parent",
           givenObject,
-          OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+          OccupationAPISpecs.POST.Schemas.Response.Payload,
           caseType,
           failureMessages
         );
@@ -595,7 +591,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/parent/id",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessages
             );
@@ -612,7 +608,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/parent/UUID",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessages
             );
@@ -792,7 +788,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/parent/code",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessage
             );
@@ -812,7 +808,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/parent/preferredLabel",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessage
             );
@@ -842,7 +838,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
           assertCaseForProperty(
             "/parent/objectType",
             givenObject,
-            OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+            OccupationAPISpecs.POST.Schemas.Response.Payload,
             caseType,
             failureMessage
           );
@@ -875,7 +871,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
         assertCaseForProperty(
           "children",
           givenObject,
-          OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+          OccupationAPISpecs.POST.Schemas.Response.Payload,
           caseType,
           failureMessages
         );
@@ -892,7 +888,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/children/0/id",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessages
             );
@@ -909,7 +905,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/children/0/UUID",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessages
             );
@@ -1038,7 +1034,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/children/0/code",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessage
             );
@@ -1057,7 +1053,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/children/0/preferredLabel",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessage
             );
@@ -1092,7 +1088,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
           assertCaseForProperty(
             "/children/0/objectType",
             givenObject,
-            OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+            OccupationAPISpecs.POST.Schemas.Response.Payload,
             caseType,
             failureMessage
           );
@@ -1125,7 +1121,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
         assertCaseForProperty(
           "requiresSkills",
           givenObject,
-          OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+          OccupationAPISpecs.POST.Schemas.Response.Payload,
           caseType,
           failureMessages
         );
@@ -1147,7 +1143,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/requiresSkills/0/id",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessages
             );
@@ -1169,7 +1165,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/requiresSkills/0/UUID",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessages
             );
@@ -1194,7 +1190,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
             assertCaseForProperty(
               "/requiresSkills/0/preferredLabel",
               givenObject,
-              OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+              OccupationAPISpecs.POST.Schemas.Response.Payload,
               caseType,
               failureMessages
             );
@@ -1224,7 +1220,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
               assertCaseForProperty(
                 "requiresSkills/0/isLocalized",
                 givenObject,
-                OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+                OccupationAPISpecs.POST.Schemas.Response.Payload,
                 caseType,
                 expectedError
               );
@@ -1266,7 +1262,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
               assertCaseForProperty(
                 "requiresSkills/0/objectType",
                 givenObject,
-                OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+                OccupationAPISpecs.POST.Schemas.Response.Payload,
                 caseType,
                 expectedError
               );
@@ -1398,7 +1394,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
               assertCaseForProperty(
                 "requiresSkills/0/relationType",
                 givenObject,
-                OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+                OccupationAPISpecs.POST.Schemas.Response.Payload,
                 caseType,
                 expectedError
               );
@@ -1448,7 +1444,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
               assertCaseForProperty(
                 "requiresSkills/0/signallingValue",
                 givenObject,
-                OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+                OccupationAPISpecs.POST.Schemas.Response.Payload,
                 caseType,
                 expectedError
               );
@@ -1492,7 +1488,7 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
               assertCaseForProperty(
                 "requiresSkills/0/signallingValueLabel",
                 givenObject,
-                OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload,
+                OccupationAPISpecs.POST.Schemas.Response.Payload,
                 caseType,
                 expectedError
               );
@@ -1502,16 +1498,16 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Res
       });
 
       describe("Test validation of 'createdAt'", () => {
-        testTimestampField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+        testTimestampField<OccupationAPISpecs.POST.Types.Response.Payload>(
           "createdAt",
-          OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+          OccupationAPISpecs.POST.Schemas.Response.Payload
         );
       });
 
       describe("Test validation of 'updatedAt'", () => {
-        testTimestampField<OccupationAPISpecs.POSTOccupation.Types.Response.Payload>(
+        testTimestampField<OccupationAPISpecs.POST.Types.Response.Payload>(
           "updatedAt",
-          OccupationAPISpecs.POSTOccupation.Schemas.Response.Payload
+          OccupationAPISpecs.POST.Schemas.Response.Payload
         );
       });
     });

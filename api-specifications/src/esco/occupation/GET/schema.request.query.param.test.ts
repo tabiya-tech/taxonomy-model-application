@@ -14,7 +14,7 @@ describe("Test OccupationAPISpecs.GETOccupations.Schemas.Request.Query validity"
   // THEN expect the givenSchema to be valid
   testValidSchema(
     "OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload",
-    OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload
+    OccupationAPISpecs.GET.Schemas.Request.Query.Payload
   );
 });
 
@@ -30,7 +30,7 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Req
   // THEN expect the object to validate successfully
   testSchemaWithValidObject(
     "OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload",
-    OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload,
+    OccupationAPISpecs.GET.Schemas.Request.Query.Payload,
     givenValidQuery
   );
 
@@ -38,26 +38,26 @@ describe("Test objects against the OccupationAPISpecs.GETOccupations.Schemas.Req
   // THEN expect the object to not validate
   testSchemaWithAdditionalProperties(
     "OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload",
-    OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload,
+    OccupationAPISpecs.GET.Schemas.Request.Query.Payload,
     { ...givenValidQuery, extraProperty: "foo" }
   );
 
   describe("Validate OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload fields", () => {
     describe("Test validation of 'limit'", () => {
-      testLimitField<OccupationAPISpecs.GETOccupations.Types.Request.Query.Payload>(
+      testLimitField<OccupationAPISpecs.GET.Types.Request.Query.Payload>(
         "limit",
         OccupationAPISpecs.Constants.MAX_LIMIT,
-        OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload,
+        OccupationAPISpecs.GET.Schemas.Request.Query.Payload,
         [],
         false
       );
     });
 
     describe("Test validation of 'cursor'", () => {
-      testCursorField<OccupationAPISpecs.GETOccupations.Types.Request.Query.Payload>(
+      testCursorField<OccupationAPISpecs.GET.Types.Request.Query.Payload>(
         "cursor",
         OccupationAPISpecs.Constants.MAX_CURSOR_LENGTH,
-        OccupationAPISpecs.GETOccupations.Schemas.Request.Query.Payload,
+        OccupationAPISpecs.GET.Schemas.Request.Query.Payload,
         [],
         false,
         false
