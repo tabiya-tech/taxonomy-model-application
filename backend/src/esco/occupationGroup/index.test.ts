@@ -1218,7 +1218,7 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: OccupationGroupAPISpecs.OccupationGroup.GET.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+        errorCode: OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
         message: "Model not found",
         details: `No model found with id: ${givenModelId}`,
       };
@@ -1260,7 +1260,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode:
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.GET.Response.Status500.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status500.ErrorCodes
             .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL,
         message: "Failed to fetch the model details from the DB",
         details: "",
@@ -1359,8 +1359,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode:
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.GET.Response.Status404.ErrorCodes
-            .OCCUPATION_GROUP_NOT_FOUND,
+          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status404.ErrorCodes.OCCUPATION_GROUP_NOT_FOUND,
         message: "Occupation group not found",
         details: `No occupation group found with id: ${givenOccupationGroupId}`,
       };
@@ -1451,7 +1450,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode:
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.GET.Response.Status500.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status500.ErrorCodes
             .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL,
         message: "Failed to retrieve the occupation group from the DB",
         details: "",
@@ -1547,7 +1546,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode:
-          OccupationGroupAPISpecs.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
         message: "Model not found",
         details: `No model found with id: ${givenModelId}`,
       };
@@ -1589,7 +1588,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode:
-          OccupationGroupAPISpecs.OccupationGroup.Parent.Enums.GET.Response.Status500.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
             .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT,
         message: "Failed to fetch the model details from the DB",
         details: "",
@@ -1686,7 +1685,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode:
-          OccupationGroupAPISpecs.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status404.ErrorCodes
             .OCCUPATION_GROUP_PARENT_NOT_FOUND,
         message: "Occupation group or parent not found",
         details: `No occupation group or parent found with occupation group id: ${givenOccupationGroupId}`,
@@ -1776,7 +1775,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode:
-          OccupationGroupAPISpecs.OccupationGroup.Parent.Enums.GET.Response.Status500.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
             .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT,
         message: "Failed to retrieve the parent occupation group from the DB",
         details: "",
@@ -1868,7 +1867,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode:
-          OccupationGroupAPISpecs.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
         message: "Model not found",
         details: `No model found with id: ${givenModelId}`,
       };
@@ -1909,7 +1908,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode:
-          OccupationGroupAPISpecs.OccupationGroup.Children.Enums.GET.Response.Status500.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.Children.GET.Enums.Response.Status500.ErrorCodes
             .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_CHILDREN,
         message: "Failed to fetch the model details from the DB",
         details: "",
@@ -2046,7 +2045,7 @@ describe("Test for occupationGroup handler", () => {
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
         errorCode:
-          OccupationGroupAPISpecs.OccupationGroup.Children.Enums.GET.Response.Status500.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.Children.GET.Enums.Response.Status500.ErrorCodes
             .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_CHILDREN,
         message: "Failed to retrieve the occupation group children from the DB",
         details: "",

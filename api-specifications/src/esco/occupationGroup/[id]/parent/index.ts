@@ -1,15 +1,11 @@
-import SchemaGETOccupationGroupParentResponse from "./schema.parent.response";
-import GETOccupationGroupParentEnums from "./enums";
-import OccupationGroupGETParentTypes from "./types";
+import OccupationGroupRegexes from "../../_shared/regex";
 
-namespace OccupationGroupGETParentSchemas {
-  export namespace Response {
-    export const Payload = SchemaGETOccupationGroupParentResponse;
-  }
+import GETOccupationGroupParentOperation from "./GET";
+
+namespace OccupationGroupParentAPISpecs {
+  export import Patterns = OccupationGroupRegexes;
+
+  export import GET = GETOccupationGroupParentOperation;
 }
-namespace OccupationGroupGETParentAPISpecs {
-  export import Schemas = OccupationGroupGETParentSchemas;
-  export import Types = OccupationGroupGETParentTypes;
-  export import Enums = GETOccupationGroupParentEnums;
-}
-export default OccupationGroupGETParentAPISpecs;
+
+export default OccupationGroupParentAPISpecs;

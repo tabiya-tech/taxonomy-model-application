@@ -128,7 +128,7 @@ describe("test the transformParent of the IOccupationGroupParent -> IOccupationG
     const givenBasePath = "https://some/root/path";
 
     // WHEN the transformation function is called
-    const actual: OccupationGroupAPISpecs.OccupationGroup.Parent.Types.Response.Payload = transformParent(
+    const actual: OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Types.Response.Payload = transformParent(
       givenObject,
       givenBasePath
     );
@@ -166,7 +166,7 @@ describe("test the transformParent of the IOccupationGroupParent -> IOccupationG
     const givenBasePath = "https://some/root/path";
 
     // WHEN the transformation function is called
-    const actual: OccupationGroupAPISpecs.OccupationGroup.Parent.Types.Response.Payload = transformParent(
+    const actual: OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Types.Response.Payload = transformParent(
       givenObject,
       givenBasePath
     );
@@ -216,7 +216,7 @@ describe("test the transformParent of the IOccupationGroupParent -> IOccupationG
     // AND some model
 
     // WHEN the transformation function is called
-    const actual: OccupationGroupAPISpecs.OccupationGroup.Parent.Types.Response.Payload = transformParent(
+    const actual: OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Types.Response.Payload = transformParent(
       givenObject,
       givenBasePath
     );
@@ -376,7 +376,7 @@ describe("test the transformChild of the IOccupationGroupChild -> IOccupationGro
     const givenBasePath = "https://some/root/path";
 
     // WHEN the transformation function is called
-    const actual: OccupationGroupAPISpecs.OccupationGroup.Children.Types.Response.Child.Payload = transformChild(
+    const actual: OccupationGroupAPISpecs.OccupationGroup.Children.GET.Types.Response.Child.Payload = transformChild(
       givenChild,
       givenBasePath
     );
@@ -433,12 +433,8 @@ describe("test the transformation of the IOccupationGroupChild[] -> IOccupationG
     // with a limit that is less than the number of given objects
     // to test that pagination works as expected
     const givenObjectsPaginated = givenObjects.slice(0, limit);
-    const actual: OccupationGroupAPISpecs.OccupationGroup.Children.Types.Response.Payload = transformPaginatedChildren(
-      givenObjectsPaginated,
-      givenBasePath,
-      limit,
-      cursor
-    );
+    const actual: OccupationGroupAPISpecs.OccupationGroup.Children.GET.Types.Response.Payload =
+      transformPaginatedChildren(givenObjectsPaginated, givenBasePath, limit, cursor);
 
     // THEN expect the transformation function to return a IOccupationGroupChildResponse[]
     expect(actual).toEqual({

@@ -58,16 +58,16 @@ ajvInstance.addSchema(
   OccupationGroupAPISpecs.OccupationGroup.GET.Schemas.Response.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationGroupAPISpecs.OccupationGroup.Parent.Schemas.Response.Payload,
-  OccupationGroupAPISpecs.OccupationGroup.Parent.Schemas.Response.Payload.$id
+  OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Schemas.Response.Payload,
+  OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Schemas.Response.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationGroupAPISpecs.OccupationGroup.Children.Schemas.Response.Child.Payload,
-  OccupationGroupAPISpecs.OccupationGroup.Children.Schemas.Response.Child.Payload.$id
+  OccupationGroupAPISpecs.OccupationGroup.Children.GET.Schemas.Response.Child.Payload,
+  OccupationGroupAPISpecs.OccupationGroup.Children.GET.Schemas.Response.Child.Payload.$id
 );
 ajvInstance.addSchema(
-  OccupationGroupAPISpecs.OccupationGroup.Children.Schemas.Response.Children.Payload,
-  OccupationGroupAPISpecs.OccupationGroup.Children.Schemas.Response.Children.Payload.$id
+  OccupationGroupAPISpecs.OccupationGroup.Children.GET.Schemas.Response.Children.Payload,
+  OccupationGroupAPISpecs.OccupationGroup.Children.GET.Schemas.Response.Children.Payload.$id
 );
 ajvInstance.addSchema(
   OccupationAPISpecs.POST.Schemas.Request.Payload,

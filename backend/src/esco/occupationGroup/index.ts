@@ -525,7 +525,7 @@ export class OccupationGroupController {
       if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
@@ -533,7 +533,7 @@ export class OccupationGroupController {
       if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.GET.Response.Status500.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status500.ErrorCodes
             .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL,
           "Failed to fetch the model details from the DB",
           ""
@@ -544,8 +544,7 @@ export class OccupationGroupController {
       if (!occupationGroup) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.GET.Response.Status404.ErrorCodes
-            .OCCUPATION_GROUP_NOT_FOUND,
+          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status404.ErrorCodes.OCCUPATION_GROUP_NOT_FOUND,
           "Occupation group not found",
           `No occupation group found with id: ${requestPathParameter.id}`
         );
@@ -557,7 +556,7 @@ export class OccupationGroupController {
       errorLoggerInstance.logError("Failed to retrieve the occupation group from the DB", error.name);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.OccupationGroup.GET.Enums.GET.Response.Status500.ErrorCodes
+        OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status500.ErrorCodes
           .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL,
         "Failed to retrieve the occupation group from the DB",
         ""
@@ -642,7 +641,7 @@ export class OccupationGroupController {
       if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
@@ -650,7 +649,7 @@ export class OccupationGroupController {
       if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupAPISpecs.OccupationGroup.Parent.Enums.GET.Response.Status500.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
             .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT,
           "Failed to fetch the model details from the DB",
           ""
@@ -660,7 +659,7 @@ export class OccupationGroupController {
       if (!parentOccupationGroup) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status404.ErrorCodes
             .OCCUPATION_GROUP_PARENT_NOT_FOUND,
           "Occupation group or parent not found",
           `No occupation group or parent found with occupation group id: ${requestPathParameter.id}`
@@ -673,7 +672,7 @@ export class OccupationGroupController {
       errorLoggerInstance.logError("Failed to retrieve the parent occupation group from the DB", error.name);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.OccupationGroup.Parent.Enums.GET.Response.Status500.ErrorCodes
+        OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
           .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT,
         "Failed to retrieve the parent occupation group from the DB",
         ""
@@ -760,7 +759,7 @@ export class OccupationGroupController {
       if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
@@ -768,7 +767,7 @@ export class OccupationGroupController {
       if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupAPISpecs.OccupationGroup.Children.Enums.GET.Response.Status500.ErrorCodes
+          OccupationGroupAPISpecs.OccupationGroup.Children.GET.Enums.Response.Status500.ErrorCodes
             .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_CHILDREN,
           "Failed to fetch the model details from the DB",
           ""
@@ -785,7 +784,7 @@ export class OccupationGroupController {
       errorLoggerInstance.logError("Failed to retrieve the occupation group children from the DB", error.name);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.OccupationGroup.Children.Enums.GET.Response.Status500.ErrorCodes
+        OccupationGroupAPISpecs.OccupationGroup.Children.GET.Enums.Response.Status500.ErrorCodes
           .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_CHILDREN,
         "Failed to retrieve the occupation group children from the DB",
         ""

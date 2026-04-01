@@ -1,7 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Test the occupationGroup GET Detail module The export module matches the snapshot 1`] = `
+exports[`Test the occupationGroup GET parent operation module The export module matches the snapshot 1`] = `
 {
+  "Constants": {
+    "DESCRIPTION_MAX_LENGTH": 6000,
+  },
   "Enums": {
     "ObjectTypes": {
       "ISCOGroup": "iscogroup",
@@ -30,12 +33,12 @@ exports[`Test the occupationGroup GET Detail module The export module matches th
       "Status404": {
         "ErrorCodes": {
           "MODEL_NOT_FOUND": "GET_MODEL_NOT_FOUND",
-          "OCCUPATION_GROUP_NOT_FOUND": "OCCUPATION_GROUP_NOT_FOUND",
+          "OCCUPATION_GROUP_PARENT_NOT_FOUND": "OCCUPATION_GROUP_PARENT_NOT_FOUND",
         },
       },
       "Status500": {
         "ErrorCodes": {
-          "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL": "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL",
+          "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT": "DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT",
         },
       },
     },
@@ -43,7 +46,7 @@ exports[`Test the occupationGroup GET Detail module The export module matches th
   "Schemas": {
     "Response": {
       "Payload": {
-        "$id": "/components/schemas/OccupationGroupResponseSchemaGETDetail",
+        "$id": "/components/schemas/OccupationGroupParentResponseSchemaGET",
         "additionalProperties": false,
         "else": {
           "properties": {

@@ -1,7 +1,7 @@
 import { SchemaObject } from "ajv";
-import { _baseChildrenResponseSchema } from "../../_shared/schemas.base";
+import { _baseChildrenResponseSchema } from "../../../_shared/schemas.base";
 import OccupationGroupChildrenGETConstants from "./constants";
-import { RegExp_Str_NotEmptyString } from "../../../../regex";
+import { RegExp_Str_NotEmptyString } from "../../../../../regex";
 
 const SchemaGETChildrenResponse: SchemaObject = {
   $id: "/components/schemas/OccupationGroupChildrenResponseSchemaGET",

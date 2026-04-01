@@ -28,15 +28,15 @@ namespace ErrorTypes {
       | OccupationGroupAPI.GET.Enums.Response.Status400.ErrorCodes
       | OccupationGroupAPI.GET.Enums.Response.Status404.ErrorCodes
       | OccupationGroupAPI.GET.Enums.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.GET.Enums.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.GET.Enums.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.GET.Enums.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.GET.Enums.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.GET.Enums.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
       | SkillGroupAPI.Enums.POST.Response.Status400.ErrorCodes
       | SkillGroupAPI.Enums.POST.Response.Status404.ErrorCodes
       | SkillGroupAPI.Enums.POST.Response.Status500.ErrorCodes
@@ -122,15 +122,15 @@ namespace ErrorTypes {
       | OccupationGroupAPI.GET.Enums.Response.Status400.ErrorCodes
       | OccupationGroupAPI.GET.Enums.Response.Status404.ErrorCodes
       | OccupationGroupAPI.GET.Enums.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.GET.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Children.Enums.GET.Response.Status500.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status400.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status404.ErrorCodes
-      | OccupationGroupAPI.OccupationGroup.Parent.Enums.GET.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.GET.Enums.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.GET.Enums.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.GET.Enums.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Children.GET.Enums.Response.Status500.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.GET.Enums.Response.Status400.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.GET.Enums.Response.Status404.ErrorCodes
+      | OccupationGroupAPI.OccupationGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
       | SkillGroupAPI.Enums.GET.Response.Status400.ErrorCodes
       | SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes
       | SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes

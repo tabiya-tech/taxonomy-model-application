@@ -9,9 +9,9 @@ describe("Test the occupationGroup module", () => {
     expect(occupationGroupModule.default.GET.Schemas.Response.Payload).toBeDefined();
     expect(occupationGroupModule.default.POST.Schemas.Request.Payload).toBeDefined();
     expect(occupationGroupModule.default.OccupationGroup.Schemas.Request.Param.Payload).toBeDefined();
-    expect(occupationGroupModule.default.OccupationGroup.Children.Schemas.Response.Child.Payload).toBeDefined();
-    expect(occupationGroupModule.default.OccupationGroup.Children.Schemas.Response.Children.Payload).toBeDefined();
-    expect(occupationGroupModule.default.OccupationGroup.Parent.Schemas.Response.Payload).toBeDefined();
+    expect(occupationGroupModule.default.OccupationGroup.Children.GET.Schemas.Response.Child).toBeDefined();
+    expect(occupationGroupModule.default.OccupationGroup.Children.GET.Schemas.Response.Children.Payload).toBeDefined();
+    expect(occupationGroupModule.default.OccupationGroup.Parent.GET.Schemas.Response.Payload).toBeDefined();
 
     // AND check if constants are defined in it
     const Constants = occupationGroupModule.default.Constants;

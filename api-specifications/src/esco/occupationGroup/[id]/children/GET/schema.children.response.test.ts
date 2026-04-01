@@ -12,21 +12,21 @@ import {
   testValidSchema,
 } from "_test_utilities/stdSchemaTests";
 import OccupationGroupGETChildrenAPISpecs from "./index";
-import OccupationGroupConstants from "../../_shared/constants";
+import OccupationGroupConstants from "../../../_shared/constants";
 import { getTestString } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
-import OccupationGroupEnums from "../../_shared/enums";
-import OccupationGroupRegexes from "../../_shared/regex";
+import OccupationGroupEnums from "../../../_shared/enums";
+import OccupationGroupRegexes from "../../../_shared/regex";
 import {
   getTestESCOOccupationCode,
   getTestISCOGroupCode,
   getTestLocalGroupCode,
   getTestLocalOccupationCode,
-} from "../../../_test_utilities/testUtils";
+} from "../../../../_test_utilities/testUtils";
 
-describe("Test OccupationGroup children Validity", () => {
+describe("Test OccupationGroup GET children Validity", () => {
   testValidSchema(
     "OccupationGroupGETChildrenAPISpecs.Schemas.Response.Children.Payload",
     OccupationGroupGETChildrenAPISpecs.Schemas.Response.Children.Payload
