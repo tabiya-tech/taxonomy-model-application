@@ -1,5 +1,5 @@
 import { SchemaObject } from "ajv";
-import { _baseResponseSchema } from "../../_shared/schemas.base";
+import { _baseResponseSchema } from "../../../_shared/schemas.base";
 
 const SchemaGETOccupationGroupParentResponse: SchemaObject = {
   $id: "/components/schemas/OccupationGroupParentResponseSchemaGET",

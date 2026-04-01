@@ -6,7 +6,15 @@ describe("Test the occupationGroup GET parent module", () => {
     const occupationGroupGETParentModule = await import("./");
 
     // THEN check if Schemas is defined in it
-    expect(occupationGroupGETParentModule.default.Schemas.Response.Payload).toBeDefined();
+    expect(occupationGroupGETParentModule.default.GET.Schemas.Response.Payload).toBeDefined();
+
+    // AND check if constants are defined in it
+    const Constants = occupationGroupGETParentModule.default.GET.Constants;
+    expect(Constants.DESCRIPTION_MAX_LENGTH).toBeDefined();
+
+    // AND check if enums are defined
+    const Enums = occupationGroupGETParentModule.default.GET.Enums;
+    expect(Enums.Relations.Parent.ObjectTypes).toBeDefined();
   });
   test("The export module matches the snapshot", () => {
     // GIVEN the module

@@ -6,14 +6,18 @@ describe("Test the occupationGroup GET children module", () => {
     const occupationGroupGETChildrenModule = await import("./");
 
     // THEN check if Schemas is defined in it
-    expect(occupationGroupGETChildrenModule.default.Schemas.Response.Child.Payload).toBeDefined();
-    expect(occupationGroupGETChildrenModule.default.Schemas.Response.Children.Payload).toBeDefined();
+    expect(occupationGroupGETChildrenModule.default.GET.Schemas.Response.Child.Payload).toBeDefined();
+    expect(occupationGroupGETChildrenModule.default.GET.Schemas.Response.Children.Payload).toBeDefined();
 
     // AND check if constants are defined in it
-    const Constants = occupationGroupGETChildrenModule.default.Constants;
+    const Constants = occupationGroupGETChildrenModule.default.GET.Constants;
     expect(Constants.DEFAULT_LIMIT).toBeDefined();
     expect(Constants.MAX_LIMIT).toBeDefined();
     expect(Constants.MAX_CURSOR_LENGTH).toBeDefined();
+
+    // AND check if enums are defined
+    const Enums = occupationGroupGETChildrenModule.default.GET.Enums;
+    expect(Enums.ObjectTypes).toBeDefined();
   });
   test("The export module matches the snapshot", () => {
     // GIVEN the module

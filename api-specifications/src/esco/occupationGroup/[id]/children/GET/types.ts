@@ -2,7 +2,7 @@ import {
   IOccupationGroupDetailParam,
   IOccupationGroupChildResponse,
   PaginatedOccupationGroupChildrenResponse,
-} from "../../_shared/types";
+} from "../../../_shared/types";
 
 namespace OccupationGroupGETChildrenTypes {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

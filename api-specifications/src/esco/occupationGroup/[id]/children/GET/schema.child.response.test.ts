@@ -16,15 +16,15 @@ import { getTestString } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
-import OccupationGroupEnums from "../../_shared/enums";
-import OccupationGroupRegexes from "../../_shared/regex";
-import OccupationGroupConstants from "../../_shared/constants";
+import OccupationGroupEnums from "./enums";
+import OccupationGroupRegexes from "../../../_shared/regex";
+import OccupationGroupConstants from "../../../_shared/constants";
 import {
   getTestESCOOccupationCode,
   getTestISCOGroupCode,
   getTestLocalGroupCode,
   getTestLocalOccupationCode,
-} from "../../../_test_utilities/testUtils";
+} from "../../../../_test_utilities/testUtils";
 
 describe("Test OccupationGroup child Validity", () => {
   // WHEN the OccupationGroupGETChildrenAPISpecs.Schemas.Response.Child.Payload schema
@@ -50,7 +50,7 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
     description: getTestString(50),
     preferredLabel: getTestString(20),
     altLabels: [getTestString(15), getTestString(25)],
-    objectType: OccupationGroupEnums.Relations.Children.ObjectTypes.LocalGroup,
+    objectType: OccupationGroupEnums.ObjectTypes.LocalGroup,
     modelId: getMockId(1),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -208,21 +208,21 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
           CaseType.Failure,
           "undefined",
           undefined,
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+          OccupationGroupEnums.ObjectTypes.ESCOOccupation,
           constructSchemaError("", "required", "must have required property 'code'"),
         ],
         [
           CaseType.Failure,
           "null",
           null,
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+          OccupationGroupEnums.ObjectTypes.ESCOOccupation,
           constructSchemaError("/code", "type", "must be string"),
         ],
         [
           CaseType.Failure,
           "empty string",
           "",
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+          OccupationGroupEnums.ObjectTypes.ESCOOccupation,
           constructSchemaError(
             "/code",
             "pattern",
@@ -233,7 +233,7 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
           CaseType.Failure,
           "a random string",
           getTestString(OccupationGroupConstants.CODE_MAX_LENGTH),
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+          OccupationGroupEnums.ObjectTypes.ESCOOccupation,
           constructSchemaError(
             "/code",
             "pattern",
@@ -244,7 +244,7 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
           CaseType.Failure,
           "an invalid code",
           "invalidCode",
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+          OccupationGroupEnums.ObjectTypes.ESCOOccupation,
           constructSchemaError(
             "/code",
             "pattern",
@@ -255,7 +255,7 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
           CaseType.Failure,
           "Too long code",
           getTestString(OccupationGroupConstants.CODE_MAX_LENGTH + 1),
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+          OccupationGroupEnums.ObjectTypes.ESCOOccupation,
           constructSchemaError(
             "/code",
             "maxLength",
@@ -267,28 +267,28 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
           CaseType.Success,
           "valid ISCO group code",
           getTestISCOGroupCode(),
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ISCOGroup,
+          OccupationGroupEnums.ObjectTypes.ISCOGroup,
           undefined,
         ],
         [
           CaseType.Success,
           "valid Local group code",
           getTestLocalGroupCode(),
-          OccupationGroupEnums.Relations.Children.ObjectTypes.LocalGroup,
+          OccupationGroupEnums.ObjectTypes.LocalGroup,
           undefined,
         ],
         [
           CaseType.Success,
           "valid ESCO occupation code",
           getTestESCOOccupationCode(),
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+          OccupationGroupEnums.ObjectTypes.ESCOOccupation,
           undefined,
         ],
         [
           CaseType.Success,
           "valid Local occupation code",
           getTestLocalOccupationCode(),
-          OccupationGroupEnums.Relations.Children.ObjectTypes.LocalOccupation,
+          OccupationGroupEnums.ObjectTypes.LocalOccupation,
           undefined,
         ],
         // Wrong patterns for wrong objectTypes
@@ -296,7 +296,7 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
           CaseType.Failure,
           "ISCO code with LocalGroup objectType",
           getTestISCOGroupCode(),
-          OccupationGroupEnums.Relations.Children.ObjectTypes.LocalGroup,
+          OccupationGroupEnums.ObjectTypes.LocalGroup,
           constructSchemaError(
             "/code",
             "pattern",
@@ -307,7 +307,7 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
           CaseType.Failure,
           "Local group code with ISCOGroup objectType",
           getTestLocalGroupCode(),
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ISCOGroup,
+          OccupationGroupEnums.ObjectTypes.ISCOGroup,
           constructSchemaError(
             "/code",
             "pattern",
@@ -318,7 +318,7 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
           CaseType.Failure,
           "Local occupation code with ESCOOccupation objectType",
           getTestLocalOccupationCode(),
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ESCOOccupation,
+          OccupationGroupEnums.ObjectTypes.ESCOOccupation,
           constructSchemaError(
             "/code",
             "pattern",
@@ -329,7 +329,7 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
           CaseType.Failure,
           "ESCO occupation code with LocalOccupation objectType",
           getTestESCOOccupationCode(),
-          OccupationGroupEnums.Relations.Children.ObjectTypes.LocalOccupation,
+          OccupationGroupEnums.ObjectTypes.LocalOccupation,
           constructSchemaError(
             "/code",
             "pattern",
@@ -377,12 +377,7 @@ describe("Test objects against the OccupationGroupGETChildrenAPISpecs.Schemas.Re
           "invalidObjectType",
           constructSchemaError("/objectType", "enum", "must be equal to one of the allowed values"),
         ],
-        [
-          CaseType.Success,
-          "a valid objectType",
-          OccupationGroupEnums.Relations.Children.ObjectTypes.ISCOGroup,
-          undefined,
-        ],
+        [CaseType.Success, "a valid objectType", OccupationGroupEnums.ObjectTypes.ISCOGroup, undefined],
       ])("%s Validate 'objectType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
         // GIVEN an object with given value
         const givenObject = {

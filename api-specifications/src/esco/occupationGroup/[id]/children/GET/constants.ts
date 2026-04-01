@@ -1,4 +1,4 @@
-import OccupationGroupConstants from "../../_shared/constants";
+import OccupationGroupConstants from "../../../_shared/constants";
 
 namespace OccupationGroupChildrenGETConstants {
   export const MAX_LIMIT = OccupationGroupConstants.MAX_LIMIT;

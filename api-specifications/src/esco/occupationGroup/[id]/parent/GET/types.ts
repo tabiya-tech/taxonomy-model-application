@@ -1,4 +1,4 @@
-import { IOccupationGroupResponse, IOccupationGroupDetailParam } from "../../_shared/types";
+import { IOccupationGroupResponse, IOccupationGroupDetailParam } from "../../../_shared/types";
 
 namespace OccupationGroupGETParentTypes {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

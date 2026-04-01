@@ -13,9 +13,9 @@ import {
   testValidSchema,
 } from "_test_utilities/stdSchemaTests";
 import OccupationGroupGETParentAPISpecs from "./index";
-import OccupationGroupConstants from "../../_shared/constants";
+import OccupationGroupConstants from "../../../_shared/constants";
 import { getMockId } from "_test_utilities/mockMongoId";
-import OccupationGroupEnums from "../../_shared/enums";
+import OccupationGroupEnums from "../../../_shared/enums";
 import { getTestString } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import {
@@ -23,14 +23,14 @@ import {
   getStdObjectIdTestCases,
   getStdUUIDTestCases,
 } from "_test_utilities/stdSchemaTestCases";
-import OccupationGroupRegexes from "../../_shared/regex";
+import OccupationGroupRegexes from "../../../_shared/regex";
 import {
   getTestESCOLocalOccupationCode,
   getTestESCOOccupationCode,
   getTestISCOGroupCode,
   getTestLocalGroupCode,
   getTestLocalOccupationCode,
-} from "../../../_test_utilities/testUtils";
+} from "../../../../_test_utilities/testUtils";
 
 describe("Test OccupationGroupGETParentAPISpecs schema validity", () => {
   // WHEN the OccupationGroupGETParentAPISpecs.Schemas.Response.Payload schema
