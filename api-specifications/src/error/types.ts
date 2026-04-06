@@ -49,7 +49,6 @@ namespace ErrorTypes {
       | SkillGroupAPI.SkillGroup.Parent.GET.Enums.Response.Status400.ErrorCodes
       | SkillGroupAPI.SkillGroup.Parent.GET.Enums.Response.Status404.ErrorCodes
       | SkillGroupAPI.SkillGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
-      | SkillGroupAPI.SkillGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
       | SkillGroupAPI.SkillGroup.Children.GET.Enums.Response.Status400.ErrorCodes
       | SkillGroupAPI.SkillGroup.Children.GET.Enums.Response.Status404.ErrorCodes
       | SkillGroupAPI.SkillGroup.Children.GET.Enums.Response.Status500.ErrorCodes

@@ -63,14 +63,14 @@ describe("Test for skillGroup handler with a DB", () => {
   });
   addFormats(ajv);
   ajv
-    .addSchema(SkillGroupAPISpecs.Schemas.GET.Response.Payload)
-    .addSchema(SkillGroupAPISpecs.Schemas.POST.Response.Payload)
-    .addSchema(SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload);
+    .addSchema(SkillGroupAPISpecs.GET.Schemas.Response.Payload)
+    .addSchema(SkillGroupAPISpecs.POST.Schemas.Response.Payload)
+    .addSchema(SkillGroupAPISpecs.SkillGroup.GET.Schemas.Response.Payload);
   const validateGETResponse: ValidateFunction = ajv.getSchema(
-    SkillGroupAPISpecs.Schemas.GET.Response.Payload.$id as string
+    SkillGroupAPISpecs.GET.Schemas.Response.Payload.$id as string
   ) as ValidateFunction;
   const validateSingleGETResponse: ValidateFunction = ajv.getSchema(
-    SkillGroupAPISpecs.Schemas.GET.Response.ById.Payload.$id as string
+    SkillGroupAPISpecs.SkillGroup.GET.Schemas.Response.Payload.$id as string
   ) as ValidateFunction;
 
   let dbConnection: Connection | undefined;
