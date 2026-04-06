@@ -1,6 +1,6 @@
 import { SchemaObject } from "ajv";
 import { _baseResponseSchema as SkillBaseResponseSchema, _basePaginationResponseProperties } from "../../schemas.base";
-import { _baseResponseSchema as SkillGroupBaseResponseSchema } from "../../../skillGroup/schemas.base";
+import { _baseResponseSchema as SkillGroupBaseResponseSchema } from "../../../skillGroup/_shared/schemas.base";
 
 const SchemaGETChildrenResponse: SchemaObject = {
   $id: "/components/schemas/SkillChildrenResponseSchemaGET",
