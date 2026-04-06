@@ -23,8 +23,8 @@ import {
 import SkillAPISpecs from "./index";
 import SkillConstants from "./constants";
 import SkillEnums from "./enums";
-import SkillGroupRegexes from "../skillGroup/regex";
-import SkillGroupConstants from "../skillGroup/constants";
+import SkillGroupRegexes from "../skillGroup/_shared/regex";
+import SkillGroupConstants from "../skillGroup/_shared/constants";
 import { getTestSkillGroupCode } from "../_test_utilities/testUtils";
 
 describe("Test Skill POST Response Schema Validity", () => {

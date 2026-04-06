@@ -1,8 +1,8 @@
 import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID } from "../../regex";
 import SkillConstants from "./constants";
 import SkillEnums from "./enums";
-import SkillGroupRegexes from "../skillGroup/regex";
-import SkillGroupConstants from "../skillGroup/constants";
+import SkillGroupRegexes from "../skillGroup/_shared/regex";
+import SkillGroupConstants from "../skillGroup/_shared/constants";
 
 export const _baseProperties = {
   UUIDHistory: {
