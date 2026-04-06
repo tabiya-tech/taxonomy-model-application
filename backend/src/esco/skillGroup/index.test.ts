@@ -249,7 +249,7 @@ describe("Test for skillGroup handler", () => {
       // AND the response body contains the error information
       const parsedMissing = JSON.parse(actualResponse.body);
       expect(parsedMissing).toMatchObject({
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "modelId is missing in the path",
       });
       expect(typeof parsedMissing.details).toBe("string");
@@ -345,7 +345,7 @@ describe("Test for skillGroup handler", () => {
 
       // AND the response body contains the error information
       const expectedErrorBody = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
         message: "Model not found",
         details: `No model found with id: ${givenModelId}`,
       };
@@ -376,7 +376,7 @@ describe("Test for skillGroup handler", () => {
 
       // AND the response body contains the error information
       const expectedErrorBody = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "Failed to fetch the model details from the DB",
         details: "",
       };
@@ -453,7 +453,7 @@ describe("Test for skillGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "Failed to retrieve the skill groups from the DB",
         details: "",
       };
@@ -548,7 +548,7 @@ describe("Test for skillGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+        errorCode: SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
         message: "Model not found",
         details: `No model found with id: ${givenModelId}`,
       };
@@ -588,7 +588,7 @@ describe("Test for skillGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "Failed to fetch the model details from the DB",
         details: "",
       };
@@ -710,7 +710,7 @@ describe("Test for skillGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+        errorCode: SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
         message: "skill group not found",
         details: `No skill group found with id: ${givenSkillGroupId}`,
       };
@@ -739,7 +739,7 @@ describe("Test for skillGroup handler", () => {
       // AND the response body contains the error information
       const parsedMissing = JSON.parse(actualResponse.body);
       expect(parsedMissing).toMatchObject({
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "modelId is missing in the path",
       });
       expect(typeof parsedMissing.details).toBe("string");
@@ -795,7 +795,7 @@ describe("Test for skillGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "Failed to retrieve the skill group from the DB",
         details: "",
       };
@@ -939,7 +939,7 @@ describe("Test for skillGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+        errorCode: SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
         message: "Model not found",
         details: `No model found with id: ${givenModelId}`,
       };
@@ -979,7 +979,7 @@ describe("Test for skillGroup handler", () => {
       // THEN respond with the NOT_FOUND status
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+        errorCode: SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
         message: "Skill group not found",
         details: `No skill group found with id: ${givenSkillGroupId}`,
       };
@@ -1014,7 +1014,7 @@ describe("Test for skillGroup handler", () => {
       // THEN respond with the NOT_FOUND status
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+        errorCode: SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
         message: "Skill group not found",
         details: `No skill group found with id: ${givenSkillGroupId}`,
       };
@@ -1052,7 +1052,7 @@ describe("Test for skillGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "Failed to fetch the model details from the DB",
         details: "",
       };
@@ -1127,7 +1127,7 @@ describe("Test for skillGroup handler", () => {
       // AND the response body contains the error information
       const parsedMissing = JSON.parse(actualResponse.body);
       expect(parsedMissing).toMatchObject({
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "modelId is missing in the path",
       });
       expect(typeof parsedMissing.details).toBe("string");
@@ -1167,7 +1167,7 @@ describe("Test for skillGroup handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "Failed to retrieve the skill group parents from the DB",
         details: "",
       };
@@ -1305,7 +1305,7 @@ describe("Test for skillGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+        errorCode: SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
         message: "Model not found",
         details: `No model found with id: ${givenModelId}`,
       };
@@ -1340,7 +1340,7 @@ describe("Test for skillGroup handler", () => {
       // THEN respond with the NOT_FOUND status
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+        errorCode: SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
         message: "Skill group not found",
         details: `No skill group found with id: ${givenSkillGroupId}`,
       };
@@ -1377,7 +1377,7 @@ describe("Test for skillGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "Failed to fetch the model details from the DB",
         details: "",
       };
@@ -1468,7 +1468,7 @@ describe("Test for skillGroup handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        errorCode: SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         message: "Failed to retrieve the skill group children from the DB",
         details: "",
       };

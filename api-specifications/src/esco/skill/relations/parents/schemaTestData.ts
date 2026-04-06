@@ -2,7 +2,7 @@ import { getTestString } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "node:crypto";
 import SkillConstants from "../../constants";
-import SkillGroupConstants from "../../../skillGroup/constants";
+import SkillGroupConstants from "../../../skillGroup/_shared/constants";
 import SkillEnums from "../../enums";
 import { getTestSkillGroupCode } from "../../../_test_utilities/testUtils";
 
