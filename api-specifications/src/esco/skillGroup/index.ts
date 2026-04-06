@@ -1,90 +1,22 @@
-import SkillGroupConstants from "./constants";
-import SkillGroupEnums from "./enums";
-import SkillGroupRegexes from "./regex";
-import SkillGroupTypes from "./types";
+import SkillGroupConstants from "./_shared/constants";
+import SkillGroupEnums from "./_shared/enums";
+import SkillGroupTypes from "./_shared/types";
+import SkillGroupRegexes from "./_shared/regex";
 
-import SchemaGETResponse from "./schema.GET.response";
-import SchemaPOSTRequest from "./schema.POST.request";
-import SchemaPOSTResponse from "./schema.POST.response";
-import SchemaGETRequestParam from "./schema.GET.request.param";
-import SchemaGETByIdRequestParam from "./schema.GET.request.ById.param";
-import SchemaGETRequestQueryParam from "./schema.GET.request.query.param";
-import SchemaPOSTRequestParam from "./schema.POST.request.param";
-import SchemaGETResponseById from "./schema.GET.response.ById";
-import SchemaGETParentResponse from "./schema.GET.parent.response";
-import SchemaGETParentsResponse from "./schema.GET.parents.response";
-import SchemaGETChildResponse from "./schema.GET.child.response";
-import SchemaGETChildrenResponse from "./schema.GET.children.response";
-import SchemaGETParentsRequestQuery from "./schema.GET.parents.request.query.param";
-import SchemaGETChildrenRequestQuery from "./schema.GET.children.request.query.param";
-
-namespace SkillGroupSchemas {
-  export namespace GET {
-    export namespace Response {
-      export const Payload = SchemaGETResponse;
-      export namespace ById {
-        export const Payload = SchemaGETResponseById;
-      }
-      export namespace Parent {
-        export const Payload = SchemaGETParentResponse;
-      }
-      export namespace Parents {
-        export const Payload = SchemaGETParentsResponse;
-      }
-      export namespace Child {
-        export const Payload = SchemaGETChildResponse;
-      }
-      export namespace Children {
-        export const Payload = SchemaGETChildrenResponse;
-      }
-    }
-    export namespace Request {
-      export namespace Param {
-        export const Payload = SchemaGETRequestParam;
-      }
-      export namespace Query {
-        export const Payload = SchemaGETRequestQueryParam;
-      }
-      export namespace ById {
-        export namespace Param {
-          export const Payload = SchemaGETByIdRequestParam;
-        }
-      }
-    }
-    export namespace Parents {
-      export namespace Request {
-        export namespace Query {
-          export const Payload = SchemaGETParentsRequestQuery;
-        }
-      }
-    }
-    export namespace Children {
-      export namespace Request {
-        export namespace Query {
-          export const Payload = SchemaGETChildrenRequestQuery;
-        }
-      }
-    }
-  }
-  export namespace POST {
-    export namespace Response {
-      export const Payload = SchemaPOSTResponse;
-    }
-    export namespace Request {
-      export namespace Param {
-        export const Payload = SchemaPOSTRequestParam;
-      }
-      export const Payload = SchemaPOSTRequest;
-    }
-  }
-}
+import SkillGroupPOSTAPISpecs from "./POST/index";
+import SkillGroupGETAPISpecs from "./GET/index";
+import SkillGroupDetailAPISpecs from "./[id]/index";
 
 namespace SkillGroupAPISpecs {
   export import Enums = SkillGroupEnums;
   export import Types = SkillGroupTypes;
   export import Constants = SkillGroupConstants;
-  export import Schemas = SkillGroupSchemas;
   export import Patterns = SkillGroupRegexes;
+
+  export import POST = SkillGroupPOSTAPISpecs;
+  export import GET = SkillGroupGETAPISpecs;
+
+  export import SkillGroup = SkillGroupDetailAPISpecs;
 }
 
 export default SkillGroupAPISpecs;
