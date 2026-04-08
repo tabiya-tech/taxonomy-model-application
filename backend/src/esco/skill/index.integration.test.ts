@@ -102,10 +102,10 @@ describe("Test for skill handler with a DB", () => {
     allErrors: true,
   });
   addFormats(ajv);
-  ajv.addSchema(SkillAPISpecs.Schemas.GET.Response.Payload).addSchema(SkillAPISpecs.Schemas.POST.Response.Payload);
+  ajv.addSchema(SkillAPISpecs.GET.Schemas.Response.Payload).addSchema(SkillAPISpecs.POST.Schemas.Response.Payload);
 
   const validateGETResponse: ValidateFunction = ajv.getSchema(
-    SkillAPISpecs.Schemas.GET.Response.Payload.$id as string
+    SkillAPISpecs.GET.Schemas.Response.Payload.$id as string
   ) as ValidateFunction;
 
   // Note: Skill API does not have a separate ById response schema, it uses the base response schema for items

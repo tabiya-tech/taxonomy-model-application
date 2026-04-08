@@ -407,7 +407,7 @@ describe("Test for skill handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,
+        errorCode: SkillAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,
         message: "Failed to retrieve the skills from the DB",
         details: "",
       };
@@ -692,7 +692,7 @@ describe("Test for skill handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+        errorCode: SkillAPISpecs.GET.Errors.Status404.ErrorCodes.SKILL_NOT_FOUND,
         message: "skill not found",
         details: `No skill found with id: ${givenSkillId}`,
       };
@@ -779,7 +779,7 @@ describe("Test for skill handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       // AND the response body contains the error information
       const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
-        errorCode: SkillAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL,
+        errorCode: SkillAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL,
         message: "Failed to retrieve the skill from the DB",
         details: "",
       };
@@ -1016,7 +1016,7 @@ describe("Test for skill handler", () => {
       // THEN expect INTERNAL_SERVER_ERROR
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS
+        SkillAPISpecs.GET.Errors.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS
       );
     });
 
@@ -1035,7 +1035,7 @@ describe("Test for skill handler", () => {
       // THEN expect NOT_FOUND
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status404.Parents.ErrorCodes.MODEL_NOT_FOUND
+        SkillAPISpecs.GET.Errors.Status404.Parents.ErrorCodes.MODEL_NOT_FOUND
       );
     });
 
@@ -1055,7 +1055,7 @@ describe("Test for skill handler", () => {
       // THEN expect NOT_FOUND
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status404.Parents.ErrorCodes.SKILL_NOT_FOUND
+        SkillAPISpecs.GET.Errors.Status404.Parents.ErrorCodes.SKILL_NOT_FOUND
       );
     });
 
@@ -1074,7 +1074,7 @@ describe("Test for skill handler", () => {
       // THEN expect INTERNAL_SERVER_ERROR
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS
+        SkillAPISpecs.GET.Errors.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS
       );
     });
 
@@ -1281,7 +1281,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN
+        SkillAPISpecs.GET.Errors.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN
       );
     });
 
@@ -1300,7 +1300,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status404.Children.ErrorCodes.MODEL_NOT_FOUND
+        SkillAPISpecs.GET.Errors.Status404.Children.ErrorCodes.MODEL_NOT_FOUND
       );
     });
 
@@ -1319,7 +1319,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN
+        SkillAPISpecs.GET.Errors.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN
       );
     });
 
@@ -1375,7 +1375,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status404.Children.ErrorCodes.SKILL_NOT_FOUND
+        SkillAPISpecs.GET.Errors.Status404.Children.ErrorCodes.SKILL_NOT_FOUND
       );
     });
 
@@ -1493,7 +1493,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS
+        SkillAPISpecs.GET.Errors.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS
       );
     });
 
@@ -1527,7 +1527,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status404.Occupations.ErrorCodes.MODEL_NOT_FOUND
+        SkillAPISpecs.GET.Errors.Status404.Occupations.ErrorCodes.MODEL_NOT_FOUND
       );
     });
 
@@ -1546,7 +1546,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS
+        SkillAPISpecs.GET.Errors.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS
       );
     });
 
@@ -1602,7 +1602,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status404.Occupations.ErrorCodes.SKILL_NOT_FOUND
+        SkillAPISpecs.GET.Errors.Status404.Occupations.ErrorCodes.SKILL_NOT_FOUND
       );
     });
 
@@ -1769,7 +1769,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS
+        SkillAPISpecs.GET.Errors.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS
       );
     });
 
@@ -1803,7 +1803,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status404.RelatedSkills.ErrorCodes.MODEL_NOT_FOUND
+        SkillAPISpecs.GET.Errors.Status404.RelatedSkills.ErrorCodes.MODEL_NOT_FOUND
       );
     });
 
@@ -1822,7 +1822,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS
+        SkillAPISpecs.GET.Errors.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS
       );
     });
 
@@ -1878,7 +1878,7 @@ describe("Test for skill handler", () => {
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        SkillAPISpecs.Enums.GET.Response.Status404.RelatedSkills.ErrorCodes.SKILL_NOT_FOUND
+        SkillAPISpecs.GET.Errors.Status404.RelatedSkills.ErrorCodes.SKILL_NOT_FOUND
       );
     });
 

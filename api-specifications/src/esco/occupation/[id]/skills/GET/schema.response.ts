@@ -2,7 +2,7 @@ import { SchemaObject } from "ajv";
 import OccupationConstants from "../../../_shared/constants";
 import { RegExp_Str_NotEmptyString } from "../../../../../regex";
 import OccupationEnums from "../../../_shared/enums";
-import { _baseResponseSchema as SkillBaseResponseSchema } from "../../../../skill/schemas.base";
+import { _baseResponseSchema as SkillBaseResponseSchema } from "../../../../skill/_shared/schemas.base";
 
 const SchemaGETSkillsResponse: SchemaObject = {
   $id: "/components/schemas/OccupationResponseSchemaGETSkills",

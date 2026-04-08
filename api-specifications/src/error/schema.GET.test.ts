@@ -74,9 +74,9 @@ describe("Validate JSON against the APIError GET Schema", () => {
           ...Object.values(SkillGroupAPI.SkillGroup.Children.GET.Enums.Response.Status400.ErrorCodes),
           ...Object.values(SkillGroupAPI.SkillGroup.Children.GET.Enums.Response.Status404.ErrorCodes),
           ...Object.values(SkillGroupAPI.SkillGroup.Children.GET.Enums.Response.Status500.ErrorCodes),
-          ...Object.values(SkillsAPI.Enums.GET.Response.Status400.ErrorCodes),
-          ...Object.values(SkillsAPI.Enums.GET.Response.Status404.ErrorCodes),
-          ...Object.values(SkillsAPI.Enums.GET.Response.Status500.ErrorCodes),
+          ...Object.values(SkillsAPI.GET.Errors.Status400.ErrorCodes),
+          ...Object.values(SkillsAPI.GET.Errors.Status404.ErrorCodes),
+          ...Object.values(SkillsAPI.GET.Errors.Status500.ErrorCodes),
         ])
       );
 

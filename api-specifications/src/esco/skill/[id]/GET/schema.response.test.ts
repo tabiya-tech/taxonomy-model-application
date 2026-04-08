@@ -1,0 +1,478 @@
+import { randomUUID } from "crypto";
+import {
+  testNonEmptyStringField,
+  testNonEmptyURIStringField,
+  testObjectIdField,
+  testSchemaWithAdditionalProperties,
+  testSchemaWithValidObject,
+  testStringField,
+  testTimestampField,
+  testURIField,
+  testUUIDArray,
+  testUUIDField,
+  testValidSchema,
+} from "_test_utilities/stdSchemaTests";
+
+import SkillAPISpecs from "../../index";
+import SkillEnums from "../../_shared/enums";
+
+import { getTestString } from "_test_utilities/specialCharacters";
+import { getMockId } from "_test_utilities/mockMongoId";
+import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
+import { getTestSkillGroupCode } from "../../../_test_utilities/testUtils";
+
+describe("Test SkillAPISpecs GET ById Response schema validity", () => {
+  // WHEN the SkillAPISpecs.Skill.GET.Schemas.Response.Payload schema
+  // THEN expect the givenSchema to be valid
+  testValidSchema("SkillAPISpecs.Skill.GET.Schemas.Response.Payload", SkillAPISpecs.Skill.GET.Schemas.Response.Payload);
+});
+
+describe("Test objects against the SkillAPISpecs.Skill.GET.Schemas.Response.Payload schema", () => {
+  // GIVEN a valid parent response payload
+  const givenParent = {
+    id: getMockId(1),
+    UUID: randomUUID(),
+    code: getTestSkillGroupCode(),
+    preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    objectType: SkillEnums.Relations.Parents.ObjectTypes.SkillGroup,
+  };
+  // GIVEN a valid child response payload
+  const givenChild = {
+    id: getMockId(2),
+    UUID: randomUUID(),
+    preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    objectType: SkillEnums.Relations.Children.ObjectTypes.Skill,
+    isLocalized: true,
+  };
+  // GIVEN a valid skill to skill relation
+  const givenSkillRelation = {
+    id: getMockId(3),
+    UUID: randomUUID(),
+    preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    isLocalized: true,
+    objectType: SkillEnums.ObjectTypes.Skill,
+    relationType: SkillEnums.SkillToSkillRelationType.ESSENTIAL,
+  } as const;
+  // GIVEN a valid occupation relation
+  const givenOccupationRelation = {
+    id: getMockId(4),
+    UUID: randomUUID(),
+    preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    isLocalized: true,
+    objectType: SkillEnums.OccupationObjectTypes.LocalOccupation,
+    relationType: SkillEnums.OccupationToSkillRelationType.ESSENTIAL,
+    signallingValue: 1,
+    signallingValueLabel: SkillEnums.SignallingValueLabel.MEDIUM,
+  } as const;
+
+  // GIVEN a valid response payload object
+  const validSkillResponsePayload: SkillAPISpecs.Types.Detail.GET.Response.Payload = {
+    id: getMockId(1),
+    UUID: randomUUID(),
+    originUUID: randomUUID(),
+    path: "https://path/to/skill",
+    tabiyaPath: "https://path/to/skill",
+    originUri: "https://foo/bar",
+    preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    altLabels: [getTestString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    definition: getTestString(SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH),
+    description: getTestString(SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    scopeNote: getTestString(SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
+    skillType: SkillEnums.SkillType.SkillCompetence,
+    reuseLevel: SkillEnums.ReuseLevel.CrossSector,
+    isLocalized: true,
+    modelId: getMockId(1),
+    parents: [givenParent],
+    children: [givenChild],
+    requiresSkills: [givenSkillRelation],
+    requiredBySkills: [givenSkillRelation],
+    requiredByOccupations: [givenOccupationRelation],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    UUIDHistory: [randomUUID()],
+  };
+
+  // WHEN the object is valid
+  // THEN expect the object to validate successfully
+  testSchemaWithValidObject(
+    "SkillAPISpecs.Skill.GET.Schemas.Response.Payload",
+    SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+    validSkillResponsePayload
+  );
+
+  // AND WHEN the object has additional properties
+  // THEN expect the schema to not validate
+  testSchemaWithAdditionalProperties(
+    "SkillAPISpecs.Skill.GET.Schemas.Response.Payload",
+    SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+    { ...validSkillResponsePayload, additionalProperty: "foo" }
+  );
+
+  describe("Validate SkillAPISpecs.Skill.GET.Schemas.Response.Payload fields", () => {
+    describe("Test validate of 'id' ", () => {
+      testObjectIdField("id", SkillAPISpecs.Skill.GET.Schemas.Response.Payload);
+    });
+    describe("Test validate of 'UUID'", () => {
+      testUUIDField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "UUID",
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validate of 'originUUID'", () => {
+      testUUIDField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "originUUID",
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validate of 'UUIDHistory'", () => {
+      testUUIDArray<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "UUIDHistory",
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+        [],
+        true
+      );
+    });
+
+    describe("Test validation of 'path'", () => {
+      testURIField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "path",
+        SkillAPISpecs.Constants.PATH_URI_MAX_LENGTH,
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validation of 'tabiyaPath'", () => {
+      testURIField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "tabiyaPath",
+        SkillAPISpecs.Constants.TABIYA_PATH_URI_MAX_LENGTH,
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validation of 'originUri'", () => {
+      testNonEmptyURIStringField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "originUri",
+        SkillAPISpecs.Constants.ORIGIN_URI_MAX_LENGTH,
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validate of 'preferredLabel'", () => {
+      testNonEmptyStringField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "preferredLabel",
+        SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validate of 'altLabels'", () => {
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'altLabels'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/altLabels", "type", "must be array")],
+        [CaseType.Failure, "empty string", "", constructSchemaError("/altLabels", "type", "must be array")],
+        [
+          CaseType.Failure,
+          "an array of objects",
+          [{}, {}],
+          [
+            constructSchemaError("/altLabels/0", "type", "must be string"),
+            constructSchemaError("/altLabels/1", "type", "must be string"),
+          ],
+        ],
+        [
+          CaseType.Failure,
+          "an array of same strings",
+          ["foo", "foo"],
+          constructSchemaError(
+            "/altLabels",
+            "uniqueItems",
+            "must NOT have duplicate items (items ## 1 and 0 are identical)"
+          ),
+        ],
+        [
+          CaseType.Success,
+          "an array of valid altLabels strings",
+          [
+            getTestString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
+            getTestString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH - 1),
+          ],
+          undefined,
+        ],
+      ])("%s Validate 'altLabels' when it is %s", (caseType, __description, givenValue, failureMessage) => {
+        // GIVEN an object with given value
+        const givenObject = {
+          altLabels: givenValue,
+        };
+
+        // THEN export the array to validate accordingly
+        assertCaseForProperty(
+          "altLabels",
+          givenObject,
+          SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+          caseType,
+          failureMessage
+        );
+      });
+    });
+
+    describe("Test validate of 'definition'", () => {
+      testStringField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "definition",
+        SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH,
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validate of 'description'", () => {
+      testStringField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "description",
+        SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validate of 'scopeNote'", () => {
+      testStringField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "scopeNote",
+        SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH,
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validate of 'skillType'", () => {
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'skillType'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/skillType", "type", "must be string")],
+        [
+          CaseType.Failure,
+          "empty string",
+          "",
+          constructSchemaError("/skillType", "enum", "must be equal to one of the allowed values"),
+        ],
+        [
+          CaseType.Failure,
+          "invalid skillType",
+          "foo",
+          constructSchemaError("/skillType", "enum", "must be equal to one of the allowed values"),
+        ],
+        [CaseType.Success, "valid skillType", SkillEnums.SkillType.SkillCompetence, undefined],
+      ])("%s Validate 'skillType' when it is %s", (caseType, __description, givenValue, failureMessage) => {
+        // GIVEN an object with given value
+        const givenObject = {
+          skillType: givenValue,
+        };
+        // THEN export the object to validate accordingly
+        assertCaseForProperty(
+          "skillType",
+          givenObject,
+          SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+          caseType,
+          failureMessage
+        );
+      });
+    });
+
+    describe("Test validate of 'reuseLevel'", () => {
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'reuseLevel'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/reuseLevel", "type", "must be string")],
+        [
+          CaseType.Failure,
+          "empty string",
+          "",
+          constructSchemaError("/reuseLevel", "enum", "must be equal to one of the allowed values"),
+        ],
+        [
+          CaseType.Failure,
+          "invalid reuseLevel",
+          "foo",
+          constructSchemaError("/reuseLevel", "enum", "must be equal to one of the allowed values"),
+        ],
+        [CaseType.Success, "valid reuseLevel", SkillEnums.ReuseLevel.CrossSector, undefined],
+      ])("%s Validate 'reuseLevel' when it is %s", (caseType, __description, givenValue, failureMessage) => {
+        // GIVEN an object with given value
+        const givenObject = {
+          reuseLevel: givenValue,
+        };
+        // THEN export the object to validate accordingly
+        assertCaseForProperty(
+          "reuseLevel",
+          givenObject,
+          SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+          caseType,
+          failureMessage
+        );
+      });
+    });
+
+    describe("Test validate of 'isLocalized'", () => {
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'isLocalized'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/isLocalized", "type", "must be boolean")],
+        [CaseType.Success, "true", true, undefined],
+        [CaseType.Success, "false", false, undefined],
+      ])("%s Validate 'isLocalized' when it is %s", (caseType, __description, givenValue, failureMessage) => {
+        // GIVEN an object with given value
+        const givenObject = {
+          isLocalized: givenValue,
+        };
+        // THEN export the object to validate accordingly
+        assertCaseForProperty(
+          "isLocalized",
+          givenObject,
+          SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+          caseType,
+          failureMessage
+        );
+      });
+    });
+
+    describe("Test validation of 'modelId'", () => {
+      testObjectIdField("modelId", SkillAPISpecs.Skill.GET.Schemas.Response.Payload);
+    });
+
+    describe("Test validate of 'createdAt'", () => {
+      testTimestampField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "createdAt",
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validate of 'updatedAt'", () => {
+      testTimestampField<SkillAPISpecs.Types.Detail.GET.Response.Payload>(
+        "updatedAt",
+        SkillAPISpecs.Skill.GET.Schemas.Response.Payload
+      );
+    });
+
+    describe("Test validation of 'parents'", () => {
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'parents'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/parents", "type", "must be array")],
+        [
+          CaseType.Success,
+          "valid parents array",
+          [
+            {
+              id: getMockId(1),
+              UUID: randomUUID(),
+              preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+              objectType: SkillEnums.Relations.Parents.ObjectTypes.Skill,
+            },
+          ],
+          undefined,
+        ],
+        [
+          CaseType.Success,
+          "valid parents array with skill group",
+          [
+            {
+              id: getMockId(1),
+              UUID: randomUUID(),
+              code: getTestSkillGroupCode(),
+              preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+              objectType: SkillEnums.Relations.Parents.ObjectTypes.SkillGroup,
+            },
+          ],
+          undefined,
+        ],
+        [
+          CaseType.Failure,
+          "invalid parent object (missing preferredLabel)",
+          {
+            id: getMockId(1),
+            UUID: randomUUID(),
+            objectType: SkillEnums.Relations.Parents.ObjectTypes.Skill,
+          },
+          constructSchemaError("/parents/0", "required", "must have required property 'preferredLabel'"),
+        ],
+      ])("(%s) Validate 'parents' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+        // GIVEN an object with the given value
+        const parentsValue =
+          givenValue !== null &&
+          givenValue !== undefined &&
+          typeof givenValue === "object" &&
+          !Array.isArray(givenValue)
+            ? [givenValue]
+            : givenValue;
+        const givenObject = {
+          parents: parentsValue,
+        };
+        // THEN expect the object to validate accordingly
+        assertCaseForProperty(
+          "parents",
+          givenObject,
+          SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+          caseType,
+          failureMessages
+        );
+      });
+    });
+
+    describe("Test validation of 'children'", () => {
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'children'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/children", "type", "must be array")],
+        [
+          CaseType.Success,
+          "valid children object array",
+          [
+            {
+              id: getMockId(1),
+              UUID: randomUUID(),
+              preferredLabel: getTestString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+              objectType: SkillEnums.Relations.Children.ObjectTypes.Skill,
+              isLocalized: true,
+            },
+          ],
+          undefined,
+        ],
+      ])("(%s) Validate 'children' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+        // GIVEN an object with the given value
+        const givenObject = {
+          children: givenValue,
+        };
+        // THEN expect the object to validate accordingly
+        assertCaseForProperty(
+          "children",
+          givenObject,
+          SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+          caseType,
+          failureMessages
+        );
+      });
+    });
+  });
+});
