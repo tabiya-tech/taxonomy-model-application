@@ -24,8 +24,8 @@ import { randomUUID } from "crypto";
 import OccupationConstants from "../../../_shared/constants";
 import OccupationAPISpecs from "../../../index";
 import OccupationEnums from "../../../_shared/enums";
-import SkillEnums from "../../../../skill/enums";
-import SkillConstants from "../../../../skill/constants";
+import SkillEnums from "../../../../skill/_shared/enums";
+import SkillConstants from "../../../../skill/_shared/constants";
 import { getTestSkillGroupCode } from "../../../../_test_utilities/testUtils";
 
 describe("Test Occupation Skills Response Schema Validity", () => {

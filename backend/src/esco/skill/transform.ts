@@ -197,7 +197,7 @@ export function transformPaginated(
   baseURL: string,
   limit: number,
   cursor: string | null
-): SkillAPISpecs.Types.GET.Response.Payload {
+): SkillAPISpecs.GET.Types.Response.Payload {
   return {
     data: data.map((item) => transform(item, baseURL)),
     limit,
@@ -243,7 +243,7 @@ export function transformPaginatedRelation(
 export function transformSkillOccupation(
   occupationData: OccupationToSkillReferenceWithRelationType<IOccupationReference>,
   baseURL: string
-): SkillAPISpecs.Types.GET.Occupations.Response.Payload["data"][0] {
+): SkillAPISpecs.Skill.Occupations.GET.Types.Response.Payload["data"][0] {
   const data = occupationData as Record<string, unknown>;
   const normalized = {
     ...occupationData,
@@ -267,7 +267,7 @@ export function transformPaginatedOccupations(
   baseURL: string,
   limit: number,
   cursor: string | null
-): SkillAPISpecs.Types.GET.Occupations.Response.Payload {
+): SkillAPISpecs.Skill.Occupations.GET.Types.Response.Payload {
   return {
     data: data.map((item) => transformSkillOccupation(item, baseURL)),
     limit,
@@ -278,7 +278,7 @@ export function transformPaginatedOccupations(
 export function transformSkillRelated(
   skillData: SkillToSkillReferenceWithRelationType<ISkill>,
   baseURL: string
-): SkillAPISpecs.Types.GET.RelatedSkills.Response.Payload["data"][0] {
+): SkillAPISpecs.Skill.RelatedSkills.GET.Types.Response.Payload["data"][0] {
   const transformed = transform(skillData, baseURL);
   return {
     ...transformed,
@@ -291,7 +291,7 @@ export function transformPaginatedRelated(
   baseURL: string,
   limit: number,
   cursor: string | null
-): SkillAPISpecs.Types.GET.RelatedSkills.Response.Payload {
+): SkillAPISpecs.Skill.RelatedSkills.GET.Types.Response.Payload {
   return {
     data: data.map((item) => transformSkillRelated(item, baseURL)),
     limit,
