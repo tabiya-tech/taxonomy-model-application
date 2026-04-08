@@ -74,12 +74,12 @@ describe("Test the GetErrorSchema function", () => {
       ...Object.values(SkillGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
       ...Object.values(SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
       ...Object.values(SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
-      ...Object.values(SkillsAPI.Enums.POST.Response.Status400.ErrorCodes),
-      ...Object.values(SkillsAPI.Enums.POST.Response.Status404.ErrorCodes),
-      ...Object.values(SkillsAPI.Enums.POST.Response.Status500.ErrorCodes),
-      ...Object.values(SkillsAPI.Enums.GET.Response.Status400.ErrorCodes),
-      ...Object.values(SkillsAPI.Enums.GET.Response.Status404.ErrorCodes),
-      ...Object.values(SkillsAPI.Enums.GET.Response.Status500.ErrorCodes),
+      ...Object.values(SkillsAPI.POST.Errors.Status400.ErrorCodes),
+      ...Object.values(SkillsAPI.POST.Errors.Status404.ErrorCodes),
+      ...Object.values(SkillsAPI.POST.Errors.Status500.ErrorCodes),
+      ...Object.values(SkillsAPI.GET.Errors.Status400.ErrorCodes),
+      ...Object.values(SkillsAPI.GET.Errors.Status404.ErrorCodes),
+      ...Object.values(SkillsAPI.GET.Errors.Status500.ErrorCodes),
     ])
   );
   testValidSchema(
@@ -140,12 +140,12 @@ describe("Validate JSON against the APIError GetErrorSchema function", () => {
           ...Object.values(SkillGroupAPI.Enums.GET.Response.Status400.ErrorCodes),
           ...Object.values(SkillGroupAPI.Enums.GET.Response.Status404.ErrorCodes),
           ...Object.values(SkillGroupAPI.Enums.GET.Response.Status500.ErrorCodes),
-          ...Object.values(SkillsAPI.Enums.POST.Response.Status400.ErrorCodes),
-          ...Object.values(SkillsAPI.Enums.POST.Response.Status404.ErrorCodes),
-          ...Object.values(SkillsAPI.Enums.POST.Response.Status500.ErrorCodes),
-          ...Object.values(SkillsAPI.Enums.GET.Response.Status400.ErrorCodes),
-          ...Object.values(SkillsAPI.Enums.GET.Response.Status404.ErrorCodes),
-          ...Object.values(SkillsAPI.Enums.GET.Response.Status500.ErrorCodes),
+          ...Object.values(SkillsAPI.POST.Errors.Status400.ErrorCodes),
+          ...Object.values(SkillsAPI.POST.Errors.Status404.ErrorCodes),
+          ...Object.values(SkillsAPI.POST.Errors.Status500.ErrorCodes),
+          ...Object.values(SkillsAPI.GET.Errors.Status400.ErrorCodes),
+          ...Object.values(SkillsAPI.GET.Errors.Status404.ErrorCodes),
+          ...Object.values(SkillsAPI.GET.Errors.Status500.ErrorCodes),
         ])
       );
       test.each([
