@@ -146,7 +146,7 @@ export class SkillGroupController {
       if (!resolvedModelId) {
         return errorResponseGET(
           StatusCodes.BAD_REQUEST,
-          SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+          SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
           "modelId is missing in the path",
           JSON.stringify({ path: event.path, pathParameters: event.pathParameters, query: event.queryStringParameters })
         );
@@ -157,7 +157,7 @@ export class SkillGroupController {
       };
 
       const validatePathFunction = ajvInstance.getSchema(
-        SkillGroupAPISpecs.Schemas.GET.Request.Param.Payload.$id as string
+        SkillGroupAPISpecs.GET.Schemas.Request.Param.Payload.$id as string
       ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Request.Param.Payload>;
       const isValid = validatePathFunction(requestPathParameter);
       if (!isValid) {
@@ -173,7 +173,7 @@ export class SkillGroupController {
       if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          SkillGroupAPISpecs.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
@@ -181,7 +181,7 @@ export class SkillGroupController {
       if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+          SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
           "Failed to fetch the model details from the DB",
           ""
         );
@@ -194,7 +194,7 @@ export class SkillGroupController {
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
-        SkillGroupAPISpecs.Schemas.GET.Request.Query.Payload.$id as string
+        SkillGroupAPISpecs.GET.Schemas.Request.Query.Payload.$id as string
       ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Request.Query.Payload>;
       const isQueryValid = validateQueryFunction(queryParams);
       if (!isQueryValid) {
@@ -252,7 +252,7 @@ export class SkillGroupController {
       );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         "Failed to retrieve the skill groups from the DB",
         ""
       );
@@ -314,7 +314,7 @@ export class SkillGroupController {
         event.path
       );
       const validatePathFunction = ajvInstance.getSchema(
-        SkillGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+        SkillGroupAPISpecs.SkillGroup.Schemas.Request.Param.Payload.$id as string
       ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
 
       const isValidPathParameter = validatePathFunction(requestPathParameter);
@@ -334,7 +334,7 @@ export class SkillGroupController {
       if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
@@ -342,7 +342,7 @@ export class SkillGroupController {
       if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+          SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
           "Failed to fetch the model details from the DB",
           ""
         );
@@ -351,7 +351,7 @@ export class SkillGroupController {
       if (!skillGroup) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+          SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
           "skill group not found",
           `No skill group found with id: ${requestPathParameter.id}`
         );
@@ -365,7 +365,7 @@ export class SkillGroupController {
       );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         "Failed to retrieve the skill group from the DB",
         ""
       );
@@ -437,7 +437,7 @@ export class SkillGroupController {
       );
 
       const validatePathFunction = ajvInstance.getSchema(
-        SkillGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
+        SkillGroupAPISpecs.SkillGroup.Schemas.Request.Param.Payload.$id as string
       ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
 
       const isValidPathParameter = validatePathFunction(requestPathParameter);
@@ -458,7 +458,7 @@ export class SkillGroupController {
       if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
@@ -466,7 +466,7 @@ export class SkillGroupController {
       if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+          SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
           "Failed to fetch the model details from the DB",
           ""
         );
@@ -476,7 +476,7 @@ export class SkillGroupController {
       if (!skillGroup || skillGroup.modelId !== requestPathParameter.modelId) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+          SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
           "Skill group not found",
           `No skill group found with id: ${requestPathParameter.id}`
         );
@@ -489,7 +489,7 @@ export class SkillGroupController {
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
-        SkillGroupAPISpecs.Schemas.GET.Parents.Request.Query.Payload.$id as string
+        SkillGroupAPISpecs.GET.Schemas.Request.Query.Payload.$id as string
       ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Parents.Request.Query.Payload>;
       const isQueryValid = validateQueryFunction(queryParams);
       if (!isQueryValid) {
@@ -542,7 +542,7 @@ export class SkillGroupController {
       );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         "Failed to retrieve the skill group parents from the DB",
         ""
       );
@@ -608,14 +608,14 @@ export class SkillGroupController {
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getSkillGroupChildren(event: APIGatewayProxyEvent) {
     try {
-      const requestPathParameter = parsePath<SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>(
+      const requestPathParameter = parsePath<SkillGroupAPISpecs.SkillGroup.Types.Param.Payload>(
         Routes.SKILL_GROUP_CHILDREN_ROUTE,
         event.path
       );
 
       const validatePathFunction = ajvInstance.getSchema(
-        SkillGroupAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
-      ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+        SkillGroupAPISpecs.SkillGroup.Schemas.Request.Param.Payload.$id as string
+      ) as ValidateFunction<SkillGroupAPISpecs.SkillGroup.Types.Param.Payload>;
 
       const isValidPathParameter = validatePathFunction(requestPathParameter);
       if (!isValidPathParameter) {
@@ -636,15 +636,16 @@ export class SkillGroupController {
       if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${requestPathParameter.modelId}`
         );
       }
+
       if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+          SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
           "Failed to fetch the model details from the DB",
           ""
         );
@@ -654,7 +655,7 @@ export class SkillGroupController {
       if (!skillGroup || skillGroup.modelId !== requestPathParameter.modelId) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillGroupAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
+          SkillGroupAPISpecs.SkillGroup.GET.Enums.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND,
           "Skill group not found",
           `No skill group found with id: ${requestPathParameter.id}`
         );
@@ -667,9 +668,10 @@ export class SkillGroupController {
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
-        SkillGroupAPISpecs.Schemas.GET.Children.Request.Query.Payload.$id as string
-      ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Children.Request.Query.Payload>;
+        SkillGroupAPISpecs.SkillGroup.Children.GET.Schemas.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillGroupAPISpecs.SkillGroup.Children.GET.Types.Request.Query.Payload>;
       const isQueryValid = validateQueryFunction(queryParams);
+      console.log("we are here 2", { isQueryValid, errors: validateQueryFunction.errors });
       if (!isQueryValid) {
         return errorResponseGET(
           StatusCodes.BAD_REQUEST,
@@ -720,7 +722,7 @@ export class SkillGroupController {
       );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillGroupAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
         "Failed to retrieve the skill group children from the DB",
         ""
       );

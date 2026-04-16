@@ -6,16 +6,18 @@ describe("Test the skillGroup module", () => {
     const skillGroupModule = await import("./");
 
     // THEN check if Schemas is defined in it
-    expect(skillGroupModule.default.Schemas.GET.Response.Payload).toBeDefined();
-    expect(skillGroupModule.default.Schemas.POST.Response.Payload).toBeDefined();
-    expect(skillGroupModule.default.Schemas.POST.Request.Payload).toBeDefined();
-    expect(skillGroupModule.default.Schemas.GET.Request.Param.Payload).toBeDefined();
-    expect(skillGroupModule.default.Schemas.GET.Request.ById.Param.Payload).toBeDefined();
-    expect(skillGroupModule.default.Schemas.GET.Request.Query.Payload).toBeDefined();
-    expect(skillGroupModule.default.Schemas.GET.Response.Parent.Payload).toBeDefined();
-    expect(skillGroupModule.default.Schemas.GET.Response.Parents.Payload).toBeDefined();
-    expect(skillGroupModule.default.Schemas.GET.Response.Child.Payload).toBeDefined();
-    expect(skillGroupModule.default.Schemas.GET.Response.Children.Payload).toBeDefined();
+    expect(skillGroupModule.default.GET.Schemas.Response.Payload).toBeDefined();
+    expect(skillGroupModule.default.POST.Schemas.Response.Payload).toBeDefined();
+    expect(skillGroupModule.default.POST.Schemas.Request.Payload).toBeDefined();
+    expect(skillGroupModule.default.GET.Schemas.Request.Param.Payload).toBeDefined();
+    expect(skillGroupModule.default.GET.Schemas.Request.Query.Payload).toBeDefined();
+    expect(skillGroupModule.default.SkillGroup.Schemas.Request.Param.Payload).toBeDefined();
+    expect(skillGroupModule.default.SkillGroup.Parent.GET.Schemas.Request.Query.Payload).toBeDefined();
+    expect(skillGroupModule.default.SkillGroup.Parent.GET.Schemas.Response.Parents.Payload).toBeDefined();
+    expect(skillGroupModule.default.SkillGroup.Parent.GET.Schemas.Response.Payload).toBeDefined();
+    expect(skillGroupModule.default.SkillGroup.Children.GET.Schemas.Request.Query.Payload).toBeDefined();
+    expect(skillGroupModule.default.SkillGroup.Children.GET.Schemas.Response.Child.Payload).toBeDefined();
+    expect(skillGroupModule.default.SkillGroup.Children.GET.Schemas.Response.Children.Payload).toBeDefined();
 
     // AND check if constants are defined in it
     const Constants = skillGroupModule.default.Constants;

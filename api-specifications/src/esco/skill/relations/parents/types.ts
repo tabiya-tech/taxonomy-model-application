@@ -1,4 +1,4 @@
-import type SkillGroupTypes from "../../../skillGroup/types";
+import type SkillGroupTypes from "../../../skillGroup/_shared/types";
 import type SkillTypes from "../../types";
 
 export type ISkillParentItem = SkillTypes.Response.ISkill | SkillGroupTypes.Response.ISkillGroup;
