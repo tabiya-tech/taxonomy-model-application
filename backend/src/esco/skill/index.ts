@@ -166,13 +166,13 @@ export class SkillController {
         );
       }
 
-      const requestPathParameter: SkillAPISpecs.Types.GET.Request.Param.Payload = {
+      const requestPathParameter: SkillAPISpecs.GET.Types.Request.Param.Payload = {
         modelId: resolvedModelId,
       };
 
       const validatePathFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Request.Param.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Param.Payload>;
+        SkillAPISpecs.GET.Schemas.Request.Param.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.GET.Types.Request.Param.Payload>;
       const isValid = validatePathFunction(requestPathParameter);
       if (!isValid) {
         return errorResponse(
@@ -184,14 +184,14 @@ export class SkillController {
       }
 
       const rawQueryParams = (event.queryStringParameters || {}) as { limit?: string; cursor?: string };
-      const queryParams: SkillAPISpecs.Types.GET.Request.Query.Payload = {
+      const queryParams: SkillAPISpecs.GET.Types.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
         cursor: rawQueryParams.cursor,
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Request.Query.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Query.Payload>;
+        SkillAPISpecs.GET.Schemas.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.GET.Types.Request.Query.Payload>;
       const isQueryValid = validateQueryFunction(queryParams);
       if (!isQueryValid) {
         return errorResponseGET(
@@ -245,7 +245,7 @@ export class SkillController {
       );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,
+        SkillAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,
         "Failed to retrieve the skills from the DB",
         ""
       );
@@ -308,14 +308,14 @@ export class SkillController {
       const resolvedSkillId = idFromParams ?? (execMatch ? execMatch[2] : "");
       const resolvedModelId = modelIdFromParams ?? (execMatch ? execMatch[1] : "");
 
-      const requestPathParameter: SkillAPISpecs.Types.GET.Request.Detail.Param.Payload = {
+      const requestPathParameter: SkillAPISpecs.Skill.GET.Types.Request.Param.Payload = {
         modelId: resolvedModelId,
         id: resolvedSkillId,
       };
 
       const validatePathFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+        SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Skill.GET.Types.Request.Param.Payload>;
 
       const isValidPathParameter = validatePathFunction(requestPathParameter);
       if (!isValidPathParameter) {
@@ -335,7 +335,7 @@ export class SkillController {
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.GET.Response.Status404.ErrorCodes.SKILL_NOT_FOUND,
+          SkillAPISpecs.GET.Errors.Status404.ErrorCodes.SKILL_NOT_FOUND,
           "skill not found",
           `No skill found with id: ${requestPathParameter.id}`
         );
@@ -349,7 +349,7 @@ export class SkillController {
       );
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.GET.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL,
+        SkillAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL,
         "Failed to retrieve the skill from the DB",
         ""
       );
@@ -431,8 +431,8 @@ export class SkillController {
 
       const requestPathParameter = { modelId, id };
       const validatePathFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+        SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Skill.GET.Types.Request.Param.Payload>;
       const isValidPathParameter = validatePathFunction(requestPathParameter);
       if (!isValidPathParameter) {
         return errorResponse(
@@ -451,7 +451,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.GET.Response.Status404.Parents.ErrorCodes.MODEL_NOT_FOUND,
+          SkillAPISpecs.GET.Errors.Status404.Parents.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${modelId}`
         );
@@ -459,21 +459,21 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.Enums.GET.Response.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS,
+          SkillAPISpecs.GET.Errors.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS,
           "Failed to fetch the model details from the DB",
           ""
         );
       }
 
       const rawQueryParams = event.queryStringParameters || {};
-      const queryParams: SkillAPISpecs.Types.GET.Parents.Request.Query.Payload = {
+      const queryParams: SkillAPISpecs.Skill.Parents.GET.Types.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
         cursor: rawQueryParams.cursor ?? undefined,
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Parents.Request.Query.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Parents.Request.Query.Payload>;
+        SkillAPISpecs.Skill.Parents.GET.Schemas.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Skill.Parents.GET.Types.Request.Query.Payload>;
       if (!validateQueryFunction(queryParams)) {
         return errorResponseGET(
           StatusCodes.BAD_REQUEST,
@@ -504,7 +504,7 @@ export class SkillController {
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.GET.Response.Status404.Parents.ErrorCodes.SKILL_NOT_FOUND,
+          SkillAPISpecs.GET.Errors.Status404.Parents.ErrorCodes.SKILL_NOT_FOUND,
           "skill not found",
           `No skill found with id: ${id}`
         );
@@ -524,7 +524,7 @@ export class SkillController {
       console.error("Failed to get parents:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.GET.Response.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS,
+        SkillAPISpecs.GET.Errors.Status500.Parents.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_PARENTS,
         "Failed to retrieve the skill parents from the DB",
         ""
       );
@@ -606,8 +606,8 @@ export class SkillController {
 
       const requestPathParameter = { modelId, id };
       const validatePathFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+        SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Skill.GET.Types.Request.Param.Payload>;
       const isValidPathParameter = validatePathFunction(requestPathParameter);
       if (!isValidPathParameter) {
         return errorResponse(
@@ -626,7 +626,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.GET.Response.Status404.Children.ErrorCodes.MODEL_NOT_FOUND,
+          SkillAPISpecs.GET.Errors.Status404.Children.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${modelId}`
         );
@@ -634,21 +634,21 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.Enums.GET.Response.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN,
+          SkillAPISpecs.GET.Errors.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN,
           "Failed to fetch the model details from the DB",
           ""
         );
       }
 
       const rawQueryParams = event.queryStringParameters || {};
-      const queryParams: SkillAPISpecs.Types.GET.Children.Request.Query.Payload = {
+      const queryParams: SkillAPISpecs.Skill.Children.GET.Types.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
         cursor: rawQueryParams.cursor ?? undefined,
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Children.Request.Query.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Children.Request.Query.Payload>;
+        SkillAPISpecs.Skill.Children.GET.Schemas.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Skill.Children.GET.Types.Request.Query.Payload>;
       if (!validateQueryFunction(queryParams)) {
         return errorResponseGET(
           StatusCodes.BAD_REQUEST,
@@ -679,7 +679,7 @@ export class SkillController {
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.GET.Response.Status404.Children.ErrorCodes.SKILL_NOT_FOUND,
+          SkillAPISpecs.GET.Errors.Status404.Children.ErrorCodes.SKILL_NOT_FOUND,
           "skill not found",
           `No skill found with id: ${id}`
         );
@@ -699,7 +699,7 @@ export class SkillController {
       console.error("Failed to get children:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.GET.Response.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN,
+        SkillAPISpecs.GET.Errors.Status500.Children.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_CHILDREN,
         "Failed to retrieve the skill children from the DB",
         ""
       );
@@ -781,8 +781,8 @@ export class SkillController {
 
       const requestPathParameter = { modelId, id };
       const validatePathFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+        SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Skill.GET.Types.Request.Param.Payload>;
       const isValidPathParameter = validatePathFunction(requestPathParameter);
       if (!isValidPathParameter) {
         return errorResponse(
@@ -801,7 +801,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.GET.Response.Status404.Occupations.ErrorCodes.MODEL_NOT_FOUND,
+          SkillAPISpecs.GET.Errors.Status404.Occupations.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${modelId}`
         );
@@ -809,21 +809,21 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.Enums.GET.Response.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
+          SkillAPISpecs.GET.Errors.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
           "Failed to fetch the model details from the DB",
           ""
         );
       }
 
       const rawQueryParams = event.queryStringParameters || {};
-      const queryParams: SkillAPISpecs.Types.GET.Occupations.Request.Query.Payload = {
+      const queryParams: SkillAPISpecs.Skill.Occupations.GET.Types.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
         cursor: rawQueryParams.cursor ?? undefined,
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Occupations.Request.Query.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Occupations.Request.Query.Payload>;
+        SkillAPISpecs.Skill.Occupations.GET.Schemas.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Skill.Occupations.GET.Types.Request.Query.Payload>;
       if (!validateQueryFunction(queryParams)) {
         return errorResponseGET(
           StatusCodes.BAD_REQUEST,
@@ -854,7 +854,7 @@ export class SkillController {
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.GET.Response.Status404.Occupations.ErrorCodes.SKILL_NOT_FOUND,
+          SkillAPISpecs.GET.Errors.Status404.Occupations.ErrorCodes.SKILL_NOT_FOUND,
           "skill not found",
           `No skill found with id: ${id}`
         );
@@ -874,7 +874,7 @@ export class SkillController {
       console.error("Failed to get occupations:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.GET.Response.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
+        SkillAPISpecs.GET.Errors.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
         "Failed to retrieve the skill occupations from the DB",
         ""
       );
@@ -956,8 +956,8 @@ export class SkillController {
 
       const requestPathParameter = { modelId, id };
       const validatePathFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.Request.ById.Param.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.Request.Detail.Param.Payload>;
+        SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Skill.GET.Types.Request.Param.Payload>;
       const isValidPathParameter = validatePathFunction(requestPathParameter);
       if (!isValidPathParameter) {
         return errorResponse(
@@ -976,7 +976,7 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.GET.Response.Status404.RelatedSkills.ErrorCodes.MODEL_NOT_FOUND,
+          SkillAPISpecs.GET.Errors.Status404.RelatedSkills.ErrorCodes.MODEL_NOT_FOUND,
           "Model not found",
           `No model found with id: ${modelId}`
         );
@@ -984,21 +984,21 @@ export class SkillController {
       if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.Enums.GET.Response.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS,
+          SkillAPISpecs.GET.Errors.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS,
           "Failed to fetch the model details from the DB",
           ""
         );
       }
 
       const rawQueryParams = event.queryStringParameters || {};
-      const queryParams: SkillAPISpecs.Types.GET.RelatedSkills.Request.Query.Payload = {
+      const queryParams: SkillAPISpecs.Skill.RelatedSkills.GET.Types.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
         cursor: rawQueryParams.cursor ?? undefined,
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
-        SkillAPISpecs.Schemas.GET.RelatedSkills.Request.Query.Payload.$id as string
-      ) as ValidateFunction<SkillAPISpecs.Types.GET.RelatedSkills.Request.Query.Payload>;
+        SkillAPISpecs.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id as string
+      ) as ValidateFunction<SkillAPISpecs.Skill.RelatedSkills.GET.Types.Request.Query.Payload>;
       if (!validateQueryFunction(queryParams)) {
         return errorResponseGET(
           StatusCodes.BAD_REQUEST,
@@ -1029,7 +1029,7 @@ export class SkillController {
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Enums.GET.Response.Status404.RelatedSkills.ErrorCodes.SKILL_NOT_FOUND,
+          SkillAPISpecs.GET.Errors.Status404.RelatedSkills.ErrorCodes.SKILL_NOT_FOUND,
           "skill not found",
           `No skill found with id: ${id}`
         );
@@ -1049,7 +1049,7 @@ export class SkillController {
       console.error("Failed to get related skills:", error);
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        SkillAPISpecs.Enums.GET.Response.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS,
+        SkillAPISpecs.GET.Errors.Status500.RelatedSkills.ErrorCodes.DB_FAILED_TO_RETRIEVE_RELATED_SKILLS,
         "Failed to retrieve the related skills from the DB",
         ""
       );

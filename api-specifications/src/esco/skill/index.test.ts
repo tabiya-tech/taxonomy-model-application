@@ -6,9 +6,14 @@ describe("Test the Skill module", () => {
     const skillModule = await import("./");
 
     // THEN check if Schemas are defined
-    expect(skillModule.default.Schemas.GET.Response.Payload).toBeDefined();
-    expect(skillModule.default.Schemas.POST.Response.Payload).toBeDefined();
-    expect(skillModule.default.Schemas.POST.Request.Payload).toBeDefined();
+    expect(skillModule.default.GET.Schemas.Response.Payload).toBeDefined();
+    expect(skillModule.default.POST.Schemas.Response.Payload).toBeDefined();
+    expect(skillModule.default.POST.Schemas.Request.Payload).toBeDefined();
+    expect(skillModule.default.Skill.GET.Schemas.Request.Param.Payload).toBeDefined();
+    expect(skillModule.default.Skill.Parents.GET.Schemas.Response.Payload).toBeDefined();
+    expect(skillModule.default.Skill.Children.GET.Schemas.Response.Payload).toBeDefined();
+    expect(skillModule.default.Skill.Occupations.GET.Schemas.Response.Payload).toBeDefined();
+    expect(skillModule.default.Skill.RelatedSkills.GET.Schemas.Response.Payload).toBeDefined();
 
     // AND check if constants are defined
     const Constants = skillModule.default.Constants;

@@ -61,9 +61,9 @@ describe("Validate JSON against the APIError POST Schema", () => {
         ...Object.values(SkillGroupAPI.Enums.POST.Response.Status400.ErrorCodes),
         ...Object.values(SkillGroupAPI.Enums.POST.Response.Status404.ErrorCodes),
         ...Object.values(SkillGroupAPI.Enums.POST.Response.Status500.ErrorCodes),
-        ...Object.values(SkillsAPI.Enums.POST.Response.Status400.ErrorCodes),
-        ...Object.values(SkillsAPI.Enums.POST.Response.Status404.ErrorCodes),
-        ...Object.values(SkillsAPI.Enums.POST.Response.Status500.ErrorCodes),
+        ...Object.values(SkillsAPI.POST.Errors.Status400.ErrorCodes),
+        ...Object.values(SkillsAPI.POST.Errors.Status404.ErrorCodes),
+        ...Object.values(SkillsAPI.POST.Errors.Status500.ErrorCodes),
       ];
 
       test.each([
