@@ -28,5 +28,10 @@
     "name": "Kenya (English)",
     "shortCode": "KE-en",
     "UUID": "d39a2669-1b09-41dd-8d13-250628cfa9ec"
+  },
+  {
+    "name": "Zambia (English)",
+    "shortCode": "ZM-en",
+    "UUID": "993f2c9d-b911-49fb-a9e1-274d2c2c5d3b"
   }
 ]
