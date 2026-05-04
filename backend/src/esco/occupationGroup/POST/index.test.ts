@@ -8,8 +8,8 @@ import * as responseModule from "./response";
 import { OccupationGroupCreateController } from "./index";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
-import { IOccupationGroupService, OccupationGroupModelValidationError } from "../occupationGroupService.type";
-import { ModelForOccupationGroupValidationErrorCode } from "../OccupationGroup.types";
+import { IOccupationGroupService, OccupationGroupModelValidationError } from "../services/occupationGroup.service.type";
+import { ModelForOccupationGroupValidationErrorCode } from "../_shared/OccupationGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
 
@@ -130,7 +130,9 @@ describe("OccupationGroupCreateController", () => {
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.create = jest
       .fn()
-      .mockRejectedValue(new OccupationGroupModelValidationError(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID));
+      .mockRejectedValue(
+        new OccupationGroupModelValidationError(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID)
+      );
 
     const controller = new OccupationGroupCreateController();
     const actualResponse = await controller.postOccupationGroup(buildEvent(payload));

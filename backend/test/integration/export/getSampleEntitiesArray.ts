@@ -2,14 +2,11 @@ import { INewOccupationSpec, IOccupation } from "esco/occupations/_shared/occupa
 import { getMockRandomISCOGroupCode, getMockRandomLocalGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
-import {
-  INewOccupationGroupSpec,
-  IOccupationGroup,
-} from "esco/occupationGroup/OccupationGroup.types";
+import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { INewSkillSpec, ISkill, ReuseLevel, SkillType } from "esco/skill/skills.types";
 import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
-import { INewOccupationHierarchyPairSpec} from "esco/occupationHierarchy/occupationHierarchy.types";
+import { INewOccupationHierarchyPairSpec } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { INewSkillHierarchyPairSpec } from "esco/skillHierarchy/skillHierarchy.types";
 import {
   INewOccupationToSkillPairSpec,
@@ -118,7 +115,10 @@ export const getSampleSkillGroupsSpecs = (givenModelId: string, length: number =
   }));
 };
 
-export const getSampleISCOGroupSpecsWithParent = (givenModelId: string, parent: INewOccupationGroupSpec): INewOccupationGroupSpec => {
+export const getSampleISCOGroupSpecsWithParent = (
+  givenModelId: string,
+  parent: INewOccupationGroupSpec
+): INewOccupationGroupSpec => {
   // Create ISCO groups with properly structured codes
   return {
     code: `${parent.code}1`,
@@ -134,7 +134,10 @@ export const getSampleISCOGroupSpecsWithParent = (givenModelId: string, parent: 
 };
 const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 let _alphabetIndex = 0;
-export const getSampleLocalGroupSpecsWithParent = (givenModelId: string, parent: INewOccupationGroupSpec): INewOccupationGroupSpec => {
+export const getSampleLocalGroupSpecsWithParent = (
+  givenModelId: string,
+  parent: INewOccupationGroupSpec
+): INewOccupationGroupSpec => {
   // Create local groups with codes based on their parent ISCO groups
   const code = parent.code + characters[_alphabetIndex++];
   return {
@@ -150,7 +153,10 @@ export const getSampleLocalGroupSpecsWithParent = (givenModelId: string, parent:
   };
 };
 
-export const getSampleESCOOccupationSpecsWithParent = (givenModelId: string, parent: INewOccupationGroupSpec | INewOccupationSpec): INewOccupationSpec => {
+export const getSampleESCOOccupationSpecsWithParent = (
+  givenModelId: string,
+  parent: INewOccupationGroupSpec | INewOccupationSpec
+): INewOccupationSpec => {
   // Create ESCO occupations with codes based on their parent groups
   return {
     occupationGroupCode: parent.code.split(".")[0],
@@ -170,7 +176,10 @@ export const getSampleESCOOccupationSpecsWithParent = (givenModelId: string, par
   };
 };
 
-export const getSampleLocalOccupationSpecsWithParent = (givenModelId: string, parent: INewOccupationSpec | INewOccupationGroupSpec): INewOccupationSpec => {
+export const getSampleLocalOccupationSpecsWithParent = (
+  givenModelId: string,
+  parent: INewOccupationSpec | INewOccupationGroupSpec
+): INewOccupationSpec => {
   return {
     occupationGroupCode: parent.code.split("_")[0].split(".")[0],
     code: `${parent.code}_1`,
@@ -204,7 +213,6 @@ export const generateSampleEntitySpecs = (
   isco_groups_with_parent_l3: INewOccupationGroupSpec[];
   base_isco_groups: INewOccupationGroupSpec[];
 } => {
-
   // create 10 base ISCO groups (Level 0)
   const base_isco_groups = getSampleISCOGroupSpecs(givenModelId, 10);
 
@@ -212,7 +220,7 @@ export const generateSampleEntitySpecs = (
   const isco_groups_with_parent_l1 = base_isco_groups.map((group) => {
     return getSampleISCOGroupSpecsWithParent(givenModelId, group);
   });
-  
+
   // create 10 ISCO groups with parents (Level 2)
   const isco_groups_with_parent_l2 = isco_groups_with_parent_l1.map((group) => {
     return getSampleISCOGroupSpecsWithParent(givenModelId, group);
@@ -254,10 +262,12 @@ export const generateSampleEntitySpecs = (
   });
 
   // create 10 local occupations with parent local occupations
-  const local_occupations_with_parent_local_occupations = local_occupations_with_parent_local_groups.map((occupation) => {
-    return getSampleLocalOccupationSpecsWithParent(givenModelId, occupation);
-  });
-  
+  const local_occupations_with_parent_local_occupations = local_occupations_with_parent_local_groups.map(
+    (occupation) => {
+      return getSampleLocalOccupationSpecsWithParent(givenModelId, occupation);
+    }
+  );
+
   return {
     local_occupations_with_parent_isco_groups,
     local_occupations_with_parent_local_groups,
@@ -284,14 +294,14 @@ export const getSampleOccupationHierarchySpecs = (
   givenLocalOccupationsWithParentLocalGroups: IOccupation[],
   givenLocalOccupationsWithParentESCOOccupations: IOccupation[],
   givenLocalOccupationsWithParentLocalOccupations: IOccupation[],
-  givenLocalGroupsWithParentISCOGroups: IOccupationGroup[],
+  givenLocalGroupsWithParentISCOGroups: IOccupationGroup[]
 ): INewOccupationHierarchyPairSpec[] => {
   const specs: INewOccupationHierarchyPairSpec[] = [];
 
   // ISCO groups -> ISCO groups
   givenBaseISCOGroups.forEach((parent, index) => {
     const child = givenISCOGroupsL1[index];
-    if(child) {
+    if (child) {
       specs.push({
         parentId: parent.id,
         parentType: ObjectTypes.ISCOGroup,
@@ -304,7 +314,7 @@ export const getSampleOccupationHierarchySpecs = (
   // ISCO groups -> Local groups
   givenISCOGroupsL3.forEach((parent, index) => {
     const child = givenLocalGroupsWithParentISCOGroups[index];
-    if(child) {
+    if (child) {
       specs.push({
         parentId: parent.id,
         parentType: ObjectTypes.ISCOGroup,
@@ -317,7 +327,7 @@ export const getSampleOccupationHierarchySpecs = (
   // ISCO groups -> ESCO occupations
   givenISCOGroupsL3.forEach((parent, index) => {
     const child = givenESCOOccupationsWithParentISCOGroups[index];
-    if(child) {
+    if (child) {
       specs.push({
         parentId: parent.id,
         parentType: ObjectTypes.ISCOGroup,
@@ -330,7 +340,7 @@ export const getSampleOccupationHierarchySpecs = (
   // ISCO Groups -> Local occupations
   givenISCOGroupsL3.forEach((parent, index) => {
     const child = givenLocalOccupationsWithParentISCOGroups[index];
-    if(child) {
+    if (child) {
       specs.push({
         parentId: parent.id,
         parentType: ObjectTypes.ISCOGroup,
@@ -343,7 +353,7 @@ export const getSampleOccupationHierarchySpecs = (
   // ESCO occupations -> ESCO occupations
   givenESCOOccupationsWithParentISCOGroups.forEach((parent, index) => {
     const child = givenESCOOccupationsWithParentESCOOccupations[index];
-    if(child) {
+    if (child) {
       specs.push({
         parentId: parent.id,
         parentType: ObjectTypes.ESCOOccupation,
@@ -356,7 +366,7 @@ export const getSampleOccupationHierarchySpecs = (
   // ESCO occupations -> Local occupations
   givenESCOOccupationsWithParentISCOGroups.forEach((parent, index) => {
     const child = givenLocalOccupationsWithParentESCOOccupations[index];
-    if(child) {
+    if (child) {
       specs.push({
         parentId: parent.id,
         parentType: ObjectTypes.ESCOOccupation,
@@ -369,7 +379,7 @@ export const getSampleOccupationHierarchySpecs = (
   // Local occupations -> Local occupations
   givenLocalOccupationsWithParentLocalGroups.forEach((parent, index) => {
     const child = givenLocalOccupationsWithParentLocalOccupations[index];
-    if(child) {
+    if (child) {
       specs.push({
         parentId: parent.id,
         parentType: ObjectTypes.LocalOccupation,
@@ -400,7 +410,7 @@ export const getSampleOccupationToSkillRelations = (
 ): INewOccupationToSkillPairSpec[] => {
   expect(givenOccupations.length).toBeGreaterThanOrEqual(givenSkills.length);
   function getRelationType(i: number, occupationType: string) {
-    if(occupationType === ObjectTypes.ESCOOccupation) {
+    if (occupationType === ObjectTypes.ESCOOccupation) {
       switch (i % 2) {
         case 0:
           return OccupationToSkillRelationType.OPTIONAL;
@@ -413,7 +423,7 @@ export const getSampleOccupationToSkillRelations = (
   }
 
   function getSignallingValueLabel(i: number, occupationType: string) {
-    if(occupationType === ObjectTypes.LocalOccupation) {
+    if (occupationType === ObjectTypes.LocalOccupation) {
       switch (i % 3) {
         case 0:
           return SignallingValueLabel.LOW;
@@ -427,14 +437,13 @@ export const getSampleOccupationToSkillRelations = (
     } else return SignallingValueLabel.NONE;
   }
   return givenSkills.map((skill, i) => ({
-        requiringOccupationType: givenOccupations[i].occupationType,
-        requiredSkillId: skill.id,
-        requiringOccupationId: givenOccupations[i].id,
-        relationType: getRelationType(i, givenOccupations[i].occupationType),
-        signallingValueLabel: getSignallingValueLabel(i, givenOccupations[i].occupationType),
-        signallingValue: givenOccupations[i].occupationType === ObjectTypes.LocalOccupation ? Math.random() : null,
-    })
-  );
+    requiringOccupationType: givenOccupations[i].occupationType,
+    requiredSkillId: skill.id,
+    requiringOccupationId: givenOccupations[i].id,
+    relationType: getRelationType(i, givenOccupations[i].occupationType),
+    signallingValueLabel: getSignallingValueLabel(i, givenOccupations[i].occupationType),
+    signallingValue: givenOccupations[i].occupationType === ObjectTypes.LocalOccupation ? Math.random() : null,
+  }));
 };
 
 export const getSampleSkillToSkillRelations = (givenSkills: ISkill[]): INewSkillToSkillPairSpec[] => {

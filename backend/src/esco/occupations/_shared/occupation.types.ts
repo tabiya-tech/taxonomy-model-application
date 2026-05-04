@@ -1,6 +1,6 @@
 import { ImportIdentifiable, ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import mongoose from "mongoose";
-import { IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ISkill, ISkillReference } from "esco/skill/skills.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import {

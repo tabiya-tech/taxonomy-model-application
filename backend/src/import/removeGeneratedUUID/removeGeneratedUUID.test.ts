@@ -22,7 +22,7 @@ import {
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { IOccupation } from "esco/occupations/_shared/occupation.types";
 import { ISkill } from "esco/skill/skills.types";
-import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 

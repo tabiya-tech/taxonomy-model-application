@@ -5,7 +5,7 @@ import { IOccupation, INewOccupationSpec } from "./occupation.types";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { IOccupationReference } from "./occupationReference.types";
-import { IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import {

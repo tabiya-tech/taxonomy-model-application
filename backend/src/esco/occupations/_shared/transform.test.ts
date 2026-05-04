@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { IOccupation } from "./occupation.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
-import { IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 

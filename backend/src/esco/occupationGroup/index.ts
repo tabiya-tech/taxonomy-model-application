@@ -1,35 +1,17 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import {
-  errorResponse,
-  errorResponseGET,
-  HTTP_VERBS,
-  responseJSON,
-  StatusCodes,
-  STD_ERRORS_RESPONSES,
-} from "server/httpUtils";
-import { ajvInstance } from "validator";
+import { HTTP_VERBS, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import AuthAPISpecs from "api-specifications/auth";
-
-import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
-import OccupationGroupDetailAPISpecs from "api-specifications/esco/occupationGroup/[id]";
-
-import { ValidateFunction } from "ajv";
-import { transform } from "./transform";
-import { getResourcesBaseUrl } from "server/config/config";
-import { ModelForOccupationGroupValidationErrorCode } from "./OccupationGroup.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import ErrorAPISpecs from "api-specifications/error";
 import { pathToRegexp } from "path-to-regexp";
-import { parsePath } from "common/parsePath/parsePath";
-import errorLoggerInstance from "common/errorLogger/errorLogger";
-import { IOccupationGroupService } from "./occupationGroupService.type";
+import { IOccupationGroupService } from "./services/occupationGroup.service.type";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { OccupationGroupListController } from "./GET";
 import { OccupationGroupCreateController } from "./POST";
 import { OccupationGroupParentController } from "./[id]/parent/GET";
 import { OccupationGroupChildrenController } from "./[id]/children/GET";
+import { OccupationGroupDetailController } from "./[id]/GET";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -241,73 +223,7 @@ export class OccupationGroupController {
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroup(event: APIGatewayProxyEvent) {
-    try {
-      const requestPathParameter = parsePath<OccupationGroupAPISpecs.OccupationGroup.Types.Param.Payload>(
-        Routes.OCCUPATION_GROUP_ROUTE,
-        event.path
-      );
-
-      const validatePathFunction = ajvInstance.getSchema(
-        OccupationGroupDetailAPISpecs.Schemas.Request.Param.Payload.$id as string
-      ) as ValidateFunction<OccupationGroupAPISpecs.OccupationGroup.Types.Param.Payload>;
-
-      const isValidPathParameter = validatePathFunction(requestPathParameter);
-      if (!isValidPathParameter) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
-          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
-          JSON.stringify({
-            reason: "Invalid modelId or occupationGroup Id",
-            path: event.path,
-            pathParameters: event.pathParameters,
-          })
-        );
-      }
-
-      const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
-        requestPathParameter.modelId
-      );
-      if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${requestPathParameter.modelId}`
-        );
-      }
-      if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status500.ErrorCodes
-            .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
-
-      const occupationGroup = await this.occupationGroupService.findById(requestPathParameter.id);
-      if (!occupationGroup) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status404.ErrorCodes.OCCUPATION_GROUP_NOT_FOUND,
-          "Occupation group not found",
-          `No occupation group found with id: ${requestPathParameter.id}`
-        );
-      }
-      return responseJSON(StatusCodes.OK, transform(occupationGroup, getResourcesBaseUrl()));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Failed to get occupation group by id:", error);
-      errorLoggerInstance.logError("Failed to retrieve the occupation group from the DB", error.name);
-      return errorResponseGET(
-        StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status500.ErrorCodes
-          .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL,
-        "Failed to retrieve the occupation group from the DB",
-        ""
-      );
-    }
+    return new OccupationGroupDetailController().getOccupationGroup(event);
   }
   /**
    * @openapi

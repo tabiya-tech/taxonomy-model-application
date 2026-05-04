@@ -22,53 +22,6 @@ export class OccupationGroupParentController {
     this.occupationGroupService = getServiceRegistry().occupationGroup;
   }
 
-  /**
-   * @openapi
-   *
-   * /models/{modelId}/occupationGroups/{id}/parent:
-   *  get:
-   *   operationId: GETOccupationGroupParentByOccupationGroupId
-   *   tags:
-   *    - occupationGroups
-   *   summary: Get an occupation group's parent by its child occupation group identifier in a taxonomy model.
-   *   description: Retrieve an occupation group parent by its unique child occupation group identifier in a specific taxonomy model.
-   *   security:
-   *    - api_key: []
-   *    - jwt_auth: []
-   *   parameters:
-   *    - in: path
-   *      name: modelId
-   *      required: true
-   *      schema:
-   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/modelId'
-   *    - in: path
-   *      name: id
-   *      required: true
-   *      schema:
-   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/id'
-   *   responses:
-   *     '200':
-   *       description: Successfully retrieved the occupation group parent.
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/OccupationGroupParentResponseSchemaGET'
-   *     '401':
-   *       $ref: '#/components/responses/UnAuthorizedResponse'
-   *     '404':
-   *       description: Occupation group parent not found.
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/GETOccupationGroupParent404ErrorSchema'
-   *     '500':
-   *       description: |
-   *         The server encountered an unexpected condition.
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/All500ResponseSchema'
-   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getParentOccupationGroup(event: APIGatewayProxyEvent) {
     try {

@@ -9,7 +9,7 @@ import { RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry
 import { IOccupationHierarchyRepository } from "./occupationHierarchyRepository";
 import { Connection } from "mongoose";
 import { randomUUID } from "crypto";
-import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
+import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { INewOccupationSpec, IOccupation } from "esco/occupations/_shared/occupation.types";
 
 /*

@@ -1,4 +1,4 @@
-import { IOccupationGroup, IOccupationGroupChild } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup, IOccupationGroupChild } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { Routes } from "routes.constant";
 import { ObjectTypes } from "esco/common/objectTypes";

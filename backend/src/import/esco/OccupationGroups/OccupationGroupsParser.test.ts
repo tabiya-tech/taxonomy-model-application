@@ -3,8 +3,8 @@ import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { parseOccupationGroupsFromFile, parseOccupationGroupsFromUrl } from "./OccupationGroupsParser";
-import { IOccupationGroupRepository } from "esco/occupationGroup/OccupationGroupRepository";
-import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroupRepository } from "esco/occupationGroup/repository/OccupationGroup.repository";
+import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import fs from "fs";
 import { StatusCodes } from "server/httpUtils";
 import { isSpecified } from "server/isUnspecified";

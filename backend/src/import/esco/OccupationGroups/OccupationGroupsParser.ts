@@ -1,4 +1,4 @@
-import { IOccupationGroup, INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup, INewOccupationGroupSpec } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { processDownloadStream, processStream } from "import/stream/processStream";
 import fs from "fs";

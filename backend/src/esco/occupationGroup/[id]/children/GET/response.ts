@@ -1,4 +1,4 @@
-import { IOccupationGroupChild } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroupChild } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { transformPaginatedChildren as transformOccupationGroupPaginatedChildren } from "esco/occupationGroup/_shared/transform";
 
 export function transformPaginatedChildren(

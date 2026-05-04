@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
-import { getOccupationGroupDocReference, OccupationGroupDocument } from "esco/occupationGroup/OccupationGroupReference";
-import { IOccupationGroupReference, IOccupationGroupReferenceDoc } from "esco/occupationGroup/OccupationGroup.types";
+import {
+  getOccupationGroupDocReference,
+  OccupationGroupDocument,
+} from "esco/occupationGroup/services/OccupationGroupReference";
+import {
+  IOccupationGroupReference,
+  IOccupationGroupReferenceDoc,
+} from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IPopulatedOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import {
@@ -9,7 +15,7 @@ import {
 } from "esco/occupationHierarchy/populateFunctions";
 import { getOccupationDocReference, OccupationDocument } from "esco/occupations/services/occupation.reference";
 import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/_shared/occupationReference.types";
-import { OccupationGroupModelPaths } from "./OccupationGroupModel";
+import { OccupationGroupModelPaths } from "../model/OccupationGroup.model";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };

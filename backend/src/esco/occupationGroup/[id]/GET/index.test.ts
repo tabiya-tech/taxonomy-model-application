@@ -105,9 +105,7 @@ describe("OccupationGroupDetailController", () => {
     const controller = new OccupationGroupDetailController();
     const actualResponse = await controller.getOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1"));
 
-    expect(mockGetOccupationGroupDetailPathParameters).toHaveBeenCalledWith(
-      "/models/model-1/occupationGroups/group-1"
-    );
+    expect(mockGetOccupationGroupDetailPathParameters).toHaveBeenCalledWith("/models/model-1/occupationGroups/group-1");
     expect(mockServiceRegistry.occupationGroup.validateModelForOccupationGroup).toHaveBeenCalledWith("model-1");
     expect(mockServiceRegistry.occupationGroup.findById).toHaveBeenCalledWith("group-1");
     expect(mockTransform).toHaveBeenCalledWith(occupationGroup, "https://resources.example.com");

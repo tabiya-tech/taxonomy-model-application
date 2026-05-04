@@ -1,5 +1,5 @@
 import { IPopulatedOccupationHierarchyPairDoc } from "./occupationHierarchy.types";
-import { IOccupationGroupDoc, IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroupDoc, IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { IOccupationDoc } from "esco/occupations/_shared/occupation.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import mongoose from "mongoose";

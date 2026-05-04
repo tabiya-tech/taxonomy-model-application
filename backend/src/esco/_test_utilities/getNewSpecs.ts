@@ -1,7 +1,7 @@
 import {
   INewOccupationGroupSpec,
   INewOccupationGroupSpecWithoutImportId,
-} from "esco/occupationGroup/OccupationGroup.types";
+} from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { generateRandomUrl, getRandomBoolean, getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import {
   DEFINITION_MAX_LENGTH,

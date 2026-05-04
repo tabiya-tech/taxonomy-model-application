@@ -1,6 +1,9 @@
 import { ObjectTypes } from "esco/common/objectTypes";
 import { transformParent } from "./response";
-import { getIOccupationGroupMockData, getIOccupationGroupMockDataWithOccupationChildren } from "../../../testDataHelper";
+import {
+  getIOccupationGroupMockData,
+  getIOccupationGroupMockDataWithOccupationChildren,
+} from "../../../_shared/testDataHelper";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 
 describe("transformParent()", () => {
@@ -49,6 +52,8 @@ describe("transformParent()", () => {
       preferredLabel: "Parent",
       objectType: OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.ISCOGroup,
     });
-    expect(actual.children[0].objectType).toBe(OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation);
+    expect(actual.children[0].objectType).toBe(
+      OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation
+    );
   });
 });

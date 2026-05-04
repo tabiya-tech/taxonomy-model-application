@@ -7,7 +7,7 @@ import {
 import { INewOccupationSpecWithoutImportId, IOccupation } from "../_shared/occupation.types";
 import { IOccupationRepository } from "../repository/occupation.repository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
-import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 
 export class OccupationService implements IOccupationService {
   private readonly occupationRepository: IOccupationRepository;

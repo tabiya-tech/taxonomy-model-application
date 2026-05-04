@@ -6,12 +6,12 @@ import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import OccupationGroupGETAPISpecs from "api-specifications/esco/occupationGroup/GET";
 import { RoleRequired } from "auth/authorizer";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
-import { ajvInstance, ParseValidationError } from "validator";
+import { ajvInstance } from "validator";
 import { getResourcesBaseUrl } from "server/config/config";
-import { errorResponse, errorResponseGET, responseJSON, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils";
+import { errorResponse, errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { ModelForOccupationGroupValidationErrorCode } from "../OccupationGroup.types";
-import { IOccupationGroupService } from "../occupationGroupService.type";
+import { ModelForOccupationGroupValidationErrorCode } from "../_shared/OccupationGroup.types";
+import { IOccupationGroupService } from "../services/occupationGroup.service.type";
 import { decodeCursor, encodeCursor, getOccupationGroupsPathParameters } from "./query";
 import { transformPaginated } from "./response";
 
@@ -21,66 +21,6 @@ export class OccupationGroupListController {
   constructor() {
     this.occupationGroupService = getServiceRegistry().occupationGroup;
   }
-
-  /**
-   * @openapi
-   *
-   * /models/{modelId}/occupationGroups:
-   *   get:
-   *     operationId: GETOccupationGroups
-   *     tags:
-   *      - occupationGroups
-   *     summary: Get occupation groups in a taxonomy model.
-   *     description: Retrieve occupation groups in a specific taxonomy model.
-   *     security:
-   *      - api_key: []
-   *      - jwt_auth: []
-   *     parameters:
-   *      - in: path
-   *        name: modelId
-   *        required: true
-   *        schema:
-   *          $ref: '#/components/schemas/OccupationGroupRequestParamSchemaGET/properties/modelId'
-   *      - in: query
-   *        name: limit
-   *        required: false
-   *        schema:
-   *          type: integer
-   *      - in: query
-   *        name: cursor
-   *        required: false
-   *        schema:
-   *          type: string
-   *     responses:
-   *       '200':
-   *         description: Successfully retrieved the paginated occupation groups.
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/OccupationGroupResponseSchemaGET'
-   *       '400':
-   *         description: |
-   *           Failed to retrieve the occupation groups. Additional information can be found in the response body.
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/GETOccupationGroup400ErrorSchema'
-   *       '401':
-   *         $ref: '#/components/responses/UnAuthorizedResponse'
-   *       '404':
-   *         description: Occupation groups not found.
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/GETOccupationGroups404ErrorSchema'
-   *       '500':
-   *         description: |
-   *           The server encountered an unexpected condition.
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/All500ResponseSchema'
-   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroups(event: APIGatewayProxyEvent) {
     try {

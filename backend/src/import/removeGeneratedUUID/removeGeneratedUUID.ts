@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { IOccupationDoc } from "esco/occupations/_shared/occupation.types";
 import { ISkillDoc } from "esco/skill/skills.types";
 import { ISkillGroupDoc } from "esco/skillGroup/skillGroup.types";
-import { IOccupationGroupDoc } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroupDoc } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { IModelInfoDoc } from "modelInfo/modelInfo.types";
 
 export interface ICleanupUUIDHistory {

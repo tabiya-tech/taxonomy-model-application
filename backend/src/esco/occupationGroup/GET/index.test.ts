@@ -1,6 +1,5 @@
 import "_test_utilities/consoleMock";
 
-import { APIGatewayProxyEvent } from "aws-lambda";
 import ErrorAPISpecs from "api-specifications/error";
 import * as authenticatorModule from "auth/authorizer";
 import * as queryModule from "./query";
@@ -8,8 +7,8 @@ import * as responseModule from "./response";
 import { OccupationGroupListController } from "./index";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
-import { IOccupationGroupService } from "../occupationGroupService.type";
-import { ModelForOccupationGroupValidationErrorCode } from "../OccupationGroup.types";
+import { IOccupationGroupService } from "../services/occupationGroup.service.type";
+import { ModelForOccupationGroupValidationErrorCode } from "../_shared/OccupationGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
 

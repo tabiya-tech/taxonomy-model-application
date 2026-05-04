@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationReferenceDoc } from "esco/occupations/_shared/occupationReference.types";
-import { IOccupationGroupReferenceDoc } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroupReferenceDoc } from "esco/occupationGroup/_shared/OccupationGroup.types";
 
 /**
  * Describes what the ObjectType of the parent of an occupation hierarchy is.

@@ -73,7 +73,9 @@ describe("OccupationGroupParentController", () => {
     mockServiceRegistry.occupationGroup.findParent = jest.fn().mockResolvedValue({ id: "parent-1" });
 
     const controller = new OccupationGroupParentController();
-    const actualResponse = await controller.getParentOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1/parent"));
+    const actualResponse = await controller.getParentOccupationGroup(
+      buildEvent("/models/model-1/occupationGroups/group-1/parent")
+    );
 
     expect(mockGetOccupationGroupParentPathParameters).toHaveBeenCalledWith(
       "/models/model-1/occupationGroups/group-1/parent"
@@ -92,7 +94,9 @@ describe("OccupationGroupParentController", () => {
     mockGetOccupationGroupParentPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
 
     const controller = new OccupationGroupParentController();
-    const actualResponse = await controller.getParentOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1/parent"));
+    const actualResponse = await controller.getParentOccupationGroup(
+      buildEvent("/models/model-1/occupationGroups/group-1/parent")
+    );
 
     expect(actualResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(JSON.parse(actualResponse.body)).toMatchObject({
@@ -111,7 +115,9 @@ describe("OccupationGroupParentController", () => {
     mockServiceRegistry.occupationGroup.findParent = jest.fn().mockResolvedValue(null);
 
     const controller = new OccupationGroupParentController();
-    const actualResponse = await controller.getParentOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1/parent"));
+    const actualResponse = await controller.getParentOccupationGroup(
+      buildEvent("/models/model-1/occupationGroups/group-1/parent")
+    );
 
     expect(actualResponse.statusCode).toBe(StatusCodes.NOT_FOUND);
     expect(JSON.parse(actualResponse.body)).toMatchObject({
@@ -130,7 +136,9 @@ describe("OccupationGroupParentController", () => {
       .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
 
     const controller = new OccupationGroupParentController();
-    const actualResponse = await controller.getParentOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1/parent"));
+    const actualResponse = await controller.getParentOccupationGroup(
+      buildEvent("/models/model-1/occupationGroups/group-1/parent")
+    );
 
     expect(actualResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
     expect(JSON.parse(actualResponse.body)).toMatchObject({
