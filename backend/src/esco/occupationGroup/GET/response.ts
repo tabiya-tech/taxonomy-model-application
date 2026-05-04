@@ -1,6 +1,6 @@
-import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
-import { transform } from "esco/occupationGroup/[id]/GET/response";
+import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
+import { transform as transformOccupationGroup } from "esco/occupationGroup/_shared/transform";
 
 export function transformPaginated(
   data: IOccupationGroup[],
@@ -9,7 +9,7 @@ export function transformPaginated(
   cursor: string | null
 ): OccupationGroupAPISpecs.GET.Types.Response.Payload {
   return {
-    data: data.map((item) => transform(item, baseURL)),
+    data: data.map((item) => transformOccupationGroup(item, baseURL)),
     limit,
     nextCursor: cursor,
   };

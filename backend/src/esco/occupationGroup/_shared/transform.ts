@@ -98,18 +98,81 @@ export function transformChild(
     updatedAt: data.updatedAt.toISOString(),
   };
 }
-export function transformPaginated(
-  data: IOccupationGroup[],
-  baseURL: string,
-  limit: number,
-  cursor: string | null
-): OccupationGroupAPISpecs.GET.Types.Response.Payload {
+
+export function transformParent(
+  data: IOccupationGroup,
+  baseURL: string
+): OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Types.Response.Payload {
   return {
-    data: data.map((item) => transform(item, baseURL)),
+    id: data.id,
+    UUID: data.UUID,
+    UUIDHistory: data.UUIDHistory,
+    code: data.code,
+    originUri: data.originUri,
+    preferredLabel: data.preferredLabel,
+    altLabels: data.altLabels,
+    groupType:
+      data.groupType === ObjectTypes.ISCOGroup
+        ? OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup
+        : OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup,
+    description: data.description,
+    parent: data.parent?.id
+      ? {
+          id: data.parent.id,
+          UUID: data.parent.UUID,
+          code: data.parent.code,
+          preferredLabel: data.parent.preferredLabel,
+          objectType:
+            data.parent.objectType == ObjectTypes.ISCOGroup
+              ? OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.ISCOGroup
+              : OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.LocalGroup,
+        }
+      : null,
+    children: data.children?.length
+      ? data.children.map((child) => {
+          if ("objectType" in child) {
+            return {
+              id: child.id,
+              UUID: child.UUID,
+              code: child.code,
+              preferredLabel: child.preferredLabel,
+              objectType:
+                child.objectType === ObjectTypes.ISCOGroup
+                  ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup
+                  : OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup,
+            };
+          } else {
+            return {
+              id: child.id,
+              UUID: child.UUID,
+              code: child.code,
+              preferredLabel: child.preferredLabel,
+              objectType:
+                child?.occupationType === ObjectTypes.ESCOOccupation
+                  ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation
+                  : OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation,
+            };
+          }
+        })
+      : [],
+    modelId: data.modelId,
+    path: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/occupationGroups/${data.id}`,
+    tabiyaPath: `${baseURL}${Routes.MODELS_ROUTE}/${data.modelId}/occupationGroups/${data.UUID}`,
+    createdAt: data.createdAt.toISOString(),
+    updatedAt: data.updatedAt.toISOString(),
+    originUUID: data.UUIDHistory && data.UUIDHistory.length > 0 ? data.UUIDHistory.at(-1)! : "",
+  };
+}
+
+export function transformPaginatedChildren(
+  data: IOccupationGroupChild[],
+  baseURL: string,
+  limit: number | null,
+  cursor: string | null
+): OccupationGroupAPISpecs.OccupationGroup.Children.GET.Types.Response.Payload {
+  return {
+    data: data.map((item) => transformChild(item, baseURL)),
     limit,
     nextCursor: cursor,
   };
 }
-
-export { transformParent } from "./[id]/parent/GET/response";
-export { transformPaginatedChildren } from "./[id]/children/GET/response";

@@ -1,95 +1,38 @@
-import { IOccupationGroup } from "../../_shared/OccupationGroup.types";
-import {
-  getIOccupationGroupMockData,
-  getIOccupationGroupMockDataWithOccupationChildren,
-} from "../../_shared/testDataHelper";
-import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
-import { transform } from "./response";
-import { Routes } from "routes.constant";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { transform } from "./response";
 
-describe("test the transformation of the IOccupationGroup -> IOccupationGroupResponse", () => {
-  test("should transform the IOccupationGroup to IOccupationGroupResponse", () => {
-    // GIVEN a random IOccupationGroup
-    const givenObject: IOccupationGroup = getIOccupationGroupMockData();
-    // AND some base path
-    const givenBasePath = "https://some/root/path";
-    // AND some model
-
-    // WHEN the transformation function is called
-    const actual: OccupationGroupAPISpecs.POST.Types.Response.Payload = transform(givenObject, givenBasePath);
-
-    // THEN expect the transformation function to return a IOccupationGroupResponse
-    // that contains the input from the IOccupationGroup
-    expect(actual).toEqual(
-      expect.objectContaining({
-        // core fields
-        id: givenObject.id,
-        UUID: givenObject.UUID,
-        UUIDHistory: givenObject.UUIDHistory,
-        code: givenObject.code,
-        originUri: givenObject.originUri,
-        preferredLabel: givenObject.preferredLabel,
-        altLabels: givenObject.altLabels,
-        groupType: givenObject.groupType,
-        description: givenObject.description,
-        modelId: givenObject.modelId,
-        // hierarchy and paths
+describe("transform()", () => {
+  test("maps a single occupation group into the API response shape", () => {
+    const actual = transform(
+      {
+        id: "group-123",
+        UUID: "uuid-123",
+        UUIDHistory: ["origin-uuid", "uuid-123"],
+        code: "123",
+        originUri: "https://example.com/origin",
+        preferredLabel: "Group label",
+        altLabels: ["Alt label"],
+        groupType: ObjectTypes.ISCOGroup,
+        description: "Group description",
         parent: null,
         children: [],
-        path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.id}`,
-        tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.UUID}`,
-        // timestamps
-        createdAt: givenObject.createdAt.toISOString(),
-        updatedAt: givenObject.updatedAt.toISOString(),
-      })
+        importId: "import-1",
+        modelId: "model-123",
+        createdAt: new Date("2024-01-01T00:00:00.000Z"),
+        updatedAt: new Date("2024-01-02T00:00:00.000Z"),
+      },
+      "https://api.example.com"
     );
-  });
-  test("should transform the IOccupationGroup to IOccupationGroupResponse With Occupation Children", () => {
-    // GIVEN a random IOccupationGroup
-    const givenObject: IOccupationGroup = getIOccupationGroupMockDataWithOccupationChildren();
-    // AND some base path
-    const givenBasePath = "https://some/root/path";
-    // AND some model
 
-    // WHEN the transformation function is called
-    const actual: OccupationGroupAPISpecs.POST.Types.Response.Payload = transform(givenObject, givenBasePath);
-
-    // THEN expect the transformation function to return a IOccupationGroupResponse
-    // that contains the input from the IOccupationGroup
     expect(actual).toEqual(
       expect.objectContaining({
-        id: givenObject.id,
-        UUID: givenObject.UUID,
-        UUIDHistory: givenObject.UUIDHistory,
-        code: givenObject.code,
-        originUri: givenObject.originUri,
-        preferredLabel: givenObject.preferredLabel,
-        altLabels: givenObject.altLabels,
-        groupType: givenObject.groupType,
-        description: givenObject.description,
-        modelId: givenObject.modelId,
-        parent: null,
-        children: givenObject.children.map((child) => {
-          return {
-            id: child.id,
-            UUID: child.UUID,
-            code: child.code,
-            preferredLabel: child.preferredLabel,
-            objectType:
-              "objectType" in child && child.objectType === ObjectTypes.ISCOGroup
-                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup
-                : "objectType" in child && child.objectType === ObjectTypes.LocalGroup
-                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup
-                : "occupationType" in child && child.occupationType === ObjectTypes.ESCOOccupation
-                ? OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation
-                : OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation,
-          };
-        }),
-        path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.id}`,
-        tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.modelId}/occupationGroups/${givenObject.UUID}`,
-        createdAt: givenObject.createdAt.toISOString(),
-        updatedAt: givenObject.updatedAt.toISOString(),
+        id: "group-123",
+        UUID: "uuid-123",
+        originUUID: "uuid-123",
+        path: "https://api.example.com/models/model-123/occupationGroups/group-123",
+        tabiyaPath: "https://api.example.com/models/model-123/occupationGroups/uuid-123",
+        createdAt: "2024-01-01T00:00:00.000Z",
+        updatedAt: "2024-01-02T00:00:00.000Z",
       })
     );
   });

@@ -3,36 +3,33 @@ import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import {
   errorResponse,
   errorResponseGET,
-  errorResponsePOST,
   HTTP_VERBS,
   responseJSON,
   StatusCodes,
   STD_ERRORS_RESPONSES,
 } from "server/httpUtils";
-import { ajvInstance, ParseValidationError } from "validator";
+import { ajvInstance } from "validator";
 import AuthAPISpecs from "api-specifications/auth";
 
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
-import OccupationGroupPOSTAPISpecs from "api-specifications/esco/occupationGroup/POST";
-import OccupationGroupGETAPISpecs from "api-specifications/esco/occupationGroup/GET";
 import OccupationGroupDetailAPISpecs from "api-specifications/esco/occupationGroup/[id]";
 
 import { ValidateFunction } from "ajv";
-import { transform, transformPaginated, transformPaginatedChildren, transformParent } from "./transform";
+import { transform } from "./transform";
 import { getResourcesBaseUrl } from "server/config/config";
-import {
-  BasePathParams,
-  INewOccupationGroupSpecWithoutImportId,
-  ModelForOccupationGroupValidationErrorCode,
-} from "./OccupationGroup.types";
+import { ModelForOccupationGroupValidationErrorCode } from "./OccupationGroup.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
 import ErrorAPISpecs from "api-specifications/error";
 import { pathToRegexp } from "path-to-regexp";
-import errorLoggerInstance from "common/errorLogger/errorLogger";
-import { IOccupationGroupService, OccupationGroupModelValidationError } from "./occupationGroupService.type";
-import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { parsePath } from "common/parsePath/parsePath";
+import errorLoggerInstance from "common/errorLogger/errorLogger";
+import { IOccupationGroupService } from "./occupationGroupService.type";
+import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
+import { OccupationGroupListController } from "./GET";
+import { OccupationGroupCreateController } from "./POST";
+import { OccupationGroupParentController } from "./[id]/parent/GET";
+import { OccupationGroupChildrenController } from "./[id]/children/GET";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -40,7 +37,6 @@ export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
 ) => {
   const occupationGroupController = new OccupationGroupController();
-  // POST /occupation-groups
   if (event?.httpMethod === HTTP_VERBS.POST) {
     return occupationGroupController.postOccupationGroup(event);
   } else if (event?.httpMethod === HTTP_VERBS.GET) {
@@ -61,35 +57,6 @@ export class OccupationGroupController {
   private readonly occupationGroupService: IOccupationGroupService;
   constructor() {
     this.occupationGroupService = getServiceRegistry().occupationGroup;
-  }
-
-  /**
-   * Encode an object {_id: string, createdAt: Date} into a base64 string
-   * @param {string} id - The Document id to encode
-   * @param {Date} createdAt - The Document creation date to encode
-   * @return {string} - The base64 encoded cursor
-   */
-  private encodeCursor(id: string, createdAt: Date): string {
-    const payload = {
-      id: id,
-      createdAt: createdAt.toISOString(),
-    };
-    const json = JSON.stringify(payload);
-    return Buffer.from(json).toString("base64");
-  }
-
-  /**
-   * Decode a base64 string into an object {_id: string, createdAt: Date}
-   * @param {string} cursor - The base64 encoded cursor
-   * @return {{id: string, createdAt: Date}} - The decoded object
-   */
-  private decodeCursor(cursor: string): { id: string; createdAt: Date } {
-    const json = Buffer.from(cursor, "base64").toString("utf-8");
-    const payload = JSON.parse(json);
-    return {
-      id: payload.id,
-      createdAt: new Date(payload.createdAt),
-    };
   }
 
   /**
@@ -158,112 +125,7 @@ export class OccupationGroupController {
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)
   async postOccupationGroup(event: APIGatewayProxyEvent) {
-    if (!event.headers["Content-Type"]?.includes("application/json")) {
-      // application/json;charset=utf-8
-      return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
-    }
-
-    //@ts-ignore
-    if (event.body?.length > OccupationGroupAPISpecs.POST.Constants.MAX_POST_PAYLOAD_LENGTH) {
-      return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(
-        `Expected maximum length is ${OccupationGroupAPISpecs.POST.Constants.MAX_POST_PAYLOAD_LENGTH}`
-      );
-    }
-
-    let payload: OccupationGroupAPISpecs.POST.Types.Request.Payload;
-
-    try {
-      payload = JSON.parse(event.body as string);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR(error.message);
-    }
-    const validateFunction = ajvInstance.getSchema(
-      OccupationGroupPOSTAPISpecs.Schemas.Request.Payload.$id as string
-    ) as ValidateFunction;
-
-    const isValid = validateFunction(payload);
-    if (!isValid) {
-      const errorDetail = ParseValidationError(validateFunction.errors);
-      return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
-    }
-    const { modelId: resolvedModelId } = parsePath<BasePathParams>(Routes.OCCUPATION_GROUPS_ROUTE, event.path);
-    if (!resolvedModelId) {
-      return errorResponsePOST(
-        StatusCodes.BAD_REQUEST,
-        OccupationGroupPOSTAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
-        "modelId is missing in the path",
-        JSON.stringify({ path: event.path, pathParameters: event.pathParameters })
-      );
-    }
-
-    // Validate that the modelId in the payload matches the modelId in the path
-    if (payload.modelId !== resolvedModelId) {
-      return errorResponsePOST(
-        StatusCodes.BAD_REQUEST,
-        OccupationGroupPOSTAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
-        "modelId in payload does not match modelId in path",
-        `Payload modelId: ${payload.modelId}, Path modelId: ${resolvedModelId}`
-      );
-    }
-
-    const newOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId = {
-      originUri: payload.originUri,
-      code: payload.code,
-      preferredLabel: payload.preferredLabel,
-      altLabels: payload.altLabels,
-      description: payload.description,
-      modelId: payload.modelId,
-      UUIDHistory: payload.UUIDHistory,
-      groupType: payload.groupType,
-    };
-    try {
-      const newOccupationGroup = await this.occupationGroupService.create(newOccupationGroupSpec);
-      return responseJSON(StatusCodes.CREATED, transform(newOccupationGroup, getResourcesBaseUrl()));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      // log an error in the server for debugging purpose
-      errorLoggerInstance.logError("Failed to create occupation group in the DB", error.name);
-      if (error instanceof OccupationGroupModelValidationError) {
-        switch (error.code) {
-          case ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID:
-            return errorResponsePOST(
-              StatusCodes.NOT_FOUND,
-              OccupationGroupPOSTAPISpecs.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
-              "Model not found by the provided ID",
-              ""
-            );
-          case ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB:
-            return errorResponsePOST(
-              StatusCodes.INTERNAL_SERVER_ERROR,
-              OccupationGroupPOSTAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
-              "Failed to fetch the model detail from the DB",
-              ""
-            );
-          case ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED:
-            return errorResponsePOST(
-              StatusCodes.BAD_REQUEST,
-              OccupationGroupPOSTAPISpecs.Enums.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL,
-              "Model is released and cannot be modified",
-              ""
-            );
-          default:
-            return errorResponsePOST(
-              StatusCodes.INTERNAL_SERVER_ERROR,
-              OccupationGroupPOSTAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
-              "Failed to create the occupation group in the DB",
-              ""
-            );
-        }
-      } else {
-        return errorResponsePOST(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupPOSTAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_CREATE_OCCUPATION_GROUP,
-          "Failed to create the occupation group in the DB",
-          ""
-        );
-      }
-    }
+    return new OccupationGroupCreateController().postOccupationGroup(event);
   }
 
   /**
@@ -327,123 +189,7 @@ export class OccupationGroupController {
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroups(event: APIGatewayProxyEvent) {
-    try {
-      const { modelId: resolvedModelId } = parsePath<BasePathParams>(Routes.OCCUPATION_GROUPS_ROUTE, event.path);
-      if (!resolvedModelId) {
-        return errorResponseGET(
-          StatusCodes.BAD_REQUEST,
-          OccupationGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
-          "modelId is missing in the path",
-          JSON.stringify({ path: event.path, pathParameters: event.pathParameters, query: event.queryStringParameters })
-        );
-      }
-
-      const requestPathParameter: OccupationGroupAPISpecs.GET.Types.Request.Param.Payload = {
-        modelId: resolvedModelId,
-      };
-
-      const validatePathFunction = ajvInstance.getSchema(
-        OccupationGroupGETAPISpecs.Schemas.Request.Param.Payload.$id as string
-      ) as ValidateFunction<OccupationGroupAPISpecs.GET.Types.Request.Param.Payload>;
-
-      const isValid = validatePathFunction(requestPathParameter);
-      if (!isValid) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
-          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
-          JSON.stringify({ reason: "Invalid modelId", path: event.path, pathParameters: event.pathParameters })
-        );
-      }
-
-      const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
-        requestPathParameter.modelId
-      );
-      if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationGroupGETAPISpecs.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${requestPathParameter.modelId}`
-        );
-      }
-      if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupGETAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
-
-      const rawQueryParams = (event.queryStringParameters || {}) as { limit?: string; cursor?: string };
-      const queryParams: OccupationGroupAPISpecs.GET.Types.Request.Query.Payload = {
-        limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
-        cursor: rawQueryParams.cursor,
-      };
-
-      const validateQueryFunction = ajvInstance.getSchema(
-        OccupationGroupGETAPISpecs.Schemas.Request.Query.Payload.$id as string
-      ) as ValidateFunction<OccupationGroupAPISpecs.GET.Types.Request.Query.Payload>;
-      const isQueryValid = validateQueryFunction(queryParams);
-      if (!isQueryValid) {
-        return errorResponseGET(
-          StatusCodes.BAD_REQUEST,
-          ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
-          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
-          JSON.stringify({ reason: "Invalid query parameters", path: event.path, query: event.queryStringParameters })
-        );
-      }
-
-      // extract the nextCursor and the limit from the query parameter
-      let limit = 100;
-      if (queryParams.limit) {
-        limit = queryParams.limit;
-      }
-      // here decode the cursor base64 if provided
-      let decodedCursor: { id: string; createdAt: Date } | undefined = undefined;
-      if (queryParams.cursor) {
-        try {
-          decodedCursor = this.decodeCursor(queryParams.cursor);
-        } catch (e: unknown) {
-          console.error("Failed to decode cursor:", e);
-          return errorResponseGET(
-            StatusCodes.BAD_REQUEST,
-            ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
-            "Invalid cursor parameter",
-            ""
-          );
-        }
-      }
-      // here call the service to get the occupation group by limit starting from the cursor
-      const currentPageOccupationGroups = await this.occupationGroupService.findPaginated(
-        requestPathParameter.modelId,
-        decodedCursor,
-        limit
-      );
-
-      let nextCursor: string | null = null;
-      if (currentPageOccupationGroups?.nextCursor?._id) {
-        nextCursor = this.encodeCursor(
-          currentPageOccupationGroups.nextCursor._id,
-          currentPageOccupationGroups.nextCursor.createdAt
-        );
-      }
-      return responseJSON(
-        StatusCodes.OK,
-        transformPaginated(currentPageOccupationGroups.items, getResourcesBaseUrl(), limit, nextCursor)
-      );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Failed to retrieve occupation groups:", error);
-      errorLoggerInstance.logError("Failed to retrieve the occupation groups from the DB", error.name);
-      return errorResponseGET(
-        StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupGETAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
-        "Failed to retrieve the occupation groups from the DB",
-        ""
-      );
-    }
+    return new OccupationGroupListController().getOccupationGroups(event);
   }
 
   /**
@@ -612,72 +358,7 @@ export class OccupationGroupController {
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getParentOccupationGroup(event: APIGatewayProxyEvent) {
-    try {
-      const requestPathParameter = parsePath<OccupationGroupAPISpecs.OccupationGroup.Types.Param.Payload>(
-        Routes.OCCUPATION_GROUP_PARENT_ROUTE,
-        event.path
-      );
-
-      const validatePathFunction = ajvInstance.getSchema(
-        OccupationGroupDetailAPISpecs.Schemas.Request.Param.Payload.$id as string
-      ) as ValidateFunction<OccupationGroupAPISpecs.OccupationGroup.Types.Param.Payload>;
-
-      const isValidPathParameter = validatePathFunction(requestPathParameter);
-      if (!isValidPathParameter) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
-          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
-          JSON.stringify({
-            reason: "Invalid modelId or occupationGroup Id",
-            path: event.path,
-            pathParameters: event.pathParameters,
-          })
-        );
-      }
-      const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
-        requestPathParameter.modelId
-      );
-      if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${requestPathParameter.modelId}`
-        );
-      }
-      if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
-            .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
-      const parentOccupationGroup = await this.occupationGroupService.findParent(requestPathParameter.id);
-      if (!parentOccupationGroup) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status404.ErrorCodes
-            .OCCUPATION_GROUP_PARENT_NOT_FOUND,
-          "Occupation group or parent not found",
-          `No occupation group or parent found with occupation group id: ${requestPathParameter.id}`
-        );
-      }
-      return responseJSON(StatusCodes.OK, transformParent(parentOccupationGroup, getResourcesBaseUrl()));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Failed to get parent occupation group:", error);
-      errorLoggerInstance.logError("Failed to retrieve the parent occupation group from the DB", error.name);
-      return errorResponseGET(
-        StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
-          .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT,
-        "Failed to retrieve the parent occupation group from the DB",
-        ""
-      );
-    }
+    return new OccupationGroupParentController().getParentOccupationGroup(event);
   }
   /**
    * @openapi
@@ -728,67 +409,6 @@ export class OccupationGroupController {
    */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroupChildren(event: APIGatewayProxyEvent) {
-    try {
-      const requestPathParameter = parsePath<OccupationGroupAPISpecs.OccupationGroup.Types.Param.Payload>(
-        Routes.OCCUPATION_GROUP_CHILDREN_ROUTE,
-        event.path
-      );
-
-      const validatePathFunction = ajvInstance.getSchema(
-        OccupationGroupDetailAPISpecs.Schemas.Request.Param.Payload.$id as string
-      ) as ValidateFunction<OccupationGroupAPISpecs.OccupationGroup.Types.Param.Payload>;
-
-      const isValidPathParameter = validatePathFunction(requestPathParameter);
-      if (!isValidPathParameter) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
-          ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
-          JSON.stringify({
-            reason: "Invalid modelId or occupationGroup Id",
-            path: event.path,
-            pathParameters: event.pathParameters,
-          })
-        );
-      }
-
-      // TODO: Prefer using `modelInfoService.ts`
-      const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
-        requestPathParameter.modelId
-      );
-      if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationGroupAPISpecs.OccupationGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${requestPathParameter.modelId}`
-        );
-      }
-      if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupAPISpecs.OccupationGroup.Children.GET.Enums.Response.Status500.ErrorCodes
-            .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_CHILDREN,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
-
-      const children = await this.occupationGroupService.findChildren(requestPathParameter.id);
-
-      return responseJSON(StatusCodes.OK, transformPaginatedChildren(children, getResourcesBaseUrl(), null, null));
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Failed to get occupation group children:", error);
-      errorLoggerInstance.logError("Failed to retrieve the occupation group children from the DB", error.name);
-      return errorResponseGET(
-        StatusCodes.INTERNAL_SERVER_ERROR,
-        OccupationGroupAPISpecs.OccupationGroup.Children.GET.Enums.Response.Status500.ErrorCodes
-          .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_CHILDREN,
-        "Failed to retrieve the occupation group children from the DB",
-        ""
-      );
-    }
+    return new OccupationGroupChildrenController().getOccupationGroupChildren(event);
   }
 }
