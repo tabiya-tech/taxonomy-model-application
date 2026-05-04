@@ -10,7 +10,6 @@ import OccupationAPISpecs from "api-specifications/esco/occupation";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import SkillAPISpecs from "api-specifications/esco/skill";
 
-const SkillAPISpecsUnsafe = SkillAPISpecs as any;
 
 export const ajvInstance = new Ajv({
   validateSchema: true,
@@ -155,44 +154,44 @@ ajvInstance.addSchema(
   SkillGroupAPISpecs.SkillGroup.Children.GET.Schemas.Response.Children.Payload,
   SkillGroupAPISpecs.SkillGroup.Children.GET.Schemas.Response.Children.Payload.$id
 );
-if (SkillAPISpecsUnsafe.GET?.Schemas?.Request?.Param?.Payload) {
-  ajvInstance.addSchema(SkillAPISpecsUnsafe.GET.Schemas.Request.Param.Payload, SkillAPISpecsUnsafe.GET.Schemas.Request.Param.Payload.$id);
-  ajvInstance.addSchema(SkillAPISpecsUnsafe.GET.Schemas.Request.Query.Payload, SkillAPISpecsUnsafe.GET.Schemas.Request.Query.Payload.$id);
+if (SkillAPISpecs.GET?.Schemas?.Request?.Param?.Payload) {
+  ajvInstance.addSchema(SkillAPISpecs.GET.Schemas.Request.Param.Payload, SkillAPISpecs.GET.Schemas.Request.Param.Payload.$id);
+  ajvInstance.addSchema(SkillAPISpecs.GET.Schemas.Request.Query.Payload, SkillAPISpecs.GET.Schemas.Request.Query.Payload.$id);
   ajvInstance.addSchema(
-    SkillAPISpecsUnsafe.Skill.GET.Schemas.Request.Param.Payload,
-    SkillAPISpecsUnsafe.Skill.GET.Schemas.Request.Param.Payload.$id
+    SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload,
+    SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload.$id
   );
   ajvInstance.addSchema(
-    SkillAPISpecsUnsafe.Skill.GET.Schemas.Response.Payload,
-    SkillAPISpecsUnsafe.Skill.GET.Schemas.Response.Payload.$id
+    SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+    SkillAPISpecs.Skill.GET.Schemas.Response.Payload.$id
   );
   ajvInstance.addSchema(
-    SkillAPISpecsUnsafe.POST.Schemas.Request.Payload,
-    SkillAPISpecsUnsafe.POST.Schemas.Request.Payload.$id
+    SkillAPISpecs.POST.Schemas.Request.Payload,
+    SkillAPISpecs.POST.Schemas.Request.Payload.$id
   );
   ajvInstance.addSchema(
-    SkillAPISpecsUnsafe.POST.Schemas.Request.Param.Payload,
-    SkillAPISpecsUnsafe.POST.Schemas.Request.Param.Payload.$id
+    SkillAPISpecs.POST.Schemas.Request.Param.Payload,
+    SkillAPISpecs.POST.Schemas.Request.Param.Payload.$id
   );
   ajvInstance.addSchema(
-    SkillAPISpecsUnsafe.GET.Schemas.Response.Payload,
-    SkillAPISpecsUnsafe.GET.Schemas.Response.Payload.$id
+    SkillAPISpecs.GET.Schemas.Response.Payload,
+    SkillAPISpecs.GET.Schemas.Response.Payload.$id
   );
   ajvInstance.addSchema(
-    SkillAPISpecsUnsafe.Skill.Parents.GET.Schemas.Request.Query.Payload,
-    SkillAPISpecsUnsafe.Skill.Parents.GET.Schemas.Request.Query.Payload.$id
+    SkillAPISpecs.Skill.Parents.GET.Schemas.Request.Query.Payload,
+    SkillAPISpecs.Skill.Parents.GET.Schemas.Request.Query.Payload.$id
   );
   ajvInstance.addSchema(
-    SkillAPISpecsUnsafe.Skill.Children.GET.Schemas.Request.Query.Payload,
-    SkillAPISpecsUnsafe.Skill.Children.GET.Schemas.Request.Query.Payload.$id
+    SkillAPISpecs.Skill.Children.GET.Schemas.Request.Query.Payload,
+    SkillAPISpecs.Skill.Children.GET.Schemas.Request.Query.Payload.$id
   );
   ajvInstance.addSchema(
-    SkillAPISpecsUnsafe.Skill.Occupations.GET.Schemas.Request.Query.Payload,
-    SkillAPISpecsUnsafe.Skill.Occupations.GET.Schemas.Request.Query.Payload.$id
+    SkillAPISpecs.Skill.Occupations.GET.Schemas.Request.Query.Payload,
+    SkillAPISpecs.Skill.Occupations.GET.Schemas.Request.Query.Payload.$id
   );
   ajvInstance.addSchema(
-    SkillAPISpecsUnsafe.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload,
-    SkillAPISpecsUnsafe.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id
+    SkillAPISpecs.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload,
+    SkillAPISpecs.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id
   );
 }
 
