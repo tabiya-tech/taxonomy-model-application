@@ -1,4 +1,4 @@
-import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { IOccupationGroupExportRow, OccupationGroupExportHeaders } from "esco/common/entityToCSV.types";
 import { pipeline, Readable, Transform } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";

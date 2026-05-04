@@ -7,7 +7,9 @@ export type OccupationGroupListCursor = {
   createdAt: Date;
 };
 
-export function getOccupationGroupsPathParameters(path: string): OccupationGroupAPISpecs.GET.Types.Request.Param.Payload {
+export function getOccupationGroupsPathParameters(
+  path: string
+): OccupationGroupAPISpecs.GET.Types.Request.Param.Payload {
   return parsePath<OccupationGroupAPISpecs.GET.Types.Request.Param.Payload>(Routes.OCCUPATION_GROUPS_ROUTE, path);
 }
 

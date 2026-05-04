@@ -22,53 +22,6 @@ export class OccupationGroupChildrenController {
     this.occupationGroupService = getServiceRegistry().occupationGroup;
   }
 
-  /**
-   * @openapi
-   *
-   * /models/{modelId}/occupationGroups/{id}/children:
-   *  get:
-   *   operationId: GETOccupationGroupChildrenByOccupationGroupId
-   *   tags:
-   *    - occupationGroups
-   *   summary: Get occupation group children by its parent occupation group identifier in a taxonomy model.
-   *   description: Retrieve occupation group children by its unique parent occupation group identifier in a specific taxonomy model.
-   *   security:
-   *    - api_key: []
-   *    - jwt_auth: []
-   *   parameters:
-   *    - in: path
-   *      name: modelId
-   *      required: true
-   *      schema:
-   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/modelId'
-   *    - in: path
-   *      name: id
-   *      required: true
-   *      schema:
-   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/id'
-   *   responses:
-   *     '200':
-   *       description: Successfully retrieved the occupation group children.
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/OccupationGroupChildrenResponseSchemaGET'
-   *     '401':
-   *       $ref: '#/components/responses/UnAuthorizedResponse'
-   *     '404':
-   *       description: Occupation group children or model not found.
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/GETOccupationGroupChildren404ErrorSchema'
-   *     '500':
-   *       description: |
-   *         The server encountered an unexpected condition.
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/All500ResponseSchema'
-   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroupChildren(event: APIGatewayProxyEvent) {
     try {

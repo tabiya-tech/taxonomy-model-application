@@ -10,9 +10,12 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "esco/skillHierarchy/skillHierarchy.types";
 import {
-  getSimpleNewESCOOccupationSpec, getSimpleNewESCOOccupationSpecWithParentCode,
-  getSimpleNewISCOGroupSpec, getSimpleNewLocalGroupSpec,
-  getSimpleNewLocalOccupationSpec, getSimpleNewLocalOccupationSpecWithParentCode,
+  getSimpleNewESCOOccupationSpec,
+  getSimpleNewESCOOccupationSpecWithParentCode,
+  getSimpleNewISCOGroupSpec,
+  getSimpleNewLocalGroupSpec,
+  getSimpleNewLocalOccupationSpec,
+  getSimpleNewLocalOccupationSpecWithParentCode,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
@@ -20,7 +23,7 @@ import {
   INewOccupationHierarchyPairSpec,
   IOccupationHierarchyPair,
 } from "esco/occupationHierarchy/occupationHierarchy.types";
-import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { ISkill } from "esco/skill/skills.types";
 import { IOccupation } from "esco/occupations/_shared/occupation.types";
@@ -71,10 +74,11 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       // WHEN N ISCO and Local groups are created
       const N = 50; // We can only create upto 50 groups in a single test since they have to be alphabetical
       const actualNewGroups: IOccupationGroup[] = [];
-      const newGroupSpecs = Array.from({ length: N }, (_, index) => getSimpleNewISCOGroupSpec(getMockStringId(1), `isco_${index}`));
+      const newGroupSpecs = Array.from({ length: N }, (_, index) =>
+        getSimpleNewISCOGroupSpec(getMockStringId(1), `isco_${index}`)
+      );
       newGroupSpecs.push(
-        ...Array.from({ length: N }, (_, index) => getSimpleNewLocalGroupSpec(getMockStringId(1), `local_${index}`)
-        )
+        ...Array.from({ length: N }, (_, index) => getSimpleNewLocalGroupSpec(getMockStringId(1), `local_${index}`))
       );
       const createGroupInDBPromise = async () => {
         const docs = await repositoryRegistry.OccupationGroup.createMany(newGroupSpecs);
@@ -165,15 +169,14 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       );
       // AND N Local Groups exist in the database
       const givenLocalGroups = await repositoryRegistry.OccupationGroup.createMany(
-        Array.from({ length: N }, (_, index) => getSimpleNewLocalGroupSpec(givenModelId, `local_group_${index}`)
-        )
+        Array.from({ length: N }, (_, index) => getSimpleNewLocalGroupSpec(givenModelId, `local_group_${index}`))
       );
       // AND N ESCO Occupations exist in the database
       const givenOccupations = await repositoryRegistry.occupation.createMany(
         givenOccupationGroups.map((group, index) => {
           return getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, `esco_occupation_${index}`, group.code);
-          }
-      ));
+        })
+      );
       // AND N LOCAL Occupations exist in the database with codes that can be under a local group parent
       const givenLocalOccupationsWithLocalGroupParent = await repositoryRegistry.occupation.createMany(
         givenLocalGroups.map((group, index) => {
@@ -184,7 +187,11 @@ describe("Test the Performance of Repositories with an in-memory mongodb", () =>
       // AND N LOCAL Occupations exist in the database with codes that can be under an esco occupation parent
       const givenLocalOccupationsWithESCOOccupationParent = await repositoryRegistry.occupation.createMany(
         givenOccupations.map((occupation, index) => {
-          return getSimpleNewLocalOccupationSpecWithParentCode(givenModelId, `local_occupation_${index}`, occupation.code);
+          return getSimpleNewLocalOccupationSpecWithParentCode(
+            givenModelId,
+            `local_occupation_${index}`,
+            occupation.code
+          );
         })
       );
       // AND the OccupationGroups <- ESCO Occupation <- Local Occupation  hierarchy specs

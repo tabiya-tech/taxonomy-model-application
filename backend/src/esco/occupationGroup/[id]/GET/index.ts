@@ -19,53 +19,6 @@ export class OccupationGroupDetailController {
     this.occupationGroupService = getServiceRegistry().occupationGroup;
   }
 
-  /**
-   * @openapi
-   *
-   * /models/{modelId}/occupationGroups/{id}:
-   *  get:
-   *   operationId: GETOccupationGroupById
-   *   tags:
-   *    - occupationGroups
-   *   summary: Get an occupation group by its identifier in a taxonomy model.
-   *   description: Retrieve an occupation group by its unique identifier in a specific taxonomy model.
-   *   security:
-   *    - api_key: []
-   *    - jwt_auth: []
-   *   parameters:
-   *    - in: path
-   *      name: modelId
-   *      required: true
-   *      schema:
-   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/modelId'
-   *    - in: path
-   *      name: id
-   *      required: true
-   *      schema:
-   *        $ref: '#/components/schemas/OccupationGroupRequestByIdParamSchemaGET/properties/id'
-   *   responses:
-   *     '200':
-   *       description: Successfully retrieved the occupation group.
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/OccupationGroupResponseSchemaPOST'
-   *     '401':
-   *       $ref: '#/components/responses/UnAuthorizedResponse'
-   *     '404':
-   *       description: Occupation group not found.
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/GETOccupationGroup404ErrorSchema'
-   *     '500':
-   *       description: |
-   *         The server encountered an unexpected condition.
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/All500ResponseSchema'
-   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroup(event: APIGatewayProxyEvent) {
     try {

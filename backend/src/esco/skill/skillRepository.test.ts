@@ -40,7 +40,7 @@ import {
   expectedSkillReference,
 } from "esco/_test_utilities/expectedReference";
 import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
-import { IOccupationGroup, INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup, INewOccupationGroupSpec } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import {
   IOccupationToSkillRelationPairDoc,
   OccupationToSkillRelationType,

@@ -1,12 +1,12 @@
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { IOccupation } from "./occupation.types";
-import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { Routes } from "routes.constant";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getOriginUUIDFromUUIDHistory } from "common/getOriginUUIDFromUUIDHistory/getOriginUUIDFromUUIDHistory";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { transform as transformOccupationGroup } from "esco/occupationGroup/transform";
+import { transform as transformOccupationGroup } from "esco/occupationGroup/_shared/transform";
 
 function transformParentObjectType(
   parent: NonNullable<IOccupation["parent"]> | IOccupationGroup

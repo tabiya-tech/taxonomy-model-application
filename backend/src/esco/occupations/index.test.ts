@@ -1,6 +1,12 @@
 import { handler } from "./index";
 import { HTTP_VERBS, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { APIGatewayProxyEvent } from "aws-lambda";
+import { handler as getHandler } from "./GET/index";
+import { handler as postHandler } from "./POST/index";
+import { handler as getByIdHandler } from "./[id]/GET/index";
+import { handler as getParentHandler } from "./[id]/parent/GET/index";
+import { handler as getChildrenHandler } from "./[id]/children/GET/index";
+import { handler as getSkillsHandler } from "./[id]/skills/GET/index";
 
 // Mock the sub-handlers
 jest.mock("./GET/index", () => ({ handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "GET" }) }));
@@ -16,12 +22,6 @@ jest.mock("./[id]/skills/GET/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "GET_SKILLS" }),
 }));
 
-import { handler as getHandler } from "./GET/index";
-import { handler as postHandler } from "./POST/index";
-import { handler as getByIdHandler } from "./[id]/GET/index";
-import { handler as getParentHandler } from "./[id]/parent/GET/index";
-import { handler as getChildrenHandler } from "./[id]/children/GET/index";
-import { handler as getSkillsHandler } from "./[id]/skills/GET/index";
 
 describe("Occupations Router", () => {
   beforeEach(() => {

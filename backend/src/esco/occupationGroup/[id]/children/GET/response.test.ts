@@ -1,7 +1,7 @@
 import { ObjectTypes } from "esco/common/objectTypes";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { transformPaginatedChildren } from "./response";
-import { getIOccupationGroupOccupationGroupTypedChildData } from "../../../testDataHelper";
+import { getIOccupationGroupOccupationGroupTypedChildData } from "../../../_shared/testDataHelper";
 
 describe("transformPaginatedChildren()", () => {
   test("maps paginated children into the children API response shape", () => {

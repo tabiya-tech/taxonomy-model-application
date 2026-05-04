@@ -1,7 +1,13 @@
 import mongoose from "mongoose";
-import { getOccupationGroupDocReference, OccupationGroupDocument } from "esco/occupationGroup/OccupationGroupReference";
+import {
+  getOccupationGroupDocReference,
+  OccupationGroupDocument,
+} from "esco/occupationGroup/services/OccupationGroupReference";
 import { getOccupationDocReference, OccupationDocument } from "esco/occupations/services/occupation.reference";
-import { IOccupationGroupReference, IOccupationGroupReferenceDoc } from "esco/occupationGroup/OccupationGroup.types";
+import {
+  IOccupationGroupReference,
+  IOccupationGroupReferenceDoc,
+} from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/_shared/occupationReference.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IPopulatedOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";

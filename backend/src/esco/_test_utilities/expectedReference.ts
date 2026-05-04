@@ -1,4 +1,4 @@
-import { IOccupationGroup, IOccupationGroupReference } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup, IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { IOccupation } from "esco/occupations/_shared/occupation.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";

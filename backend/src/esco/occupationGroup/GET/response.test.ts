@@ -1,7 +1,7 @@
 import "_test_utilities/consoleMock";
 
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
-import { getIOccupationGroupMockData } from "../testDataHelper";
+import { getIOccupationGroupMockData } from "../_shared/testDataHelper";
 import * as sharedTransformModule from "esco/occupationGroup/_shared/transform";
 import { transformPaginated } from "./response";
 

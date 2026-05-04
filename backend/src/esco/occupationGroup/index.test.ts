@@ -1,6 +1,6 @@
 import "_test_utilities/consoleMock";
 import * as config from "server/config/config";
-import * as transformModule from "./transform";
+import * as transformModule from "./_shared/transform";
 import { handler as occupationGroupHandler } from "./index";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { getMockStringId } from "_test_utilities/mockMongoId";
@@ -18,8 +18,8 @@ import {
   IOccupationGroup,
   ModelForOccupationGroupValidationErrorCode,
   IOccupationGroupChild,
-} from "./OccupationGroup.types";
-import { getIOccupationGroupMockData } from "./testDataHelper";
+} from "./_shared/OccupationGroup.types";
+import { getIOccupationGroupMockData } from "./_shared/testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import {
   testMethodsNotAllowed,
@@ -31,7 +31,7 @@ import {
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { getIModelInfoMockData } from "modelInfo/testDataHelper";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { IOccupationGroupService, OccupationGroupModelValidationError } from "./occupationGroupService.type";
+import { IOccupationGroupService, OccupationGroupModelValidationError } from "./services/occupationGroup.service.type";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { ObjectTypes } from "esco/common/objectTypes";
 
@@ -852,7 +852,6 @@ describe("Test for occupationGroup handler", () => {
       const decodedCursor = Buffer.from(responseBody.nextCursor, "base64").toString("utf-8");
       expect(JSON.parse(decodedCursor)).toHaveProperty("id");
       expect(JSON.parse(decodedCursor)).toHaveProperty("createdAt");
-
     });
 
     test("GET should respond with the BAD_REQUEST status code if the modelId is not passed as a path parameter", async () => {

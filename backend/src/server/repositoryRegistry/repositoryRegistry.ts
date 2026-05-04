@@ -1,7 +1,7 @@
 import { IModelRepository, ModelRepository } from "modelInfo/modelInfoRepository";
 import { Connection } from "mongoose";
 import * as modelInfoModel from "modelInfo/modelInfoModel";
-import * as OccupationGroupModel from "esco/occupationGroup/OccupationGroupModel";
+import * as OccupationGroupModel from "esco/occupationGroup/model/OccupationGroup.model";
 import * as skillGroupModel from "esco/skillGroup/skillGroupModel";
 import * as skillModel from "esco/skill/skillModel";
 import * as occupationModel from "esco/occupations/model/occupation.model";
@@ -12,7 +12,10 @@ import * as occupationToSkillRelationModel from "esco/occupationToSkillRelation/
 import * as importStateModel from "import/ImportProcessState/importProcessStateModel";
 import * as exportProcessStateModel from "export/exportProcessState/exportProcessStateModel";
 
-import { IOccupationGroupRepository, OccupationGroupRepository } from "esco/occupationGroup/OccupationGroupRepository";
+import {
+  IOccupationGroupRepository,
+  OccupationGroupRepository,
+} from "esco/occupationGroup/repository/OccupationGroup.repository";
 import { ISkillGroupRepository, SkillGroupRepository } from "esco/skillGroup/skillGroupRepository";
 import { ISkillRepository, SkillRepository } from "esco/skill/skillRepository";
 import { IOccupationRepository, OccupationRepository } from "esco/occupations/repository/occupation.repository";

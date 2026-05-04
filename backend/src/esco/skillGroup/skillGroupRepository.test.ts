@@ -21,7 +21,7 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { INewSkillSpec, ISkillReference } from "esco/skill/skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
-import { INewOccupationGroupSpec } from "esco/occupationGroup/OccupationGroup.types";
+import { INewOccupationGroupSpec } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import {
   getNewSkillGroupSpec,
   getSimpleNewISCOGroupSpec,

@@ -11,7 +11,7 @@ import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupation
 import {
   populateOccupationGroupChildrenOptions,
   populateOccupationGroupParentOptions,
-} from "../populateOccupationHierarchyOptions";
+} from "../_shared/populateOccupationHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";

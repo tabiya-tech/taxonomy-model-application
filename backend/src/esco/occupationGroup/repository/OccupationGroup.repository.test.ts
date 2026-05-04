@@ -314,7 +314,6 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
             )
           );
         });
-
         test("should successfully create a second Identical OccupationGroup in a different model", async () => {
           // GIVEN a OccupationGroup record exists in the database for a given model
           const givenNewOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId =

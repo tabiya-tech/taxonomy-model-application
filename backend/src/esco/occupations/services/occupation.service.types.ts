@@ -1,3 +1,9 @@
+import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { SignallingValueLabel } from "esco/common/objectTypes";
+import { ISkill } from "esco/skill/skills.types";
+import { INewOccupationSpecWithoutImportId, IOccupation } from "./occupation.types";
+import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
+
 export enum ModelForOccupationValidationErrorCode {
   FAILED_TO_FETCH_FROM_DB,
   MODEL_NOT_FOUND_BY_ID,

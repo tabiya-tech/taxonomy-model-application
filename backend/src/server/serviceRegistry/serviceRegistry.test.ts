@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import { getServiceRegistry, ServiceRegistry } from "./serviceRegistry";
 import { OccupationService } from "esco/occupations/services/occupation.service";
-import { OccupationGroupService } from "esco/occupationGroup/occupationGroupService";
+import { OccupationGroupService } from "esco/occupationGroup/services/occupationGroup.service";
 import { SkillGroupService } from "esco/skillGroup/skillGroupService";
 
 describe("test the ServiceRegistry", () => {

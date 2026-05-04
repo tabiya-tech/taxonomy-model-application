@@ -13,7 +13,7 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { IOccupationGroup } from "./OccupationGroup.types";
+import { IOccupationGroup } from "./_shared/OccupationGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";

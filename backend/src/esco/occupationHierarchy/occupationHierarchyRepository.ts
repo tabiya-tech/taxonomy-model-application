@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationDoc } from "esco/occupations/_shared/occupation.types";
-import { IOccupationGroupDoc } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroupDoc } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import {
   INewOccupationHierarchyPairSpec,
   IOccupationHierarchyPair,
@@ -14,7 +14,7 @@ import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
-import { OccupationGroupModelPaths } from "esco/occupationGroup/OccupationGroupModel";
+import { OccupationGroupModelPaths } from "esco/occupationGroup/model/OccupationGroup.model";
 import { OccupationModelPaths } from "esco/occupations/model/occupation.model";
 
 export interface IOccupationHierarchyRepository {

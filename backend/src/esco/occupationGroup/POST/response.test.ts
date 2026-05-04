@@ -1,6 +1,6 @@
 import "_test_utilities/consoleMock";
 
-import { getIOccupationGroupMockData } from "../testDataHelper";
+import { getIOccupationGroupMockData } from "../_shared/testDataHelper";
 import * as sharedTransformModule from "esco/occupationGroup/_shared/transform";
 import { transform } from "./response";
 
