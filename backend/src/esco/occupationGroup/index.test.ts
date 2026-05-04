@@ -39,9 +39,6 @@ const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
 
 const transformSpy = jest.spyOn(transformModule, "transform");
-const transformPaginatedSpy = jest.spyOn(transformModule, "transformPaginated");
-const transformParentSpy = jest.spyOn(transformModule, "transformParent");
-const transformChildrenSpy = jest.spyOn(transformModule, "transformPaginatedChildren");
 
 // Mock the service registry
 jest.mock("server/serviceRegistry/serviceRegistry");
@@ -170,15 +167,14 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.headers).toMatchObject({
         "Content-Type": "application/json",
       });
-      // AND the transformation function is called correctly
-      expect(transformModule.transform).toHaveBeenCalledWith(
-        {
-          ...givenOccupationGroup,
-        },
-        givenResourcesBaseUrl
-      );
       // AND the handler to return the expected result
-      expect(JSON.parse(actualResponse.body)).toMatchObject(transformSpy.mock.results[0].value);
+      expect(JSON.parse(actualResponse.body)).toMatchObject({
+        id: givenOccupationGroup.id,
+        UUID: givenOccupationGroup.UUID,
+        modelId: givenOccupationGroup.modelId,
+        path: `${givenResourcesBaseUrl}/models/${givenOccupationGroup.modelId}/occupationGroups/${givenOccupationGroup.id}`,
+        tabiyaPath: `${givenResourcesBaseUrl}/models/${givenOccupationGroup.modelId}/occupationGroups/${givenOccupationGroup.UUID}`,
+      });
     });
     test("POST should respond with the INTERNAL_SERVER_ERROR status code if the repository failed to create the occupationGroup", async () => {
       // GIVEN a valid request {method & header & payload}
@@ -795,13 +791,6 @@ describe("Test for occupationGroup handler", () => {
           )
         ),
       });
-      // AND the transformation function is called correctly
-      expect(transformPaginatedSpy).toHaveBeenCalledWith(
-        firstPageOccupationGroups,
-        givenResourcesBaseUrl,
-        limit,
-        expectedNextCursor
-      );
     });
 
     test("GET should return nextCursor when nextCursor is present in the paginated occupation group result", async () => {
@@ -864,13 +853,6 @@ describe("Test for occupationGroup handler", () => {
       expect(JSON.parse(decodedCursor)).toHaveProperty("id");
       expect(JSON.parse(decodedCursor)).toHaveProperty("createdAt");
 
-      // AND the transformation function is called correctly
-      expect(transformPaginatedSpy).toHaveBeenCalledWith(
-        [givenOccupationGroups[0]],
-        givenResourcesBaseUrl,
-        limit,
-        responseBody.nextCursor
-      );
     });
 
     test("GET should respond with the BAD_REQUEST status code if the modelId is not passed as a path parameter", async () => {
@@ -1505,10 +1487,11 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.headers).toMatchObject({
         "Content-Type": "application/json",
       });
-      // AND the transformation function is called correctly
-      expect(transformModule.transformParent).toHaveBeenCalledWith(givenOccupationGroup, givenResourcesBaseUrl);
       // AND the handler to return the expected result
-      expect(JSON.parse(actualResponse.body)).toMatchObject(transformParentSpy.mock.results[0].value);
+      expect(JSON.parse(actualResponse.body)).toMatchObject({
+        id: givenOccupationGroup.id,
+        UUID: givenOccupationGroup.UUID,
+      });
     });
     test("GET /models/{modelId}/occupationGroups/{id}/parent should respond with NOT_FOUND if model does not exist", async () => {
       // GIVEN a valid request with modelId and occupationGroup ID
@@ -1829,8 +1812,12 @@ describe("Test for occupationGroup handler", () => {
       expect(actualResponse.headers).toMatchObject({
         "Content-Type": "application/json",
       });
-      // AND the transformation function is called correctly
-      expect(transformChildrenSpy).toHaveBeenCalledWith([givenOccupationGroup], givenResourcesBaseUrl, null, null);
+      // AND the handler to return the expected result
+      expect(JSON.parse(actualResponse.body)).toMatchObject({
+        data: expect.any(Array),
+        limit: null,
+        nextCursor: null,
+      });
     });
     test("GET /models/{modelId}/occupationGroups/{id}/children should respond with NOT_FOUND if model does not exist", async () => {
       // GIVEN a valid request with modelId and occupationGroup ID

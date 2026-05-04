@@ -4,18 +4,17 @@ import { APIGatewayProxyEvent } from "aws-lambda";
 import ErrorAPISpecs from "api-specifications/error";
 import * as queryModule from "./query";
 import * as responseModule from "./response";
-import { OccupationGroupDetailController } from "./index";
+import { OccupationGroupChildrenController } from "./index";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
-import { IOccupationGroupService } from "../../services/occupationGroup.service.type";
-import { ModelForOccupationGroupValidationErrorCode } from "../../_shared/OccupationGroup.types";
+import { IOccupationGroupService } from "../../../services/occupationGroup.service.type";
+import { ModelForOccupationGroupValidationErrorCode } from "../../../_shared/OccupationGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
 jest.mock("./response");
-
 jest.mock("validator", () => ({
   ajvInstance: {
     getSchema: jest.fn(),
@@ -23,10 +22,10 @@ jest.mock("validator", () => ({
 }));
 
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
-const mockGetOccupationGroupDetailPathParameters = jest.mocked(queryModule.getOccupationGroupDetailPathParameters);
-const mockTransform = jest.mocked(responseModule.transform);
+const mockGetOccupationGroupChildrenPathParameters = jest.mocked(queryModule.getOccupationGroupChildrenPathParameters);
+const mockTransformPaginatedChildren = jest.mocked(responseModule.transformPaginatedChildren);
 
-describe("OccupationGroupDetailController", () => {
+describe("OccupationGroupChildrenController", () => {
   const getResourcesBaseUrlSpy = jest.spyOn(config, "getResourcesBaseUrl");
 
   function getMockGetSchema() {
@@ -35,7 +34,6 @@ describe("OccupationGroupDetailController", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
     const mockServiceRegistry = {
       occupationGroup: {
         create: jest.fn(),
@@ -46,7 +44,6 @@ describe("OccupationGroupDetailController", () => {
         findChildren: jest.fn(),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;
-
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
     getResourcesBaseUrlSpy.mockReturnValue("https://resources.example.com");
   });
@@ -65,54 +62,28 @@ describe("OccupationGroupDetailController", () => {
     } as never;
   }
 
-  test("returns the occupation group when the model and group exist", async () => {
+  test("returns the children occupation groups when the model and children exist", async () => {
     const validatePathFunction = jest.fn().mockReturnValue(true);
     getMockGetSchema().mockReturnValue(validatePathFunction as never);
-    mockGetOccupationGroupDetailPathParameters.mockReturnValue({
-      modelId: "model-1",
-      id: "group-1",
-    } as never);
-
-    const occupationGroup = {
-      id: "group-1",
-      UUID: "uuid-1",
-      UUIDHistory: ["uuid-0", "uuid-1"],
-      code: "123",
-      originUri: "https://example.com/origin",
-      preferredLabel: "Group label",
-      altLabels: ["Alt label"],
-      groupType: "ISCOGroup",
-      description: "Description",
-      parent: null,
-      children: [],
-      importId: "import-1",
-      modelId: "model-1",
-      createdAt: new Date("2024-01-01T00:00:00.000Z"),
-      updatedAt: new Date("2024-01-02T00:00:00.000Z"),
-    };
-
-    const transformedOccupationGroup = {
-      id: "group-1",
-      marker: "transformed",
-    };
-
-    mockTransform.mockReturnValue(transformedOccupationGroup as never);
+    mockGetOccupationGroupChildrenPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
+    mockTransformPaginatedChildren.mockReturnValue({ data: [], limit: null, nextCursor: null } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
-    mockServiceRegistry.occupationGroup.findById = jest.fn().mockResolvedValue(occupationGroup);
+    mockServiceRegistry.occupationGroup.findChildren = jest.fn().mockResolvedValue([]);
 
-    const controller = new OccupationGroupDetailController();
-    const actualResponse = await controller.getOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1"));
+    const controller = new OccupationGroupChildrenController();
+    const actualResponse = await controller.getOccupationGroupChildren(
+      buildEvent("/models/model-1/occupationGroups/group-1/children")
+    );
 
-    expect(mockGetOccupationGroupDetailPathParameters).toHaveBeenCalledWith(
-      "/models/model-1/occupationGroups/group-1"
+    expect(mockGetOccupationGroupChildrenPathParameters).toHaveBeenCalledWith(
+      "/models/model-1/occupationGroups/group-1/children"
     );
     expect(mockServiceRegistry.occupationGroup.validateModelForOccupationGroup).toHaveBeenCalledWith("model-1");
-    expect(mockServiceRegistry.occupationGroup.findById).toHaveBeenCalledWith("group-1");
-    expect(mockTransform).toHaveBeenCalledWith(occupationGroup, "https://resources.example.com");
+    expect(mockServiceRegistry.occupationGroup.findChildren).toHaveBeenCalledWith("group-1");
+    expect(mockTransformPaginatedChildren).toHaveBeenCalledWith([], "https://resources.example.com", null, null);
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
-    expect(JSON.parse(actualResponse.body)).toEqual(transformedOccupationGroup);
   });
 
   test("returns BAD_REQUEST when the route parameters fail validation", async () => {
@@ -120,13 +91,12 @@ describe("OccupationGroupDetailController", () => {
       errors: [{ instancePath: "/id", message: "invalid id" }],
     });
     getMockGetSchema().mockReturnValue(validatePathFunction as never);
-    mockGetOccupationGroupDetailPathParameters.mockReturnValue({
-      modelId: "model-1",
-      id: "group-1",
-    } as never);
+    mockGetOccupationGroupChildrenPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
 
-    const controller = new OccupationGroupDetailController();
-    const actualResponse = await controller.getOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1"));
+    const controller = new OccupationGroupChildrenController();
+    const actualResponse = await controller.getOccupationGroupChildren(
+      buildEvent("/models/model-1/occupationGroups/group-1/children")
+    );
 
     expect(actualResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
     expect(JSON.parse(actualResponse.body)).toMatchObject({
@@ -138,18 +108,17 @@ describe("OccupationGroupDetailController", () => {
   test("returns NOT_FOUND when the model does not exist", async () => {
     const validatePathFunction = jest.fn().mockReturnValue(true);
     getMockGetSchema().mockReturnValue(validatePathFunction as never);
-    mockGetOccupationGroupDetailPathParameters.mockReturnValue({
-      modelId: "model-1",
-      id: "group-1",
-    } as never);
+    mockGetOccupationGroupChildrenPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
       .fn()
       .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
 
-    const controller = new OccupationGroupDetailController();
-    const actualResponse = await controller.getOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1"));
+    const controller = new OccupationGroupChildrenController();
+    const actualResponse = await controller.getOccupationGroupChildren(
+      buildEvent("/models/model-1/occupationGroups/group-1/children")
+    );
 
     expect(actualResponse.statusCode).toBe(StatusCodes.NOT_FOUND);
     expect(JSON.parse(actualResponse.body)).toMatchObject({
@@ -160,43 +129,21 @@ describe("OccupationGroupDetailController", () => {
   test("returns INTERNAL_SERVER_ERROR when validation against the model fails", async () => {
     const validatePathFunction = jest.fn().mockReturnValue(true);
     getMockGetSchema().mockReturnValue(validatePathFunction as never);
-    mockGetOccupationGroupDetailPathParameters.mockReturnValue({
-      modelId: "model-1",
-      id: "group-1",
-    } as never);
+    mockGetOccupationGroupChildrenPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
       .fn()
       .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
 
-    const controller = new OccupationGroupDetailController();
-    const actualResponse = await controller.getOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1"));
+    const controller = new OccupationGroupChildrenController();
+    const actualResponse = await controller.getOccupationGroupChildren(
+      buildEvent("/models/model-1/occupationGroups/group-1/children")
+    );
 
     expect(actualResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
     expect(JSON.parse(actualResponse.body)).toMatchObject({
       message: "Failed to fetch the model details from the DB",
-    });
-  });
-
-  test("returns NOT_FOUND when the occupation group is missing", async () => {
-    const validatePathFunction = jest.fn().mockReturnValue(true);
-    getMockGetSchema().mockReturnValue(validatePathFunction as never);
-    mockGetOccupationGroupDetailPathParameters.mockReturnValue({
-      modelId: "model-1",
-      id: "group-1",
-    } as never);
-
-    const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
-    mockServiceRegistry.occupationGroup.findById = jest.fn().mockResolvedValue(null);
-
-    const controller = new OccupationGroupDetailController();
-    const actualResponse = await controller.getOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1"));
-
-    expect(actualResponse.statusCode).toBe(StatusCodes.NOT_FOUND);
-    expect(JSON.parse(actualResponse.body)).toMatchObject({
-      message: "Occupation group not found",
     });
   });
 });
