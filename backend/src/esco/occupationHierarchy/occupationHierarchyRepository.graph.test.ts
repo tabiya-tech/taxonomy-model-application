@@ -10,7 +10,7 @@ import { IOccupationHierarchyRepository } from "./occupationHierarchyRepository"
 import { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
-import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupations/_shared/occupation.types";
 
 /*
  * This test constructs a graph structure with varying relationship dynamics and tests the rules for creating a hierarchy

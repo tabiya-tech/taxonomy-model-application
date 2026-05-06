@@ -13,7 +13,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewSkillSpec, ISkill, ISkillDoc, ISkillReference } from "./skills.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
-import { INewOccupationSpec } from "esco/occupations/occupation.types";
+import { INewOccupationSpec } from "esco/occupations/_shared/occupation.types";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import {
   ISkillToSkillRelationPairDoc,

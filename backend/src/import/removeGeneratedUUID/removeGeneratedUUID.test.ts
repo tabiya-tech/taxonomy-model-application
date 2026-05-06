@@ -20,7 +20,7 @@ import {
   getNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { IOccupation } from "esco/occupations/occupation.types";
+import { IOccupation } from "esco/occupations/_shared/occupation.types";
 import { ISkill } from "esco/skill/skills.types";
 import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";

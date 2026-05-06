@@ -1,4 +1,4 @@
-import { INewOccupationSpec } from "esco/occupations/occupation.types";
+import { INewOccupationSpec } from "esco/occupations/_shared/occupation.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 
 export const expected: Omit<INewOccupationSpec, "modelId">[] = [

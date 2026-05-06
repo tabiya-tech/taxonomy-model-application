@@ -1,4 +1,4 @@
-import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupations/_shared/occupation.types";
 import { getMockRandomISCOGroupCode, getMockRandomLocalGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";

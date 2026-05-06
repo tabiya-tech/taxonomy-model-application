@@ -5,7 +5,7 @@ import { BatchProcessor } from "import/batch/BatchProcessor";
 import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
-import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupations/_shared/occupation.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import errorLogger from "common/errorLogger/errorLogger";

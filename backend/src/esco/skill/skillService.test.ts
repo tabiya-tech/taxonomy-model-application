@@ -8,7 +8,7 @@ import { IModelInfo } from "modelInfo/modelInfo.types";
 import mongoose from "mongoose";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 
 interface ITestingSkillService {

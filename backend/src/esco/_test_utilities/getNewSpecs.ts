@@ -13,7 +13,7 @@ import {
 } from "esco/common/modelSchema";
 import { getMockRandomISCOGroupCode, getMockRandomLocalGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { INewOccupationSpec } from "esco/occupations/occupation.types";
+import { INewOccupationSpec } from "esco/occupations/_shared/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewSkillGroupSpec, INewSkillGroupSpecWithoutImportId } from "esco/skillGroup/skillGroup.types";
 import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";

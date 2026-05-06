@@ -4,7 +4,7 @@ import { ISkillRepository } from "./skillRepository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { ModelForSkillValidationErrorCode } from "./skills.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
-import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 

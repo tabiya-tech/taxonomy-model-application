@@ -23,7 +23,7 @@ import {
 import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
 import { ISkill } from "esco/skill/skills.types";
-import { IOccupation } from "esco/occupations/occupation.types";
+import { IOccupation } from "esco/occupations/_shared/occupation.types";
 import {
   INewSkillToSkillPairSpec,
   ISkillToSkillRelationPair,

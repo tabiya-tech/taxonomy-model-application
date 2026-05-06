@@ -7,8 +7,8 @@ import {
   getOccupationHierarchyChildReference,
   getOccupationHierarchyParentReference,
 } from "esco/occupationHierarchy/populateFunctions";
-import { getOccupationDocReference, OccupationDocument } from "esco/occupations/occupationReference";
-import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/occupationReference.types";
+import { getOccupationDocReference, OccupationDocument } from "esco/occupations/services/occupation.reference";
+import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/_shared/occupationReference.types";
 import { OccupationGroupModelPaths } from "./OccupationGroupModel";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 
