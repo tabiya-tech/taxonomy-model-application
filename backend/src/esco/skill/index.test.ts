@@ -15,7 +15,7 @@ import * as authenticatorModule from "auth/authorizer";
 import { ISkill, ModelForSkillValidationErrorCode } from "./skills.types";
 import { getISkillMockData } from "./testDataHelper";
 import { getISkillGroupMockData } from "esco/skillGroup/testDataHelper";
-import { getIOccupationMockData } from "esco/occupations/testDataHelper";
+import { getIOccupationMockData } from "esco/occupations/_shared/testDataHelper";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { SignallingValueLabel } from "esco/common/objectTypes";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";

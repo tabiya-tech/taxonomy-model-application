@@ -1,6 +1,6 @@
 import { stringify } from "csv-stringify";
 import { pipeline, Transform } from "stream";
-import { IOccupation } from "esco/occupations/occupation.types";
+import { IOccupation } from "esco/occupations/_shared/occupation.types";
 import { IOccupationExportRow, occupationExportHeaders } from "esco/common/entityToCSV.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { Readable } from "node:stream";

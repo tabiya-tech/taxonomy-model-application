@@ -2,12 +2,12 @@ import {
   IPopulatedOccupationToSkillRelationPairDoc,
   OccupationToSkillReferenceWithRelationType,
 } from "./occupationToSkillRelation.types";
-import { getOccupationReferenceWithRelationType } from "esco/occupations/occupationReference";
-import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { getOccupationReferenceWithRelationType } from "esco/occupations/services/occupation.reference";
+import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { ISkillDoc, ISkillReference } from "esco/skill/skills.types";
 import { getSkillReferenceWithRelationType } from "esco/skill/skillReference";
 import mongoose from "mongoose";
-import { IOccupationDoc } from "esco/occupations/occupation.types";
+import { IOccupationDoc } from "esco/occupations/_shared/occupation.types";
 
 export function getRequiredByOccupationReference(
   doc: IPopulatedOccupationToSkillRelationPairDoc

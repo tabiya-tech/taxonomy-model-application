@@ -13,7 +13,7 @@ import {
   OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
-import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 

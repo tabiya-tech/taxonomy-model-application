@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import { INewSkillSpec, ISkill, ISkillDoc } from "./skills.types";
 import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
-import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";

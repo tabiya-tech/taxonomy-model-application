@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { IOccupationDoc } from "esco/occupations/occupation.types";
+import { IOccupationDoc } from "esco/occupations/_shared/occupation.types";
 import { IOccupationGroupDoc } from "esco/occupationGroup/OccupationGroup.types";
 import {
   INewOccupationHierarchyPairSpec,
@@ -15,7 +15,7 @@ import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import { OccupationGroupModelPaths } from "esco/occupationGroup/OccupationGroupModel";
-import { OccupationModelPaths } from "esco/occupations/occupationModel";
+import { OccupationModelPaths } from "esco/occupations/model/occupation.model";
 
 export interface IOccupationHierarchyRepository {
   readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;

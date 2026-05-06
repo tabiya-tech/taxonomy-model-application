@@ -19,7 +19,7 @@ import { Routes } from "routes.constant";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getRandomString } from "_test_utilities/getMockRandomData";
-import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 
 describe("getNewOccupationGroupSpec", () => {
   test("should return a valid occupation group spec object", () => {

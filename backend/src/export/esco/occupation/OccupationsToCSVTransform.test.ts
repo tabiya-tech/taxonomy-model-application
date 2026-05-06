@@ -5,7 +5,7 @@ import { Readable } from "stream";
 import * as BaseOccupationsToCSVTransformModule from "./OccupationsToCSVTransform";
 import OccupationsToCSVTransform, { IUnpopulatedOccupation } from "./OccupationsToCSVTransform";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { IOccupationRepository } from "esco/occupations/occupationRepository";
+import { IOccupationRepository } from "esco/occupations/repository/occupation.repository";
 import { parse } from "csv-parse/sync";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getTestString } from "_test_utilities/getMockRandomData";

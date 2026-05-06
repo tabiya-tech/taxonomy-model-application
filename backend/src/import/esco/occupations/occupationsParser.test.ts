@@ -3,10 +3,10 @@ import "_test_utilities/consoleMock";
 
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { parseOccupationsFromFile, parseOccupationsFromUrl } from "./occupationsParser";
-import { IOccupationRepository } from "esco/occupations/occupationRepository";
+import { IOccupationRepository } from "esco/occupations/repository/occupation.repository";
 import fs from "fs";
 import { StatusCodes } from "server/httpUtils";
-import { INewOccupationSpec, IOccupation } from "esco/occupations/occupation.types";
+import { INewOccupationSpec, IOccupation } from "esco/occupations/_shared/occupation.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";

@@ -4,7 +4,7 @@ import * as modelInfoModel from "modelInfo/modelInfoModel";
 import * as OccupationGroupModel from "esco/occupationGroup/OccupationGroupModel";
 import * as skillGroupModel from "esco/skillGroup/skillGroupModel";
 import * as skillModel from "esco/skill/skillModel";
-import * as occupationModel from "esco/occupations/occupationModel";
+import * as occupationModel from "esco/occupations/model/occupation.model";
 import * as occupationHierarchyModel from "esco/occupationHierarchy/occupationHierarchyModel";
 import * as skillHierarchyModel from "esco/skillHierarchy/skillHierarchyModel";
 import * as skillToSkillRelationModel from "esco/skillToSkillRelation/skillToSkillRelationModel";
@@ -15,7 +15,7 @@ import * as exportProcessStateModel from "export/exportProcessState/exportProces
 import { IOccupationGroupRepository, OccupationGroupRepository } from "esco/occupationGroup/OccupationGroupRepository";
 import { ISkillGroupRepository, SkillGroupRepository } from "esco/skillGroup/skillGroupRepository";
 import { ISkillRepository, SkillRepository } from "esco/skill/skillRepository";
-import { IOccupationRepository, OccupationRepository } from "esco/occupations/occupationRepository";
+import { IOccupationRepository, OccupationRepository } from "esco/occupations/repository/occupation.repository";
 import {
   IOccupationHierarchyRepository,
   OccupationHierarchyRepository,

@@ -1,7 +1,7 @@
 import { IOccupationGroupService } from "esco/occupationGroup/occupationGroupService.type";
 import { getRepositoryRegistry } from "../repositoryRegistry/repositoryRegistry";
-import { OccupationService } from "esco/occupations/occupationService";
-import { IOccupationService } from "esco/occupations/occupationService.types";
+import { OccupationService } from "esco/occupations/services/occupation.service";
+import { IOccupationService } from "esco/occupations/services/occupation.service.types";
 import { OccupationGroupService } from "esco/occupationGroup/occupationGroupService";
 import { SkillGroupService } from "esco/skillGroup/skillGroupService";
 import { ISkillGroupService } from "esco/skillGroup/skillGroupService.type";
