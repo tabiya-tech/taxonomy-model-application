@@ -2,7 +2,7 @@ import { transformDynamicEntity } from "../../../_shared/transform";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { IOccupation } from "../../../_shared/occupation.types";
-import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
+import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 
 export function buildChildrenResponse(
   items: (IOccupation | IOccupationGroup)[],

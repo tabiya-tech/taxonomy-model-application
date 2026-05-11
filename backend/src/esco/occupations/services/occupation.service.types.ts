@@ -1,8 +1,5 @@
-import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { SignallingValueLabel } from "esco/common/objectTypes";
-import { ISkill } from "esco/skill/skills.types";
-import { INewOccupationSpecWithoutImportId, IOccupation } from "./occupation.types";
 import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
+import { INewOccupationSpecWithoutImportId, IOccupation, ISkillWithRelation } from "../_shared/occupation.types";
 
 export enum ModelForOccupationValidationErrorCode {
   FAILED_TO_FETCH_FROM_DB,
@@ -15,9 +12,6 @@ export class OccupationModelValidationError extends Error {
     super();
   }
 }
-
-import { INewOccupationSpecWithoutImportId, IOccupation, ISkillWithRelation } from "../_shared/occupation.types";
-import { IOccupationGroup } from "esco/occupationGroup/OccupationGroup.types";
 
 // Re-export for consumers that import ISkillWithRelation from here
 export type { ISkillWithRelation };

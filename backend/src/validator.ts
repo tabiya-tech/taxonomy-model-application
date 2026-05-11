@@ -153,46 +153,44 @@ ajvInstance.addSchema(
   SkillGroupAPISpecs.SkillGroup.Children.GET.Schemas.Response.Children.Payload,
   SkillGroupAPISpecs.SkillGroup.Children.GET.Schemas.Response.Children.Payload.$id
 );
-if (SkillAPISpecs.GET?.Schemas?.Request?.Param?.Payload) {
-  ajvInstance.addSchema(
-    SkillAPISpecs.GET.Schemas.Request.Param.Payload,
-    SkillAPISpecs.GET.Schemas.Request.Param.Payload.$id
-  );
-  ajvInstance.addSchema(
-    SkillAPISpecs.GET.Schemas.Request.Query.Payload,
-    SkillAPISpecs.GET.Schemas.Request.Query.Payload.$id
-  );
-  ajvInstance.addSchema(
-    SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload,
-    SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload.$id
-  );
-  ajvInstance.addSchema(
-    SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
-    SkillAPISpecs.Skill.GET.Schemas.Response.Payload.$id
-  );
-  ajvInstance.addSchema(SkillAPISpecs.POST.Schemas.Request.Payload, SkillAPISpecs.POST.Schemas.Request.Payload.$id);
-  ajvInstance.addSchema(
-    SkillAPISpecs.POST.Schemas.Request.Param.Payload,
-    SkillAPISpecs.POST.Schemas.Request.Param.Payload.$id
-  );
-  ajvInstance.addSchema(SkillAPISpecs.GET.Schemas.Response.Payload, SkillAPISpecs.GET.Schemas.Response.Payload.$id);
-  ajvInstance.addSchema(
-    SkillAPISpecs.Skill.Parents.GET.Schemas.Request.Query.Payload,
-    SkillAPISpecs.Skill.Parents.GET.Schemas.Request.Query.Payload.$id
-  );
-  ajvInstance.addSchema(
-    SkillAPISpecs.Skill.Children.GET.Schemas.Request.Query.Payload,
-    SkillAPISpecs.Skill.Children.GET.Schemas.Request.Query.Payload.$id
-  );
-  ajvInstance.addSchema(
-    SkillAPISpecs.Skill.Occupations.GET.Schemas.Request.Query.Payload,
-    SkillAPISpecs.Skill.Occupations.GET.Schemas.Request.Query.Payload.$id
-  );
-  ajvInstance.addSchema(
-    SkillAPISpecs.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload,
-    SkillAPISpecs.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id
-  );
-}
+ajvInstance.addSchema(
+  SkillAPISpecs.GET.Schemas.Request.Param.Payload,
+  SkillAPISpecs.GET.Schemas.Request.Param.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.GET.Schemas.Request.Query.Payload,
+  SkillAPISpecs.GET.Schemas.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload,
+  SkillAPISpecs.Skill.GET.Schemas.Request.Param.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Skill.GET.Schemas.Response.Payload,
+  SkillAPISpecs.Skill.GET.Schemas.Response.Payload.$id
+);
+ajvInstance.addSchema(SkillAPISpecs.POST.Schemas.Request.Payload, SkillAPISpecs.POST.Schemas.Request.Payload.$id);
+ajvInstance.addSchema(
+  SkillAPISpecs.POST.Schemas.Request.Param.Payload,
+  SkillAPISpecs.POST.Schemas.Request.Param.Payload.$id
+);
+ajvInstance.addSchema(SkillAPISpecs.GET.Schemas.Response.Payload, SkillAPISpecs.GET.Schemas.Response.Payload.$id);
+ajvInstance.addSchema(
+  SkillAPISpecs.Skill.Parents.GET.Schemas.Request.Query.Payload,
+  SkillAPISpecs.Skill.Parents.GET.Schemas.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Skill.Children.GET.Schemas.Request.Query.Payload,
+  SkillAPISpecs.Skill.Children.GET.Schemas.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Skill.Occupations.GET.Schemas.Request.Query.Payload,
+  SkillAPISpecs.Skill.Occupations.GET.Schemas.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload,
+  SkillAPISpecs.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id
+);
 
 /**
  * Turn the errors from ajv and turn into a string that consumers can read.
