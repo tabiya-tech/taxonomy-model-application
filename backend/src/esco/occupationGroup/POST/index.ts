@@ -1,5 +1,5 @@
 import { ValidateFunction } from "ajv";
-import { APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import AuthAPISpecs from "api-specifications/auth";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import OccupationGroupPOSTAPISpecs from "api-specifications/esco/occupationGroup/POST";
@@ -25,6 +25,70 @@ export class OccupationGroupCreateController {
     this.occupationGroupService = getServiceRegistry().occupationGroup;
   }
 
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/occupationGroups:
+   *    post:
+   *      operationId: POSTOccupationGroup
+   *      tags:
+   *        - occupationGroups
+   *      summary: Create a new taxonomy occupation group.
+   *      description: Create a new taxonomy occupation group in a specific taxonomy model.
+   *      security:
+   *       - api_key: []
+   *       - jwt_auth: []
+   *      parameters:
+   *        - in: path
+   *          name: modelId
+   *          required: true
+   *          schema:
+   *            $ref: '#/components/schemas/OccupationGroupRequestParamSchemaGET/properties/modelId'
+   *      requestBody:
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/OccupationGroupRequestSchemaPOST'
+   *         required: true
+   *      responses:
+   *         '201':
+   *           description: Successfully created the occupation group,
+   *           content:
+   *             application/json:
+   *               schema:
+   *                  $ref: '#/components/schemas/OccupationGroupResponseSchemaPOST'
+   *         '400':
+   *           description: |
+   *             Failed to create the occupation group. Additional information can be found in the response body.
+   *           content:
+   *             application/json:
+   *                schema:
+   *                  $ref: '#/components/schemas/POSTOccupationGroup400ErrorSchema'
+   *         '403':
+   *           description: |
+   *             The request has not been applied because you don't have the right permissions to access this resource.
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/AllForbidden403ResponseSchema'
+   *         '401':
+   *           $ref: '#/components/responses/UnAuthorizedResponse'
+   *         '415':
+   *           description: |
+   *             The request is not supported because the media type is not acceptable.
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/AllContentType415ResponseSchema'
+   *         '500':
+   *           description: |
+   *             The server encountered an unexpected condition.
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/All500ResponseSchema'
+   *
+   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)
   async postOccupationGroup(event: APIGatewayProxyEvent) {
     if (!event.headers["Content-Type"]?.includes("application/json")) {
@@ -134,3 +198,7 @@ export class OccupationGroupCreateController {
     }
   }
 }
+
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  return new OccupationGroupCreateController().postOccupationGroup(event);
+};

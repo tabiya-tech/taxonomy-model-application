@@ -4,7 +4,7 @@ import { APIGatewayProxyEvent } from "aws-lambda";
 import ErrorAPISpecs from "api-specifications/error";
 import * as queryModule from "./query";
 import * as responseModule from "./response";
-import { OccupationGroupChildrenController } from "./index";
+import { handler as OccupationGroupChildrenHandler } from "./index";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { IOccupationGroupService } from "../../../services/occupationGroup.service.type";
@@ -72,8 +72,7 @@ describe("OccupationGroupChildrenController", () => {
     mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
     mockServiceRegistry.occupationGroup.findChildren = jest.fn().mockResolvedValue([]);
 
-    const controller = new OccupationGroupChildrenController();
-    const actualResponse = await controller.getOccupationGroupChildren(
+    const actualResponse = await OccupationGroupChildrenHandler(
       buildEvent("/models/model-1/occupationGroups/group-1/children")
     );
 
@@ -93,8 +92,7 @@ describe("OccupationGroupChildrenController", () => {
     getMockGetSchema().mockReturnValue(validatePathFunction as never);
     mockGetOccupationGroupChildrenPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
 
-    const controller = new OccupationGroupChildrenController();
-    const actualResponse = await controller.getOccupationGroupChildren(
+    const actualResponse = await OccupationGroupChildrenHandler(
       buildEvent("/models/model-1/occupationGroups/group-1/children")
     );
 
@@ -115,8 +113,7 @@ describe("OccupationGroupChildrenController", () => {
       .fn()
       .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
 
-    const controller = new OccupationGroupChildrenController();
-    const actualResponse = await controller.getOccupationGroupChildren(
+    const actualResponse = await OccupationGroupChildrenHandler(
       buildEvent("/models/model-1/occupationGroups/group-1/children")
     );
 
@@ -136,8 +133,7 @@ describe("OccupationGroupChildrenController", () => {
       .fn()
       .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
 
-    const controller = new OccupationGroupChildrenController();
-    const actualResponse = await controller.getOccupationGroupChildren(
+    const actualResponse = await OccupationGroupChildrenHandler(
       buildEvent("/models/model-1/occupationGroups/group-1/children")
     );
 
