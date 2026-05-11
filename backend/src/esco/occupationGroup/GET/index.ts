@@ -1,5 +1,5 @@
 import { ValidateFunction } from "ajv";
-import { APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import AuthAPISpecs from "api-specifications/auth";
 import ErrorAPISpecs from "api-specifications/error";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
@@ -21,6 +21,66 @@ export class OccupationGroupListController {
   constructor() {
     this.occupationGroupService = getServiceRegistry().occupationGroup;
   }
+
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/occupationGroups:
+   *   get:
+   *    operationId: GETOccupationGroups
+   *    tags:
+   *      - occupationGroups
+   *    summary: Get a list of paginated occupation groups and cursor if there is one in a taxonomy model.
+   *    description: Retrieve a list of paginated occupation groups in a specific taxonomy model.
+   *    security:
+   *      - api_key: []
+   *      - jwt_auth: []
+   *    parameters:
+   *      - in: path
+   *        name: modelId
+   *        required: true
+   *        schema:
+   *          $ref: '#/components/schemas/OccupationGroupRequestParamSchemaGET/properties/modelId'
+   *      - in: query
+   *        name: limit
+   *        required: false
+   *        schema:
+   *          $ref: '#/components/schemas/OccupationGroupRequestQueryParamSchemaGET/properties/limit'
+   *      - in: query
+   *        name: cursor
+   *        schema:
+   *          $ref: '#/components/schemas/OccupationGroupRequestQueryParamSchemaGET/properties/cursor'
+   *    responses:
+   *      '200':
+   *        description: Successfully retrieved the paginated occupation groups.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/OccupationGroupResponseSchemaGET'
+   *      '400':
+   *        description: |
+   *          Failed to retrieve the occupation groups. Additional information can be found in the response body.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETOccupationGroup400ErrorSchema'
+   *      '401':
+   *        $ref: '#/components/responses/UnAuthorizedResponse'
+   *      '404':
+   *        description: Occupation groups not found.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/GETOccupationGroups404ErrorSchema'
+   *      '500':
+   *        description: |
+   *          The server encountered an unexpected condition.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/All500ResponseSchema'
+   *
+   */
   @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.ANONYMOUS)
   async getOccupationGroups(event: APIGatewayProxyEvent) {
     try {
@@ -141,3 +201,7 @@ export class OccupationGroupListController {
     }
   }
 }
+
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  return new OccupationGroupListController().getOccupationGroups(event);
+};
