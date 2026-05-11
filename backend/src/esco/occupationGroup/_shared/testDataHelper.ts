@@ -9,7 +9,7 @@ import {
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
-import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 
 export function getIOccupationGroupOccupationGroupTypedChildData(

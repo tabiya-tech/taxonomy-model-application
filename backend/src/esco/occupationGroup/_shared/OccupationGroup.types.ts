@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
-import { IOccupationReference } from "esco/occupations/occupationReference.types";
+import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 
 /**
  * Describes how an OccupationGroup is saved in the database.
