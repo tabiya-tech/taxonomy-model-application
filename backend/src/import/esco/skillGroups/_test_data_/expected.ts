@@ -1,4 +1,4 @@
-import { INewSkillGroupSpec } from "esco/skillGroup/skillGroup.types";
+import { INewSkillGroupSpec } from "esco/skillGroup/_shared/skillGroup.types";
 
 export const expected: Omit<INewSkillGroupSpec, "modelId">[] = [
   {

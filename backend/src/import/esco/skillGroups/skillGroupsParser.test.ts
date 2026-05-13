@@ -5,8 +5,8 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { parseSkillGroupsFromFile, parseSkillGroupsFromUrl } from "./skillGroupsParser";
 import fs from "fs";
 import { StatusCodes } from "server/httpUtils";
-import { ISkillGroupRepository } from "esco/skillGroup/skillGroupRepository";
-import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroupRepository } from "esco/skillGroup/repository/SkillGroup.repository";
+import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";

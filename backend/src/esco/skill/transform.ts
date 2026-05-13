@@ -3,11 +3,11 @@ import SkillAPISpecs from "api-specifications/esco/skill";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import { Routes } from "routes.constant";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/_shared/skillGroup.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
-import { transform as transformSkillGroup } from "esco/skillGroup/transform";
+import { transform as transformSkillGroup } from "esco/skillGroup/_shared/transform";
 import { transform as transformOccupation } from "esco/occupations/_shared/transform";
 
 function mapSkillType(skillType: string): SkillAPISpecs.Enums.SkillType {

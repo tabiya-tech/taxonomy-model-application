@@ -1,13 +1,15 @@
-import { ISkillGroupService } from "./skillGroupService.type";
-import { ModelForSkillGroupValidationErrorCode, ISkillGroup, ISkillGroupChild } from "./skillGroup.types";
-import { ISkillGroupRepository } from "./skillGroupRepository";
+import { ISkillGroupService } from "./skillGroup.service.type";
+import { ModelForSkillGroupValidationErrorCode, ISkillGroup, ISkillGroupChild } from "../_shared/skillGroup.types";
+import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 
 export class SkillGroupService implements ISkillGroupService {
   constructor(private readonly skillGroupRepository: ISkillGroupRepository) {}
+
   async findById(id: string): Promise<ISkillGroup | null> {
     return this.skillGroupRepository.findById(id);
   }
+
   async findPaginated(
     modelId: string,
     cursor: { id: string; createdAt: Date } | undefined,
@@ -15,15 +17,10 @@ export class SkillGroupService implements ISkillGroupService {
     desc: boolean = true
   ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     const sortOrder = desc ? -1 : 1;
-
-    // Get items + 1 to check if there's a next page
     const items = await this.skillGroupRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id);
-
-    // Check if there's a next page
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
 
-    // Construct nextCursor from the last item of the current page
     let nextCursor: { _id: string; createdAt: Date } | null = null;
     if (hasMore && pageItems.length > 0) {
       const lastItemOnPage = pageItems[pageItems.length - 1];
@@ -38,6 +35,7 @@ export class SkillGroupService implements ISkillGroupService {
       nextCursor,
     };
   }
+
   async validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null> {
     try {
       const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);

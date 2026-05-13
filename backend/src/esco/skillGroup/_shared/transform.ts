@@ -1,4 +1,4 @@
-import { ISkillGroup, ISkillGroupChild } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroup, ISkillGroupChild } from "./skillGroup.types";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import { Routes } from "routes.constant";
 import { ObjectTypes } from "esco/common/objectTypes";

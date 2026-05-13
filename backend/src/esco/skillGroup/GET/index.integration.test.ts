@@ -13,7 +13,7 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { ISkillGroup } from "./skillGroup.types";
+import { ISkillGroup } from "../_shared/skillGroup.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
@@ -64,13 +64,9 @@ describe("Test for skillGroup handler with a DB", () => {
   addFormats(ajv);
   ajv
     .addSchema(SkillGroupAPISpecs.GET.Schemas.Response.Payload)
-    .addSchema(SkillGroupAPISpecs.POST.Schemas.Response.Payload)
-    .addSchema(SkillGroupAPISpecs.SkillGroup.GET.Schemas.Response.Payload);
+    .addSchema(SkillGroupAPISpecs.POST.Schemas.Response.Payload);
   const validateGETResponse: ValidateFunction = ajv.getSchema(
     SkillGroupAPISpecs.GET.Schemas.Response.Payload.$id as string
-  ) as ValidateFunction;
-  const validateSingleGETResponse: ValidateFunction = ajv.getSchema(
-    SkillGroupAPISpecs.SkillGroup.GET.Schemas.Response.Payload.$id as string
   ) as ValidateFunction;
 
   let dbConnection: Connection | undefined;
@@ -133,31 +129,6 @@ describe("Test for skillGroup handler with a DB", () => {
     expect(validateGETResponse.errors).toBeNull();
   });
 
-  test("GET should respond with a single skillGroup when asked for one", async () => {
-    // GIVEN several skillGroup objects are in the DB
-    const givenModelInfo = await createModelInDB();
-
-    const skillGroups = await createSkillGroupsInDB(3, givenModelInfo.id.toString());
-    expect(skillGroups.length).toBeGreaterThan(0); // guard to ensue that we actually have models in the DB
-    // AND a valid request (method & header)
-    const givenEvent = {
-      httpMethod: HTTP_VERBS.GET,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      pathParameters: { modelId: givenModelInfo.id.toString(), id: skillGroups[1].id.toString() },
-      path: `/models/${givenModelInfo.id.toString()}/skillGroups/${skillGroups[1].id.toString()}`,
-    };
-    // WHEN the handler is invoked with the given event
-    // @ts-ignore
-    const actualResponse = await skillGroupHandler(givenEvent);
-
-    // THEN expect the handler to respond with the OK status code
-    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-    // AND an skillGroup object that validates against the SkillGroupResponseGET schema
-    validateSingleGETResponse(JSON.parse(actualResponse.body));
-    expect(validateSingleGETResponse.errors).toBeNull();
-  });
   test("GET should return at most the passed limit skillGroups", async () => {
     // GIVEN several SkillGroup objects are in the DB
     const givenModelInfo = await createModelInDB();

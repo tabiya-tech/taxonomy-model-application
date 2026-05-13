@@ -4,7 +4,7 @@ import "_test_utilities/consoleMock";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
-import { initializeSchemaAndModel } from "./skillGroupModel";
+import { initializeSchemaAndModel } from "./SkillGroup.model";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/getMockRandomData";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
@@ -16,7 +16,7 @@ import {
 } from "esco/common/modelSchema";
 import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { ISkillGroupDoc } from "./skillGroup.types";
+import { ISkillGroupDoc } from "../_shared/skillGroup.types";
 import {
   testAltLabelsField,
   testOptionalImportId,

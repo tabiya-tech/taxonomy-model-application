@@ -4,7 +4,7 @@ import "_test_utilities/consoleMock";
 import { getServiceRegistry, ServiceRegistry } from "./serviceRegistry";
 import { OccupationService } from "esco/occupations/services/occupation.service";
 import { OccupationGroupService } from "esco/occupationGroup/services/occupationGroup.service";
-import { SkillGroupService } from "esco/skillGroup/skillGroupService";
+import { SkillGroupService } from "esco/skillGroup/services/skillGroup.service";
 
 describe("test the ServiceRegistry", () => {
   test("should return a singleton ServiceRegistry", () => {

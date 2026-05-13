@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
-import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroupReference } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";

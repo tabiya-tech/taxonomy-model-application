@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
-import { ISkillGroupReferenceDoc } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroupReferenceDoc } from "./skillGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { getSkillDocReference, SkillDocument } from "esco/skill/skillReference";
-import { getSkillGroupDocReference, SkillGroupDocument } from "esco/skillGroup/skillGroupReference";
+import { getSkillGroupDocReference, SkillGroupDocument } from "./skillGroupReference";
 import {
   getSkillHierarchyChildrenReference,
   getSkillHierarchyParentsReference,
 } from "esco/skillHierarchy/populateFunctions";
-import { SkillGroupModelPaths } from "./skillGroupModel";
+import { SkillGroupModelPaths } from "../model/SkillGroup.model";
 import { SkillHierarchyModelPaths } from "esco/skillHierarchy/skillHierarchyModel";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };
@@ -18,7 +18,6 @@ export const populateSkillGroupParentsOptions = {
   populate: {
     path: SkillHierarchyModelPaths.parentId,
     transform: function (doc: ModelConstructed & SkillGroupDocument): ISkillGroupReferenceDoc | null {
-      // return only the relevant fields
       const modelName = (doc as ModelConstructed).constructor.modelName;
       if (modelName === MongooseModelName.SkillGroup) {
         return getSkillGroupDocReference(doc);

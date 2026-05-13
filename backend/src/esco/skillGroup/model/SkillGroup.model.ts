@@ -8,7 +8,7 @@ import {
   PreferredLabelProperty,
   ScopeNoteProperty,
 } from "esco/common/modelSchema";
-import { ISkillGroupDoc } from "./skillGroup.types";
+import { ISkillGroupDoc } from "../_shared/skillGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { stringRequired } from "server/stringRequired";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
@@ -22,7 +22,6 @@ export const SkillGroupModelPaths = {
 export const IMPORT_ID_MAX_LENGTH = 256;
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<ISkillGroupDoc> {
-  // Main Schema
   const SkillGroupSchema = new mongoose.Schema<ISkillGroupDoc>(
     {
       UUID: { type: String, required: true, validate: RegExp_UUIDv4 },

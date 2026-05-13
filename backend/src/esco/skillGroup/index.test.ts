@@ -1,6 +1,6 @@
 import "_test_utilities/consoleMock";
 import * as config from "server/config/config";
-import * as transformModule from "./transform";
+import * as transformModule from "./_shared/transform";
 import { handler as skillGroupHandler } from "./index";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { getMockStringId } from "_test_utilities/mockMongoId";
@@ -11,14 +11,14 @@ import { getRandomString } from "_test_utilities/getMockRandomData";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 
 import * as authenticatorModule from "auth/authorizer";
-import { ISkillGroup, ISkillGroupChild, ModelForSkillGroupValidationErrorCode } from "./skillGroup.types";
-import { getISkillGroupMockData, getISkillGroupSkillTypedChildData } from "./testDataHelper";
+import { ISkillGroup, ISkillGroupChild, ModelForSkillGroupValidationErrorCode } from "./_shared/skillGroup.types";
+import { getISkillGroupMockData, getISkillGroupSkillTypedChildData } from "./_shared/testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { testMethodsNotAllowed } from "_test_utilities/stdRESTHandlerTests";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { getIModelInfoMockData } from "modelInfo/testDataHelper";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { ISkillGroupService } from "./skillGroupService.type";
+import { ISkillGroupService } from "./services/skillGroup.service.type";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
