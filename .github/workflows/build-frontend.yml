@@ -110,6 +110,6 @@ jobs:
         working-directory: frontend
       - name: Accessibility Tests
         run: |
-          npx playwright install --with-deps
+          npx --ignore-scripts playwright@1.49.1 install --with-deps
           yarn run build-storybook && yarn run test:accessibility
         working-directory: frontend
