@@ -41,9 +41,10 @@ jobs:
         working-directory: ${{ inputs.component }}
       - id: smoke-test
         shell: bash
+        env:
+          EXPECTED_VERSION_INFO: ${{ inputs.expected-version-info }}
+          E2E_BASE_URL: ${{ inputs.component-url }}
+          E2E_RESOURCES_BASE_URL: ${{ inputs.resources-base-url }}
         run: |
-          export EXPECTED_VERSION_INFO='${{ inputs.expected-version-info }}'
-          export E2E_BASE_URL=${{ inputs.component-url }}
-          export E2E_RESOURCES_BASE_URL=${{ inputs.resources-base-url }}
           yarn run test:smoke
         working-directory: ${{ inputs.component }}
