@@ -1,5 +1,5 @@
 import { ISkill, ISkillReference, ReuseLevel, SkillType } from "./skills.types";
-import { ISkillGroupReference } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroupReference } from "esco/skillGroup/_shared/skillGroup.types";
 import { getISkillMockData } from "./testDataHelper";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import { transform, transformPaginated, transformSkillOccupation, transformSkillRelated } from "./transform";

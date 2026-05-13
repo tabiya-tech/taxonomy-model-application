@@ -14,7 +14,7 @@ import SkillAPISpecs from "api-specifications/esco/skill";
 import * as authenticatorModule from "auth/authorizer";
 import { ISkill, ModelForSkillValidationErrorCode } from "./skills.types";
 import { getISkillMockData } from "./testDataHelper";
-import { getISkillGroupMockData } from "esco/skillGroup/testDataHelper";
+import { getISkillGroupMockData } from "esco/skillGroup/_shared/testDataHelper";
 import { getIOccupationMockData } from "esco/occupations/_shared/testDataHelper";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { SignallingValueLabel } from "esco/common/objectTypes";

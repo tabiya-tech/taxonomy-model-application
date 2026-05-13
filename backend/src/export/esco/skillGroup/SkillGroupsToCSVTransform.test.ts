@@ -3,7 +3,7 @@ import "_test_utilities/consoleMock";
 
 import { Readable } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { ISkillGroupRepository } from "esco/skillGroup/skillGroupRepository";
+import { ISkillGroupRepository } from "esco/skillGroup/repository/SkillGroup.repository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getTestString } from "_test_utilities/getMockRandomData";
 import SkillGroupsToCSVTransform, * as SKillGroupsToCSVTransformModule from "./SkillGroupsToCSVTransform";

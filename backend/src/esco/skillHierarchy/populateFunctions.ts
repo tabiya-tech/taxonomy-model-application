@@ -1,6 +1,6 @@
 import { IPopulatedSkillHierarchyPairDoc } from "./skillHierarchy.types";
 import { ISkillDoc, ISkillReferenceDoc } from "esco/skill/skills.types";
-import { ISkillGroupDoc, ISkillGroupReferenceDoc } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroupDoc, ISkillGroupReferenceDoc } from "esco/skillGroup/_shared/skillGroup.types";
 import mongoose from "mongoose";
 
 export function getSkillHierarchyParentsReference(

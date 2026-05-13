@@ -3,8 +3,8 @@ import { getRepositoryRegistry } from "../repositoryRegistry/repositoryRegistry"
 import { OccupationService } from "esco/occupations/services/occupation.service";
 import { IOccupationService } from "esco/occupations/services/occupation.service.types";
 import { OccupationGroupService } from "esco/occupationGroup/services/occupationGroup.service";
-import { SkillGroupService } from "esco/skillGroup/skillGroupService";
-import { ISkillGroupService } from "esco/skillGroup/skillGroupService.type";
+import { SkillGroupService } from "esco/skillGroup/services/skillGroup.service";
+import { ISkillGroupService } from "esco/skillGroup/services/skillGroup.service.type";
 import { SkillService } from "esco/skill/skillService";
 import { ISkillService } from "esco/skill/skillService.type";
 

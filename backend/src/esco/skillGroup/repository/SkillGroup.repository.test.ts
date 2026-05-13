@@ -8,14 +8,14 @@ import { getNewConnection } from "server/connection/newConnection";
 import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
-import { ISkillGroupRepository } from "./skillGroupRepository";
+import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import {
   INewSkillGroupSpec,
   INewSkillGroupSpecWithoutImportId,
   ISkillGroup,
   ISkillGroupDoc,
   ISkillGroupReference,
-} from "./skillGroup.types";
+} from "../_shared/skillGroup.types";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { INewSkillSpec, ISkillReference } from "esco/skill/skills.types";

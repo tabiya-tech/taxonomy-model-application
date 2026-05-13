@@ -2,7 +2,7 @@ import { ISkillGroupExportRow, skillGroupExportHeaders } from "esco/common/entit
 import { pipeline, Transform } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { stringify } from "csv-stringify";
-import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { Readable } from "node:stream";
 import { stringFromArray } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 

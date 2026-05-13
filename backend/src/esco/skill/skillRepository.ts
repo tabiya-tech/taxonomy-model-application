@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import { INewSkillSpec, ISkill, ISkillDoc } from "./skills.types";
-import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
@@ -11,7 +11,7 @@ import { populateSkillChildrenOptions, populateSkillParentsOptions } from "./pop
 import {
   populateSkillGroupChildrenOptions,
   populateSkillGroupParentsOptions,
-} from "esco/skillGroup/populateSkillHierarchyOptions";
+} from "esco/skillGroup/_shared/populateSkillHierarchyOptions";
 import {
   populateSkillRequiredBySkillsOptions,
   populateSkillRequiresSkillsOptions,

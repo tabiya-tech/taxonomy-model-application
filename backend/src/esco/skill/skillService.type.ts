@@ -1,5 +1,5 @@
 import { ISkill, ModelForSkillValidationErrorCode } from "./skills.types";
-import { ISkillGroup } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";

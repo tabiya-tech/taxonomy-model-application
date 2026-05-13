@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { ISkillDoc } from "esco/skill/skills.types";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair, ISkillHierarchyPairDoc } from "./skillHierarchy.types";
-import { ISkillGroupDoc } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroupDoc } from "esco/skillGroup/_shared/skillGroup.types";
 import { isNewSkillHierarchyPairSpecValid } from "./skillHierarchyValidation";
 import { getModelName } from "esco/common/mongooseModelNames";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";

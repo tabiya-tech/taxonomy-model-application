@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillReferenceDoc } from "esco/skill/skills.types";
-import { ISkillGroupReferenceDoc } from "esco/skillGroup/skillGroup.types";
+import { ISkillGroupReferenceDoc } from "esco/skillGroup/_shared/skillGroup.types";
 
 /**
  * Describes what the ObjectType of the parent of a skills hierarchy is.

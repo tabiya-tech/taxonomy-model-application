@@ -1,7 +1,7 @@
-import { SkillGroupService } from "./skillGroupService";
-import { ISkillGroupService } from "./skillGroupService.type";
-import { ModelForSkillGroupValidationErrorCode, ISkillGroup, ISkillGroupChild } from "./skillGroup.types";
-import { ISkillGroupRepository } from "./skillGroupRepository";
+import { SkillGroupService } from "./skillGroup.service";
+import { ISkillGroupService } from "./skillGroup.service.type";
+import { ModelForSkillGroupValidationErrorCode, ISkillGroup, ISkillGroupChild } from "../_shared/skillGroup.types";
+import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
