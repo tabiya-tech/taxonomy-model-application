@@ -67,13 +67,19 @@ jobs:
       - name: Build env.js file
         # we are basically creating a js file with the passed env variables
         # that can be executed in the client browser when the js file is loaded
+        env:
+          INPUT_BACKEND_URL: ${{ inputs.backend-url }}
+          INPUT_LOCALES_URL: ${{ inputs.locales-url }}
+          INPUT_AUTH_URL: ${{ inputs.auth-url }}
+          INPUT_COGNITO_CLIENT_ID: ${{ inputs.cognito-client-id }}
+          INPUT_COGNITO_CLIENT_SECRET: ${{ inputs.cognito-client-secret }}
         run: |
           echo "window.tabiyaConfig = {" > frontend/build/data/env.js
-          echo "\"BACKEND_URL\": btoa(\"${{ inputs.backend-url }}\")," >> frontend/build/data/env.js
-          echo "\"LOCALES_URL\": btoa(\"${{ inputs.locales-url }}\")," >> frontend/build/data/env.js
-          echo "\"AUTH_URL\": btoa(\"${{ inputs.auth-url }}\")," >> frontend/build/data/env.js
-          echo "\"COGNITO_CLIENT_ID\": btoa(\"${{ inputs.cognito-client-id }}\")," >> frontend/build/data/env.js
-          echo "\"COGNITO_CLIENT_SECRET\": btoa(\"${{ inputs.cognito-client-secret }}\")" >> frontend/build/data/env.js
+          echo "\"BACKEND_URL\": btoa(\"$INPUT_BACKEND_URL\")," >> frontend/build/data/env.js
+          echo "\"LOCALES_URL\": btoa(\"$INPUT_LOCALES_URL\")," >> frontend/build/data/env.js
+          echo "\"AUTH_URL\": btoa(\"$INPUT_AUTH_URL\")," >> frontend/build/data/env.js
+          echo "\"COGNITO_CLIENT_ID\": btoa(\"$INPUT_COGNITO_CLIENT_ID\")," >> frontend/build/data/env.js
+          echo "\"COGNITO_CLIENT_SECRET\": btoa(\"$INPUT_COGNITO_CLIENT_SECRET\")" >> frontend/build/data/env.js
           echo "};" >> frontend/build/data/env.js
           cat frontend/build/data/env.js
       - name: Deploy frontend
