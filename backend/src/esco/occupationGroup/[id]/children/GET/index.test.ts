@@ -11,6 +11,7 @@ import { IOccupationGroupService } from "../../../services/occupationGroup.servi
 import { ModelForOccupationGroupValidationErrorCode } from "../../../_shared/OccupationGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
+import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
@@ -141,5 +142,29 @@ describe("OccupationGroupChildrenController", () => {
     expect(JSON.parse(actualResponse.body)).toMatchObject({
       message: "Failed to fetch the model details from the DB",
     });
+  });
+  test("returns INTERNAL_SERVER_ERROR if repository fails to fetch data", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema().mockReturnValue(validatePathFunction as never);
+    mockGetOccupationGroupChildrenPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
+
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.findChildren = jest
+      .fn()
+      .mockResolvedValue(Promise.reject(new Error("DB error")));
+
+    const actualResponse = await OccupationGroupChildrenHandler(
+      buildEvent("/models/model-1/occupationGroups/group-1/children")
+    );
+
+    expect(actualResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+    const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+      errorCode:
+        OccupationGroupAPISpecs.OccupationGroup.Children.GET.Enums.Response.Status500.ErrorCodes
+          .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_CHILDREN,
+      message: "Failed to retrieve the occupation group children from the DB",
+      details: "",
+    };
+    expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
   });
 });

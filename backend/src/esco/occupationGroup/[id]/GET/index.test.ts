@@ -11,6 +11,8 @@ import { IOccupationGroupService } from "../../services/occupationGroup.service.
 import { ModelForOccupationGroupValidationErrorCode } from "../../_shared/OccupationGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
+import { getMockStringId } from "_test_utilities/mockMongoId";
+import OccupationGroupDetailAPISpecs from "api-specifications/esco/occupationGroup/[id]";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
@@ -177,6 +179,29 @@ describe("OccupationGroupDetailController", () => {
     });
   });
 
+  test("returns INTERNAL_SERVER_ERROR when fetching the occupation group from the DB fails", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema().mockReturnValue(validatePathFunction as never);
+    mockGetOccupationGroupDetailPathParameters.mockReturnValue({
+      modelId: "model-1",
+      id: "group-1",
+    } as never);
+
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.findById = jest.fn().mockResolvedValue(Promise.reject(new Error("DB error")));
+    const controller = new OccupationGroupDetailController();
+    const actualResponse = await controller.getOccupationGroup(buildEvent("/models/model-1/occupationGroups/group-1"));
+    expect(actualResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+    const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+      errorCode:
+        OccupationGroupDetailAPISpecs.GET.Enums.Response.Status500.ErrorCodes
+          .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_DETAIL,
+      message: "Failed to retrieve the occupation group from the DB",
+      details: "",
+    };
+    expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+  });
+
   test("returns NOT_FOUND when the occupation group is missing", async () => {
     const validatePathFunction = jest.fn().mockReturnValue(true);
     getMockGetSchema().mockReturnValue(validatePathFunction as never);
@@ -196,5 +221,45 @@ describe("OccupationGroupDetailController", () => {
     expect(JSON.parse(actualResponse.body)).toMatchObject({
       message: "Occupation group not found",
     });
+  });
+  test("GET /models/{modelId}/occupationGroups/{id} should response with BAD_REQUEST if the path validation failed ", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(false);
+    getMockGetSchema().mockReturnValue(validatePathFunction as never);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let handler: any;
+
+    jest.isolateModules(() => {
+      ({ handler = handler } = require("./index"));
+    });
+
+    const givenModelId = getMockStringId(100);
+    const givenOccupationGroupId = getMockStringId(100);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {},
+      pathParameters: { modelId: givenModelId.toString(), id: givenOccupationGroupId.toString() },
+      queryStringParameters: {},
+      path: `/models/${givenModelId}/occupationGroups/${givenOccupationGroupId}`,
+    } as never;
+
+    // WHEN the occupationGroup handler is invoked with the given event
+    const actualResponse = await handler(givenEvent);
+
+    // AND respond with the BAD_REQUEST status
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    // AND the response body contains the error information
+    const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+      errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+      message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+      details: expect.stringContaining("modelId"),
+    };
+
+    expect(JSON.parse(actualResponse.body)).toMatchObject({
+      errorCode: ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+      message: ErrorAPISpecs.Constants.ReasonPhrases.INVALID_JSON_SCHEMA,
+    });
+    expect(typeof JSON.parse(actualResponse.body).details).toBe("string");
+    expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
   });
 });
