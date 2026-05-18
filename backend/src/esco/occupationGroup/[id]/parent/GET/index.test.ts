@@ -11,6 +11,7 @@ import { IOccupationGroupService } from "../../../services/occupationGroup.servi
 import { ModelForOccupationGroupValidationErrorCode } from "../../../_shared/OccupationGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
+import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
@@ -124,6 +125,26 @@ describe("OccupationGroupParentController", () => {
       message: "Occupation group or parent not found",
     });
   });
+  test("returns NOT_FOUND when model does not existed", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema().mockReturnValue(validatePathFunction as never);
+    mockGetOccupationGroupParentPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
+
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+
+    const controller = new OccupationGroupParentController();
+    const actualResponse = await controller.getParentOccupationGroup(
+      buildEvent("/models/model-1/occupationGroups/group-1/parent")
+    );
+
+    expect(actualResponse.statusCode).toBe(StatusCodes.NOT_FOUND);
+    expect(JSON.parse(actualResponse.body)).toMatchObject({
+      message: "Model not found",
+    });
+  });
 
   test("returns INTERNAL_SERVER_ERROR when validation against the model fails", async () => {
     const validatePathFunction = jest.fn().mockReturnValue(true);
@@ -144,5 +165,28 @@ describe("OccupationGroupParentController", () => {
     expect(JSON.parse(actualResponse.body)).toMatchObject({
       message: "Failed to fetch the model details from the DB",
     });
+  });
+  test("returns INTERNAL_SERVER_ERROR when occupationGroup repository failed to fetch ", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema().mockReturnValue(validatePathFunction as never);
+    mockGetOccupationGroupParentPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
+
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.findParent = jest.fn().mockResolvedValue(Promise.reject(new Error("DB error")));
+
+    const controller = new OccupationGroupParentController();
+    const actualResponse = await controller.getParentOccupationGroup(
+      buildEvent("/models/model-1/occupationGroups/group-1/parent")
+    );
+
+    expect(actualResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+    const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+      errorCode:
+        OccupationGroupAPISpecs.OccupationGroup.Parent.GET.Enums.Response.Status500.ErrorCodes
+          .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_PARENT,
+      message: "Failed to retrieve the parent occupation group from the DB",
+      details: "",
+    };
+    expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
   });
 });

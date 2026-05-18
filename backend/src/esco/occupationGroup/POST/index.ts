@@ -120,7 +120,6 @@ export class OccupationGroupCreateController {
       const errorDetail = ParseValidationError(validateFunction.errors);
       return STD_ERRORS_RESPONSES.INVALID_JSON_SCHEMA_ERROR(errorDetail);
     }
-
     const { modelId: resolvedModelId } = parsePath<{ modelId?: string }>(Routes.OCCUPATION_GROUPS_ROUTE, event.path);
     if (!resolvedModelId) {
       return errorResponsePOST(
