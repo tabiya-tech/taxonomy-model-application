@@ -601,6 +601,41 @@ describe("test the transformChild of the ISkillGroupChild -> ISkillGroupChildRes
       })
     );
   });
+  test("should transform the Skill typed ISkillGroupChild to ISkillGroupChildResponse with empty UUIDHistory", () => {
+    // GIVEN a random ISkillGroupChild with empty UUIDHistory
+    const givenChild: ISkillGroupChild = {
+      ...getISkillGroupSkillTypedChildData(),
+      UUIDHistory: [],
+    };
+
+    // AND some base path
+    const givenBasePath = "https://some/root/path";
+
+    // WHEN the transformation function is called
+    const actual: SkillGroupAPISpecs.Types.GET.Response.Child.Payload = transformChild(givenChild, givenBasePath);
+
+    expect(actual).toEqual(
+      expect.objectContaining({
+        id: givenChild.id,
+        UUID: givenChild.UUID,
+        parentId: givenChild.parentId,
+        modelId: givenChild.modelId,
+        objectType: givenChild.objectType,
+        UUIDHistory: givenChild.UUIDHistory,
+        originUri: givenChild.originUri,
+        preferredLabel: givenChild.preferredLabel,
+        altLabels: givenChild.altLabels,
+        description: givenChild.description,
+        path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenChild.modelId}/skills/${givenChild.id}`,
+        tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenChild.modelId}/skills/${givenChild.UUID}`,
+        originUUID: "",
+        code: "code" in givenChild && givenChild.code ? givenChild.code : undefined,
+        createdAt: givenChild.createdAt.toISOString(),
+        updatedAt: givenChild.updatedAt.toISOString(),
+        isLocalized: "isLocalized" in givenChild ? givenChild.isLocalized : undefined,
+      })
+    );
+  });
 });
 
 describe("test the transformation of ISkillGroupChild[] -> ISkillGroupChildrenResponse[]", () => {
