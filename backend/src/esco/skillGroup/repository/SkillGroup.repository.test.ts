@@ -1035,6 +1035,26 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(createdGroup.id);
     });
+    test("should ignore an invalid cursor id value when paginating", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "group_1"));
+
+      const aggregateSpy = jest.spyOn(repository.Model, "aggregate").mockReturnValue({
+        exec: jest.fn().mockResolvedValue([givenSkillGroup]),
+      } as never);
+
+      const result = await repository.findPaginated(givenModelId, 2, -1, "not-a-valid-object-id");
+
+      expect(result).toHaveLength(1);
+      const firstPipelineMatch = (aggregateSpy.mock.calls[0][0][0] as { $match: Record<string, unknown> }).$match;
+      expect(firstPipelineMatch).toEqual(
+        expect.objectContaining({
+          modelId: new mongoose.Types.ObjectId(givenModelId),
+        })
+      );
+      expect(firstPipelineMatch._id).toBeUndefined();
+      aggregateSpy.mockRestore();
+    });
     test("should populate parents and children for items in paginated results", async () => {
       // GIVEN a modelId and small hierarchy: parent->subject->child
       const givenModelId = getMockStringId(1);

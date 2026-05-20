@@ -558,6 +558,32 @@ describe("Test the SkillGroupService", () => {
       expect(actual.nextCursor).toEqual({ _id: child1.id, createdAt: child1.createdAt });
     });
 
+    test("should fall back to current date when the last child has no createdAt", async () => {
+      const givenModelId = getMockStringId(0);
+      const givenParentId = getMockStringId(1);
+      const child1 = {
+        id: getMockStringId(2),
+        parentId: givenParentId,
+        UUID: getRandomString(10),
+        UUIDHistory: [],
+        originUri: "",
+        description: "",
+        preferredLabel: "",
+        altLabels: [],
+        modelId: givenModelId,
+        objectType: ObjectTypes.SkillGroup,
+      } as unknown as ISkillGroupChild;
+      const child2 = { ...child1, id: getMockStringId(3) };
+      mockRepository.findChildren.mockResolvedValue([child1, child2]);
+
+      const actual = await service.findChildren(givenModelId, givenParentId, 1);
+
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenParentId, 2, undefined);
+      expect(actual.items).toHaveLength(1);
+      expect(actual.nextCursor).not.toBeNull();
+      expect(actual.nextCursor?.createdAt).toBeInstanceOf(Date);
+    });
+
     test("should pass cursor to repository when provided", async () => {
       mockRepository.findChildren.mockResolvedValue([]);
       await service.findChildren(getMockStringId(0), getMockStringId(1), 10, getMockStringId(5));

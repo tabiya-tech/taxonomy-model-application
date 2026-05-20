@@ -19,7 +19,7 @@ import { handler as postHandler } from "./POST/index";
 import { handler as getByIdHandler } from "./[id]/GET/index";
 import { handler as getParentHandler } from "./[id]/parent/GET/index";
 import { handler as getChildrenHandler } from "./[id]/children/GET/index";
-describe("Occupations Router", () => {
+describe("OccupationGroups Router", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
