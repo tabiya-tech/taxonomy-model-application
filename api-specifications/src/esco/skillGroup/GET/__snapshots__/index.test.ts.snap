@@ -51,7 +51,58 @@ exports[`Test the skillGroup GET module The export module matches the snapshot 1
         "Payload": {
           "$id": "/components/schemas/SkillGroupRequestQueryParamSchemaGET",
           "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "childrenIds": {},
+                },
+                "required": [
+                  "childrenIds",
+                ],
+              },
+              "then": {
+                "properties": {
+                  "childrenType": {},
+                },
+                "required": [
+                  "childrenType",
+                ],
+              },
+            },
+            {
+              "if": {
+                "properties": {
+                  "childrenType": {},
+                },
+                "required": [
+                  "childrenType",
+                ],
+              },
+              "then": {
+                "properties": {
+                  "childrenIds": {},
+                },
+                "required": [
+                  "childrenIds",
+                ],
+              },
+            },
+          ],
           "properties": {
+            "childrenIds": {
+              "description": "Semicolon-separated IDs of children used to filter parent skill groups.",
+              "pattern": "^[0-9a-f]{24}(;[0-9a-f]{24})*$",
+              "type": "string",
+            },
+            "childrenType": {
+              "description": "Type of the children referenced in childrenIds.",
+              "enum": [
+                "skill",
+                "skillgroup",
+              ],
+              "type": "string",
+            },
             "cursor": {
               "description": "A base64 string representing the cursor for pagination.",
               "maxLength": 1720,
