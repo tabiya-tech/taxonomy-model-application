@@ -1,7 +1,7 @@
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { processDownloadStream, processStream } from "import/stream/processStream";
 import fs from "fs";
-import { INewSkillSpec, ISkill } from "esco/skill/skills.types";
+import { INewSkillSpec, ISkill } from "esco/skill/_shared/skill.types";
 import { BatchProcessor } from "import/batch/BatchProcessor";
 import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";

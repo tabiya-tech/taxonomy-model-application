@@ -1,5 +1,5 @@
 import { IPopulatedSkillHierarchyPairDoc } from "./skillHierarchy.types";
-import { ISkillDoc, ISkillReferenceDoc } from "esco/skill/skills.types";
+import { ISkillDoc, ISkillReferenceDoc } from "esco/skill/_shared/skill.types";
 import { ISkillGroupDoc, ISkillGroupReferenceDoc } from "esco/skillGroup/_shared/skillGroup.types";
 import mongoose from "mongoose";
 

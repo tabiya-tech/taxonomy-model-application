@@ -25,7 +25,7 @@ import {
 } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
-import { ISkill } from "esco/skill/skills.types";
+import { ISkill } from "esco/skill/_shared/skill.types";
 import { IOccupation } from "esco/occupations/_shared/occupation.types";
 import {
   INewSkillToSkillPairSpec,

@@ -19,7 +19,7 @@ import {
   getCSVSignalingValueFromSignallingValue,
   getSignallingValueFromCSVSignallingValue,
 } from "esco/common/csvObjectTypes";
-import { ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 

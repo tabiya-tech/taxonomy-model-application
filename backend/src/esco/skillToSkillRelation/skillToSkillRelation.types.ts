@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ISkillReferenceDoc } from "esco/skill/skills.types";
+import { ISkillReferenceDoc } from "esco/skill/_shared/skill.types";
 
 /**
  * Describes how a skills to skills relation is saved in the database.

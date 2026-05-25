@@ -12,7 +12,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ISkillHierarchyRepository } from "./skillHierarchyRepository";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ISkill } from "esco/skill/skills.types";
+import { ISkill } from "esco/skill/_shared/skill.types";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair } from "./skillHierarchy.types";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import {

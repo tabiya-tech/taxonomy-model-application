@@ -1,4 +1,4 @@
-import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 
 export const expected: Omit<INewSkillSpec, "modelId">[] = [
   {

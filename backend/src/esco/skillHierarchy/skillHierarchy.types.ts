@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { ISkillReferenceDoc } from "esco/skill/skills.types";
+import { ISkillReferenceDoc } from "esco/skill/_shared/skill.types";
 import { ISkillGroupReferenceDoc } from "esco/skillGroup/_shared/skillGroup.types";
 
 /**

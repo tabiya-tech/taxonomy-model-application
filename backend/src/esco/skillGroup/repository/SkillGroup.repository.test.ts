@@ -18,7 +18,7 @@ import {
 } from "../_shared/skillGroup.types";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { INewSkillSpec, ISkillReference } from "esco/skill/skills.types";
+import { INewSkillSpec, ISkillReference } from "esco/skill/_shared/skill.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { INewOccupationGroupSpec } from "esco/occupationGroup/_shared/OccupationGroup.types";

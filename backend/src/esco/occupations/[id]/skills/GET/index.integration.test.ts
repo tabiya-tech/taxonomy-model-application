@@ -16,7 +16,7 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { SkillType, ReuseLevel } from "esco/skill/skills.types";
+import { SkillType, ReuseLevel } from "esco/skill/_shared/skill.types";
 
 describe("Test for occupation Skills GET handler with a DB", () => {
   const ajv = new Ajv({
@@ -73,7 +73,6 @@ describe("Test for occupation Skills GET handler with a DB", () => {
     });
     const givenSkill = await getRepositoryRegistry().skill.create({
       modelId: givenModelId,
-      importId: "skill1",
       preferredLabel: "Skill",
       originUri: "http://example.com/skill1",
       UUIDHistory: [randomUUID()],

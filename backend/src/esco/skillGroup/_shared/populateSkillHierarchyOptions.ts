@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import { ISkillReferenceDoc } from "esco/skill/skills.types";
+import { ISkillReferenceDoc } from "esco/skill/_shared/skill.types";
 import { ISkillGroupReferenceDoc } from "./skillGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { getSkillDocReference, SkillDocument } from "esco/skill/skillReference";
+import { getSkillDocReference, SkillDocument } from "esco/skill/_shared/skillReference";
 import { getSkillGroupDocReference, SkillGroupDocument } from "./skillGroupReference";
 import {
   getSkillHierarchyChildrenReference,

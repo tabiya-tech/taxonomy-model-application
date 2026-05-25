@@ -11,7 +11,7 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { IOccupationRepository, SearchFilter } from "./occupation.repository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { INewOccupationSpec, IOccupation, IOccupationDoc } from "../_shared/occupation.types";
-import { INewSkillSpec, ISkillReference, ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { INewSkillSpec, ISkillReference, ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import {
   INewOccupationHierarchyPairSpec,

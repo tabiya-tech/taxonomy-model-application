@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { ISkillDoc } from "esco/skill/skills.types";
+import { ISkillDoc } from "esco/skill/_shared/skill.types";
 import { INewSkillHierarchyPairSpec, ISkillHierarchyPair, ISkillHierarchyPairDoc } from "./skillHierarchy.types";
 import { ISkillGroupDoc } from "esco/skillGroup/_shared/skillGroup.types";
 import { isNewSkillHierarchyPairSpecValid } from "./skillHierarchyValidation";

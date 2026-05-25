@@ -3,7 +3,7 @@ import { getMockRandomISCOGroupCode, getMockRandomLocalGroupCode } from "_test_u
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
-import { INewSkillSpec, ISkill, ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { INewSkillSpec, ISkill, ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { getMockRandomSkillCode } from "_test_utilities/mockSkillGroupCode";
 import { INewOccupationHierarchyPairSpec } from "esco/occupationHierarchy/occupationHierarchy.types";

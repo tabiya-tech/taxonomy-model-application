@@ -2,8 +2,8 @@ import {
   IPopulatedSkillToSkillRelationPairDoc,
   SkillToSkillReferenceWithRelationType,
 } from "./skillToSkillRelation.types";
-import { ISkillDoc, ISkillReference } from "esco/skill/skills.types";
-import { getSkillReferenceWithRelationType } from "esco/skill/skillReference";
+import { ISkillDoc, ISkillReference } from "esco/skill/_shared/skill.types";
+import { getSkillReferenceWithRelationType } from "esco/skill/_shared/skillReference";
 import mongoose from "mongoose";
 
 export function getSkillRequiresSkillsReference(

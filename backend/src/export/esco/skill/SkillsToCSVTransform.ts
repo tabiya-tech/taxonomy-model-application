@@ -2,7 +2,7 @@ import { ISkillExportRow, skillExportHeaders } from "esco/common/entityToCSV.typ
 import { pipeline, Transform } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { stringify } from "csv-stringify";
-import { ISkill } from "esco/skill/skills.types";
+import { ISkill } from "esco/skill/_shared/skill.types";
 import { Readable } from "node:stream";
 import { getCSVTypeFromReuseLevel, getCSVTypeFromSkillType } from "esco/common/csvObjectTypes";
 import { stringFromArray } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";

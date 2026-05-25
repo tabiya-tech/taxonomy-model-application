@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ISkillDoc } from "esco/skill/skills.types";
+import { ISkillDoc } from "esco/skill/_shared/skill.types";
 import {
   INewSkillToSkillPairSpec,
   ISkillToSkillRelationPair,
