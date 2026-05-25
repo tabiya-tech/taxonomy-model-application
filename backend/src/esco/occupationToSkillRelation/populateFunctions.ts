@@ -4,8 +4,8 @@ import {
 } from "./occupationToSkillRelation.types";
 import { getOccupationReferenceWithRelationType } from "esco/occupations/services/occupation.reference";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
-import { ISkillDoc, ISkillReference } from "esco/skill/skills.types";
-import { getSkillReferenceWithRelationType } from "esco/skill/skillReference";
+import { ISkillDoc, ISkillReference } from "esco/skill/_shared/skill.types";
+import { getSkillReferenceWithRelationType } from "esco/skill/_shared/skillReference";
 import mongoose from "mongoose";
 import { IOccupationDoc } from "esco/occupations/_shared/occupation.types";
 

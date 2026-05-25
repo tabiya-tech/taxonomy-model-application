@@ -17,7 +17,7 @@ import { INewOccupationSpec } from "esco/occupations/_shared/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewSkillGroupSpec, INewSkillGroupSpecWithoutImportId } from "esco/skillGroup/_shared/skillGroup.types";
 import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
-import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { randomUUID } from "crypto";
 import { ObjectTypes } from "esco/common/objectTypes";
 

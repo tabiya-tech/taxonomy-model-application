@@ -1,6 +1,6 @@
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import mongoose from "mongoose";
-import { ISkillReference } from "esco/skill/skills.types";
+import { ISkillReference } from "esco/skill/_shared/skill.types";
 
 /**
  * Describes how a skill group is saved in the database.

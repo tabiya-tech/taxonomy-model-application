@@ -5,8 +5,8 @@ import { IOccupationService } from "esco/occupations/services/occupation.service
 import { OccupationGroupService } from "esco/occupationGroup/services/occupationGroup.service";
 import { SkillGroupService } from "esco/skillGroup/services/skillGroup.service";
 import { ISkillGroupService } from "esco/skillGroup/services/skillGroup.service.type";
-import { SkillService } from "esco/skill/skillService";
-import { ISkillService } from "esco/skill/skillService.type";
+import { SkillService } from "esco/skill/services/skill.service";
+import { ISkillService } from "esco/skill/services/skill.service.types";
 
 export class ServiceRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

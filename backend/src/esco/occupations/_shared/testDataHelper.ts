@@ -12,7 +12,7 @@ import {
   OccupationToSkillReferenceWithRelationType,
   OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { ISkillReference } from "esco/skill/skills.types";
+import { ISkillReference } from "esco/skill/_shared/skill.types";
 
 export function getIOccupationMockData(n: number = 1): IOccupation {
   const skillRef: OccupationToSkillReferenceWithRelationType<ISkillReference> = {

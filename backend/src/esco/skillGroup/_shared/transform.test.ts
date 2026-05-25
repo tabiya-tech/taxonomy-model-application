@@ -19,7 +19,7 @@ import {
   transformParent,
 } from "./transform";
 import { Routes } from "routes.constant";
-import { ISkillReference } from "esco/skill/skills.types";
+import { ISkillReference } from "esco/skill/_shared/skill.types";
 
 describe("getNewSkillGroupSpec", () => {
   test("should return a valid skill group spec object", () => {

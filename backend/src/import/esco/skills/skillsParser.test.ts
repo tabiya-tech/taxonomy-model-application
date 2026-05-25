@@ -5,8 +5,8 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import fs from "fs";
 import { StatusCodes } from "server/httpUtils";
 import { parseSkillsFromFile, parseSkillsFromUrl } from "./skillsParser";
-import { ISkillRepository } from "esco/skill/skillRepository";
-import { INewSkillSpec, ISkill } from "esco/skill/skills.types";
+import { ISkillRepository } from "esco/skill/repository/skill.repository";
+import { INewSkillSpec, ISkill } from "esco/skill/_shared/skill.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";

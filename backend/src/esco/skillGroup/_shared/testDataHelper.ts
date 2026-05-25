@@ -3,7 +3,7 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import { INewSkillGroupSpec, ISkillGroup, ISkillGroupChild, ISkillGroupReference } from "./skillGroup.types";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
-import { ISkillReference } from "esco/skill/skills.types";
+import { ISkillReference } from "esco/skill/_shared/skill.types";
 
 export function getISkillGroupSkillGroupTypedChildData(
   n: number = 1,

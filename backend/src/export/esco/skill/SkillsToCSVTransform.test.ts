@@ -3,13 +3,13 @@ import "_test_utilities/consoleMock";
 
 import { Readable } from "stream";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { ISkillRepository } from "esco/skill/skillRepository";
+import { ISkillRepository } from "esco/skill/repository/skill.repository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getTestString } from "_test_utilities/getMockRandomData";
 import SkillsToCSVTransform, * as SKillsToCSVTransformModule from "./SkillsToCSVTransform";
 import { IUnpopulatedSkill } from "./SkillsToCSVTransform";
 import { parse } from "csv-parse/sync";
-import { ReuseLevel, SkillType } from "esco/skill/skills.types";
+import { ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 
 const SkillRepository = jest.spyOn(getRepositoryRegistry(), "skill", "get");
 

@@ -1,5 +1,5 @@
-import { getSkillDocReference, SkillDocument } from "esco/skill/skillReference";
-import { ISkillReferenceDoc } from "esco/skill/skills.types";
+import { getSkillDocReference, SkillDocument } from "esco/skill/_shared/skillReference";
+import { ISkillReferenceDoc } from "esco/skill/_shared/skill.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import mongoose from "mongoose";

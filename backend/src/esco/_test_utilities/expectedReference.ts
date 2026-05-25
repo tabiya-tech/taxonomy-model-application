@@ -2,7 +2,7 @@ import { IOccupationGroup, IOccupationGroupReference } from "esco/occupationGrou
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { IOccupation } from "esco/occupations/_shared/occupation.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
-import { ISkill, ISkillReference } from "esco/skill/skills.types";
+import { ISkill, ISkillReference } from "esco/skill/_shared/skill.types";
 import { ISkillGroup, ISkillGroupReference } from "esco/skillGroup/_shared/skillGroup.types";
 import {
   OccupationToSkillRelationType,
