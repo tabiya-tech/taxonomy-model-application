@@ -1,8 +1,7 @@
 import { SchemaObject } from "ajv";
 import { _baseQueryParameterSchema } from "../_shared/schemas.base";
 import SkillGroupEnums from "../_shared/enums";
-
-const childrenIdsPattern = "^[0-9a-f]{24}(;[0-9a-f]{24})*$";
+import SkillGroupRegexes from "../_shared/regex";
 
 const SchemaGETRequestQueryParam: SchemaObject = {
   $id: "/components/schemas/SkillGroupRequestQueryParamSchemaGET",
@@ -13,7 +12,7 @@ const SchemaGETRequestQueryParam: SchemaObject = {
     childrenIds: {
       description: "Semicolon-separated IDs of children used to filter parent skill groups.",
       type: "string",
-      pattern: childrenIdsPattern,
+      pattern: SkillGroupRegexes.Str.CHILDREN_IDS,
     },
     childrenType: {
       description: "Type of the children referenced in childrenIds.",

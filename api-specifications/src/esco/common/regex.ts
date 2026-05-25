@@ -19,3 +19,6 @@ export const RegExp_ESCO_Local_Or_Local_Occupation_Code = new RegExp(RegExp_Str_
 // Skill Group code regex
 export const RegExp_Str_Skill_Group_Code = `^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$`;
 export const RegExp_Skill_Group_Code = new RegExp(RegExp_Str_Skill_Group_Code);
+// Children IDs regex (semicolon-separated list of 24-character hexadecimal strings)
+export const RegExp_Str_Children_Ids = `^[0-9a-f]{24}(;[0-9a-f]{24})*$`;
+export const RegExp_Children_Ids = new RegExp(RegExp_Str_Children_Ids);

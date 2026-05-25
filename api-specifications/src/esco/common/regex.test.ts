@@ -6,6 +6,7 @@ import {
   RegExp_Local_Group_Code,
   RegExp_Local_Occupation_Code,
   RegExp_Skill_Group_Code,
+  RegExp_Children_Ids,
 } from "./regex";
 
 describe("Test RegExp_ISCO_Group_Code", () => {
@@ -129,5 +130,18 @@ describe("Test RegExp_Skill_Group_Code", () => {
     ["long empty code", " ".repeat(65535), false],
   ])("It should evaluate %s", (_description, value, expected) => {
     expect(RegExp_Skill_Group_Code.test(value)).toBe(expected);
+  });
+});
+
+describe("Test RegExp_Str_Children_Ids", () => {
+  test.each([
+    ["single valid ID", "507f1f77bcf86cd799439011", true],
+    ["multiple valid IDs", "507f1f77bcf86cd799439011;507f191e810c19729de860ea", true],
+    ["invalid ID format", "507f1f77bcf86cd79943901", false], // too short
+    ["invalid ID format with non-hex characters", "507f1f77bcf86cd79943901G", false],
+    ["invalid separator", "507f1f77bcf86cd799439011,507f191e810c19729de860ea", false], // comma instead of semicolon
+    ["empty string", "", false],
+  ])("It should return %s → %s", (_desc, value, expected) => {
+    expect(RegExp_Children_Ids.test(value)).toBe(expected);
   });
 });
