@@ -7,6 +7,10 @@ import { SkillGroupService } from "esco/skillGroup/services/skillGroup.service";
 import { ISkillGroupService } from "esco/skillGroup/services/skillGroup.service.type";
 import { SkillService } from "esco/skill/services/skill.service";
 import { ISkillService } from "esco/skill/services/skill.service.types";
+import { IOccupationHierarchyService } from "esco/occupationHierarchy/occupationHierarchy.service.types";
+import { OccupationHierarchyService } from "esco/occupationHierarchy/occupationHierarchy.service";
+import { IOccupationToSkillRelationService } from "esco/occupationToSkillRelation/occupationToSkillRelation.service.types";
+import { OccupationToSkillRelationService } from "esco/occupationToSkillRelation/occupationToSkillRelation.service";
 
 export class ServiceRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,6 +28,12 @@ export class ServiceRegistry {
   public get skill(): ISkillService {
     return this._services.get("SkillService");
   }
+  public get occupationHierarchy(): IOccupationHierarchyService {
+    return this._services.get("OccupationHierarchyService");
+  }
+  public get occupationToSkillRelation(): IOccupationToSkillRelationService {
+    return this._services.get("OccupationToSkillRelationService");
+  }
 
   public set occupation(service: IOccupationService) {
     this._services.set("OccupationService", service);
@@ -38,6 +48,12 @@ export class ServiceRegistry {
   public set skill(service: ISkillService) {
     this._services.set("SkillService", service);
   }
+  public set occupationHierarchy(service: IOccupationHierarchyService) {
+    this._services.set("OccupationHierarchyService", service);
+  }
+  public set occupationToSkillRelation(service: IOccupationToSkillRelationService) {
+    this._services.set("OccupationToSkillRelationService", service);
+  }
 
   async initialize() {
     const repositoryRegistry = getRepositoryRegistry();
@@ -45,6 +61,16 @@ export class ServiceRegistry {
     this.occupationGroup = new OccupationGroupService(repositoryRegistry.OccupationGroup);
     this.skillGroup = new SkillGroupService(repositoryRegistry.skillGroup);
     this.skill = new SkillService(repositoryRegistry.skill, repositoryRegistry.modelInfo);
+    this.occupationHierarchy = new OccupationHierarchyService(
+      repositoryRegistry.occupation,
+      repositoryRegistry.OccupationGroup,
+      repositoryRegistry.occupationHierarchy
+    );
+    this.occupationToSkillRelation = new OccupationToSkillRelationService(
+      repositoryRegistry.occupation,
+      repositoryRegistry.skill,
+      repositoryRegistry.occupationToSkillRelation
+    );
   }
 }
 
