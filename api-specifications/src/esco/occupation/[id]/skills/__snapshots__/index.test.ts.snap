@@ -689,6 +689,78 @@ exports[`Test the Occupation Skills Instance Detail module The export module mat
       },
     },
   },
+  "POST": {
+    "Errors": {
+      "Status400": {
+        "ErrorCodes": {
+          "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
+          "INVALID_RELATION_TYPE": "INVALID_RELATION_TYPE",
+          "INVALID_SIGNALLING_VALUE_LABEL": "INVALID_SIGNALLING_VALUE_LABEL",
+          "INVALID_SKILL_ID": "INVALID_SKILL_ID",
+          "MODEL_IS_RELEASED": "MODEL_IS_RELEASED",
+          "MUTUALLY_EXCLUSIVE_VALUES": "MUTUALLY_EXCLUSIVE_VALUES",
+        },
+      },
+      "Status404": {
+        "ErrorCodes": {
+          "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+          "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
+          "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+        },
+      },
+      "Status500": {
+        "ErrorCodes": {
+          "DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION": "DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION",
+        },
+      },
+    },
+    "Schemas": {
+      "Request": {
+        "Payload": {
+          "$id": "/components/schemas/OccupationSkillsRequestSchemaPOST",
+          "additionalProperties": false,
+          "properties": {
+            "relationType": {
+              "enum": [
+                "",
+                "essential",
+                "optional",
+              ],
+              "type": "string",
+            },
+            "requiredSkillId": {
+              "maxLength": 24,
+              "minLength": 24,
+              "type": "string",
+            },
+            "signallingValue": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": [
+                "number",
+                "null",
+              ],
+            },
+            "signallingValueLabel": {
+              "enum": [
+                "",
+                "high",
+                "medium",
+                "low",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "requiredSkillId",
+            "relationType",
+            "signallingValueLabel",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
   "Patterns": {
     "RegExp": {
       "ESCO_LOCAL_OCCUPATION_CODE": /\\^\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\*\\(\\?:_\\\\d\\+\\)\\+\\$/,
