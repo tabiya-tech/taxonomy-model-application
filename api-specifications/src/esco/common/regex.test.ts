@@ -140,6 +140,8 @@ describe("Test RegExp_Str_Children_Ids", () => {
     ["invalid ID format", "507f1f77bcf86cd79943901", false], // too short
     ["invalid ID format with non-hex characters", "507f1f77bcf86cd79943901G", false],
     ["invalid separator", "507f1f77bcf86cd799439011,507f191e810c19729de860ea", false], // comma instead of semicolon
+    ["single-characters separated", "5;6", false],
+    ["single-character", "5", false],
     ["empty string", "", false],
   ])("It should return %s → %s", (_desc, value, expected) => {
     expect(RegExp_Children_Ids.test(value)).toBe(expected);

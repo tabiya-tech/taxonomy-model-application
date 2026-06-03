@@ -209,6 +209,32 @@ describe("SkillGroupListController", () => {
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
     expect(mockServiceRegistry.skillGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, 100);
   });
+  test("GET skillGroups should forward children filters when both childrenIds and childrenType are provided", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
+
+    const childrenIds = `${getMockStringId(2)};${getMockStringId(3)}`;
+    const childrenType = SkillGroupAPISpecs.Enums.Relations.Children.ObjectTypes.SkillGroup;
+
+    const controller = new SkillGroupListController();
+    const actualResponse = await controller.getSkillGroups(
+      buildEvent(`/models/${givenModelId}/skillGroups`, { childrenIds, childrenType })
+    );
+
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+    expect(mockServiceRegistry.skillGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, 100, true, {
+      childrenIds,
+      childrenType,
+    });
+  });
   test("GET skillGroups should respond with the BAD_REQUEST status code if the modelId is not passed as a path parameter", async () => {
     // AND GIVEN the repository fails to get the occupationGroups
     const validatePathFunction = jest.fn().mockReturnValue(true);

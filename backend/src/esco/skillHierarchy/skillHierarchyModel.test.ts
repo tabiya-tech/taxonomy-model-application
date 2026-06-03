@@ -4,7 +4,12 @@ import "_test_utilities/consoleMock";
 import mongoose, { Connection } from "mongoose";
 import { getNewConnection } from "server/connection/newConnection";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
-import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENTS, initializeSchemaAndModel } from "./skillHierarchyModel";
+import {
+  INDEX_FOR_CHILDREN,
+  INDEX_FOR_PARENTS,
+  INDEX_FOR_PARENTS_WITH_SPECIFIC_TYPE,
+  initializeSchemaAndModel,
+} from "./skillHierarchyModel";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
@@ -108,6 +113,7 @@ describe("Test the definition of the SkillHierarchy Model", () => {
         unique: true,
       },
       { key: INDEX_FOR_PARENTS, unique: undefined },
+      { key: INDEX_FOR_PARENTS_WITH_SPECIFIC_TYPE, unique: undefined },
     ]);
   });
 });
