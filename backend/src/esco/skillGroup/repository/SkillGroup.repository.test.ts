@@ -1118,6 +1118,84 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actualFirstPage).toHaveLength(2);
       expect(actualFirstPage).toEqual(expectedFirstPage);
     });
+
+    test("should filter paginated skillGroups by matching skill-group children", async () => {
+      const givenModelId = getMockStringId(1);
+      const parentWithSkillGroupChild = await repository.create(
+        getSimpleNewSkillGroupSpec(givenModelId, "parent-group")
+      );
+      const parentWithSkillChild = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "parent-skill"));
+      const unrelatedParent = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "unrelated-parent"));
+      const skillGroupChild = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "child-group"));
+      const skillChild = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "child-skill"));
+
+      await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: parentWithSkillGroupChild.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: skillGroupChild.id,
+        },
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: parentWithSkillChild.id,
+          childType: ObjectTypes.Skill,
+          childId: skillChild.id,
+        },
+      ]);
+
+      const filteredBySkillGroup = await repository.findPaginated(givenModelId, 10, -1, undefined, {
+        childrenIds: skillGroupChild.id,
+        childrenType: ObjectTypes.SkillGroup,
+      });
+      expect(filteredBySkillGroup.map((item) => item.id)).toEqual([parentWithSkillGroupChild.id]);
+      expect(filteredBySkillGroup.map((item) => item.id)).not.toContain(unrelatedParent.id);
+
+      const filteredBySkill = await repository.findPaginated(givenModelId, 10, -1, undefined, {
+        childrenIds: skillChild.id,
+        childrenType: ObjectTypes.Skill,
+      });
+      expect(filteredBySkill.map((item) => item.id)).toEqual([parentWithSkillChild.id]);
+    });
+
+    test("should return an empty array when childrenIds contains no valid object ids", async () => {
+      const givenModelId = getMockStringId(1);
+      const aggregateSpy = jest.spyOn(repository.hierarchyModel, "aggregate");
+      const modelAggregateSpy = jest.spyOn(repository.Model, "aggregate");
+
+      const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, {
+        childrenIds: "not-a-valid-object-id;still-not-valid",
+        childrenType: ObjectTypes.SkillGroup,
+      });
+
+      expect(actual).toEqual([]);
+      expect(aggregateSpy).not.toHaveBeenCalled();
+      expect(modelAggregateSpy).not.toHaveBeenCalled();
+
+      aggregateSpy.mockRestore();
+      modelAggregateSpy.mockRestore();
+    });
+
+    test("should return an empty array when no matching parent skillGroups exist for the children filter", async () => {
+      const givenModelId = getMockStringId(1);
+      const orphanChild = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "orphan-child"));
+      const aggregateSpy = jest.spyOn(repository.hierarchyModel, "aggregate").mockReturnValue({
+        exec: jest.fn().mockResolvedValue([]),
+      } as never);
+      const modelAggregateSpy = jest.spyOn(repository.Model, "aggregate");
+
+      const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, {
+        childrenIds: orphanChild.id,
+        childrenType: ObjectTypes.SkillGroup,
+      });
+
+      expect(actual).toEqual([]);
+      expect(aggregateSpy).toHaveBeenCalled();
+      expect(modelAggregateSpy).not.toHaveBeenCalled();
+
+      aggregateSpy.mockRestore();
+      modelAggregateSpy.mockRestore();
+    });
   });
 
   describe("Test findParents()", () => {

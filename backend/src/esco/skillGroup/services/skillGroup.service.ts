@@ -2,6 +2,7 @@ import { ISkillGroupService } from "./skillGroup.service.type";
 import { ModelForSkillGroupValidationErrorCode, ISkillGroup, ISkillGroupChild } from "../_shared/skillGroup.types";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { ISkillGroupPaginatedFilter } from "./skillGroup.service.type";
 
 export class SkillGroupService implements ISkillGroupService {
   constructor(private readonly skillGroupRepository: ISkillGroupRepository) {}
@@ -14,10 +15,11 @@ export class SkillGroupService implements ISkillGroupService {
     modelId: string,
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
-    desc: boolean = true
+    desc: boolean = true,
+    filter?: ISkillGroupPaginatedFilter
   ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     const sortOrder = desc ? -1 : 1;
-    const items = await this.skillGroupRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id);
+    const items = await this.skillGroupRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id, filter);
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
 

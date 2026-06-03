@@ -19,6 +19,11 @@ import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctio
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 
+interface FindPaginatedFilter {
+  childrenIds?: string;
+  childrenType?: ObjectTypes.Skill | ObjectTypes.SkillGroup;
+}
+
 export interface ISkillGroupRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
   readonly hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>;
@@ -31,7 +36,7 @@ export interface ISkillGroupRepository {
     limit: number,
     sortOrder: 1 | -1,
     cursorId?: string,
-    filter?: Record<string, unknown>
+    filter?: FindPaginatedFilter
   ): Promise<ISkillGroup[]>;
   findParents(
     modelId: string | mongoose.Types.ObjectId,
@@ -156,15 +161,54 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     limit: number,
     sortOrder: 1 | -1,
     cursorId?: string,
-    filter?: Record<string, unknown>
+    filter?: FindPaginatedFilter
   ): Promise<ISkillGroup[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
-      const matchStage: Record<string, unknown> = { ...filter, modelId: modelIdObj };
+      const matchStage: Record<string, unknown> = { modelId: modelIdObj };
+
+      if (filter?.childrenIds && filter.childrenType) {
+        const childIds = filter.childrenIds
+          .split(";")
+          .map((id) => id.trim())
+          .filter(Boolean)
+          .filter((id) => mongoose.Types.ObjectId.isValid(id))
+          .map((id) => new mongoose.Types.ObjectId(id));
+
+        if (!childIds.length) {
+          return [];
+        }
+
+        const matchingParentIds = await this.hierarchyModel
+          .aggregate([
+            {
+              // Index used: src/esco/skillHierarchy/skillHierarchyModel.ts:INDEX_FOR_PARENTS_WITH_SPECIFIC_TYPE
+              $match: {
+                modelId: modelIdObj,
+                parentType: ObjectTypes.SkillGroup,
+                childType: filter.childrenType,
+                childId: { $in: childIds },
+              },
+            },
+            { $group: { _id: "$parentId" } },
+          ])
+          .exec();
+
+        const parentIds = matchingParentIds.map((item) => item._id as mongoose.Types.ObjectId);
+        if (!parentIds.length) {
+          return [];
+        }
+
+        matchStage._id = { $in: parentIds };
+      }
 
       if (cursorId && mongoose.Types.ObjectId.isValid(cursorId)) {
         const operator = sortOrder === -1 ? "$lt" : "$gt";
-        matchStage._id = { [operator]: new mongoose.Types.ObjectId(cursorId) };
+        const currentIdFilter = (matchStage._id ?? {}) as Record<string, unknown>;
+        matchStage._id = {
+          ...currentIdFilter,
+          [operator]: new mongoose.Types.ObjectId(cursorId),
+        };
       }
 
       const results = await this.Model.aggregate([

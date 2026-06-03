@@ -50,6 +50,16 @@ export class SkillGroupListController {
    *        name: cursor
    *        schema:
    *          $ref: '#/components/schemas/SkillGroupRequestQueryParamSchemaGET/properties/cursor'
+   *      - in: query
+   *        name: childrenIds
+   *        required: false
+   *        schema:
+   *          $ref: '#/components/schemas/SkillGroupRequestQueryParamSchemaGET/properties/childrenIds'
+   *      - in: query
+   *        name: childrenType
+   *        required: false
+   *        schema:
+   *          $ref: '#/components/schemas/SkillGroupRequestQueryParamSchemaGET/properties/childrenType'
    *    responses:
    *      '200':
    *        description: Successfully retrieved the paginated skill groups.
@@ -129,10 +139,17 @@ export class SkillGroupListController {
         );
       }
 
-      const rawQueryParams = (event.queryStringParameters || {}) as { limit?: string; cursor?: string };
+      const rawQueryParams = (event.queryStringParameters || {}) as {
+        limit?: string;
+        cursor?: string;
+        childrenIds?: string;
+        childrenType?: SkillGroupAPISpecs.Enums.Relations.Children.ObjectTypes;
+      };
       const queryParams: SkillGroupAPISpecs.Types.GET.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
         cursor: rawQueryParams.cursor,
+        childrenIds: rawQueryParams.childrenIds,
+        childrenType: rawQueryParams.childrenType,
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
@@ -168,11 +185,23 @@ export class SkillGroupListController {
         }
       }
 
-      const currentPageSkillGroups = await this.skillGroupService.findPaginated(
-        requestPathParameter.modelId,
-        decodedCursor,
-        limit
-      );
+      const paginationFilter =
+        queryParams.childrenIds && queryParams.childrenType
+          ? {
+              childrenIds: queryParams.childrenIds,
+              childrenType: queryParams.childrenType,
+            }
+          : undefined;
+
+      const currentPageSkillGroups = paginationFilter
+        ? await this.skillGroupService.findPaginated(
+            requestPathParameter.modelId,
+            decodedCursor,
+            limit,
+            true,
+            paginationFilter
+          )
+        : await this.skillGroupService.findPaginated(requestPathParameter.modelId, decodedCursor, limit);
 
       let nextCursor: string | null = null;
       if (currentPageSkillGroups?.nextCursor?._id) {
