@@ -2,9 +2,12 @@
 import "_test_utilities/consoleMock";
 
 import { getServiceRegistry, ServiceRegistry } from "./serviceRegistry";
+import { SkillService } from "esco/skill/services/skill.service";
 import { OccupationService } from "esco/occupations/services/occupation.service";
 import { OccupationGroupService } from "esco/occupationGroup/services/occupationGroup.service";
 import { SkillGroupService } from "esco/skillGroup/services/skillGroup.service";
+import { OccupationHierarchyService } from "esco/occupationHierarchy/occupationHierarchy.service";
+import { OccupationToSkillRelationService } from "esco/occupationToSkillRelation/occupationToSkillRelation.service";
 
 describe("test the ServiceRegistry", () => {
   test("should return a singleton ServiceRegistry", () => {
@@ -29,7 +32,13 @@ describe("test the ServiceRegistry", () => {
     expect(serviceRegistry.occupation).toBeInstanceOf(OccupationService);
     expect(serviceRegistry.occupationGroup).toBeDefined();
     expect(serviceRegistry.occupationGroup).toBeInstanceOf(OccupationGroupService);
+    expect(serviceRegistry.skill).toBeDefined();
+    expect(serviceRegistry.skill).toBeInstanceOf(SkillService);
     expect(serviceRegistry.skillGroup).toBeDefined();
     expect(serviceRegistry.skillGroup).toBeInstanceOf(SkillGroupService);
+    expect(serviceRegistry.occupationHierarchy).toBeDefined();
+    expect(serviceRegistry.occupationHierarchy).toBeInstanceOf(OccupationHierarchyService);
+    expect(serviceRegistry.occupationToSkillRelation).toBeDefined();
+    expect(serviceRegistry.occupationToSkillRelation).toBeInstanceOf(OccupationToSkillRelationService);
   });
 });

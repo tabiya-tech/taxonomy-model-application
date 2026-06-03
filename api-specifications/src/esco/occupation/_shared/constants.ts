@@ -26,6 +26,10 @@ namespace OccupationConstants {
   export const SIGNALLING_VALUE_MIN = 0;
   export const SIGNALLING_VALUE_MAX = 100;
   export const SIGNALLING_VALUE_LABEL_MAX_LENGTH = 256;
+
+  // Max payload length for relationship/sub-resource POST operations (skills, parent)
+  // TODO: Use a more precise value with reasoning behind it.
+  export const MAX_PAYLOAD_LENGTH = 1000;
 }
 
 export default OccupationConstants;
