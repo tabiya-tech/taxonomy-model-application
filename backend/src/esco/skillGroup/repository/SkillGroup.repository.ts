@@ -182,6 +182,10 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         const matchingParentIds = await this.hierarchyModel
           .aggregate([
             {
+              // TODO: handle grand-parenting.
+              //       Cases where we have a Skill (child) -> Skill (parent) -> SkillGroup (grand-parent)
+              //                             ^                                   ^
+              //                             Given                               expected
               // Index used: src/esco/skillHierarchy/skillHierarchyModel.ts:INDEX_FOR_PARENTS_WITH_SPECIFIC_TYPE
               $match: {
                 modelId: modelIdObj,
