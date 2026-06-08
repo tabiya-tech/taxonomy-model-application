@@ -44,9 +44,6 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   // This is needed from the virtual parents field matcher, that is populated via the populateSkillHierarchyOptions
   SkillHierarchySchema.index(INDEX_FOR_PARENTS);
 
-  // This is needed for searching all parents of a specific type given the children
-  SkillHierarchySchema.index(INDEX_FOR_PARENTS_WITH_SPECIFIC_TYPE);
-
   // Model
   return dbConnection.model<ISkillHierarchyPairDoc>(MongooseModelName.SkillHierarchy, SkillHierarchySchema);
 }
@@ -58,13 +55,6 @@ export const INDEX_FOR_CHILDREN: mongoose.IndexDefinition = {
   parentType: 1,
   childId: 1,
   childType: 1,
-};
-
-export const INDEX_FOR_PARENTS_WITH_SPECIFIC_TYPE: mongoose.IndexDefinition = {
-  modelId: 1,
-  parentId: 1,
-  childType: 1,
-  childId: 1,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

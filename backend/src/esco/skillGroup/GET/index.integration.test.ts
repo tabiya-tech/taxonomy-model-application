@@ -1,58 +1,25 @@
 import "_test_utilities/consoleMock";
 import Ajv, { ValidateFunction } from "ajv";
-import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
 
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 
-import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { handler as skillGroupHandler } from "./index";
 import addFormats from "ajv-formats";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ISkillGroup } from "../_shared/skillGroup.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import ModelInfoAPISpecs from "api-specifications/modelInfo";
-import LocaleAPISpecs from "api-specifications/locale";
-import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
 
-async function createModelInDB() {
-  return await getRepositoryRegistry().modelInfo.create({
-    name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-    locale: {
-      UUID: randomUUID(),
-      name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
-      shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
-    },
-    description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
-    UUIDHistory: [randomUUID()],
-  });
-}
-
-async function createSkillGroupInDB(modelId: string = getMockStringId(1)): Promise<ISkillGroup> {
-  return await getRepositoryRegistry().skillGroup.create({
-    modelId: modelId,
-    code: getTestSkillGroupCode(100),
-    description: getRandomString(SkillGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    altLabels: [getRandomString(SkillGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
-    originUri: `http://some/path/to/api/resources/${randomUUID()}`,
-    UUIDHistory: [randomUUID()],
-    scopeNote: getRandomString(SkillGroupAPISpecs.Constants.MAX_SCOPE_NOTE_LENGTH),
-    preferredLabel: getRandomString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-  });
-}
-
-async function createSkillGroupsInDB(count: number, modelId: string = getMockStringId(1)): Promise<ISkillGroup[]> {
-  const skillGroups: ISkillGroup[] = [];
-  for (let i = 0; i < count; i++) {
-    skillGroups.push(await createSkillGroupInDB(modelId));
-  }
-  return skillGroups;
-}
+import {
+  createSkillGroupsInDB,
+  linkSkillGroupToSkillChildrenInDB,
+  createSkillsInDB,
+  createModelInDB,
+  createSkillGroupInDB,
+} from "esco/_test_utilities/createDocsInDB";
 
 describe("Test for skillGroup handler with a DB", () => {
   // setup the ajv validate GET, POST, etc response functions
@@ -89,6 +56,8 @@ describe("Test for skillGroup handler with a DB", () => {
     if (dbConnection) {
       // delete all documents in the DB
       await dbConnection.models.SkillGroupModel.deleteMany({});
+      await dbConnection.models.SkillModel.deleteMany({});
+      await dbConnection.models.SkillHierarchyModel.deleteMany({});
       await dbConnection.models.ModelInfo.deleteMany({});
     }
   });
@@ -301,5 +270,110 @@ describe("Test for skillGroup handler with a DB", () => {
 
     // THEN the collected IDs equal the baseline IDs
     expect(collected.slice(0, baselineIds.length)).toEqual(baselineIds);
+  });
+
+  describe("GET filtering skillGroups by children skill ids", () => {
+    test("GET should return the parent skillGroup when filtering by the ids of its three child skills", async () => {
+      // GIVEN a taxonomy model exists in the DB
+      const givenModelInfo = await createModelInDB();
+      const givenModelId = givenModelInfo.id.toString();
+
+      // AND two parent skillGroups exists in that model
+      const [givenParentSkillGroup, anotherSkillGroup] = await createSkillGroupsInDB(2, givenModelId);
+
+      // AND three skills exist in that model
+      const givenChildSkills = await createSkillsInDB(3, givenModelId);
+      expect(givenChildSkills).toHaveLength(3); // guard to ensure the children were actually created
+
+      // AND another skillGroup exists in the same model that is not a parent of those skills
+      const givenUnrelatedSkillGroup = await createSkillGroupInDB(givenModelId);
+
+      // AND the parent skillGroup is linked to the three skills as its children in the hierarchy
+      await linkSkillGroupToSkillChildrenInDB(givenModelId, givenParentSkillGroup, givenChildSkills);
+
+      // AND another skill group has n skills
+      await linkSkillGroupToSkillChildrenInDB(givenModelId, anotherSkillGroup, await createSkillsInDB(5, givenModelId));
+
+      // AND a valid request that filters by the three child skill ids and the Skill children type
+      const givenChildrenIds = givenChildSkills.map((skill) => skill.id.toString()).join(";");
+      const givenChildrenType = SkillGroupAPISpecs.Enums.Relations.Children.ObjectTypes.Skill;
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        pathParameters: { modelId: givenModelId },
+        path: `/models/${givenModelId}/skillGroups`,
+        queryStringParameters: {
+          childrenIds: givenChildrenIds,
+          childrenType: givenChildrenType,
+        },
+      };
+
+      // WHEN the handler is invoked with the given event
+      // @ts-ignore
+      const actualResponse = await skillGroupHandler(givenEvent);
+
+      // THEN expect the handler to respond with the OK status code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+      // AND the response to validate against the SkillGroupResponseGET schema
+      const actualBody = JSON.parse(actualResponse.body);
+      validateGETResponse(actualBody);
+      expect(validateGETResponse.errors).toBeNull();
+
+      // AND the response to contain exactly the parent skillGroup of the three child skills
+      const actualSkillGroups = actualBody.data as ISkillGroup[];
+      expect(actualSkillGroups).toHaveLength(1);
+      expect(actualSkillGroups[0].id.toString()).toEqual(givenParentSkillGroup.id.toString());
+
+      // AND the unrelated skillGroup to not be included in the response
+      expect(actualSkillGroups.map((skillGroup) => skillGroup.id.toString())).not.toContain(
+        givenUnrelatedSkillGroup.id.toString()
+      );
+    });
+
+    test("GET should return an empty array when filtering by random skill ids that are not children of any skillGroup", async () => {
+      // GIVEN a model exists in the DB
+      const givenModelInfo = await createModelInDB();
+      const givenModelId = givenModelInfo.id.toString();
+
+      // AND a parent skillGroup linked to three child skills exists in that model
+      const givenParentSkillGroup = await createSkillGroupInDB(givenModelId);
+      const givenChildSkills = await createSkillsInDB(3, givenModelId);
+      await linkSkillGroupToSkillChildrenInDB(givenModelId, givenParentSkillGroup, givenChildSkills);
+
+      // AND a valid request that filters by random skill ids that are not children of any skillGroup
+      const givenRandomChildrenIds = [getMockStringId(900), getMockStringId(901), getMockStringId(902)].join(";");
+      const givenChildrenType = SkillGroupAPISpecs.Enums.Relations.Children.ObjectTypes.Skill;
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        pathParameters: { modelId: givenModelId },
+        path: `/models/${givenModelId}/skillGroups`,
+        queryStringParameters: {
+          childrenIds: givenRandomChildrenIds,
+          childrenType: givenChildrenType,
+        },
+      };
+
+      // WHEN the handler is invoked with the given event
+      // @ts-ignore
+      const actualResponse = await skillGroupHandler(givenEvent);
+
+      // THEN expect the handler to respond with the OK status code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+      // AND the response to validate against the SkillGroupResponseGET schema
+      const actualBody = JSON.parse(actualResponse.body);
+      validateGETResponse(actualBody);
+      expect(validateGETResponse.errors).toBeNull();
+
+      // AND the response to contain an empty array of skillGroups
+      const actualSkillGroups = actualBody.data as ISkillGroup[];
+      expect(actualSkillGroups).toEqual([]);
+    });
   });
 });
