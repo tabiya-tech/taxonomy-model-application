@@ -7,15 +7,27 @@ import { handler as getHandler } from "./GET";
 import { handler as postHandler } from "./POST";
 import { handler as getByIdHandler } from "./[id]/GET";
 import { handler as getParentsHandler } from "./[id]/parents/GET";
+import { handler as postParentsHandler } from "./[id]/parents/POST";
 import { handler as getChildrenHandler } from "./[id]/children/GET";
 import { handler as getOccupationsHandler } from "./[id]/occupations/GET";
+import { handler as postOccupationsHandler } from "./[id]/occupations/POST";
 import { handler as getRelatedHandler } from "./[id]/related/GET";
+import { handler as postRelatedHandler } from "./[id]/related/POST";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent
 ) => {
   if (event?.httpMethod === HTTP_VERBS.POST) {
-    return postHandler(event);
+    const pathToMatch = event.path || "";
+    if (pathToRegexp(Routes.SKILL_PARENTS_ROUTE).regexp.exec(pathToMatch)) {
+      return postParentsHandler(event);
+    } else if (pathToRegexp(Routes.SKILL_OCCUPATIONS_ROUTE).regexp.exec(pathToMatch)) {
+      return postOccupationsHandler(event);
+    } else if (pathToRegexp(Routes.SKILL_RELATED_ROUTE).regexp.exec(pathToMatch)) {
+      return postRelatedHandler(event);
+    } else {
+      return postHandler(event);
+    }
   } else if (event?.httpMethod == HTTP_VERBS.GET) {
     const pathToMatch = event.path || "";
     if (pathToRegexp(Routes.SKILL_PARENTS_ROUTE).regexp.exec(pathToMatch)) {

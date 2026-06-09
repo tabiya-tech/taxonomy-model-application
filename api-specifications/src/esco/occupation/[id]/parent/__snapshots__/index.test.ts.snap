@@ -988,6 +988,60 @@ exports[`Test the Occupation Parent Instance Detail module The export module mat
       },
     },
   },
+  "POST": {
+    "Errors": {
+      "Status400": {
+        "ErrorCodes": {
+          "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
+          "INVALID_PARENT_ID": "INVALID_PARENT_ID",
+          "INVALID_PARENT_TYPE": "INVALID_PARENT_TYPE",
+          "MODEL_IS_RELEASED": "MODEL_IS_RELEASED",
+          "PARENT_CHILD_CODE_INCONSISTENT": "PARENT_CHILD_CODE_INCONSISTENT",
+        },
+      },
+      "Status404": {
+        "ErrorCodes": {
+          "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+          "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
+          "PARENT_NOT_FOUND": "PARENT_NOT_FOUND",
+        },
+      },
+      "Status500": {
+        "ErrorCodes": {
+          "DB_FAILED_TO_CREATE_OCCUPATION_PARENT": "DB_FAILED_TO_CREATE_OCCUPATION_PARENT",
+        },
+      },
+    },
+    "Schemas": {
+      "Request": {
+        "Payload": {
+          "$id": "/components/schemas/OccupationParentRequestSchemaPOST",
+          "additionalProperties": false,
+          "properties": {
+            "parentId": {
+              "maxLength": 24,
+              "minLength": 24,
+              "type": "string",
+            },
+            "parentType": {
+              "enum": [
+                "iscogroup",
+                "localgroup",
+                "escooccupation",
+                "localoccupation",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "parentId",
+            "parentType",
+          ],
+          "type": "object",
+        },
+      },
+    },
+  },
   "Patterns": {
     "RegExp": {
       "ESCO_LOCAL_OCCUPATION_CODE": /\\^\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\*\\(\\?:_\\\\d\\+\\)\\+\\$/,

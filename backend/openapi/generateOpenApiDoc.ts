@@ -57,9 +57,11 @@ delete Occupation.GET.Schemas.Request.Param.Payload.$id;
 delete Occupation.GET.Schemas.Request.Query.Payload.$id;
 delete Occupation.Occupation.GET.Schemas.Request.Param.Payload.$id;
 delete Occupation.Occupation.Parent.GET.Schemas.Response.Payload.$id;
+delete Occupation.Occupation.Parent.POST.Schemas.Request.Payload.$id;
 delete Occupation.Occupation.Children.GET.Schemas.Response.Payload.$id;
 delete Occupation.Occupation.Children.GET.Schemas.Request.Query.Payload.$id;
 delete Occupation.Occupation.Skills.GET.Schemas.Response.Payload.$id;
+delete Occupation.Occupation.Skills.POST.Schemas.Request.Payload.$id;
 delete Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload.$id;
 delete SkillGroup.POST.Schemas.Request.Param.Payload.$id;
 delete SkillGroup.POST.Schemas.Request.Payload.$id;
@@ -85,12 +87,15 @@ delete Skill.GET.Schemas.Request.Query.Payload.$id;
 delete Skill.Skill.GET.Schemas.Request.Param.Payload.$id;
 delete Skill.Skill.Parents.GET.Schemas.Response.Payload.$id;
 delete Skill.Skill.Parents.GET.Schemas.Request.Query.Payload.$id;
+delete Skill.Skill.Parents.POST.Schemas.Request.Payload.$id;
 delete Skill.Skill.Children.GET.Schemas.Response.Payload.$id;
 delete Skill.Skill.Children.GET.Schemas.Request.Query.Payload.$id;
 delete Skill.Skill.Occupations.GET.Schemas.Response.Payload.$id;
 delete Skill.Skill.Occupations.GET.Schemas.Request.Query.Payload.$id;
+delete Skill.Skill.Occupations.POST.Schemas.Request.Payload.$id;
 delete Skill.Skill.RelatedSkills.GET.Schemas.Response.Payload.$id;
 delete Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id;
+delete Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload.$id;
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -406,11 +411,13 @@ function getOpenAPISpecification(
           OccupationRequestQueryParamSchemaGET: Occupation.GET.Schemas.Request.Query.Payload,
           OccupationResponseSchemaGET: Occupation.GET.Schemas.Response.Payload,
           OccupationResponseSchemaGETParent: Occupation.Occupation.Parent.GET.Schemas.Response.Payload,
+          OccupationParentRequestSchemaPOST: Occupation.Occupation.Parent.POST.Schemas.Request.Payload,
           OccupationResponseSchemaGETChildren: Occupation.Occupation.Children.GET.Schemas.Response.Payload,
           OccupationChildrenRequestQueryParamSchemaGET:
             Occupation.Occupation.Children.GET.Schemas.Request.Query.Payload,
-          OccupationResponseSchemaGETSkills: Occupation.Occupation.Skills.GET.Schemas.Response.Payload,
-          OccupationSkillsRequestQueryParamSchemaGET: Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload,
+           OccupationResponseSchemaGETSkills: Occupation.Occupation.Skills.GET.Schemas.Response.Payload,
+           OccupationSkillsRequestSchemaPOST: Occupation.Occupation.Skills.POST.Schemas.Request.Payload,
+           OccupationSkillsRequestQueryParamSchemaGET: Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload,
           SkillGroupRequestSchemaPOST: SkillGroup.POST.Schemas.Request.Payload,
           SkillGroupResponseSchemaPOST: SkillGroup.POST.Schemas.Response.Payload,
           SkillGroupResponseSchemaGETById: SkillGroup.SkillGroup.GET.Schemas.Response.Payload,
@@ -432,12 +439,15 @@ function getOpenAPISpecification(
           SkillResponseSchemaGET: Skill.GET.Schemas.Response.Payload,
           SkillRequestByIdParamSchemaGET: Skill.Skill.GET.Schemas.Request.Param.Payload,
           SkillParentsResponseSchemaGET: Skill.Skill.Parents.GET.Schemas.Response.Payload,
+          SkillParentsRequestSchemaPOST: Skill.Skill.Parents.POST.Schemas.Request.Payload,
           SkillParentsRequestQueryParamSchemaGET: Skill.Skill.Parents.GET.Schemas.Request.Query.Payload,
           SkillChildrenResponseSchemaGET: Skill.Skill.Children.GET.Schemas.Response.Payload,
           SkillChildrenRequestQueryParamSchemaGET: Skill.Skill.Children.GET.Schemas.Request.Query.Payload,
           SkillOccupationsResponseSchemaGET: Skill.Skill.Occupations.GET.Schemas.Response.Payload,
+          SkillOccupationsRequestSchemaPOST: Skill.Skill.Occupations.POST.Schemas.Request.Payload,
           SkillOccupationsRequestQueryParamSchemaGET: Skill.Skill.Occupations.GET.Schemas.Request.Query.Payload,
           SkillRelatedResponseSchemaGET: Skill.Skill.RelatedSkills.GET.Schemas.Response.Payload,
+          SkillRelatedRequestSchemaPOST: Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload,
           SkillRelatedRequestQueryParamSchemaGET: Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload,
         },
         securitySchemes: {

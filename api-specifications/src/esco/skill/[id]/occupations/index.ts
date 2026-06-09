@@ -3,6 +3,7 @@ import SkillEnums from "../../_shared/enums";
 import SkillTypes from "../../_shared/types";
 
 import GETSkillOccupationsOperation from "./GET";
+import POSTSkillOccupationsOperation from "./POST";
 
 namespace SkillOccupationsAPISpecs {
   export import Constants = SkillConstants;
@@ -10,6 +11,7 @@ namespace SkillOccupationsAPISpecs {
   export import Types = SkillTypes;
 
   export import GET = GETSkillOccupationsOperation;
+  export import POST = POSTSkillOccupationsOperation;
 }
 
 export default SkillOccupationsAPISpecs;

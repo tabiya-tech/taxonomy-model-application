@@ -94,6 +94,10 @@ ajvInstance.addSchema(
   OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload.$id
 );
 ajvInstance.addSchema(
+  OccupationAPISpecs.Occupation.Parent.POST.Schemas.Request.Payload,
+  OccupationAPISpecs.Occupation.Parent.POST.Schemas.Request.Payload.$id
+);
+ajvInstance.addSchema(
   OccupationAPISpecs.Occupation.Children.GET.Schemas.Response.Payload,
   OccupationAPISpecs.Occupation.Children.GET.Schemas.Response.Payload.$id
 );
@@ -104,6 +108,10 @@ ajvInstance.addSchema(
 ajvInstance.addSchema(
   OccupationAPISpecs.Occupation.Skills.GET.Schemas.Response.Payload,
   OccupationAPISpecs.Occupation.Skills.GET.Schemas.Response.Payload.$id
+);
+ajvInstance.addSchema(
+  OccupationAPISpecs.Occupation.Skills.POST.Schemas.Request.Payload,
+  OccupationAPISpecs.Occupation.Skills.POST.Schemas.Request.Payload.$id
 );
 ajvInstance.addSchema(
   OccupationAPISpecs.Occupation.Skills.GET.Schemas.Request.Query.Payload,
@@ -180,6 +188,10 @@ ajvInstance.addSchema(
   SkillAPISpecs.Skill.Parents.GET.Schemas.Request.Query.Payload.$id
 );
 ajvInstance.addSchema(
+  SkillAPISpecs.Skill.Parents.POST.Schemas.Request.Payload,
+  SkillAPISpecs.Skill.Parents.POST.Schemas.Request.Payload.$id
+);
+ajvInstance.addSchema(
   SkillAPISpecs.Skill.Children.GET.Schemas.Request.Query.Payload,
   SkillAPISpecs.Skill.Children.GET.Schemas.Request.Query.Payload.$id
 );
@@ -188,8 +200,16 @@ ajvInstance.addSchema(
   SkillAPISpecs.Skill.Occupations.GET.Schemas.Request.Query.Payload.$id
 );
 ajvInstance.addSchema(
+  SkillAPISpecs.Skill.Occupations.POST.Schemas.Request.Payload,
+  SkillAPISpecs.Skill.Occupations.POST.Schemas.Request.Payload.$id
+);
+ajvInstance.addSchema(
   SkillAPISpecs.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload,
   SkillAPISpecs.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Skill.RelatedSkills.POST.Schemas.Request.Payload,
+  SkillAPISpecs.Skill.RelatedSkills.POST.Schemas.Request.Payload.$id
 );
 
 /**

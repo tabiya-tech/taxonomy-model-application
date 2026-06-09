@@ -3863,6 +3863,78 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
           },
         },
       },
+      "POST": {
+        "Errors": {
+          "Status400": {
+            "ErrorCodes": {
+              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
+              "INVALID_RELATION_TYPE": "INVALID_RELATION_TYPE",
+              "INVALID_SIGNALLING_VALUE_LABEL": "INVALID_SIGNALLING_VALUE_LABEL",
+              "INVALID_SKILL_ID": "INVALID_SKILL_ID",
+              "MODEL_IS_RELEASED": "MODEL_IS_RELEASED",
+              "MUTUALLY_EXCLUSIVE_VALUES": "MUTUALLY_EXCLUSIVE_VALUES",
+            },
+          },
+          "Status404": {
+            "ErrorCodes": {
+              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
+              "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+            },
+          },
+          "Status500": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION": "DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION",
+            },
+          },
+        },
+        "Schemas": {
+          "Request": {
+            "Payload": {
+              "$id": "/components/schemas/SkillOccupationsRequestSchemaPOST",
+              "additionalProperties": false,
+              "properties": {
+                "relationType": {
+                  "enum": [
+                    "",
+                    "essential",
+                    "optional",
+                  ],
+                  "type": "string",
+                },
+                "requiringOccupationId": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "type": "string",
+                },
+                "signallingValue": {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": [
+                    "number",
+                    "null",
+                  ],
+                },
+                "signallingValueLabel": {
+                  "enum": [
+                    "",
+                    "high",
+                    "medium",
+                    "low",
+                  ],
+                  "type": "string",
+                },
+              },
+              "required": [
+                "requiringOccupationId",
+                "relationType",
+                "signallingValueLabel",
+              ],
+              "type": "object",
+            },
+          },
+        },
+      },
       "Types": {
         "Detail": {
           "GET": {},
@@ -4818,6 +4890,57 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
           },
         },
       },
+      "POST": {
+        "Errors": {
+          "Status400": {
+            "ErrorCodes": {
+              "INVALID_PARENT_ID": "INVALID_PARENT_ID",
+              "INVALID_PARENT_TYPE": "INVALID_PARENT_TYPE",
+              "INVALID_SKILL_ID": "INVALID_SKILL_ID",
+              "MODEL_IS_RELEASED": "MODEL_IS_RELEASED",
+            },
+          },
+          "Status404": {
+            "ErrorCodes": {
+              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+              "PARENT_NOT_FOUND": "PARENT_NOT_FOUND",
+              "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+            },
+          },
+          "Status500": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_CREATE_SKILL_PARENT_RELATION": "DB_FAILED_TO_CREATE_SKILL_PARENT_RELATION",
+            },
+          },
+        },
+        "Schemas": {
+          "Request": {
+            "Payload": {
+              "$id": "/components/schemas/SkillParentsRequestSchemaPOST",
+              "additionalProperties": false,
+              "properties": {
+                "parentId": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "type": "string",
+                },
+                "parentType": {
+                  "enum": [
+                    "skillgroup",
+                    "skill",
+                  ],
+                  "type": "string",
+                },
+              },
+              "required": [
+                "parentId",
+                "parentType",
+              ],
+              "type": "object",
+            },
+          },
+        },
+      },
       "Types": {
         "Detail": {
           "GET": {},
@@ -5499,6 +5622,57 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "required": [
                 "data",
                 "limit",
+              ],
+              "type": "object",
+            },
+          },
+        },
+      },
+      "POST": {
+        "Errors": {
+          "Status400": {
+            "ErrorCodes": {
+              "INVALID_RELATION_TYPE": "INVALID_RELATION_TYPE",
+              "INVALID_REQUIRED_SKILL_ID": "INVALID_REQUIRED_SKILL_ID",
+              "INVALID_SKILL_ID": "INVALID_SKILL_ID",
+              "MODEL_IS_RELEASED": "MODEL_IS_RELEASED",
+            },
+          },
+          "Status404": {
+            "ErrorCodes": {
+              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+              "REQUIRED_SKILL_NOT_FOUND": "REQUIRED_SKILL_NOT_FOUND",
+              "SKILL_NOT_FOUND": "SKILL_NOT_FOUND",
+            },
+          },
+          "Status500": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_CREATE_SKILL_RELATION": "DB_FAILED_TO_CREATE_SKILL_RELATION",
+            },
+          },
+        },
+        "Schemas": {
+          "Request": {
+            "Payload": {
+              "$id": "/components/schemas/SkillRelatedRequestSchemaPOST",
+              "additionalProperties": false,
+              "properties": {
+                "relationType": {
+                  "enum": [
+                    "essential",
+                    "optional",
+                  ],
+                  "type": "string",
+                },
+                "requiredSkillId": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "type": "string",
+                },
+              },
+              "required": [
+                "requiredSkillId",
+                "relationType",
               ],
               "type": "object",
             },
