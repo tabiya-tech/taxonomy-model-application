@@ -4,19 +4,13 @@ import SkillAPISpecs from "api-specifications/esco/skill";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 
-import { ISkillGroup } from "../skillGroup/_shared/skillGroup.types";
+import { ObjectTypes } from "esco/common/objectTypes";
+import { ISkill } from "esco/skill/_shared/skill.types";
+import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
-import type { ISkill } from "../skill/skills.types";
-import Ajv, { ValidateFunction } from "ajv";
-import addFormats from "ajv-formats";
-import { Connection } from "mongoose";
-import { getTestConfiguration } from "../../_test_utilities/getTestConfiguration";
-import { initOnce } from "../../server/init";
-import { getConnectionManager } from "../../server/connection/connectionManager";
 import { INewSkillHierarchyPairSpec } from "../skillHierarchy/skillHierarchy.types";
-import { ObjectTypes } from "../common/objectTypes";
 
 export async function createModelInDB() {
   return await getRepositoryRegistry().modelInfo.create({
@@ -58,7 +52,6 @@ export async function createSkillInDB(modelId: string): Promise<ISkill> {
     skillType: SkillAPISpecs.Enums.SkillType.Knowledge,
     reuseLevel: SkillAPISpecs.Enums.ReuseLevel.CrossSector,
     isLocalized: true,
-    importId: randomUUID(),
   });
 }
 
