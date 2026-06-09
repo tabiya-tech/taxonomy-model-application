@@ -9,9 +9,11 @@ import * as postModule from "./POST/index";
 import * as getModule from "./GET/index";
 import * as getByIdModule from "./[id]/GET/index";
 import * as getParentsModule from "./[id]/parents/GET/index";
+import * as postParentsModule from "./[id]/parents/POST/index";
 import * as getChildrenModule from "./[id]/children/GET/index";
 import * as getOccupationsModule from "./[id]/occupations/GET/index";
 import * as getRelatedModule from "./[id]/related/GET/index";
+import * as postRelatedModule from "./[id]/related/POST/index";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
@@ -49,6 +51,19 @@ describe("Test for skill router handler", () => {
     postSpy.mockRestore();
   });
 
+  test("handler should handle missing path in POST request", async () => {
+    const postSpy = jest.spyOn(postModule, "handler").mockResolvedValue({
+      statusCode: StatusCodes.CREATED,
+      body: "",
+    } as APIGatewayProxyResult);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.POST,
+    };
+    await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(postSpy).toHaveBeenCalled();
+    postSpy.mockRestore();
+  });
+
   test("handler should route GET /parents to getParentsHandler", async () => {
     const spy = jest.spyOn(getParentsModule, "handler").mockResolvedValue({
       statusCode: StatusCodes.OK,
@@ -57,6 +72,34 @@ describe("Test for skill router handler", () => {
     const givenEvent = {
       httpMethod: HTTP_VERBS.GET,
       path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/parents`,
+    };
+    await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("handler should route POST /parents to postParentsHandler", async () => {
+    const spy = jest.spyOn(postParentsModule, "handler").mockResolvedValue({
+      statusCode: StatusCodes.CREATED,
+      body: "",
+    } as APIGatewayProxyResult);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.POST,
+      path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/parents`,
+    };
+    await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("handler should route POST /related to postRelatedHandler", async () => {
+    const spy = jest.spyOn(postRelatedModule, "handler").mockResolvedValue({
+      statusCode: StatusCodes.CREATED,
+      body: "",
+    } as APIGatewayProxyResult);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.POST,
+      path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/related`,
     };
     await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
     expect(spy).toHaveBeenCalled();
