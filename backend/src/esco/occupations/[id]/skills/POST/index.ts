@@ -1,9 +1,7 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import mongoose from "mongoose";
 import { errorResponse, responseJSON, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { buildSkillsResponse } from "./response";
@@ -11,13 +9,13 @@ import { parseAndValidatePOSTRequest } from "./request";
 import { getResourcesBaseUrl } from "server/config/config";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForOccupationValidationErrorCode, ISkillWithRelation } from "../../../services/occupation.service.types";
+import { ModelForOccupationValidationErrorCode } from "esco/occupations/services/occupation.service.types";
+import {
+  SkillForOccupationValidationErrorCode,
+  OccupationSkillValidationError,
+} from "esco/occupationToSkillRelation/occupationToSkillRelation.service.types";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
-import { extractAndValidateIdParams } from "../../../_shared/params";
-import { ObjectTypes } from "esco/common/objectTypes";
-import { MongooseModelName } from "esco/common/mongooseModelNames";
-import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { SignallingValueLabel } from "esco/common/objectTypes";
+import { extractAndValidateIdParams } from "esco/occupations/_shared/params";
 
 export class OccupationSkillsPostController {
   /**
@@ -88,10 +86,11 @@ export class OccupationSkillsPostController {
   async post(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     try {
       // 1. Parse and validate path parameters
-      const params = extractAndValidateIdParams(event, Routes.OCCUPATION_SKILLS_ROUTE);
-      if ("statusCode" in params) {
-        return params;
+      const pathParamsResult = extractAndValidateIdParams(event, Routes.OCCUPATION_SKILLS_ROUTE);
+      if ("statusCode" in pathParamsResult) {
+        return pathParamsResult;
       }
+      const params = pathParamsResult;
 
       // 2. Parse and validate request body
       const parsedRequestResult = parseAndValidatePOSTRequest(event);
@@ -129,111 +128,65 @@ export class OccupationSkillsPostController {
         );
       }
 
-      // 4. Fetch the child occupation (requiring entity)
-      const child = await getRepositoryRegistry()
-        .occupation.Model.findOne({
-          _id: params.id,
-          modelId: params.modelId,
-        })
-        .exec();
-      if (!child) {
-        return errorResponse(
-          StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.Occupation.Skills.POST.Errors.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
-          "Occupation not found",
-          `No occupation found with id: ${params.id} in model: ${params.modelId}`
+      // 4. Update the relationship via service
+      const relationService = getServiceRegistry().occupationToSkillRelation;
+      let transformedSkill;
+      try {
+        transformedSkill = await relationService.addSkill(
+          params.modelId,
+          params.id,
+          payload.requiredSkillId,
+          payload.relationType ?? "",
+          payload.signallingValueLabel ?? "",
+          payload.signallingValue ?? null
         );
+      } catch (error: unknown) {
+        if (error instanceof OccupationSkillValidationError) {
+          if (error.code === SkillForOccupationValidationErrorCode.OCCUPATION_NOT_FOUND) {
+            return errorResponse(
+              StatusCodes.NOT_FOUND,
+              OccupationAPISpecs.Occupation.Skills.POST.Errors.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
+              "Requiring occupation not found",
+              `No occupation found with id: ${params.id} in model: ${params.modelId}`
+            );
+          }
+          if (error.code === SkillForOccupationValidationErrorCode.SKILL_NOT_FOUND) {
+            return errorResponse(
+              StatusCodes.NOT_FOUND,
+              OccupationAPISpecs.Occupation.Skills.POST.Errors.Status404.ErrorCodes.SKILL_NOT_FOUND,
+              "Required skill not found",
+              `No skill found with id: ${payload.requiredSkillId} in model: ${params.modelId}`
+            );
+          }
+          if (error.code === SkillForOccupationValidationErrorCode.INVALID_RELATION_TYPE) {
+            return errorResponse(
+              StatusCodes.BAD_REQUEST,
+              OccupationAPISpecs.Occupation.Skills.POST.Errors.Status400.ErrorCodes.INVALID_RELATION_TYPE,
+              "Invalid relationType for this occupation type",
+              ""
+            );
+          }
+          if (error.code === SkillForOccupationValidationErrorCode.INVALID_SIGNALLING_VALUE_LABEL) {
+            return errorResponse(
+              StatusCodes.BAD_REQUEST,
+              OccupationAPISpecs.Occupation.Skills.POST.Errors.Status400.ErrorCodes.INVALID_SIGNALLING_VALUE_LABEL,
+              "Invalid signallingValueLabel for this occupation type",
+              ""
+            );
+          }
+          if (error.code === SkillForOccupationValidationErrorCode.MUTUALLY_EXCLUSIVE_VALUES) {
+            return errorResponse(
+              StatusCodes.BAD_REQUEST,
+              OccupationAPISpecs.Occupation.Skills.POST.Errors.Status400.ErrorCodes.MUTUALLY_EXCLUSIVE_VALUES,
+              "relationType and signallingValueLabel cannot both be set at the same time",
+              ""
+            );
+          }
+        }
+        throw error;
       }
 
-      // 5. Fetch the required skill
-      const skill = await getRepositoryRegistry()
-        .skill.Model.findOne({
-          _id: payload.requiredSkillId,
-          modelId: params.modelId,
-        })
-        .exec();
-      if (!skill) {
-        return errorResponse(
-          StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.Occupation.Skills.POST.Errors.Status404.ErrorCodes.SKILL_NOT_FOUND,
-          "Required skill not found",
-          `No skill found with id: ${payload.requiredSkillId} in model: ${params.modelId}`
-        );
-      }
-
-      // 6. Validate type-specific relationship rules
-      const isEsco = child.occupationType === ObjectTypes.ESCOOccupation;
-      const relationType = payload.relationType;
-      const signallingValueLabel = payload.signallingValueLabel;
-
-      if (isEsco) {
-        // ESCO occupations must have relationType and no signalling properties
-        if (relationType === OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE) {
-          return errorResponse(
-            StatusCodes.BAD_REQUEST,
-            OccupationAPISpecs.Occupation.Skills.POST.Errors.Status400.ErrorCodes.INVALID_RELATION_TYPE,
-            "ESCO occupations must have relationType set to essential or optional",
-            ""
-          );
-        }
-        if (signallingValueLabel !== SignallingValueLabel.NONE) {
-          return errorResponse(
-            StatusCodes.BAD_REQUEST,
-            OccupationAPISpecs.Occupation.Skills.POST.Errors.Status400.ErrorCodes.INVALID_SIGNALLING_VALUE_LABEL,
-            "ESCO occupations cannot have signalling value label",
-            ""
-          );
-        }
-      } else {
-        // Local occupations: relationType and signallingValueLabel are mutually exclusive
-        const hasRelation = relationType !== OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE;
-        const hasSignalling = signallingValueLabel !== SignallingValueLabel.NONE;
-
-        if (hasRelation && hasSignalling) {
-          return errorResponse(
-            StatusCodes.BAD_REQUEST,
-            OccupationAPISpecs.Occupation.Skills.POST.Errors.Status400.ErrorCodes.MUTUALLY_EXCLUSIVE_VALUES,
-            "Local occupations cannot have both relationType and signallingValueLabel set",
-            ""
-          );
-        }
-        if (!hasRelation && !hasSignalling) {
-          return errorResponse(
-            StatusCodes.BAD_REQUEST,
-            OccupationAPISpecs.Occupation.Skills.POST.Errors.Status400.ErrorCodes.INVALID_RELATION_TYPE,
-            "Local occupations must have either relationType or signallingValueLabel set",
-            ""
-          );
-        }
-      }
-
-      // 7. Update/insert the relationship pair in DB
-      const RelationModel = getRepositoryRegistry().occupationToSkillRelation.relationModel;
-      await RelationModel.findOneAndUpdate(
-        {
-          modelId: new mongoose.Types.ObjectId(params.modelId),
-          requiringOccupationId: new mongoose.Types.ObjectId(params.id),
-          requiredSkillId: new mongoose.Types.ObjectId(payload.requiredSkillId),
-        },
-        {
-          requiringOccupationType: child.occupationType,
-          requiringOccupationDocModel: MongooseModelName.Occupation,
-          requiredSkillDocModel: MongooseModelName.Skill,
-          relationType: payload.relationType as unknown as OccupationToSkillRelationType,
-          signallingValueLabel: payload.signallingValueLabel as unknown as SignallingValueLabel,
-          signallingValue: payload.signallingValue || null,
-        },
-        { upsert: true, new: true }
-      ).exec();
-
-      const skillWithRelation: ISkillWithRelation = {
-        ...skill.toObject(),
-        relationType: payload.relationType as unknown as OccupationToSkillRelationType,
-        signallingValue: payload.signallingValue || null,
-        signallingValueLabel: payload.signallingValueLabel as unknown as SignallingValueLabel,
-      };
-
-      return responseJSON(StatusCodes.CREATED, buildSkillsResponse(skillWithRelation, getResourcesBaseUrl()));
+      return responseJSON(StatusCodes.CREATED, buildSkillsResponse(transformedSkill, getResourcesBaseUrl()));
     } catch (error: unknown) {
       console.error("Failed to link occupation skill:", error);
       errorLoggerInstance.logError(

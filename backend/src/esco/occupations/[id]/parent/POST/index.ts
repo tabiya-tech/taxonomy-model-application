@@ -1,9 +1,7 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import mongoose from "mongoose";
 import { errorResponse, responseJSON, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { buildParentResponse } from "./response";
@@ -11,18 +9,13 @@ import { parseAndValidatePOSTRequest } from "./request";
 import { getResourcesBaseUrl } from "server/config/config";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForOccupationValidationErrorCode } from "../../../services/occupation.service.types";
-import errorLoggerInstance from "common/errorLogger/errorLogger";
-import { extractAndValidateIdParams } from "../../../_shared/params";
-import { ObjectTypes } from "esco/common/objectTypes";
-import { getModelName, MongooseModelName } from "esco/common/mongooseModelNames";
+import { ModelForOccupationValidationErrorCode } from "esco/occupations/services/occupation.service.types";
 import {
-  isNewOccupationHierarchyPairSpecValid,
-  isParentChildCodeConsistent,
-} from "esco/occupationHierarchy/occupationHierarchyValidation";
-import { IOccupation, IOccupationDoc } from "../../../_shared/occupation.types";
-import { IOccupationGroup, IOccupationGroupDoc } from "esco/occupationGroup/_shared/OccupationGroup.types";
-import { OccupationHierarchyParentType } from "esco/occupationHierarchy/occupationHierarchy.types";
+  ParentForOccupationValidationErrorCode,
+  OccupationParentValidationError,
+} from "esco/occupationHierarchy/occupationHierarchy.service.types";
+import errorLoggerInstance from "common/errorLogger/errorLogger";
+import { extractAndValidateIdParams } from "esco/occupations/_shared/params";
 
 export class OccupationParentPostController {
   /**
@@ -93,10 +86,11 @@ export class OccupationParentPostController {
   async post(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     try {
       // 1. Parse and validate path parameters
-      const params = extractAndValidateIdParams(event, Routes.OCCUPATION_PARENT_ROUTE);
-      if ("statusCode" in params) {
-        return params;
+      const pathParamsResult = extractAndValidateIdParams(event, Routes.OCCUPATION_PARENT_ROUTE);
+      if ("statusCode" in pathParamsResult) {
+        return pathParamsResult;
       }
+      const params = pathParamsResult;
 
       // 2. Parse and validate request body
       const parsedRequestResult = parseAndValidatePOSTRequest(event);
@@ -133,120 +127,48 @@ export class OccupationParentPostController {
         );
       }
 
-      // 4. Fetch the child occupation
-      const child = await getRepositoryRegistry()
-        .occupation.Model.findOne({
-          _id: params.id,
-          modelId: params.modelId,
-        })
-        .exec();
-      if (!child) {
-        return errorResponse(
-          StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.Occupation.Parent.POST.Errors.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
-          "Child occupation not found",
-          `No occupation found with id: ${params.id} in model: ${params.modelId}`
-        );
+      // 4. Update the parent entity via service
+      const hierarchyService = getServiceRegistry().occupationHierarchy;
+      let transformedParent;
+      try {
+        transformedParent = await hierarchyService.setParent(params.modelId, params.id, payload.id, payload.objectType);
+      } catch (error: unknown) {
+        if (error instanceof OccupationParentValidationError) {
+          if (error.code === ParentForOccupationValidationErrorCode.OCCUPATION_NOT_FOUND) {
+            return errorResponse(
+              StatusCodes.NOT_FOUND,
+              OccupationAPISpecs.Occupation.Parent.POST.Errors.Status404.ErrorCodes.OCCUPATION_NOT_FOUND,
+              "Child occupation not found",
+              `No occupation found with id: ${params.id} in model: ${params.modelId}`
+            );
+          }
+          if (error.code === ParentForOccupationValidationErrorCode.PARENT_NOT_FOUND) {
+            return errorResponse(
+              StatusCodes.NOT_FOUND,
+              OccupationAPISpecs.Occupation.Parent.POST.Errors.Status404.ErrorCodes.PARENT_NOT_FOUND,
+              "Parent not found",
+              `No parent of type ${payload.objectType} found with id: ${payload.id} in model: ${params.modelId}`
+            );
+          }
+          if (error.code === ParentForOccupationValidationErrorCode.INVALID_PARENT_TYPE) {
+            return errorResponse(
+              StatusCodes.BAD_REQUEST,
+              OccupationAPISpecs.Occupation.Parent.POST.Errors.Status400.ErrorCodes.INVALID_PARENT_TYPE,
+              "Invalid parent-child type relationship",
+              ""
+            );
+          }
+          if (error.code === ParentForOccupationValidationErrorCode.PARENT_CHILD_CODE_INCONSISTENT) {
+            return errorResponse(
+              StatusCodes.BAD_REQUEST,
+              OccupationAPISpecs.Occupation.Parent.POST.Errors.Status400.ErrorCodes.PARENT_CHILD_CODE_INCONSISTENT,
+              "Parent and child codes are inconsistent",
+              ""
+            );
+          }
+        }
+        throw error;
       }
-
-      // 5. Fetch the parent entity (either OccupationGroup or Occupation)
-      let parentDoc: mongoose.HydratedDocument<IOccupationDoc> | mongoose.HydratedDocument<IOccupationGroupDoc> | null =
-        null;
-      const parentType = payload.parentType;
-      if (parentType === ObjectTypes.ISCOGroup || parentType === ObjectTypes.LocalGroup) {
-        parentDoc = await getRepositoryRegistry()
-          .OccupationGroup.Model.findOne({
-            _id: payload.parentId,
-            modelId: params.modelId,
-          })
-          .exec();
-      } else if (parentType === ObjectTypes.ESCOOccupation || parentType === ObjectTypes.LocalOccupation) {
-        parentDoc = await getRepositoryRegistry()
-          .occupation.Model.findOne({
-            _id: payload.parentId,
-            modelId: params.modelId,
-          })
-          .exec();
-      }
-
-      if (!parentDoc) {
-        return errorResponse(
-          StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.Occupation.Parent.POST.Errors.Status404.ErrorCodes.PARENT_NOT_FOUND,
-          "Parent not found",
-          `No parent of type ${parentType} found with id: ${payload.parentId} in model: ${params.modelId}`
-        );
-      }
-
-      const parentObjectType =
-        "occupationType" in parentDoc
-          ? (parentDoc as mongoose.HydratedDocument<IOccupationDoc>).occupationType
-          : (parentDoc as mongoose.HydratedDocument<IOccupationGroupDoc>).groupType;
-
-      // 6. Validate parent-child type compatibility & code consistency
-      const existingIds = new Map<string, ObjectTypes[]>();
-      existingIds.set(child._id.toString(), [child.occupationType]);
-      existingIds.set(parentDoc._id.toString(), [parentObjectType]);
-
-      const idToCode = new Map<string, { type: ObjectTypes; code: string }[]>();
-      idToCode.set(child._id.toString(), [{ type: child.occupationType, code: child.code }]);
-      idToCode.set(parentDoc._id.toString(), [{ type: parentObjectType, code: parentDoc.code }]);
-
-      const isPairValid = isNewOccupationHierarchyPairSpecValid(
-        {
-          parentId: payload.parentId,
-          parentType: payload.parentType as unknown as OccupationHierarchyParentType,
-          childId: params.id,
-          childType: child.occupationType,
-        },
-        existingIds
-      );
-      if (!isPairValid) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          OccupationAPISpecs.Occupation.Parent.POST.Errors.Status400.ErrorCodes.INVALID_PARENT_TYPE,
-          "Invalid parent-child type relationship",
-          ""
-        );
-      }
-
-      const isCodeValid = isParentChildCodeConsistent(
-        payload.parentType as unknown as ObjectTypes,
-        payload.parentId,
-        child.occupationType,
-        params.id,
-        idToCode
-      );
-      if (!isCodeValid) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          OccupationAPISpecs.Occupation.Parent.POST.Errors.Status400.ErrorCodes.PARENT_CHILD_CODE_INCONSISTENT,
-          "Parent and child codes are inconsistent",
-          ""
-        );
-      }
-
-      // 7. Update/insert the hierarchy pair
-      const parentDocModel = getModelName(payload.parentType as unknown as ObjectTypes);
-      const childDocModel = MongooseModelName.Occupation;
-
-      const HierarchyModel = getRepositoryRegistry().occupationHierarchy.hierarchyModel;
-      await HierarchyModel.findOneAndUpdate(
-        {
-          modelId: new mongoose.Types.ObjectId(params.modelId),
-          childId: new mongoose.Types.ObjectId(params.id),
-          childType: child.occupationType,
-        },
-        {
-          parentId: new mongoose.Types.ObjectId(payload.parentId),
-          parentType: payload.parentType as unknown as OccupationHierarchyParentType,
-          parentDocModel: parentDocModel,
-          childDocModel: childDocModel,
-        },
-        { upsert: true, new: true }
-      ).exec();
-
-      const transformedParent = parentDoc.toObject() as IOccupation | IOccupationGroup;
 
       return responseJSON(StatusCodes.CREATED, buildParentResponse(transformedParent, getResourcesBaseUrl()));
     } catch (error: unknown) {

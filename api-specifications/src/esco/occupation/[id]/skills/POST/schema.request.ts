@@ -1,13 +1,14 @@
 import { SchemaObject } from "ajv";
 import OccupationEnums from "../../../_shared/enums";
 import { SignallingValueLabel } from "../../../../common/objectTypes";
+import { RegExp_Str_ID } from "../../../../../regex";
 
 const SchemaPOSTRequest: SchemaObject = {
   $id: "/components/schemas/OccupationSkillsRequestSchemaPOST",
   type: "object",
   additionalProperties: false,
   properties: {
-    requiredSkillId: { type: "string", minLength: 24, maxLength: 24 },
+    requiredSkillId: { type: "string", pattern: RegExp_Str_ID },
     relationType: {
       type: "string",
       enum: Object.values(OccupationEnums.OccupationToSkillRelationType),
@@ -19,10 +20,9 @@ const SchemaPOSTRequest: SchemaObject = {
     signallingValue: {
       type: ["number", "null"],
       minimum: 0,
-      maximum: 1,
     },
   },
-  required: ["requiredSkillId", "relationType", "signallingValueLabel"],
+  required: ["requiredSkillId"],
 };
 
 export default SchemaPOSTRequest;

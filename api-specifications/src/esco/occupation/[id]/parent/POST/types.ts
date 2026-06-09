@@ -3,8 +3,8 @@ import OccupationEnums from "../../../_shared/enums";
 namespace POSTOccupationParentTypes {
   export namespace Request {
     export type Payload = {
-      parentId: string;
-      parentType: OccupationEnums.Relations.Parent.ObjectTypes;
+      id: string;
+      objectType: OccupationEnums.Relations.Parent.ObjectTypes;
     };
   }
 }
