@@ -12,6 +12,7 @@ import * as getParentsModule from "./[id]/parents/GET/index";
 import * as postParentsModule from "./[id]/parents/POST/index";
 import * as getChildrenModule from "./[id]/children/GET/index";
 import * as getOccupationsModule from "./[id]/occupations/GET/index";
+import * as postOccupationsModule from "./[id]/occupations/POST/index";
 import * as getRelatedModule from "./[id]/related/GET/index";
 import * as postRelatedModule from "./[id]/related/POST/index";
 
@@ -86,6 +87,20 @@ describe("Test for skill router handler", () => {
     const givenEvent = {
       httpMethod: HTTP_VERBS.POST,
       path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/parents`,
+    };
+    await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("handler should route POST /occupations to postOccupationsHandler", async () => {
+    const spy = jest.spyOn(postOccupationsModule, "handler").mockResolvedValue({
+      statusCode: StatusCodes.CREATED,
+      body: "",
+    } as APIGatewayProxyResult);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.POST,
+      path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/occupations`,
     };
     await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
     expect(spy).toHaveBeenCalled();
