@@ -106,6 +106,62 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
     expect(result.relationType).toEqual(OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL);
   });
 
+  test("should successfully add Local skill relationship with signallingValue of 0 and not convert it to null", async () => {
+    const givenModelId = getMockStringId(1);
+    const givenOccupationId = getMockStringId(2);
+    const givenSkillId = getMockStringId(3);
+
+    const mockChild = {
+      ...getIOccupationMockData(2),
+      _id: new mongoose.Types.ObjectId(givenOccupationId),
+      occupationType: ObjectTypes.LocalOccupation,
+    };
+
+    const mockSkill = {
+      ...getISkillMockData(3),
+      _id: new mongoose.Types.ObjectId(givenSkillId),
+    };
+
+    const mockChildDoc = {
+      ...mockChild,
+      exec: jest.fn().mockResolvedValue(mockChild),
+    };
+    const mockSkillDoc = {
+      ...mockSkill,
+      toObject: jest.fn().mockReturnValue(mockSkill),
+      exec: jest.fn(),
+    };
+    mockSkillDoc.exec.mockResolvedValue(mockSkillDoc);
+
+    occupationRepositoryMock.Model.findOne.mockReturnValueOnce(mockChildDoc);
+    skillRepositoryMock.Model.findOne.mockReturnValueOnce(mockSkillDoc);
+
+    const mockUpdateQuery = {
+      exec: jest.fn().mockResolvedValue({}),
+    };
+    relationRepositoryMock.relationModel.findOneAndUpdate.mockReturnValue(mockUpdateQuery);
+
+    const result = await service.addSkill(
+      givenModelId,
+      givenOccupationId,
+      givenSkillId,
+      OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE,
+      SignallingValueLabel.HIGH,
+      0
+    );
+
+    expect(result.id).toEqual(givenSkillId);
+    expect(result.relationType).toEqual(OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE);
+    expect(result.signallingValue).toEqual(0);
+    expect(relationRepositoryMock.relationModel.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        signallingValue: 0,
+      }),
+      expect.anything()
+    );
+  });
+
   test("should throw OCCUPATION_NOT_FOUND when requiring occupation is not found", async () => {
     const mockChildDoc = {
       exec: jest.fn().mockResolvedValue(null),

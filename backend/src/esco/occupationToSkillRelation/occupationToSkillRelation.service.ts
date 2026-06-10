@@ -94,7 +94,7 @@ export class OccupationToSkillRelationService implements IOccupationToSkillRelat
           requiredSkillDocModel: MongooseModelName.Skill,
           relationType: relationType as unknown as OccupationToSkillRelationType,
           signallingValueLabel: signallingValueLabel as unknown as SignallingValueLabel,
-          signallingValue: signallingValue || null,
+          signallingValue: signallingValue,
         },
         { upsert: true, new: true }
       ).exec();
@@ -106,7 +106,7 @@ export class OccupationToSkillRelationService implements IOccupationToSkillRelat
       return {
         ...skill.toObject(),
         relationType: relationType as unknown as OccupationToSkillRelationType,
-        signallingValue: signallingValue || null,
+        signallingValue: signallingValue,
         signallingValueLabel: signallingValueLabel as unknown as SignallingValueLabel,
       } as ISkillWithRelation;
     } catch (error: unknown) {
