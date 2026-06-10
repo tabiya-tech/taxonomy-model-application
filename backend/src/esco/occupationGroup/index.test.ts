@@ -11,6 +11,9 @@ jest.mock("./[id]/GET/index", () => ({ handler: jest.fn().mockResolvedValue({ st
 jest.mock("./[id]/parent/GET/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "GET_PARENT" }),
 }));
+jest.mock("./[id]/parent/POST/index", () => ({
+  handler: jest.fn().mockResolvedValue({ statusCode: 201, body: "POST_PARENT" }),
+}));
 jest.mock("./[id]/children/GET/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "GET_CHILDREN" }),
 }));
@@ -18,6 +21,7 @@ import { handler as getHandler } from "./GET/index";
 import { handler as postHandler } from "./POST/index";
 import { handler as getByIdHandler } from "./[id]/GET/index";
 import { handler as getParentHandler } from "./[id]/parent/GET/index";
+import { handler as postParentHandler } from "./[id]/parent/POST/index";
 import { handler as getChildrenHandler } from "./[id]/children/GET/index";
 describe("OccupationGroups Router", () => {
   beforeEach(() => {
@@ -25,10 +29,19 @@ describe("OccupationGroups Router", () => {
   });
 
   test("should route POST to postHandler", async () => {
-    const event = { httpMethod: HTTP_VERBS.POST } as APIGatewayProxyEvent;
+    const event = { httpMethod: HTTP_VERBS.POST, path: "/models/1/occupationGroups" } as APIGatewayProxyEvent;
     const response = await handler(event);
     expect(postHandler).toHaveBeenCalledWith(event);
     expect(response.body).toBe("POST");
+  });
+  test("should route POST parent to postParentHandler", async () => {
+    const event = {
+      httpMethod: HTTP_VERBS.POST,
+      path: "/models/1/occupationGroups/2/parent",
+    } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(postParentHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("POST_PARENT");
   });
   test("should route GET occupationGroups list to getHandler", async () => {
     const event = { httpMethod: HTTP_VERBS.GET, path: "/models/1/occupationGroups" } as APIGatewayProxyEvent;

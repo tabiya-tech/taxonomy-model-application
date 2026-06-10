@@ -106,6 +106,100 @@ describe("test the transformation of the IOccupationGroup -> IOccupationGroupRes
       })
     );
   });
+  test("should transform the IOccupationGroup to IOccupationGroupResponse With Group Children", () => {
+    const givenObject: IOccupationGroup = getIOccupationGroupMockData();
+    givenObject.children = [
+      {
+        id: "group-child-id",
+        UUID: "group-child-uuid",
+        code: "GCHILD",
+        preferredLabel: "Group Child",
+        objectType: ObjectTypes.ISCOGroup,
+      },
+    ];
+    const givenBasePath = "https://some/root/path";
+    const actual = transform(givenObject, givenBasePath);
+    expect(actual.children).toHaveLength(1);
+    expect(actual.children[0]).toEqual({
+      id: "group-child-id",
+      UUID: "group-child-uuid",
+      code: "GCHILD",
+      preferredLabel: "Group Child",
+      objectType: OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ISCOGroup,
+    });
+  });
+  test("should transform with LocalGroup type, parent, LocalGroup children, and empty UUIDHistory", () => {
+    const givenObject: IOccupationGroup = getIOccupationGroupMockData();
+    givenObject.groupType = ObjectTypes.LocalGroup;
+    givenObject.parent = {
+      id: "parent-id",
+      UUID: "parent-uuid",
+      code: "PARENT",
+      preferredLabel: "Parent Label",
+      objectType: ObjectTypes.LocalGroup,
+    };
+    givenObject.children = [
+      {
+        id: "lg-child-id",
+        UUID: "lg-child-uuid",
+        code: "LGCHILD",
+        preferredLabel: "Local Group Child",
+        objectType: ObjectTypes.LocalGroup,
+      },
+    ];
+    givenObject.UUIDHistory = [];
+    const givenBasePath = "https://some/root/path";
+    const actual = transform(givenObject, givenBasePath);
+    expect(actual.groupType).toBe(OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup);
+    expect(actual.parent).toEqual({
+      id: "parent-id",
+      UUID: "parent-uuid",
+      code: "PARENT",
+      preferredLabel: "Parent Label",
+      objectType: OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.LocalGroup,
+    });
+    expect(actual.children[0].objectType).toBe(OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup);
+    expect(actual.originUUID).toBe("");
+  });
+
+  test("should transform with ISCOGroup parent type", () => {
+    const givenObject: IOccupationGroup = getIOccupationGroupMockData();
+    givenObject.parent = {
+      id: "parent-id",
+      UUID: "parent-uuid",
+      code: "PARENT",
+      preferredLabel: "Parent Label",
+      objectType: ObjectTypes.ISCOGroup,
+    };
+    const givenBasePath = "https://some/root/path";
+    const actual = transform(givenObject, givenBasePath);
+    expect(actual.parent).toEqual({
+      id: "parent-id",
+      UUID: "parent-uuid",
+      code: "PARENT",
+      preferredLabel: "Parent Label",
+      objectType: OccupationGroupAPISpecs.Enums.Relations.Parent.ObjectTypes.ISCOGroup,
+    });
+  });
+  test("should transform with occupation children having LocalOccupation type", () => {
+    const givenObject: IOccupationGroup = getIOccupationGroupMockData();
+    givenObject.children = [
+      {
+        id: "occ-child-id",
+        UUID: "occ-child-uuid",
+        code: "OCC",
+        preferredLabel: "Occupation Child",
+        occupationType: ObjectTypes.LocalOccupation,
+        occupationGroupCode: "GRP",
+        isLocalized: true,
+      },
+    ];
+    const givenBasePath = "https://some/root/path";
+    const actual = transform(givenObject, givenBasePath);
+    expect(actual.children[0].objectType).toBe(
+      OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation
+    );
+  });
 });
 
 describe("test the transformChild of the IOccupationGroupChild -> IOccupationGroupChildResponse", () => {
@@ -149,5 +243,29 @@ describe("test the transformChild of the IOccupationGroupChild -> IOccupationGro
         originUUID: givenChild.UUIDHistory && givenChild.UUIDHistory.length > 0 ? givenChild.UUIDHistory.at(-1)! : "",
       })
     );
+  });
+
+  test("should transform a LocalGroup child", () => {
+    const givenChild: IOccupationGroupChild = getIOccupationGroupOccupationGroupTypedChildData();
+    givenChild.objectType = ObjectTypes.LocalGroup;
+    const givenBasePath = "https://some/root/path";
+    const actual = transformChild(givenChild, givenBasePath);
+    expect(actual.objectType).toBe(OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalGroup);
+  });
+
+  test("should transform an ESCOOccupation child", () => {
+    const givenChild: IOccupationGroupChild = getIOccupationGroupOccupationGroupTypedChildData();
+    givenChild.objectType = ObjectTypes.ESCOOccupation;
+    const givenBasePath = "https://some/root/path";
+    const actual = transformChild(givenChild, givenBasePath);
+    expect(actual.objectType).toBe(OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.ESCOOccupation);
+  });
+
+  test("should transform a LocalOccupation child", () => {
+    const givenChild: IOccupationGroupChild = getIOccupationGroupOccupationGroupTypedChildData();
+    givenChild.objectType = ObjectTypes.LocalOccupation;
+    const givenBasePath = "https://some/root/path";
+    const actual = transformChild(givenChild, givenBasePath);
+    expect(actual.objectType).toBe(OccupationGroupAPISpecs.Enums.Relations.Children.ObjectTypes.LocalOccupation);
   });
 });

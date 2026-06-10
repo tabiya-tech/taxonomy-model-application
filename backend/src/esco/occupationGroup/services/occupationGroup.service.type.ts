@@ -3,7 +3,8 @@ import {
   IOccupationGroup,
   ModelForOccupationGroupValidationErrorCode,
   IOccupationGroupChild,
-} from "../_shared/OccupationGroup.types";
+} from "esco/occupationGroup/_shared/OccupationGroup.types";
+import { ObjectTypes } from "esco/common/objectTypes";
 
 export class OccupationGroupModelValidationError extends Error {
   constructor(public code: ModelForOccupationGroupValidationErrorCode) {
@@ -13,6 +14,18 @@ export class OccupationGroupModelValidationError extends Error {
 
 export interface FindPaginatedFilter {
   root?: boolean;
+}
+
+export enum SetOccupationGroupParentErrorCode {
+  CHILD_NOT_FOUND,
+  PARENT_NOT_FOUND,
+  PARENT_CHILD_CODE_INCONSISTENT,
+}
+
+export class SetOccupationGroupParentError extends Error {
+  constructor(public code: SetOccupationGroupParentErrorCode) {
+    super();
+  }
 }
 
 export interface IOccupationGroupService {
@@ -77,4 +90,22 @@ export interface IOccupationGroupService {
    * @return {Promise<ModelForOccupationGroupValidationErrorCode | null>} - Returns null if valid, otherwise the error code
    */
   validateModelForOccupationGroup(modelId: string): Promise<ModelForOccupationGroupValidationErrorCode | null>;
+
+  /**
+   * Sets the parent for an occupation group by creating or updating a hierarchy entry.
+   * Throws OccupationGroupModelValidationError if model is invalid.
+   * Throws SetOccupationGroupParentError if child or parent is not found.
+   *
+   * @param params.childId - The ID of the child occupation group.
+   * @param params.parentId - The ID of the parent occupation group.
+   * @param params.parentType - The type of the parent occupation group.
+   * @param params.modelId - The model ID.
+   * @return {Promise<IOccupationGroup>} - A Promise that resolves to the parent occupation group.
+   */
+  setParent(params: {
+    childId: string;
+    parentId: string;
+    parentType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
+    modelId: string;
+  }): Promise<IOccupationGroup>;
 }

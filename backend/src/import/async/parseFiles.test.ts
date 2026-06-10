@@ -517,6 +517,7 @@ describe("Test the main async handler", () => {
         getHistory: jest.fn(),
         findParent: jest.fn(),
         findChildren: jest.fn().mockResolvedValue([]),
+        setParent: jest.fn().mockResolvedValue(undefined),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
 

@@ -59,6 +59,7 @@ describe("OccupationGroupListController", () => {
         findPaginated: jest.fn(),
         validateModelForOccupationGroup: jest.fn(),
         findChildren: jest.fn(),
+        setParent: jest.fn(),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
@@ -176,6 +177,7 @@ describe("OccupationGroupListController", () => {
       }),
       validateModelForOccupationGroup: jest.fn().mockResolvedValue(null),
       findChildren: jest.fn().mockResolvedValue([]),
+      setParent: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -360,6 +362,7 @@ describe("OccupationGroupListController", () => {
       findParent: jest.fn().mockResolvedValue(null),
       findPaginated: jest.fn(),
       findChildren: jest.fn(),
+      setParent: jest.fn(),
       validateModelForOccupationGroup: jest
         .fn()
         .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
@@ -403,6 +406,7 @@ describe("OccupationGroupListController", () => {
       findParent: jest.fn().mockResolvedValue(null),
       validateModelForOccupationGroup: jest.fn(),
       findChildren: jest.fn(),
+      setParent: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -458,6 +462,7 @@ describe("OccupationGroupListController", () => {
       getHistory: jest.fn().mockResolvedValue([]),
       findParent: jest.fn().mockResolvedValue(null),
       findChildren: jest.fn().mockResolvedValue([]),
+      setParent: jest.fn().mockResolvedValue(undefined),
     };
     jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
     const limit = 2;

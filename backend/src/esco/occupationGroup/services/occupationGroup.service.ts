@@ -2,6 +2,8 @@ import {
   FindPaginatedFilter,
   IOccupationGroupService,
   OccupationGroupModelValidationError,
+  SetOccupationGroupParentError,
+  SetOccupationGroupParentErrorCode,
 } from "./occupationGroup.service.type";
 import {
   ModelForOccupationGroupValidationErrorCode,
@@ -11,9 +13,14 @@ import {
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { IOccupationGroupRepository } from "esco/occupationGroup/repository/OccupationGroup.repository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { ObjectTypes } from "esco/common/objectTypes";
+import { IOccupationHierarchyRepository } from "../../occupationHierarchy/occupationHierarchyRepository";
 
 export class OccupationGroupService implements IOccupationGroupService {
-  constructor(private readonly occupationGroupRepository: IOccupationGroupRepository) {}
+  constructor(
+    private readonly occupationGroupRepository: IOccupationGroupRepository,
+    private occupationHierarchyRepository: IOccupationHierarchyRepository
+  ) {}
 
   async create(newOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId): Promise<IOccupationGroup> {
     // Validate model exists and is not released
@@ -65,6 +72,39 @@ export class OccupationGroupService implements IOccupationGroupService {
   }
   async findChildren(id: string): Promise<IOccupationGroupChild[]> {
     return await this.occupationGroupRepository.findChildren(id);
+  }
+
+  async setParent(params: {
+    childId: string;
+    parentId: string;
+    parentType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
+    modelId: string;
+  }): Promise<IOccupationGroup> {
+    const errorCode = await this.validateModelForOccupationGroup(params.modelId);
+    if (errorCode != null) {
+      throw new OccupationGroupModelValidationError(errorCode);
+    }
+
+    const child = await this.occupationGroupRepository.findById(params.childId);
+    if (!child || child.modelId !== params.modelId) {
+      throw new SetOccupationGroupParentError(SetOccupationGroupParentErrorCode.CHILD_NOT_FOUND);
+    }
+
+    const parent = await this.occupationGroupRepository.findById(params.parentId);
+    if (!parent || parent.modelId !== params.modelId) {
+      throw new SetOccupationGroupParentError(SetOccupationGroupParentErrorCode.PARENT_NOT_FOUND);
+    }
+
+    await this.occupationHierarchyRepository.createMany(params.modelId, [
+      {
+        childId: params.childId,
+        childType: child.groupType,
+        parentId: params.parentId,
+        parentType: params.parentType,
+      },
+    ]);
+
+    return parent;
   }
 
   async validateModelForOccupationGroup(modelId: string): Promise<ModelForOccupationGroupValidationErrorCode | null> {

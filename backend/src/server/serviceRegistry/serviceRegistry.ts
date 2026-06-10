@@ -74,7 +74,10 @@ export class ServiceRegistry {
   async initialize() {
     const repositoryRegistry = getRepositoryRegistry();
     this.occupation = new OccupationService(repositoryRegistry.occupation, repositoryRegistry.modelInfo);
-    this.occupationGroup = new OccupationGroupService(repositoryRegistry.OccupationGroup);
+    this.occupationGroup = new OccupationGroupService(
+      repositoryRegistry.OccupationGroup,
+      repositoryRegistry.occupationHierarchy
+    );
     this.skillGroup = new SkillGroupService(repositoryRegistry.skillGroup);
     this.skill = new SkillService(repositoryRegistry.skill, repositoryRegistry.modelInfo);
     this.occupationHierarchy = new OccupationHierarchyService(
