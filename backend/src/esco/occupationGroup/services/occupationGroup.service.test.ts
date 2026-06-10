@@ -1,12 +1,17 @@
 import { OccupationGroupService } from "./occupationGroup.service";
-import { IOccupationGroupService, OccupationGroupModelValidationError } from "./occupationGroup.service.type";
+import {
+  IOccupationGroupService,
+  OccupationGroupModelValidationError,
+  SetOccupationGroupParentError,
+} from "./occupationGroup.service.type";
 import {
   ModelForOccupationGroupValidationErrorCode,
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
   IOccupationGroupChild,
-} from "../_shared/OccupationGroup.types";
-import { IOccupationGroupRepository } from "../repository/OccupationGroup.repository";
+} from "esco/occupationGroup/_shared/OccupationGroup.types";
+import { IOccupationGroupRepository } from "esco/occupationGroup/repository/OccupationGroup.repository";
+import { IOccupationHierarchyRepository } from "esco/occupationHierarchy/occupationHierarchyRepository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -15,6 +20,7 @@ import { IModelInfo } from "modelInfo/modelInfo.types";
 import mongoose from "mongoose";
 import { getNewISCOGroupSpecsWithoutImportId } from "esco/_test_utilities/getNewSpecs";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
+import { getIOccupationGroupMockData } from "esco/occupationGroup/_shared/testDataHelper";
 
 // Mock the module at the top level
 jest.mock("server/repositoryRegistry/repositoryRegistry");
@@ -23,6 +29,7 @@ const mockGetRepositoryRegistry = getRepositoryRegistry as jest.MockedFunction<t
 describe("Test the OccupationGroupService", () => {
   let service: IOccupationGroupService;
   let mockRepository: jest.Mocked<IOccupationGroupRepository>;
+  let mockOccupationHierarchyRepository: jest.Mocked<IOccupationHierarchyRepository>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -41,7 +48,15 @@ describe("Test the OccupationGroupService", () => {
       getHistory: jest.fn(),
     } as unknown as jest.Mocked<IOccupationGroupRepository>;
 
-    service = new OccupationGroupService(mockRepository);
+    mockOccupationHierarchyRepository = {
+      hierarchyModel: undefined as never,
+      occupationGroupModel: undefined as never,
+      occupationModel: undefined as never,
+      createMany: jest.fn(),
+      findAll: jest.fn(),
+    } as unknown as jest.Mocked<IOccupationHierarchyRepository>;
+
+    service = new OccupationGroupService(mockRepository, mockOccupationHierarchyRepository);
   });
 
   afterAll(() => {
@@ -681,6 +696,181 @@ describe("Test the OccupationGroupService", () => {
 
       // Restore console.error
       consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe("setParent", () => {
+    beforeEach(() => {
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: "model-id",
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+    });
+
+    test("should successfully set parent and return it", async () => {
+      const givenChildId = getMockStringId(1);
+      const givenParentId = getMockStringId(2);
+      const givenModelId = "model-id";
+      const givenParentType = ObjectTypes.ISCOGroup;
+
+      const mockChild: IOccupationGroup = {
+        ...getIOccupationGroupMockData(1),
+        id: givenChildId,
+        modelId: givenModelId,
+        groupType: ObjectTypes.ISCOGroup,
+      };
+      const mockParent: IOccupationGroup = {
+        ...getIOccupationGroupMockData(2),
+        id: givenParentId,
+        modelId: givenModelId,
+      };
+
+      mockRepository.findById.mockResolvedValueOnce(mockChild);
+      mockRepository.findById.mockResolvedValueOnce(mockParent);
+      mockOccupationHierarchyRepository.createMany.mockResolvedValue([]);
+
+      const actual = await service.setParent({
+        childId: givenChildId,
+        parentId: givenParentId,
+        parentType: givenParentType,
+        modelId: givenModelId,
+      });
+
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenChildId);
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenParentId);
+      expect(mockOccupationHierarchyRepository.createMany).toHaveBeenCalledWith(givenModelId, [
+        {
+          childId: givenChildId,
+          childType: mockChild.groupType,
+          parentId: givenParentId,
+          parentType: givenParentType,
+        },
+      ]);
+      expect(actual).toEqual(mockParent);
+    });
+
+    test("should throw OccupationGroupModelValidationError when model validation fails", async () => {
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue(null),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      await expect(
+        service.setParent({
+          childId: getMockStringId(1),
+          parentId: getMockStringId(2),
+          parentType: ObjectTypes.ISCOGroup,
+          modelId: "invalid-model",
+        })
+      ).rejects.toThrow(OccupationGroupModelValidationError);
+    });
+
+    test("should throw SetOccupationGroupParentError when child is not found", async () => {
+      mockRepository.findById.mockResolvedValue(null);
+
+      await expect(
+        service.setParent({
+          childId: getMockStringId(1),
+          parentId: getMockStringId(2),
+          parentType: ObjectTypes.ISCOGroup,
+          modelId: "model-id",
+        })
+      ).rejects.toThrow(SetOccupationGroupParentError);
+    });
+
+    test("should throw SetOccupationGroupParentError when child modelId does not match", async () => {
+      const mockChild: IOccupationGroup = {
+        ...getIOccupationGroupMockData(1),
+        modelId: "different-model",
+      };
+      mockRepository.findById.mockResolvedValue(mockChild);
+
+      await expect(
+        service.setParent({
+          childId: getMockStringId(1),
+          parentId: getMockStringId(2),
+          parentType: ObjectTypes.ISCOGroup,
+          modelId: "model-id",
+        })
+      ).rejects.toThrow(SetOccupationGroupParentError);
+    });
+
+    test("should throw SetOccupationGroupParentError when parent is not found", async () => {
+      const givenChildId = getMockStringId(1);
+      const mockChild: IOccupationGroup = {
+        ...getIOccupationGroupMockData(1),
+        id: givenChildId,
+        modelId: "model-id",
+      };
+      mockRepository.findById.mockResolvedValueOnce(mockChild);
+      mockRepository.findById.mockResolvedValueOnce(null);
+
+      await expect(
+        service.setParent({
+          childId: givenChildId,
+          parentId: getMockStringId(2),
+          parentType: ObjectTypes.ISCOGroup,
+          modelId: "model-id",
+        })
+      ).rejects.toThrow(SetOccupationGroupParentError);
+    });
+
+    test("should throw SetOccupationGroupParentError when parent modelId does not match", async () => {
+      const givenChildId = getMockStringId(1);
+      const givenParentId = getMockStringId(2);
+      const mockChild: IOccupationGroup = {
+        ...getIOccupationGroupMockData(1),
+        id: givenChildId,
+        modelId: "model-id",
+      };
+      const mockParent: IOccupationGroup = {
+        ...getIOccupationGroupMockData(2),
+        id: givenParentId,
+        modelId: "different-model",
+      };
+      mockRepository.findById.mockResolvedValueOnce(mockChild);
+      mockRepository.findById.mockResolvedValueOnce(mockParent);
+
+      await expect(
+        service.setParent({
+          childId: givenChildId,
+          parentId: givenParentId,
+          parentType: ObjectTypes.ISCOGroup,
+          modelId: "model-id",
+        })
+      ).rejects.toThrow(SetOccupationGroupParentError);
+    });
+
+    test("should throw when occupationHierarchyRepository.createMany fails", async () => {
+      const givenChildId = getMockStringId(1);
+      const givenParentId = getMockStringId(2);
+      const mockChild: IOccupationGroup = {
+        ...getIOccupationGroupMockData(1),
+        id: givenChildId,
+        modelId: "model-id",
+      };
+      const mockParent: IOccupationGroup = {
+        ...getIOccupationGroupMockData(2),
+        id: givenParentId,
+        modelId: "model-id",
+      };
+      mockRepository.findById.mockResolvedValueOnce(mockChild);
+      mockRepository.findById.mockResolvedValueOnce(mockParent);
+      mockOccupationHierarchyRepository.createMany.mockRejectedValue(new Error("DB error"));
+
+      await expect(
+        service.setParent({
+          childId: givenChildId,
+          parentId: givenParentId,
+          parentType: ObjectTypes.ISCOGroup,
+          modelId: "model-id",
+        })
+      ).rejects.toThrow("DB error");
     });
   });
 });

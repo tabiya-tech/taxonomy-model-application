@@ -48,6 +48,7 @@ delete OccupationGroup.GET.Schemas.Request.Query.Payload.$id;
 delete OccupationGroup.OccupationGroup.Schemas.Request.Param.Payload.$id;
 delete OccupationGroup.OccupationGroup.GET.Schemas.Response.Payload.$id;
 delete OccupationGroup.OccupationGroup.GET.Schemas.Response.Payload.$id;
+delete OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload.$id;
 delete OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Child.Payload.$id;
 delete OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Children.Payload.$id;
 delete Occupation.POST.Schemas.Request.Payload.$id;
@@ -407,6 +408,7 @@ function getOpenAPISpecification(
           OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.GET.Schemas.Request.Query.Payload,
           OccupationGroupResponseSchemaGET: OccupationGroup.GET.Schemas.Response.Payload,
           OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.OccupationGroup.Schemas.Request.Param.Payload,
+          OccupationGroupParentRequestSchemaPOST: OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload,
           OccupationRequestSchemaPOST: Occupation.POST.Schemas.Request.Payload,
           OccupationResponseSchemaPOST: Occupation.POST.Schemas.Response.Payload,
           OccupationRequestParamSchemaGET: Occupation.GET.Schemas.Request.Param.Payload,

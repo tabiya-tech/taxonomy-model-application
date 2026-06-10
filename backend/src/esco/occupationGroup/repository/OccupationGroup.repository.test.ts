@@ -1735,6 +1735,20 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       expect(page1[0].id).toBe(given_occupation_group3.id);
     });
 
+    test("should support ascending sort order with cursor pagination", async () => {
+      const givenModelId = getMockStringId(9998);
+      const givenOccupationGroup1 = await repository.create(getSimpleNewLocalGroupSpec(givenModelId, "first"));
+      const givenOccupationGroup2 = await repository.create(getSimpleNewLocalGroupSpec(givenModelId, "second"));
+
+      const firstPage = await repository.findPaginated(givenModelId, 1, 1);
+      expect(firstPage).toHaveLength(1);
+      expect(firstPage[0].id).toBe(givenOccupationGroup1.id);
+
+      const secondPage = await repository.findPaginated(givenModelId, 1, 1, firstPage[0].id);
+      expect(secondPage).toHaveLength(1);
+      expect(secondPage[0].id).toBe(givenOccupationGroup2.id);
+    });
+
     test("should warn and ignore invalid cursor", async () => {
       // GIVEN a unique modelId and some occupation groups
       const givenModelId = getMockStringId(999); // Use a unique modelId to avoid conflicts

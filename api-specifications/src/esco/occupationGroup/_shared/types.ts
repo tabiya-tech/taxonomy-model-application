@@ -34,6 +34,11 @@ export interface IOccupationGroupResponse {
   updatedAt: string;
 }
 
+export interface IOccupationGroupPOSTParentRequest {
+  id: string;
+  objectType: OccupationGroupEnums.Relations.Parent.ObjectTypes;
+}
+
 export interface IOccupationGroupChildResponse {
   id: string;
   parentId: string;
