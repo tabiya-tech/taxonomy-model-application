@@ -11,6 +11,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     "DESCRIPTION_MAX_LENGTH": 6000,
     "MAX_CURSOR_LENGTH": 1024,
     "MAX_LIMIT": 100,
+    "MAX_PAYLOAD_LENGTH": 1000,
     "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
     "ORIGIN_URI_MAX_LENGTH": 4096,
     "PATH_URI_MAX_LENGTH": 4096,
@@ -772,6 +773,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "DESCRIPTION_MAX_LENGTH": 6000,
         "MAX_CURSOR_LENGTH": 1024,
         "MAX_LIMIT": 100,
+        "MAX_PAYLOAD_LENGTH": 1000,
         "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
         "ORIGIN_URI_MAX_LENGTH": 4096,
         "PATH_URI_MAX_LENGTH": 4096,
@@ -1498,6 +1500,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
       "DESCRIPTION_MAX_LENGTH": 6000,
       "MAX_CURSOR_LENGTH": 1024,
       "MAX_LIMIT": 100,
+      "MAX_PAYLOAD_LENGTH": 1000,
       "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
       "ORIGIN_URI_MAX_LENGTH": 4096,
       "PATH_URI_MAX_LENGTH": 4096,
@@ -1584,6 +1587,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "DESCRIPTION_MAX_LENGTH": 6000,
         "MAX_CURSOR_LENGTH": 1024,
         "MAX_LIMIT": 100,
+        "MAX_PAYLOAD_LENGTH": 1000,
         "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
         "ORIGIN_URI_MAX_LENGTH": 4096,
         "PATH_URI_MAX_LENGTH": 4096,
@@ -2614,7 +2618,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
           },
           "Response": {
             "Payload": {
-              "$id": "/components/schemas/OccupationResponseSchemaGETParent",
+              "$id": "/components/schemas/OccupationParentResponseSchemaPOST",
               "anyOf": [
                 {
                   "additionalProperties": false,
@@ -3571,6 +3575,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "DESCRIPTION_MAX_LENGTH": 6000,
         "MAX_CURSOR_LENGTH": 1024,
         "MAX_LIMIT": 100,
+        "MAX_PAYLOAD_LENGTH": 1000,
         "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
         "ORIGIN_URI_MAX_LENGTH": 4096,
         "PATH_URI_MAX_LENGTH": 4096,
@@ -4293,6 +4298,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                   "type": "string",
                 },
                 "signallingValue": {
+                  "maximum": 100,
                   "minimum": 0,
                   "type": [
                     "number",
@@ -4317,7 +4323,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
           },
           "Response": {
             "Payload": {
-              "$id": "/components/schemas/OccupationSkillItem",
+              "$id": "/components/schemas/OccupationSkillItemResponseSchemaPOST",
               "additionalProperties": false,
               "properties": {
                 "UUID": {

@@ -1,7 +1,7 @@
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { transform as transformSkill } from "esco/skill/_shared/transform";
-import { transformSkillRelationType } from "../../../_shared/transform";
-import { ISkillWithRelation } from "../../../services/occupation.service.types";
+import { transformSkillRelationType } from "esco/occupations/_shared/transform";
+import { ISkillWithRelation } from "esco/occupations/services/occupation.service.types";
 
 export function transformOccupationSkill(
   skillData: ISkillWithRelation,

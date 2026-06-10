@@ -15,9 +15,9 @@ export function parseAndValidatePOSTRequest(
     return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR("Body is empty");
   }
 
-  if (event.body.length > OccupationAPISpecs.POST.Constants.MAX_POST_PAYLOAD_LENGTH) {
+  if (event.body.length > OccupationAPISpecs.Constants.MAX_PAYLOAD_LENGTH) {
     return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(
-      `Expected maximum length is ${OccupationAPISpecs.POST.Constants.MAX_POST_PAYLOAD_LENGTH}`
+      `Expected maximum length is ${OccupationAPISpecs.Constants.MAX_PAYLOAD_LENGTH}`
     );
   }
 

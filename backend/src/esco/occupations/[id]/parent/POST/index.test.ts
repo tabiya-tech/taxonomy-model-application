@@ -177,14 +177,14 @@ describe("Test for occupation Parent POST handler", () => {
     });
 
     test("should respond with TOO_LARGE_PAYLOAD when body is too long", async () => {
-      const givenModelId = getMockStringId(1);
-      const givenOccupationId = getMockStringId(2);
+      const RouterModelId = () => getMockStringId(1);
+      const RouterOccupationId = () => getMockStringId(2);
       const givenEvent = {
         httpMethod: "POST",
-        path: `/models/${givenModelId}/occupations/${givenOccupationId}/parent`,
-        pathParameters: { modelId: givenModelId, id: givenOccupationId },
+        path: `/models/${RouterModelId()}/occupations/${RouterOccupationId()}/parent`,
+        pathParameters: { modelId: RouterModelId(), id: RouterOccupationId() },
         headers: { "Content-Type": "application/json" },
-        body: "a".repeat(OccupationAPISpecs.POST.Constants.MAX_POST_PAYLOAD_LENGTH + 1),
+        body: "a".repeat(OccupationAPISpecs.Constants.MAX_PAYLOAD_LENGTH + 1),
       } as unknown as APIGatewayProxyEvent;
 
       const actualResponse = await postOccupationParentHandler(givenEvent);

@@ -1,8 +1,7 @@
 import POSTOccupationSkillsErrors from "./enums";
 import SchemaPOSTRequest from "./schema.request";
 import POSTOccupationSkillsTypes from "./types";
-import OccupationTypes from "../../../_shared/types";
-import SchemaGETSkillsResponse from "../GET/schema.response";
+import SchemaPOSTResponse from "./schema.response";
 
 namespace Detail.skills.POSTOperation {
   export namespace Schemas {
@@ -10,7 +9,7 @@ namespace Detail.skills.POSTOperation {
       export const Payload = SchemaPOSTRequest;
     }
     export namespace Response {
-      export const Payload = (SchemaGETSkillsResponse.properties as any).data.items;
+      export const Payload = SchemaPOSTResponse;
     }
   }
   export namespace Types {
@@ -18,7 +17,7 @@ namespace Detail.skills.POSTOperation {
       export type Payload = POSTOccupationSkillsTypes.Request.Payload;
     }
     export namespace Response {
-      export type Payload = OccupationTypes.Detail.skills.GET.Response.SkillItem;
+      export type Payload = POSTOccupationSkillsTypes.Response.Payload;
     }
   }
   export import Errors = POSTOccupationSkillsErrors;

@@ -16,6 +16,7 @@ import {
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.service.types";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { extractAndValidateIdParams } from "esco/occupations/_shared/params";
+import { SignallingValueLabel } from "esco/common/objectTypes";
 
 export class OccupationSkillsPostController {
   /**
@@ -136,8 +137,8 @@ export class OccupationSkillsPostController {
           params.modelId,
           params.id,
           payload.requiredSkillId,
-          payload.relationType ?? "",
-          payload.signallingValueLabel ?? "",
+          payload.relationType ?? OccupationAPISpecs.Enums.OccupationToSkillRelationType.NONE,
+          payload.signallingValueLabel ?? SignallingValueLabel.NONE,
           payload.signallingValue ?? null
         );
       } catch (error: unknown) {

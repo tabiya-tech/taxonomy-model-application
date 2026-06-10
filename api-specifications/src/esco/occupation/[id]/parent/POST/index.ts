@@ -1,8 +1,7 @@
 import POSTOccupationParentErrors from "./enums";
 import SchemaPOSTRequest from "./schema.request";
 import POSTOccupationParentTypes from "./types";
-import OccupationTypes from "../../../_shared/types";
-import SchemaGETParentResponse from "../GET/schema.response";
+import SchemaPOSTResponse from "./schema.response";
 
 namespace Detail.parent.POSTOperation {
   export namespace Schemas {
@@ -10,7 +9,7 @@ namespace Detail.parent.POSTOperation {
       export const Payload = SchemaPOSTRequest;
     }
     export namespace Response {
-      export const Payload = SchemaGETParentResponse;
+      export const Payload = SchemaPOSTResponse;
     }
   }
   export namespace Types {
@@ -18,7 +17,7 @@ namespace Detail.parent.POSTOperation {
       export type Payload = POSTOccupationParentTypes.Request.Payload;
     }
     export namespace Response {
-      export type Payload = OccupationTypes.Detail.parent.GET.Response.Payload;
+      export type Payload = POSTOccupationParentTypes.Response.Payload;
     }
   }
   export import Errors = POSTOccupationParentErrors;

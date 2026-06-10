@@ -286,7 +286,7 @@ describe("Test for occupation Skills POST handler", () => {
         path: `/models/${givenModelId}/occupations/${givenOccupationId}/skills`,
         pathParameters: { modelId: RouterModelId(), id: RouterOccupationId() },
         headers: { "Content-Type": "application/json" },
-        body: "a".repeat(OccupationAPISpecs.POST.Constants.MAX_POST_PAYLOAD_LENGTH + 1),
+        body: "a".repeat(OccupationAPISpecs.Constants.MAX_PAYLOAD_LENGTH + 1),
       } as unknown as APIGatewayProxyEvent;
 
       const actualResponse = await postOccupationSkillsHandler(givenEvent);
