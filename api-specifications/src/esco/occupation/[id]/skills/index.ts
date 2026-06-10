@@ -4,6 +4,7 @@ import OccupationTypes from "../../_shared/types";
 import OccupationRegexes from "../../_shared/regex";
 
 import GETOccupationSkillsOperation from "./GET";
+import POSTOccupationSkillsOperation from "./POST";
 
 namespace OccupationSkillsAPISpecs {
   export import Constants = OccupationConstants;
@@ -12,6 +13,7 @@ namespace OccupationSkillsAPISpecs {
   export import Patterns = OccupationRegexes;
 
   export import GET = GETOccupationSkillsOperation;
+  export import POST = POSTOccupationSkillsOperation;
 }
 
 export default OccupationSkillsAPISpecs;

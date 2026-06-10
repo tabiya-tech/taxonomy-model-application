@@ -1,0 +1,148 @@
+import { APIGatewayProxyEvent } from "aws-lambda";
+import "_test_utilities/consoleMock";
+import Ajv, { ValidateFunction } from "ajv";
+import { randomUUID } from "node:crypto";
+import { Connection } from "mongoose";
+import OccupationAPISpecs from "api-specifications/esco/occupation";
+import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
+import { handler } from "./index";
+import addFormats from "ajv-formats";
+import { initOnce } from "server/init";
+import { getConnectionManager } from "server/connection/connectionManager";
+import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
+import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { ObjectTypes } from "esco/common/objectTypes";
+import { usersRequestContext } from "_test_utilities/dataModel";
+
+describe("Test for occupation Parent POST handler with a DB", () => {
+  const ajv = new Ajv({
+    validateSchema: true,
+    strict: true,
+    allErrors: true,
+  });
+  addFormats(ajv);
+  ajv.addSchema(OccupationAPISpecs.POST.Schemas.Response.Payload); // Base schema
+  ajv.addSchema(OccupationAPISpecs.Occupation.Parent.POST.Schemas.Response.Payload); // Parent GET response schema
+
+  const validateParentResponse: ValidateFunction = ajv.getSchema(
+    OccupationAPISpecs.Occupation.Parent.POST.Schemas.Response.Payload.$id as string
+  ) as ValidateFunction;
+
+  let dbConnection: Connection | undefined;
+  beforeAll(async () => {
+    const config = getTestConfiguration("OccupationParentPOSTHandlerTestDB");
+    const configModule = await import("server/config/config");
+    jest.spyOn(configModule, "readEnvironmentConfiguration").mockReturnValue(config);
+    await initOnce();
+    dbConnection = getConnectionManager().getCurrentDBConnection();
+  });
+
+  afterAll(async () => {
+    if (dbConnection) {
+      await dbConnection.dropDatabase();
+      await dbConnection.close();
+    }
+  });
+
+  beforeEach(async () => {
+    if (dbConnection) {
+      await dbConnection.models.OccupationModel.deleteMany({});
+      await dbConnection.models.OccupationHierarchyModel.deleteMany({});
+    }
+  });
+
+  test("POST should respond with the FORBIDDEN status code if the user is not a model manager", async () => {
+    const givenModelId = randomUUID();
+    const childId = randomUUID();
+    const parentId = randomUUID();
+    const payload = {
+      id: parentId,
+      objectType: ObjectTypes.ESCOOccupation,
+    };
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.POST,
+      path: `/models/${givenModelId}/occupations/${childId}/parent`,
+      pathParameters: { modelId: givenModelId, id: childId },
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      requestContext: usersRequestContext.REGISTED_USER,
+    };
+    const actualResponse = await handler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(actualResponse.statusCode).toEqual(StatusCodes.FORBIDDEN);
+  });
+
+  test("POST should respond with CREATED status code and correctly establish child-parent link in DB", async () => {
+    const givenModel = await getRepositoryRegistry().modelInfo.create({
+      name: "Test Model",
+      description: "Test Description",
+      locale: { shortCode: "en", name: "English", UUID: randomUUID() },
+      license: "MIT",
+      UUIDHistory: [],
+    });
+    const givenModelId = givenModel.id;
+    const repository = getRepositoryRegistry().occupation;
+
+    const givenParent = await repository.create({
+      modelId: givenModelId,
+      code: "1234.1",
+      preferredLabel: "Parent",
+      occupationType: ObjectTypes.ESCOOccupation,
+      originUri: "http://example.com/parent",
+      UUIDHistory: [randomUUID()],
+      isLocalized: false,
+      description: "parent description",
+      occupationGroupCode: "1234",
+      altLabels: [],
+      definition: "parent definition",
+      scopeNote: "parent scopeNote",
+      regulatedProfessionNote: "parent regulatedProfessionNote",
+    });
+
+    const givenChild = await repository.create({
+      modelId: givenModelId,
+      code: "1234.1.1",
+      preferredLabel: "Child",
+      occupationType: ObjectTypes.ESCOOccupation,
+      originUri: "http://example.com/child",
+      UUIDHistory: [randomUUID()],
+      isLocalized: false,
+      description: "child description",
+      occupationGroupCode: "1234",
+      altLabels: [],
+      definition: "child definition",
+      scopeNote: "child scopeNote",
+      regulatedProfessionNote: "child regulatedProfessionNote",
+    });
+
+    const payload = {
+      id: givenParent.id,
+      objectType: ObjectTypes.ESCOOccupation,
+    };
+
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.POST,
+      path: `/models/${givenModelId}/occupations/${givenChild.id}/parent`,
+      pathParameters: { modelId: givenModelId, id: givenChild.id },
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      requestContext: usersRequestContext.MODEL_MANAGER,
+    };
+
+    const actualResponse = await handler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
+    expect(validateParentResponse(JSON.parse(actualResponse.body))).toBeTruthy();
+    expect(JSON.parse(actualResponse.body).id).toEqual(givenParent.id);
+
+    // Verify it actually saved to DB
+    const cursor = getRepositoryRegistry().occupationHierarchy.findAll(givenModelId);
+    const results: { childId: string; parentId: string }[] = [];
+    for await (const chunk of cursor) {
+      results.push(chunk);
+    }
+    expect(results).toHaveLength(1);
+    expect(results[0].childId.toString()).toEqual(givenChild.id);
+    expect(results[0].parentId.toString()).toEqual(givenParent.id);
+  });
+});
