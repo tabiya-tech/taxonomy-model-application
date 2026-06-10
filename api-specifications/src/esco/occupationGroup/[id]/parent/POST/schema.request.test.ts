@@ -1,22 +1,16 @@
 import {
-  testStringField,
-  testNonEmptyStringField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
   testObjectIdField,
-  testUUIDArray,
-  testNonEmptyURIStringField,
 } from "_test_utilities/stdSchemaTests";
 
 import { randomUUID } from "crypto";
-import { getTestString } from "_test_utilities/specialCharacters";
 import { CaseType, assertCaseForProperty, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 
 import OccupationGroupPOSTParentAPISpecs from "./index";
 import { getMockId } from "_test_utilities/mockMongoId";
 import OccupationGroupParentEnums from "./enums";
-import OccupationGroupRegexes from "../../../_shared/regex";
 
 describe("Test OccupationGroupPOSTParentAPISpecs.Schemas.Request.Payload validity", () => {
   // WHEN the OccupationGroupPOSTParentAPISpecs.Schemas.Request.Payload schema
