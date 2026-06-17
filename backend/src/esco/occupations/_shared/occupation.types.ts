@@ -18,6 +18,15 @@ export interface ISkillWithRelation extends ISkill {
 }
 
 /**
+ * Describes an occupation with its relationship metadata to a skill.
+ */
+export interface IOccupationWithRelation extends IOccupation {
+  relationType: OccupationToSkillRelationType;
+  signallingValue: number | null;
+  signallingValueLabel: SignallingValueLabel;
+}
+
+/**
  * Describes how an occupation is saved in MongoDB
  */
 export interface IOccupationDoc extends ImportIdentifiable {

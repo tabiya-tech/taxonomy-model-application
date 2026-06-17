@@ -304,4 +304,91 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
       )
     ).rejects.toThrow(new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_RELATION_TYPE));
   });
+
+  describe("addOccupation", () => {
+    test("should successfully add ESCO skill relationship", async () => {
+      const mockOccupation = getIOccupationMockData();
+      const mockSkill = getISkillMockData(1, mockOccupation.modelId);
+      occupationRepositoryMock.findById.mockResolvedValue(mockOccupation);
+      skillRepositoryMock.findById.mockResolvedValue(mockSkill);
+      relationRepositoryMock.createMany.mockResolvedValue([{}]);
+
+      const result = await service.addOccupation(
+        mockOccupation.modelId,
+        mockSkill.id,
+        mockOccupation.id,
+        OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL as unknown as OccupationToSkillRelationType,
+        SignallingValueLabel.NONE,
+        null
+      );
+
+      expect(result).toMatchObject({
+        ...mockOccupation,
+        relationType: OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+        signallingValue: null,
+      });
+
+      expect(relationRepositoryMock.createMany).toHaveBeenCalledWith(mockOccupation.modelId, [
+        {
+          requiringOccupationId: mockOccupation.id,
+          requiringOccupationType: mockOccupation.occupationType,
+          requiredSkillId: mockSkill.id,
+          relationType: OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValueLabel.NONE,
+          signallingValue: null,
+        },
+      ]);
+    });
+
+    test("should throw INVALID_RELATION_TYPE when createMany returns empty array", async () => {
+      occupationRepositoryMock.findById.mockResolvedValue({
+        modelId: getMockStringId(1),
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+      skillRepositoryMock.findById.mockResolvedValue({
+        modelId: getMockStringId(1),
+      });
+      relationRepositoryMock.createMany.mockResolvedValue([]);
+
+      await expect(
+        service.addOccupation(
+          getMockStringId(1),
+          getMockStringId(2),
+          getMockStringId(3),
+          OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL as unknown as OccupationToSkillRelationType,
+          SignallingValueLabel.NONE,
+          null
+        )
+      ).rejects.toThrow(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_RELATION_TYPE)
+      );
+    });
+
+    test("should throw DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION when createMany fails with non-validation error", async () => {
+      occupationRepositoryMock.findById.mockResolvedValue({
+        modelId: getMockStringId(1),
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+      skillRepositoryMock.findById.mockResolvedValue({
+        modelId: getMockStringId(1),
+      });
+      relationRepositoryMock.createMany.mockRejectedValue(new Error("Database error"));
+
+      await expect(
+        service.addOccupation(
+          getMockStringId(1),
+          getMockStringId(2),
+          getMockStringId(3),
+          OccupationAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL as unknown as OccupationToSkillRelationType,
+          SignallingValueLabel.NONE,
+          null
+        )
+      ).rejects.toThrow(
+        new OccupationSkillValidationError(
+          SkillForOccupationValidationErrorCode.DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION
+        )
+      );
+    });
+  });
 });

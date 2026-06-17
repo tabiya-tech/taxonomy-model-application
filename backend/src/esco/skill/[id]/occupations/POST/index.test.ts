@@ -10,19 +10,22 @@ import { usersRequestContext } from "_test_utilities/dataModel";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupation } from "../../../../occupations/_shared/occupation.types";
 import { getIOccupationMockData } from "../../../../occupations/_shared/testDataHelper";
-import { ISkill } from "esco/skill/_shared/skill.types";
-import { getISkillMockData } from "esco/skill/_shared/testDataHelper";
 import { ISkillService } from "esco/skill/services/skill.service.types";
 import { ModelForSkillValidationErrorCode } from "esco/skill/_shared/skill.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import { SignallingValueLabel } from "esco/common/objectTypes";
+import {
+  OccupationSkillValidationError,
+  SkillForOccupationValidationErrorCode,
+} from "esco/occupationToSkillRelation/occupationToSkillRelation.service.types";
+import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
 
-const transformSkillOccupationSpy = jest.spyOn(transformModule, "transformSkillOccupation");
+jest.spyOn(transformModule, "transformSkillOccupation");
 
 // Mock service registry
 jest.mock("server/serviceRegistry/serviceRegistry");
@@ -40,6 +43,9 @@ describe("Test for skill Occupations POST handler", () => {
       skill: {
         validateModelForSkill: jest.fn(),
       } as unknown as ISkillService,
+      occupationToSkillRelation: {
+        addOccupation: jest.fn(),
+      },
       initialize: jest.fn(),
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
@@ -103,39 +109,21 @@ describe("Test for skill Occupations POST handler", () => {
 
       checkRole.mockResolvedValue(true);
 
-      // Mock validateModelForSkill success
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      // Mock child findOne
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = givenSkillId;
-      mockChild._id = givenSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockOccupation = getIOccupationMockData(2) as IOccupation & { _id?: string; toObject?: jest.Mock };
+      const mockOccupation = getIOccupationMockData(2) as IOccupation;
       mockOccupation.id = givenOccupationId;
-      mockOccupation._id = givenOccupationId;
       mockOccupation.occupationType = ObjectTypes.ESCOOccupation;
-      mockOccupation.toObject = jest.fn().mockReturnValue(mockOccupation);
 
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockChild),
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockResolvedValue({
+        ...mockOccupation,
+        relationType: OccupationToSkillRelationType.ESSENTIAL,
+        signallingValue: null,
+        signallingValueLabel: SignallingValueLabel.NONE,
       });
 
-      const mockOccupationModel = mockGetRepositoryRegistry().occupation.Model;
-      (mockOccupationModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockOccupation),
-      });
-
-      // Mock findOneAndUpdate
-      const mockRelationModel = mockGetRepositoryRegistry().occupationToSkillRelation.relationModel;
-      (mockRelationModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue({}),
-      });
-
-      // Invoke handler
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
@@ -145,14 +133,9 @@ describe("Test for skill Occupations POST handler", () => {
         }),
         givenResourcesBaseUrl
       );
-      expect(JSON.parse(actualResponse.body)).toMatchObject({
-        ...transformSkillOccupationSpy.mock.results[0].value,
-        relationType: "essential",
-        signallingValueLabel: null,
-      });
     });
 
-    test("should respond with CREATED status code and transformed occupation for valid Local Occupation input with relationType", async () => {
+    test("should respond with CREATED status code for valid Local Occupation input with relationType", async () => {
       const givenModelId = getMockStringId(1);
       const givenSkillId = getMockStringId(2);
       const givenOccupationId = getMockStringId(3);
@@ -172,47 +155,26 @@ describe("Test for skill Occupations POST handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       checkRole.mockResolvedValue(true);
-
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = givenSkillId;
-      mockChild._id = givenSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockOccupation = getIOccupationMockData(2) as IOccupation & { _id?: string; toObject?: jest.Mock };
+      const mockOccupation = getIOccupationMockData(2) as IOccupation;
       mockOccupation.id = givenOccupationId;
-      mockOccupation._id = givenOccupationId;
       mockOccupation.occupationType = ObjectTypes.LocalOccupation;
-      mockOccupation.toObject = jest.fn().mockReturnValue(mockOccupation);
 
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockChild),
-      });
-
-      const mockOccupationModel = mockGetRepositoryRegistry().occupation.Model;
-      (mockOccupationModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockOccupation),
-      });
-
-      const mockRelationModel = mockGetRepositoryRegistry().occupationToSkillRelation.relationModel;
-      (mockRelationModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue({}),
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockResolvedValue({
+        ...mockOccupation,
+        relationType: OccupationToSkillRelationType.OPTIONAL,
+        signallingValue: null,
+        signallingValueLabel: SignallingValueLabel.NONE,
       });
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
-
       expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
-      expect(JSON.parse(actualResponse.body)).toMatchObject({
-        ...transformSkillOccupationSpy.mock.results[0].value,
-        relationType: "optional",
-        signallingValueLabel: null,
-      });
     });
 
-    test("should respond with CREATED status code and transformed occupation for valid Local Occupation input with signalling value", async () => {
+    test("should respond with CREATED status code for valid Local Occupation input with signalling value", async () => {
       const givenModelId = getMockStringId(1);
       const givenSkillId = getMockStringId(2);
       const givenOccupationId = getMockStringId(3);
@@ -233,45 +195,23 @@ describe("Test for skill Occupations POST handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       checkRole.mockResolvedValue(true);
-
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = givenSkillId;
-      mockChild._id = givenSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockOccupation = getIOccupationMockData(2) as IOccupation & { _id?: string; toObject?: jest.Mock };
+      const mockOccupation = getIOccupationMockData(2) as IOccupation;
       mockOccupation.id = givenOccupationId;
-      mockOccupation._id = givenOccupationId;
       mockOccupation.occupationType = ObjectTypes.LocalOccupation;
-      mockOccupation.toObject = jest.fn().mockReturnValue(mockOccupation);
 
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockChild),
-      });
-
-      const mockOccupationModel = mockGetRepositoryRegistry().occupation.Model;
-      (mockOccupationModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockOccupation),
-      });
-
-      const mockRelationModel = mockGetRepositoryRegistry().occupationToSkillRelation.relationModel;
-      (mockRelationModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue({}),
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockResolvedValue({
+        ...mockOccupation,
+        relationType: OccupationToSkillRelationType.NONE,
+        signallingValue: 0.85,
+        signallingValueLabel: SignallingValueLabel.HIGH,
       });
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
-
       expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
-      expect(JSON.parse(actualResponse.body)).toMatchObject({
-        ...transformSkillOccupationSpy.mock.results[0].value,
-        relationType: null,
-        signallingValueLabel: "high",
-        signallingValue: 0.85,
-      });
     });
 
     test("should respond with BAD_REQUEST when path params are invalid", async () => {
@@ -510,10 +450,10 @@ describe("Test for skill Occupations POST handler", () => {
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null),
-      });
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.SKILL_NOT_FOUND)
+      );
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
@@ -541,20 +481,10 @@ describe("Test for skill Occupations POST handler", () => {
       const RouterSkillServiceMock = mockGetServiceRegistry().skill;
       (RouterSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = RouterSkillId;
-      mockChild._id = RouterSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockChild),
-      });
-
-      const mockOccupationModel = mockGetRepositoryRegistry().occupation.Model;
-      (mockOccupationModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null), // occupation not found
-      });
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.OCCUPATION_NOT_FOUND)
+      );
 
       const actualResponse = await postSkillOccupationsHandler(RouterEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
@@ -582,26 +512,10 @@ describe("Test for skill Occupations POST handler", () => {
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = givenSkillId;
-      mockChild._id = givenSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockOccupation = getIOccupationMockData(2) as IOccupation & { _id?: string; toObject?: jest.Mock };
-      mockOccupation.id = givenOccupationId;
-      mockOccupation._id = givenOccupationId;
-      mockOccupation.occupationType = ObjectTypes.ESCOOccupation;
-      mockOccupation.toObject = jest.fn().mockReturnValue(mockOccupation);
-
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockChild),
-      });
-
-      const mockOccupationModel = mockGetRepositoryRegistry().occupation.Model;
-      (mockOccupationModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockOccupation),
-      });
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_RELATION_TYPE)
+      );
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -629,26 +543,10 @@ describe("Test for skill Occupations POST handler", () => {
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = givenSkillId;
-      mockChild._id = givenSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockOccupation = getIOccupationMockData(2) as IOccupation & { _id?: string; toObject?: jest.Mock };
-      mockOccupation.id = givenOccupationId;
-      mockOccupation._id = givenOccupationId;
-      mockOccupation.occupationType = ObjectTypes.ESCOOccupation;
-      mockOccupation.toObject = jest.fn().mockReturnValue(mockOccupation);
-
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockChild),
-      });
-
-      const mockOccupationModel = mockGetRepositoryRegistry().occupation.Model;
-      (mockOccupationModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockOccupation),
-      });
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_SIGNALLING_VALUE_LABEL)
+      );
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -676,26 +574,10 @@ describe("Test for skill Occupations POST handler", () => {
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = givenSkillId;
-      mockChild._id = givenSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockOccupation = getIOccupationMockData(2) as IOccupation & { _id?: string; toObject?: jest.Mock };
-      mockOccupation.id = givenOccupationId;
-      mockOccupation._id = givenOccupationId;
-      mockOccupation.occupationType = ObjectTypes.LocalOccupation;
-      mockOccupation.toObject = jest.fn().mockReturnValue(mockOccupation);
-
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockChild),
-      });
-
-      const mockOccupationModel = mockGetRepositoryRegistry().occupation.Model;
-      (mockOccupationModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockOccupation),
-      });
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.MUTUALLY_EXCLUSIVE_VALUES)
+      );
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -723,26 +605,10 @@ describe("Test for skill Occupations POST handler", () => {
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = givenSkillId;
-      mockChild._id = givenSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockOccupation = getIOccupationMockData(2) as IOccupation & { _id?: string; toObject?: jest.Mock };
-      mockOccupation.id = givenOccupationId;
-      mockOccupation._id = givenOccupationId;
-      mockOccupation.occupationType = ObjectTypes.LocalOccupation;
-      mockOccupation.toObject = jest.fn().mockReturnValue(mockOccupation);
-
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockChild),
-      });
-
-      const mockOccupationModel = mockGetRepositoryRegistry().occupation.Model;
-      (mockOccupationModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockOccupation),
-      });
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_RELATION_TYPE)
+      );
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -770,31 +636,12 @@ describe("Test for skill Occupations POST handler", () => {
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = givenSkillId;
-      mockChild._id = givenSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockOccupation = getIOccupationMockData(2) as IOccupation & { _id?: string; toObject?: jest.Mock };
-      mockOccupation.id = givenOccupationId;
-      mockOccupation._id = givenOccupationId;
-      mockOccupation.occupationType = ObjectTypes.ESCOOccupation;
-      mockOccupation.toObject = jest.fn().mockReturnValue(mockOccupation);
-
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockChild),
-      });
-
-      const mockOccupationModel = mockGetRepositoryRegistry().occupation.Model;
-      (mockOccupationModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockOccupation),
-      });
-
-      const mockRelationModel = mockGetRepositoryRegistry().occupationToSkillRelation.relationModel;
-      (mockRelationModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockRejectedValue("string error"),
-      });
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
+        new OccupationSkillValidationError(
+          SkillForOccupationValidationErrorCode.DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION
+        )
+      );
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -822,31 +669,75 @@ describe("Test for skill Occupations POST handler", () => {
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = givenSkillId;
-      mockChild._id = givenSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(new Error("DB Connection Error"));
 
-      const mockOccupation = getIOccupationMockData(2) as IOccupation & { _id?: string; toObject?: jest.Mock };
+      const actualResponse = await postSkillOccupationsHandler(givenEvent);
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+    });
+
+    test("should respond with CREATED status code when relationType and signallingValueLabel are omitted", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenOccupationId = getMockStringId(3);
+      const givenResourcesBaseUrl = "https://some/path/to/api/resources";
+      jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
+
+      const givenEvent = {
+        httpMethod: "POST",
+        path: `/models/${givenModelId}/skills/${givenSkillId}/occupations`,
+        pathParameters: { modelId: givenModelId, id: givenSkillId },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requiringOccupationId: givenOccupationId,
+        }),
+      } as unknown as APIGatewayProxyEvent;
+
+      checkRole.mockResolvedValue(true);
+
+      const givenSkillServiceMock = mockGetServiceRegistry().skill;
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+
+      const mockOccupation = getIOccupationMockData(2) as IOccupation;
       mockOccupation.id = givenOccupationId;
-      mockOccupation._id = givenOccupationId;
-      mockOccupation.occupationType = ObjectTypes.ESCOOccupation;
-      mockOccupation.toObject = jest.fn().mockReturnValue(mockOccupation);
+      mockOccupation.occupationType = ObjectTypes.LocalOccupation;
 
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockChild),
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockResolvedValue({
+        ...mockOccupation,
+        relationType: OccupationToSkillRelationType.NONE,
+        signallingValue: null,
+        signallingValueLabel: SignallingValueLabel.NONE,
       });
 
-      const mockOccupationModel = mockGetRepositoryRegistry().occupation.Model;
-      (mockOccupationModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockOccupation),
-      });
+      const actualResponse = await postSkillOccupationsHandler(givenEvent);
+      expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
+    });
 
-      const mockRelationModel = mockGetRepositoryRegistry().occupationToSkillRelation.relationModel;
-      (mockRelationModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockRejectedValue(new Error("DB Connection Error")),
-      });
+    test("should respond with INTERNAL_SERVER_ERROR when service throws a non-Error", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenOccupationId = getMockStringId(3);
+
+      const givenEvent = {
+        httpMethod: "POST",
+        path: `/models/${givenModelId}/skills/${givenSkillId}/occupations`,
+        pathParameters: { modelId: givenModelId, id: givenSkillId },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requiringOccupationId: givenOccupationId,
+          relationType: SkillAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValueLabel.NONE,
+        }),
+      } as unknown as APIGatewayProxyEvent;
+
+      checkRole.mockResolvedValue(true);
+
+      const givenSkillServiceMock = mockGetServiceRegistry().skill;
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockRejectedValue("string error");
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);

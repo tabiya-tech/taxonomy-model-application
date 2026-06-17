@@ -12,9 +12,12 @@ import { getISkillMockData } from "esco/skill/_shared/testDataHelper";
 import { ISkillService } from "esco/skill/services/skill.service.types";
 import { ModelForSkillValidationErrorCode } from "esco/skill/_shared/skill.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { buildRelatedResponse } from "./response";
 import SkillAPISpecs from "api-specifications/esco/skill";
+import {
+  SkillToSkillRelationValidationErrorCode,
+  SkillToSkillRelationValidationError,
+} from "esco/skillToSkillRelation/skillToSkillRelation.service.types";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
@@ -25,10 +28,6 @@ const transformSkillRelatedSpy = jest.spyOn(transformModule, "transformSkillRela
 jest.mock("server/serviceRegistry/serviceRegistry");
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
 
-// Mock repository registry
-jest.mock("server/repositoryRegistry/repositoryRegistry");
-const mockGetRepositoryRegistry = jest.mocked(getRepositoryRegistry);
-
 describe("Test for skill Related POST handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -37,23 +36,12 @@ describe("Test for skill Related POST handler", () => {
       skill: {
         validateModelForSkill: jest.fn(),
       } as unknown as ISkillService,
+      skillToSkillRelation: {
+        addRelatedSkill: jest.fn(),
+      },
       initialize: jest.fn(),
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
-
-    const mockRepositoryRegistry = {
-      skill: {
-        Model: {
-          findOne: jest.fn(),
-        },
-      },
-      skillToSkillRelation: {
-        relationModel: {
-          findOneAndUpdate: jest.fn(),
-        },
-      },
-    } as unknown as RepositoryRegistry;
-    mockGetRepositoryRegistry.mockReturnValue(mockRepositoryRegistry);
   });
 
   describe("POST /models/{modelId}/skills/{id}/related", () => {
@@ -94,35 +82,15 @@ describe("Test for skill Related POST handler", () => {
 
       checkRole.mockResolvedValue(true);
 
-      // Mock validateModelForSkill success
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      // Mock child findOne
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = givenSkillId;
-      mockChild._id = givenSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockParent = getISkillMockData(2) as ISkill & { _id?: string; toObject?: jest.Mock };
+      const mockParent = getISkillMockData(2) as ISkill & { relationType: string };
       mockParent.id = givenRequiredSkillId;
-      mockParent._id = givenRequiredSkillId;
-      mockParent.toObject = jest.fn().mockReturnValue(mockParent);
+      mockParent.relationType = "essential";
 
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock)
-        .mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValue(mockChild), // first call for requiring skill
-        })
-        .mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValue(mockParent), // second call for required skill
-        });
-
-      // Mock findOneAndUpdate
-      const mockRelationModel = mockGetRepositoryRegistry().skillToSkillRelation.relationModel;
-      (mockRelationModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue({}),
-      });
+      const mockRelationService = mockGetServiceRegistry().skillToSkillRelation;
+      (mockRelationService.addRelatedSkill as jest.Mock).mockResolvedValue(mockParent);
 
       // Invoke handler
       const actualResponse = await postSkillRelatedHandler(givenEvent);
@@ -371,10 +339,10 @@ describe("Test for skill Related POST handler", () => {
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null),
-      });
+      const mockRelationService = mockGetServiceRegistry().skillToSkillRelation;
+      (mockRelationService.addRelatedSkill as jest.Mock).mockRejectedValue(
+        new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.SKILL_NOT_FOUND)
+      );
 
       const actualResponse = await postSkillRelatedHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
@@ -401,19 +369,10 @@ describe("Test for skill Related POST handler", () => {
       const RouterSkillServiceMock = mockGetServiceRegistry().skill;
       (RouterSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = RouterSkillId;
-      mockChild._id = RouterSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock)
-        .mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValue(mockChild), // first call for child
-        })
-        .mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValue(null), // second call for parent (not found)
-        });
+      const mockRelationService = mockGetServiceRegistry().skillToSkillRelation;
+      (mockRelationService.addRelatedSkill as jest.Mock).mockRejectedValue(
+        new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.RELATED_SKILL_NOT_FOUND)
+      );
 
       const actualResponse = await postSkillRelatedHandler(RouterEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
@@ -440,29 +399,10 @@ describe("Test for skill Related POST handler", () => {
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = RouterSkillId;
-      mockChild._id = RouterSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
-
-      const mockParent = getISkillMockData(2) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockParent.id = givenParentId;
-      mockParent._id = givenParentId;
-      mockParent.toObject = jest.fn().mockReturnValue(mockParent);
-
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock)
-        .mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValue(mockChild),
-        })
-        .mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValue(mockParent),
-        });
-
-      const mockRelationModel = mockGetRepositoryRegistry().skillToSkillRelation.relationModel;
-      (mockRelationModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockRejectedValue("string error"),
-      });
+      const mockRelationService = mockGetServiceRegistry().skillToSkillRelation;
+      (mockRelationService.addRelatedSkill as jest.Mock).mockRejectedValue(
+        new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.DB_FAILED_TO_CREATE_RELATION)
+      );
 
       const actualResponse = await postSkillRelatedHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -489,29 +429,96 @@ describe("Test for skill Related POST handler", () => {
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
       (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
 
-      const mockChild = getISkillMockData(1) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockChild.id = RouterSkillId;
-      mockChild._id = RouterSkillId;
-      mockChild.toObject = jest.fn().mockReturnValue(mockChild);
+      const mockRelationService = mockGetServiceRegistry().skillToSkillRelation;
+      (mockRelationService.addRelatedSkill as jest.Mock).mockRejectedValue(new Error("DB Connection Error"));
 
-      const mockParent = getISkillMockData(2) as ISkill & { _id?: string; toObject?: jest.Mock };
-      mockParent.id = givenParentId;
-      mockParent._id = givenParentId;
-      mockParent.toObject = jest.fn().mockReturnValue(mockParent);
+      const actualResponse = await postSkillRelatedHandler(givenEvent);
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+    });
 
-      const mockSkillModel = mockGetRepositoryRegistry().skill.Model;
-      (mockSkillModel.findOne as jest.Mock)
-        .mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValue(mockChild),
-        })
-        .mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValue(mockParent),
-        });
+    test("should respond with BAD_REQUEST when relation type is not supported", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenRequiredSkillId = getMockStringId(3);
 
-      const mockRelationModel = mockGetRepositoryRegistry().skillToSkillRelation.relationModel;
-      (mockRelationModel.findOneAndUpdate as jest.Mock).mockReturnValue({
-        exec: jest.fn().mockRejectedValue(new Error("DB Connection Error")),
-      });
+      const givenEvent = {
+        httpMethod: "POST",
+        path: `/models/${givenModelId}/skills/${givenSkillId}/related`,
+        pathParameters: { modelId: givenModelId, id: givenSkillId },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requiredSkillId: givenRequiredSkillId,
+          relationType: SkillAPISpecs.Enums.SkillToSkillRelationType.ESSENTIAL,
+        }),
+      } as unknown as APIGatewayProxyEvent;
+
+      checkRole.mockResolvedValue(true);
+
+      const givenSkillServiceMock = mockGetServiceRegistry().skill;
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+
+      const mockRelationService = mockGetServiceRegistry().skillToSkillRelation;
+      (mockRelationService.addRelatedSkill as jest.Mock).mockRejectedValue(
+        new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.RELATION_TYPE_NOT_SUPPORTED)
+      );
+
+      const actualResponse = await postSkillRelatedHandler(givenEvent);
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    });
+
+    test("should respond with BAD_REQUEST when relation code is inconsistent", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenRequiredSkillId = getMockStringId(3);
+
+      const givenEvent = {
+        httpMethod: "POST",
+        path: `/models/${givenModelId}/skills/${givenSkillId}/related`,
+        pathParameters: { modelId: givenModelId, id: givenSkillId },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requiredSkillId: givenRequiredSkillId,
+          relationType: SkillAPISpecs.Enums.SkillToSkillRelationType.ESSENTIAL,
+        }),
+      } as unknown as APIGatewayProxyEvent;
+
+      checkRole.mockResolvedValue(true);
+
+      const givenSkillServiceMock = mockGetServiceRegistry().skill;
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+
+      const mockRelationService = mockGetServiceRegistry().skillToSkillRelation;
+      (mockRelationService.addRelatedSkill as jest.Mock).mockRejectedValue(
+        new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.RELATION_CODE_INCONSISTENT)
+      );
+
+      const actualResponse = await postSkillRelatedHandler(givenEvent);
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    });
+
+    test("should respond with INTERNAL_SERVER_ERROR when service throws a non-Error", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenRequiredSkillId = getMockStringId(3);
+
+      const givenEvent = {
+        httpMethod: "POST",
+        path: `/models/${givenModelId}/skills/${givenSkillId}/related`,
+        pathParameters: { modelId: givenModelId, id: givenSkillId },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requiredSkillId: givenRequiredSkillId,
+          relationType: SkillAPISpecs.Enums.SkillToSkillRelationType.ESSENTIAL,
+        }),
+      } as unknown as APIGatewayProxyEvent;
+
+      checkRole.mockResolvedValue(true);
+
+      const givenSkillServiceMock = mockGetServiceRegistry().skill;
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+
+      const mockRelationService = mockGetServiceRegistry().skillToSkillRelation;
+      (mockRelationService.addRelatedSkill as jest.Mock).mockRejectedValue("string error");
 
       const actualResponse = await postSkillRelatedHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);

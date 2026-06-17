@@ -5,6 +5,7 @@ describe("Test the Skill Occupations module", () => {
     const module = await import("./");
 
     expect(module.default.GET.Schemas.Response.Payload).toBeDefined();
+    expect(module.default.POST.Schemas.Response.Payload).toBeDefined();
     expect(module.default.Constants).toBeDefined();
     expect(module.default.Enums).toBeDefined();
   });

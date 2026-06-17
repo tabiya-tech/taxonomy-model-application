@@ -1,9 +1,7 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import mongoose from "mongoose";
 import { errorResponse, responseJSON, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import { buildParentResponse } from "./response";
@@ -15,11 +13,10 @@ import { ModelForSkillValidationErrorCode } from "esco/skill/_shared/skill.types
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { extractAndValidateIdParams } from "../../../_shared/params";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { getModelName, MongooseModelName } from "esco/common/mongooseModelNames";
-import { ISkillDoc } from "esco/skill/_shared/skill.types";
-import { ISkillGroupDoc } from "esco/skillGroup/_shared/skillGroup.types";
-import { ISkill } from "esco/skill/_shared/skill.types";
-import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
+import {
+  ParentForSkillValidationErrorCode,
+  SkillParentValidationError,
+} from "esco/skillHierarchy/skillHierarchy.service.types";
 
 export class SkillParentsPostController {
   /**
@@ -31,7 +28,7 @@ export class SkillParentsPostController {
    *    tags:
    *      - skills
    *    summary: Link a skill parent.
-   *    description: Establish or update a parent relationship for a specific skill in a specific taxonomy model.
+   *    description: Establish a parent relationship for a specific skill in a specific taxonomy model.
    *    security:
    *      - api_key: []
    *      - jwt_auth: []
@@ -59,7 +56,7 @@ export class SkillParentsPostController {
    *        content:
    *          application/json:
    *            schema:
-   *               $ref: '#/components/schemas/SkillParentsResponseSchemaGET/properties/data/items'
+   *               $ref: '#/components/schemas/SkillParentsResponseSchemaPOST'
    *      '400':
    *        description: |
    *          Failed to link the parent. Additional information can be found in the response body.
@@ -130,75 +127,54 @@ export class SkillParentsPostController {
         );
       }
 
-      // 4. Fetch the child skill
-      const child = await getRepositoryRegistry()
-        .skill.Model.findOne({
-          _id: params.id,
-          modelId: params.modelId,
-        })
-        .exec();
-      if (!child) {
-        return errorResponse(
-          StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Skill.Parents.POST.Errors.Status404.ErrorCodes.SKILL_NOT_FOUND,
-          "Child skill not found",
-          `No skill found with id: ${params.id} in model: ${params.modelId}`
-        );
-      }
+      // 4. Delegate to Service layer
+      const skillHierarchyService = getServiceRegistry().skillHierarchy;
 
-      // 5. Fetch the parent entity (either SkillGroup or Skill)
-      let parentDoc: mongoose.HydratedDocument<ISkillDoc> | mongoose.HydratedDocument<ISkillGroupDoc> | null = null;
-      const parentType = payload.parentType;
-      if (parentType === ObjectTypes.SkillGroup) {
-        parentDoc = await getRepositoryRegistry()
-          .skillGroup.Model.findOne({
-            _id: payload.parentId,
-            modelId: params.modelId,
-          })
-          .exec();
-      } else if (parentType === ObjectTypes.Skill) {
-        parentDoc = await getRepositoryRegistry()
-          .skill.Model.findOne({
-            _id: payload.parentId,
-            modelId: params.modelId,
-          })
-          .exec();
-      }
+      const createdParent = await skillHierarchyService.setParent(
+        params.modelId,
+        params.id,
+        ObjectTypes.Skill,
+        payload.parentId,
+        payload.parentType as unknown as ObjectTypes.Skill | ObjectTypes.SkillGroup
+      );
 
-      if (!parentDoc) {
-        return errorResponse(
-          StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Skill.Parents.POST.Errors.Status404.ErrorCodes.PARENT_NOT_FOUND,
-          "Parent not found",
-          `No parent of type ${parentType} found with id: ${payload.parentId} in model: ${params.modelId}`
-        );
-      }
-
-      // 6. Update/insert the hierarchy pair
-      const parentDocModel = getModelName(payload.parentType as unknown as ObjectTypes);
-      const childDocModel = MongooseModelName.Skill;
-
-      const HierarchyModel = getRepositoryRegistry().skillHierarchy.hierarchyModel;
-      await HierarchyModel.findOneAndUpdate(
-        {
-          modelId: new mongoose.Types.ObjectId(params.modelId),
-          parentId: new mongoose.Types.ObjectId(payload.parentId),
-          parentType: payload.parentType as unknown as ObjectTypes,
-          childId: new mongoose.Types.ObjectId(params.id),
-          childType: ObjectTypes.Skill,
-        },
-        {
-          parentDocModel: parentDocModel,
-          childDocModel: childDocModel,
-        },
-        { upsert: true, new: true }
-      ).exec();
-
-      const transformedParent = parentDoc.toObject() as ISkill | ISkillGroup;
-
-      return responseJSON(StatusCodes.CREATED, buildParentResponse(transformedParent, getResourcesBaseUrl()));
+      return responseJSON(StatusCodes.CREATED, buildParentResponse(createdParent, getResourcesBaseUrl()));
     } catch (error: unknown) {
       console.error("Failed to link skill parent:", error);
+
+      if (error instanceof SkillParentValidationError) {
+        switch (error.code) {
+          case ParentForSkillValidationErrorCode.SKILL_NOT_FOUND:
+            return errorResponse(
+              StatusCodes.NOT_FOUND,
+              SkillAPISpecs.Skill.Parents.POST.Errors.Status404.ErrorCodes.SKILL_NOT_FOUND,
+              "Child skill not found",
+              ""
+            );
+          case ParentForSkillValidationErrorCode.PARENT_NOT_FOUND:
+            return errorResponse(
+              StatusCodes.NOT_FOUND,
+              SkillAPISpecs.Skill.Parents.POST.Errors.Status404.ErrorCodes.PARENT_NOT_FOUND,
+              "Parent not found",
+              ""
+            );
+          case ParentForSkillValidationErrorCode.PARENT_CHILD_CODE_INCONSISTENT:
+            return errorResponse(
+              StatusCodes.BAD_REQUEST,
+              SkillAPISpecs.Skill.Parents.POST.Errors.Status400.ErrorCodes.PARENT_CHILD_CODE_INCONSISTENT,
+              "Parent-Child code inconsistency",
+              "Child code does not match parent code."
+            );
+          case ParentForSkillValidationErrorCode.DB_FAILED_TO_CREATE_SKILL_PARENT:
+            return errorResponse(
+              StatusCodes.INTERNAL_SERVER_ERROR,
+              SkillAPISpecs.Skill.Parents.POST.Errors.Status500.ErrorCodes.DB_FAILED_TO_CREATE_SKILL_PARENT_RELATION,
+              "Failed to link skill parent in the DB",
+              ""
+            );
+        }
+      }
+
       errorLoggerInstance.logError(
         "Failed to link skill parent in the DB",
         error instanceof Error ? error.name : "Unknown error"

@@ -1,4 +1,4 @@
-import { ISkillWithRelation } from "esco/occupations/_shared/occupation.types";
+import { ISkillWithRelation, IOccupationWithRelation } from "esco/occupations/_shared/occupation.types";
 import { SignallingValueLabel } from "esco/common/objectTypes";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 
@@ -37,4 +37,24 @@ export interface IOccupationToSkillRelationService {
     signallingValueLabel: SignallingValueLabel,
     signallingValue: number | null
   ): Promise<ISkillWithRelation>;
+
+  /**
+   * Adds an occupation requirement to a skill.
+   *
+   * @param {string} modelId - The modelId of the taxonomy model.
+   * @param {string} requiredSkillId - The ID of the required skill.
+   * @param {string} requiringOccupationId - The ID of the requiring occupation.
+   * @param {OccupationToSkillRelationType} relationType - The relationship type.
+   * @param {SignallingValueLabel} signallingValueLabel - The signalling value label.
+   * @param {number | null} signallingValue - The signalling value.
+   * @return {Promise<IOccupationWithRelation>} - A Promise that resolves to the added occupation with relationship metadata.
+   */
+  addOccupation(
+    modelId: string,
+    requiredSkillId: string,
+    requiringOccupationId: string,
+    relationType: OccupationToSkillRelationType,
+    signallingValueLabel: SignallingValueLabel,
+    signallingValue: number | null
+  ): Promise<IOccupationWithRelation>;
 }

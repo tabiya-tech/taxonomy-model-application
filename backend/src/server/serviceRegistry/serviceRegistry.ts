@@ -11,6 +11,10 @@ import { IOccupationHierarchyService } from "esco/occupationHierarchy/occupation
 import { OccupationHierarchyService } from "esco/occupationHierarchy/occupationHierarchy.service";
 import { IOccupationToSkillRelationService } from "esco/occupationToSkillRelation/occupationToSkillRelation.service.types";
 import { OccupationToSkillRelationService } from "esco/occupationToSkillRelation/occupationToSkillRelation.service";
+import { ISkillHierarchyService } from "esco/skillHierarchy/skillHierarchy.service.types";
+import { SkillHierarchyService } from "esco/skillHierarchy/skillHierarchy.service";
+import { ISkillToSkillRelationService } from "esco/skillToSkillRelation/skillToSkillRelation.service.types";
+import { SkillToSkillRelationService } from "esco/skillToSkillRelation/skillToSkillRelation.service";
 
 export class ServiceRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,6 +38,12 @@ export class ServiceRegistry {
   public get occupationToSkillRelation(): IOccupationToSkillRelationService {
     return this._services.get("OccupationToSkillRelationService");
   }
+  public get skillHierarchy(): ISkillHierarchyService {
+    return this._services.get("SkillHierarchyService");
+  }
+  public get skillToSkillRelation(): ISkillToSkillRelationService {
+    return this._services.get("SkillToSkillRelationService");
+  }
 
   public set occupation(service: IOccupationService) {
     this._services.set("OccupationService", service);
@@ -54,6 +64,12 @@ export class ServiceRegistry {
   public set occupationToSkillRelation(service: IOccupationToSkillRelationService) {
     this._services.set("OccupationToSkillRelationService", service);
   }
+  public set skillHierarchy(service: ISkillHierarchyService) {
+    this._services.set("SkillHierarchyService", service);
+  }
+  public set skillToSkillRelation(service: ISkillToSkillRelationService) {
+    this._services.set("SkillToSkillRelationService", service);
+  }
 
   async initialize() {
     const repositoryRegistry = getRepositoryRegistry();
@@ -70,6 +86,15 @@ export class ServiceRegistry {
       repositoryRegistry.occupation,
       repositoryRegistry.skill,
       repositoryRegistry.occupationToSkillRelation
+    );
+    this.skillHierarchy = new SkillHierarchyService(
+      repositoryRegistry.skill,
+      repositoryRegistry.skillGroup,
+      repositoryRegistry.skillHierarchy
+    );
+    this.skillToSkillRelation = new SkillToSkillRelationService(
+      repositoryRegistry.skill,
+      repositoryRegistry.skillToSkillRelation
     );
   }
 }

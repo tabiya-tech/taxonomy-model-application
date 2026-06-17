@@ -27,8 +27,10 @@ namespace OccupationConstants {
   export const SIGNALLING_VALUE_MAX = 100;
   export const SIGNALLING_VALUE_LABEL_MAX_LENGTH = 256;
 
-  // Max payload length for relationship/sub-resource POST operations (skills, parent)
-  // TODO: Use a more precise value with reasoning behind it.
+  // Relationship POST bodies contain only one 24-character ID, short enum values,
+  // and optionally one numeric signalling value. Valid compact payloads are well
+  // under 200 bytes; 1000 bytes allows formatting whitespace and small enum growth
+  // while still rejecting accidental full occupation payloads.
   export const MAX_PAYLOAD_LENGTH = 1000;
 }
 
