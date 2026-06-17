@@ -6,7 +6,7 @@ import SkillAPISpecs from "api-specifications/esco/skill";
 
 export function parseAndValidatePOSTRequest(
   event: APIGatewayProxyEvent
-): SkillAPISpecs.Skill.RelatedSkills.POST.Schemas.Request.Payload | APIGatewayProxyResult {
+): SkillAPISpecs.Skill.RelatedSkills.POST.Types.Request.Payload | APIGatewayProxyResult {
   if (!event.headers?.["Content-Type"]?.includes("application/json")) {
     return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
@@ -15,13 +15,13 @@ export function parseAndValidatePOSTRequest(
     return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR("Body is empty");
   }
 
-  if (event.body.length > SkillAPISpecs.POST.Constants.MAX_PAYLOAD_LENGTH) {
+  if (event.body.length > SkillAPISpecs.Constants.RELATION_MAX_PAYLOAD_LENGTH) {
     return STD_ERRORS_RESPONSES.TOO_LARGE_PAYLOAD_ERROR(
-      `Expected maximum length is ${SkillAPISpecs.POST.Constants.MAX_PAYLOAD_LENGTH}`
+      `Expected maximum length is ${SkillAPISpecs.Constants.RELATION_MAX_PAYLOAD_LENGTH}`
     );
   }
 
-  let payload: SkillAPISpecs.Skill.RelatedSkills.POST.Schemas.Request.Payload;
+  let payload: SkillAPISpecs.Skill.RelatedSkills.POST.Types.Request.Payload;
   try {
     payload = JSON.parse(event.body);
   } catch (error: unknown) {

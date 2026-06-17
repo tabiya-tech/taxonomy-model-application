@@ -6,7 +6,7 @@ import SkillAPISpecs from "api-specifications/esco/skill";
 export function buildRelatedResponse(
   skillData: SkillToSkillReferenceWithRelationType<ISkill> | null | undefined,
   baseURL: string
-): SkillAPISpecs.Skill.RelatedSkills.GET.Types.Response.Payload["data"][0] | null {
+): SkillAPISpecs.Skill.RelatedSkills.POST.Types.Response.Payload {
   if (!skillData) return null;
   return transformSkillRelated(skillData, baseURL);
 }

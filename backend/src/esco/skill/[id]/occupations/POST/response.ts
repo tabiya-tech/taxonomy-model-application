@@ -6,6 +6,6 @@ import SkillAPISpecs from "api-specifications/esco/skill";
 export function buildOccupationsResponse(
   occupationData: OccupationToSkillReferenceWithRelationType<IOccupationReference>,
   baseURL: string
-): SkillAPISpecs.Skill.Occupations.GET.Types.Response.Payload["data"][0] {
+): SkillAPISpecs.Skill.Occupations.POST.Types.Response.Payload {
   return transformSkillOccupation(occupationData, baseURL);
 }

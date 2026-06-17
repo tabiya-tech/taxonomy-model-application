@@ -41,6 +41,12 @@ namespace SkillConstants {
     SCOPE_NOTE_MAX_LENGTH +
     TOTAL_UUID_HISTORY_MAX_LENGTH +
     MAX_JSON_OVERHEAD;
+
+  // Relationship POST bodies contain only one 24-character ID, short enum values,
+  // and optionally one numeric signalling value. Valid compact payloads are well
+  // under 200 bytes; 1000 bytes allows formatting whitespace and small enum growth
+  // while still rejecting accidental full skill payloads.
+  export const RELATION_MAX_PAYLOAD_LENGTH = 1000;
 }
 
 export default SkillConstants;

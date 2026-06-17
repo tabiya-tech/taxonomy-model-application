@@ -1,9 +1,7 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import mongoose from "mongoose";
 import { errorResponse, responseJSON, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import { buildRelatedResponse } from "./response";
@@ -14,12 +12,10 @@ import { RoleRequired } from "auth/authorizer";
 import { ModelForSkillValidationErrorCode } from "esco/skill/_shared/skill.types";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { extractAndValidateIdParams } from "../../../_shared/params";
-import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
-  SkillToSkillRelationType,
-  SkillToSkillReferenceWithRelationType,
-} from "esco/skillToSkillRelation/skillToSkillRelation.types";
-import { ISkill } from "esco/skill/_shared/skill.types";
+  SkillToSkillRelationValidationErrorCode,
+  SkillToSkillRelationValidationError,
+} from "esco/skillToSkillRelation/skillToSkillRelation.service.types";
 
 export class SkillRelatedPostController {
   /**
@@ -59,7 +55,7 @@ export class SkillRelatedPostController {
    *        content:
    *          application/json:
    *            schema:
-   *               $ref: '#/components/schemas/SkillRelatedResponseSchemaGET/properties/data/items'
+   *               $ref: '#/components/schemas/SkillRelatedResponseSchemaPOST'
    *      '400':
    *        description: |
    *          Failed to link the skill. Additional information can be found in the response body.
@@ -130,62 +126,60 @@ export class SkillRelatedPostController {
         );
       }
 
-      // 4. Fetch the requiring skill
-      const requiringSkill = await getRepositoryRegistry()
-        .skill.Model.findOne({
-          _id: params.id,
-          modelId: params.modelId,
-        })
-        .exec();
-      if (!requiringSkill) {
-        return errorResponse(
-          StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Skill.RelatedSkills.POST.Errors.Status404.ErrorCodes.SKILL_NOT_FOUND,
-          "Requiring skill not found",
-          `No skill found with id: ${params.id} in model: ${params.modelId}`
-        );
-      }
+      // 4. Delegate to Service layer
+      const skillToSkillRelationService = getServiceRegistry().skillToSkillRelation;
 
-      // 5. Fetch the required skill
-      const requiredSkill = await getRepositoryRegistry()
-        .skill.Model.findOne({
-          _id: payload.requiredSkillId,
-          modelId: params.modelId,
-        })
-        .exec();
-      if (!requiredSkill) {
-        return errorResponse(
-          StatusCodes.NOT_FOUND,
-          SkillAPISpecs.Skill.RelatedSkills.POST.Errors.Status404.ErrorCodes.REQUIRED_SKILL_NOT_FOUND,
-          "Required skill not found",
-          `No skill found with id: ${payload.requiredSkillId} in model: ${params.modelId}`
-        );
-      }
-
-      // 6. Update/insert the relationship pair in DB
-      const RelationModel = getRepositoryRegistry().skillToSkillRelation.relationModel;
-      await RelationModel.findOneAndUpdate(
-        {
-          modelId: new mongoose.Types.ObjectId(params.modelId),
-          requiringSkillId: new mongoose.Types.ObjectId(params.id),
-          requiredSkillId: new mongoose.Types.ObjectId(payload.requiredSkillId),
-        },
-        {
-          requiringSkillDocModel: MongooseModelName.Skill,
-          requiredSkillDocModel: MongooseModelName.Skill,
-          relationType: payload.relationType as unknown as SkillToSkillRelationType,
-        },
-        { upsert: true, new: true }
-      ).exec();
-
-      const skillWithRelation: SkillToSkillReferenceWithRelationType<ISkill> = {
-        ...requiredSkill.toObject(),
-        relationType: payload.relationType as unknown as SkillToSkillRelationType,
-      };
+      const skillWithRelation = await skillToSkillRelationService.addRelatedSkill(
+        params.modelId,
+        params.id,
+        payload.requiredSkillId,
+        payload.relationType
+      );
 
       return responseJSON(StatusCodes.CREATED, buildRelatedResponse(skillWithRelation, getResourcesBaseUrl()));
     } catch (error: unknown) {
       console.error("Failed to link related skill:", error);
+
+      if (error instanceof SkillToSkillRelationValidationError) {
+        switch (error.code) {
+          case SkillToSkillRelationValidationErrorCode.SKILL_NOT_FOUND:
+            return errorResponse(
+              StatusCodes.NOT_FOUND,
+              SkillAPISpecs.Skill.RelatedSkills.POST.Errors.Status404.ErrorCodes.SKILL_NOT_FOUND,
+              "Requiring skill not found",
+              ""
+            );
+          case SkillToSkillRelationValidationErrorCode.RELATED_SKILL_NOT_FOUND:
+            return errorResponse(
+              StatusCodes.NOT_FOUND,
+              SkillAPISpecs.Skill.RelatedSkills.POST.Errors.Status404.ErrorCodes.REQUIRED_SKILL_NOT_FOUND,
+              "Required skill not found",
+              ""
+            );
+          case SkillToSkillRelationValidationErrorCode.RELATION_TYPE_NOT_SUPPORTED:
+            return errorResponse(
+              StatusCodes.BAD_REQUEST,
+              SkillAPISpecs.Skill.RelatedSkills.POST.Errors.Status400.ErrorCodes.RELATION_TYPE_NOT_SUPPORTED,
+              "Relation type not supported",
+              ""
+            );
+          case SkillToSkillRelationValidationErrorCode.RELATION_CODE_INCONSISTENT:
+            return errorResponse(
+              StatusCodes.BAD_REQUEST,
+              SkillAPISpecs.Skill.RelatedSkills.POST.Errors.Status400.ErrorCodes.RELATION_CODE_INCONSISTENT,
+              "Relation code inconsistent",
+              ""
+            );
+          case SkillToSkillRelationValidationErrorCode.DB_FAILED_TO_CREATE_RELATION:
+            return errorResponse(
+              StatusCodes.INTERNAL_SERVER_ERROR,
+              SkillAPISpecs.Skill.RelatedSkills.POST.Errors.Status500.ErrorCodes.DB_FAILED_TO_CREATE_SKILL_RELATION,
+              "Failed to link related skill in the DB",
+              ""
+            );
+        }
+      }
+
       errorLoggerInstance.logError(
         "Failed to link related skill in the DB",
         error instanceof Error ? error.name : "Unknown error"

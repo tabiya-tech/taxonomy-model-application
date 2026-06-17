@@ -8,6 +8,8 @@ import { OccupationGroupService } from "esco/occupationGroup/services/occupation
 import { SkillGroupService } from "esco/skillGroup/services/skillGroup.service";
 import { OccupationHierarchyService } from "esco/occupationHierarchy/occupationHierarchy.service";
 import { OccupationToSkillRelationService } from "esco/occupationToSkillRelation/occupationToSkillRelation.service";
+import { SkillHierarchyService } from "esco/skillHierarchy/skillHierarchy.service";
+import { SkillToSkillRelationService } from "esco/skillToSkillRelation/skillToSkillRelation.service";
 
 describe("test the ServiceRegistry", () => {
   test("should return a singleton ServiceRegistry", () => {
@@ -40,5 +42,9 @@ describe("test the ServiceRegistry", () => {
     expect(serviceRegistry.occupationHierarchy).toBeInstanceOf(OccupationHierarchyService);
     expect(serviceRegistry.occupationToSkillRelation).toBeDefined();
     expect(serviceRegistry.occupationToSkillRelation).toBeInstanceOf(OccupationToSkillRelationService);
+    expect(serviceRegistry.skillHierarchy).toBeDefined();
+    expect(serviceRegistry.skillHierarchy).toBeInstanceOf(SkillHierarchyService);
+    expect(serviceRegistry.skillToSkillRelation).toBeDefined();
+    expect(serviceRegistry.skillToSkillRelation).toBeInstanceOf(SkillToSkillRelationService);
   });
 });
