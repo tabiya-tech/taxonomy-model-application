@@ -18,35 +18,28 @@ export class SkillToSkillRelationService implements ISkillToSkillRelationService
     modelId: string,
     requiringSkillId: string,
     requiredSkillId: string,
-    relationType: string
+    relationType: SkillToSkillRelationType
   ): Promise<ISkill & { relationType: SkillToSkillRelationType }> {
-    // 1. Validate relationType
-    if (relationType !== SkillToSkillRelationType.ESSENTIAL && relationType !== SkillToSkillRelationType.OPTIONAL) {
-      throw new SkillToSkillRelationValidationError(
-        SkillToSkillRelationValidationErrorCode.RELATION_TYPE_NOT_SUPPORTED
-      );
-    }
-
-    // 2. Fetch the requiring skill
-    const requiringSkill = await this.skillRepository.findById(requiringSkillId);
-    if (!requiringSkill || requiringSkill.modelId !== modelId) {
-      throw new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.SKILL_NOT_FOUND);
-    }
-
-    // 3. Fetch the required skill
-    const requiredSkill = await this.skillRepository.findById(requiredSkillId);
-    if (!requiredSkill || requiredSkill.modelId !== modelId) {
-      throw new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.RELATED_SKILL_NOT_FOUND);
-    }
-
-    // 4. Create the relationship
-    const newRelationSpec: INewSkillToSkillPairSpec = {
-      requiringSkillId: requiringSkillId,
-      requiredSkillId: requiredSkillId,
-      relationType: relationType as SkillToSkillRelationType,
-    };
-
     try {
+      // 1. Fetch the requiring skill
+      const requiringSkill = await this.skillRepository.findById(requiringSkillId);
+      if (!requiringSkill || requiringSkill.modelId !== modelId) {
+        throw new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.SKILL_NOT_FOUND);
+      }
+
+      // 2. Fetch the required skill
+      const requiredSkill = await this.skillRepository.findById(requiredSkillId);
+      if (!requiredSkill || requiredSkill.modelId !== modelId) {
+        throw new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.RELATED_SKILL_NOT_FOUND);
+      }
+
+      // 3. Create the relationship
+      const newRelationSpec: INewSkillToSkillPairSpec = {
+        requiringSkillId: requiringSkillId,
+        requiredSkillId: requiredSkillId,
+        relationType: relationType,
+      };
+
       const createdRelations = await this.skillToSkillRelationRepository.createMany(modelId, [newRelationSpec]);
 
       if (createdRelations.length === 0) {
@@ -54,6 +47,12 @@ export class SkillToSkillRelationService implements ISkillToSkillRelationService
           SkillToSkillRelationValidationErrorCode.RELATION_CODE_INCONSISTENT
         );
       }
+
+      // 4. Return the populated entity
+      return {
+        ...requiredSkill,
+        relationType: relationType,
+      };
     } catch (error: unknown) {
       if (error instanceof SkillToSkillRelationValidationError) {
         throw error;
@@ -62,11 +61,5 @@ export class SkillToSkillRelationService implements ISkillToSkillRelationService
         SkillToSkillRelationValidationErrorCode.DB_FAILED_TO_CREATE_RELATION
       );
     }
-
-    // 5. Return the populated entity
-    return {
-      ...requiredSkill,
-      relationType: relationType as SkillToSkillRelationType,
-    };
   }
 }

@@ -436,36 +436,6 @@ describe("Test for skill Related POST handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
     });
 
-    test("should respond with BAD_REQUEST when relation type is not supported", async () => {
-      const givenModelId = getMockStringId(1);
-      const givenSkillId = getMockStringId(2);
-      const givenRequiredSkillId = getMockStringId(3);
-
-      const givenEvent = {
-        httpMethod: "POST",
-        path: `/models/${givenModelId}/skills/${givenSkillId}/related`,
-        pathParameters: { modelId: givenModelId, id: givenSkillId },
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          requiredSkillId: givenRequiredSkillId,
-          relationType: SkillAPISpecs.Enums.SkillToSkillRelationType.ESSENTIAL,
-        }),
-      } as unknown as APIGatewayProxyEvent;
-
-      checkRole.mockResolvedValue(true);
-
-      const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
-
-      const mockRelationService = mockGetServiceRegistry().skillToSkillRelation;
-      (mockRelationService.addRelatedSkill as jest.Mock).mockRejectedValue(
-        new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.RELATION_TYPE_NOT_SUPPORTED)
-      );
-
-      const actualResponse = await postSkillRelatedHandler(givenEvent);
-      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-    });
-
     test("should respond with BAD_REQUEST when relation code is inconsistent", async () => {
       const givenModelId = getMockStringId(1);
       const givenSkillId = getMockStringId(2);
