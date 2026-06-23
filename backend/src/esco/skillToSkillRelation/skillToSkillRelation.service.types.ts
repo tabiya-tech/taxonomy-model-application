@@ -1,10 +1,9 @@
 import { ISkill } from "esco/skill/_shared/skill.types";
-import { SkillToSkillReferenceWithRelationType } from "./skillToSkillRelation.types";
+import { SkillToSkillRelationType, SkillToSkillReferenceWithRelationType } from "./skillToSkillRelation.types";
 
 export enum SkillToSkillRelationValidationErrorCode {
   SKILL_NOT_FOUND = "SKILL_NOT_FOUND",
   RELATED_SKILL_NOT_FOUND = "RELATED_SKILL_NOT_FOUND",
-  RELATION_TYPE_NOT_SUPPORTED = "RELATION_TYPE_NOT_SUPPORTED",
   RELATION_CODE_INCONSISTENT = "RELATION_CODE_INCONSISTENT",
   DB_FAILED_TO_CREATE_RELATION = "DB_FAILED_TO_CREATE_RELATION",
 }
@@ -34,6 +33,6 @@ export interface ISkillToSkillRelationService {
     modelId: string,
     requiringSkillId: string,
     requiredSkillId: string,
-    relationType: string
+    relationType: SkillToSkillRelationType
   ): Promise<SkillToSkillReferenceWithRelationType<ISkill>>;
 }

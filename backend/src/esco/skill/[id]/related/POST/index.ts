@@ -156,13 +156,6 @@ export class SkillRelatedPostController {
               "Required skill not found",
               ""
             );
-          case SkillToSkillRelationValidationErrorCode.RELATION_TYPE_NOT_SUPPORTED:
-            return errorResponse(
-              StatusCodes.BAD_REQUEST,
-              SkillAPISpecs.Skill.RelatedSkills.POST.Errors.Status400.ErrorCodes.RELATION_TYPE_NOT_SUPPORTED,
-              "Relation type not supported",
-              ""
-            );
           case SkillToSkillRelationValidationErrorCode.RELATION_CODE_INCONSISTENT:
             return errorResponse(
               StatusCodes.BAD_REQUEST,
