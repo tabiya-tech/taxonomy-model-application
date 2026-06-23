@@ -81,7 +81,7 @@ export class OccupationToSkillRelationService implements IOccupationToSkillRelat
     const createdRelations = await this.occupationToSkillRelationRepository.createMany(modelId, [spec]);
 
     if (createdRelations.length === 0) {
-      throw new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_RELATION_TYPE);
+      throw new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT);
     }
 
     return { skill, occupation: child };

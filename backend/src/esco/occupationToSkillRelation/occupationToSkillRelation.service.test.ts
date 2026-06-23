@@ -103,7 +103,7 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
       ]);
     });
 
-    test("should throw INVALID_RELATION_TYPE when createMany returns empty array", async () => {
+    test("should throw RELATION_CODE_INCONSISTENT when createMany returns empty array", async () => {
       // GIVEN that a taxonomy model exists
       // AND a valid occupation exists in the model
       occupationRepositoryMock.findById.mockResolvedValue({
@@ -129,7 +129,7 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
 
       // THEN expect an error indicating the relation type is invalid or creation failed
       await expect(actualResultPromise).rejects.toThrow(
-        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_RELATION_TYPE)
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT)
       );
     });
 
@@ -426,7 +426,7 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
       ]);
     });
 
-    test("should throw INVALID_RELATION_TYPE when createMany returns empty array", async () => {
+    test("should throw RELATION_CODE_INCONSISTENT when createMany returns empty array", async () => {
       // GIVEN that a taxonomy model exists
       // AND a valid ESCO occupation exists
       occupationRepositoryMock.findById.mockResolvedValue({
@@ -452,7 +452,7 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
 
       // THEN expect an error indicating the relation type is invalid or creation failed
       await expect(actualResultPromise).rejects.toThrow(
-        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_RELATION_TYPE)
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT)
       );
     });
 
