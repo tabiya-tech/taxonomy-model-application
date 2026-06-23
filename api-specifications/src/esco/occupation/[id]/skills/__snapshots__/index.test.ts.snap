@@ -700,6 +700,7 @@ exports[`Test the Occupation Skills Instance Detail module The export module mat
           "INVALID_SKILL_ID": "INVALID_SKILL_ID",
           "MODEL_IS_RELEASED": "MODEL_IS_RELEASED",
           "MUTUALLY_EXCLUSIVE_VALUES": "MUTUALLY_EXCLUSIVE_VALUES",
+          "RELATION_CODE_INCONSISTENT": "RELATION_CODE_INCONSISTENT",
         },
       },
       "Status404": {

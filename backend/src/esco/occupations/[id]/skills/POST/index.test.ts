@@ -483,6 +483,31 @@ describe("Test for occupation Skills POST handler", () => {
       });
     });
 
+    test("should respond with BAD_REQUEST when relation code is inconsistent", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: "POST",
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}/skills`,
+        pathParameters: { modelId: givenModelId, id: givenOccupationId },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requiredSkillId: getMockStringId(3),
+        }),
+      } as unknown as APIGatewayProxyEvent;
+
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT)
+      );
+
+      const actualResponse = await postOccupationSkillsHandler(givenEvent);
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(JSON.parse(actualResponse.body)).toMatchObject({
+        errorCode: OccupationAPISpecs.Occupation.Skills.POST.Errors.Status400.ErrorCodes.RELATION_CODE_INCONSISTENT,
+      });
+    });
+
     test("should respond with BAD_REQUEST when Local occupation has both relationType and signallingValueLabel", async () => {
       const givenModelId = getMockStringId(1);
       const givenOccupationId = getMockStringId(2);

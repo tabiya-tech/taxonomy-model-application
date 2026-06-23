@@ -177,6 +177,14 @@ export class OccupationSkillsPostController {
               ""
             );
           }
+          if (error.code === SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT) {
+            return errorResponse(
+              StatusCodes.BAD_REQUEST,
+              OccupationAPISpecs.Occupation.Skills.POST.Errors.Status400.ErrorCodes.RELATION_CODE_INCONSISTENT,
+              "Relation code inconsistent",
+              ""
+            );
+          }
           if (error.code === SkillForOccupationValidationErrorCode.MUTUALLY_EXCLUSIVE_VALUES) {
             return errorResponse(
               StatusCodes.BAD_REQUEST,

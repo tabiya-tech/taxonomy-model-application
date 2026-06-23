@@ -9,6 +9,7 @@ export enum SkillForOccupationValidationErrorCode {
   INVALID_SIGNALLING_VALUE_LABEL,
   MUTUALLY_EXCLUSIVE_VALUES,
   DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION,
+  RELATION_CODE_INCONSISTENT,
 }
 
 export class OccupationSkillValidationError extends Error {

@@ -552,6 +552,37 @@ describe("Test for skill Occupations POST handler", () => {
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
     });
 
+    test("should respond with BAD_REQUEST when relation code is inconsistent", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkillId = getMockStringId(2);
+      const givenOccupationId = getMockStringId(3);
+
+      const givenEvent = {
+        httpMethod: "POST",
+        path: `/models/${givenModelId}/skills/${givenSkillId}/occupations`,
+        pathParameters: { modelId: givenModelId, id: givenSkillId },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requiringOccupationId: givenOccupationId,
+          relationType: SkillAPISpecs.Enums.OccupationToSkillRelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValueLabel.NONE,
+        }),
+      } as unknown as APIGatewayProxyEvent;
+
+      checkRole.mockResolvedValue(true);
+
+      const givenSkillServiceMock = mockGetServiceRegistry().skill;
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+
+      const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
+      (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT)
+      );
+
+      const actualResponse = await postSkillOccupationsHandler(givenEvent);
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    });
+
     test("should respond with BAD_REQUEST when Local occupation has both relationType and signallingValueLabel", async () => {
       const givenModelId = getMockStringId(1);
       const givenSkillId = getMockStringId(2);
