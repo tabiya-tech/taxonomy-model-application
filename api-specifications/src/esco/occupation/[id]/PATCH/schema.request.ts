@@ -1,12 +1,11 @@
-// src/.../schema.POST.request.ts
 import { SchemaObject } from "ajv";
-import { _baseProperties } from "../_shared/schemas.base";
-import OccupationEnums from "../_shared/enums";
-import OccupationRegexes from "../_shared/regex";
-import OccupationConstants from "../_shared/constants";
+import { _baseProperties } from "../../_shared/schemas.base";
+import OccupationEnums from "../../_shared/enums";
+import OccupationRegexes from "../../_shared/regex";
+import OccupationConstants from "../../_shared/constants";
 
-const SchemaPOSTRequest: SchemaObject = {
-  $id: "/components/schemas/OccupationRequestSchemaPOST",
+const SchemaPATCHRequest: SchemaObject = {
+  $id: "/components/schemas/OccupationRequestSchemaPATCH",
   type: "object",
   additionalProperties: false,
   properties: {
@@ -45,22 +44,6 @@ const SchemaPOSTRequest: SchemaObject = {
       },
     },
   },
-
-  required: [
-    "code",
-    "occupationGroupCode",
-    "preferredLabel",
-    "originUri",
-    "UUIDHistory",
-    "altLabels",
-    "definition",
-    "description",
-    "regulatedProfessionNote",
-    "scopeNote",
-    "modelId",
-    "occupationType",
-    "isLocalized",
-  ],
 };
 
-export default SchemaPOSTRequest;
+export default SchemaPATCHRequest;

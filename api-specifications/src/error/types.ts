@@ -67,6 +67,12 @@ namespace ErrorTypes {
       | OccupationAPI.Occupation.Parent.GET.Errors.Status500.ErrorCodes
       | OccupationAPI.Occupation.Children.GET.Errors.Status500.ErrorCodes
       | OccupationAPI.Occupation.Skills.GET.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.PUT.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.PUT.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.PUT.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.PATCH.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.PATCH.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.PATCH.Errors.Status500.ErrorCodes
       | ModelInfo.Enums.GET.Response.ErrorCodes
       | SkillsAPI.POST.Errors.Status400.ErrorCodes
       | SkillsAPI.POST.Errors.Status404.ErrorCodes
@@ -117,6 +123,12 @@ namespace ErrorTypes {
       | OccupationAPI.POST.Errors.Status400.ErrorCodes
       | OccupationAPI.POST.Errors.Status404.ErrorCodes
       | OccupationAPI.POST.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.PUT.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.PUT.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.PUT.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.PATCH.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.PATCH.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.PATCH.Errors.Status500.ErrorCodes
       | SkillsAPI.POST.Errors.Status400.ErrorCodes
       | SkillsAPI.POST.Errors.Status404.ErrorCodes
       | SkillsAPI.POST.Errors.Status500.ErrorCodes;
@@ -164,6 +176,8 @@ namespace ErrorTypes {
       | OccupationAPI.Occupation.Parent.GET.Errors.Status500.ErrorCodes
       | OccupationAPI.Occupation.Children.GET.Errors.Status500.ErrorCodes
       | OccupationAPI.Occupation.Skills.GET.Errors.Status500.ErrorCodes
+      | OccupationAPI.Occupation.PUT.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.PATCH.Errors.Status404.ErrorCodes
       | SkillsAPI.GET.Errors.Status400.ErrorCodes
       | SkillsAPI.GET.Errors.Status404.ErrorCodes
       | SkillsAPI.GET.Errors.Status500.ErrorCodes
@@ -183,7 +197,12 @@ namespace ErrorTypes {
     details: string;
   }
   export interface PATCH {
-    errorCode: ErrorConstants.Common.ErrorCodes | ErrorConstants.PATCH.ErrorCodes;
+    errorCode:
+      | ErrorConstants.Common.ErrorCodes
+      | ErrorConstants.PATCH.ErrorCodes
+      | OccupationAPI.Occupation.PATCH.Errors.Status400.ErrorCodes
+      | OccupationAPI.Occupation.PATCH.Errors.Status404.ErrorCodes
+      | OccupationAPI.Occupation.PATCH.Errors.Status500.ErrorCodes;
     message: string;
     details: string;
   }

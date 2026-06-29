@@ -1,12 +1,11 @@
-// src/.../schema.POST.request.ts
 import { SchemaObject } from "ajv";
-import { _baseProperties } from "../_shared/schemas.base";
-import OccupationEnums from "../_shared/enums";
-import OccupationRegexes from "../_shared/regex";
-import OccupationConstants from "../_shared/constants";
+import { _baseProperties } from "../../_shared/schemas.base";
+import OccupationEnums from "../../_shared/enums";
+import OccupationRegexes from "../../_shared/regex";
+import OccupationConstants from "../../_shared/constants";
 
-const SchemaPOSTRequest: SchemaObject = {
-  $id: "/components/schemas/OccupationRequestSchemaPOST",
+const SchemaPUTRequest: SchemaObject = {
+  $id: "/components/schemas/OccupationRequestSchemaPUT",
   type: "object",
   additionalProperties: false,
   properties: {
@@ -63,4 +62,4 @@ const SchemaPOSTRequest: SchemaObject = {
   ],
 };
 
-export default SchemaPOSTRequest;
+export default SchemaPUTRequest;
