@@ -1,9 +1,13 @@
 import { render, screen } from "src/_test_utilities/test-utils";
-import { RouterProvider, createMemoryRouter } from "react-router-dom";
+import { RouterProvider, createMemoryRouter, generatePath } from "react-router-dom";
 import routesConfig, { routerPaths } from "./routerConfig";
 import { DATA_TEST_ID as INFO_DATA_TEST_ID } from "src/info/Info";
 import { DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID } from "src/modeldirectory/ModelDirectory";
 import { DATA_TEST_ID as NOT_FOUND_DATA_TEST_ID } from "src/errorPage/NotFound";
+import { DATA_TEST_ID as EXPLORER_DATA_TEST_ID } from "src/explorer/Explorer";
+import { DATA_TEST_ID as OCCUPATIONS_EXPLORER_DATA_TEST_ID } from "src/explorer/OccupationsExplorer/OccupationsExplorer";
+import { DATA_TEST_ID as SKILLS_EXPLORER_DATA_TEST_ID } from "src/explorer/SkillsExplorer/SkillsExplorer";
+
 // Mock the Info component as it has dependencies to the backend, and we do not want to test that here
 jest.mock("src/info/Info", () => {
   const actual = jest.requireActual("src/info/Info");
@@ -17,7 +21,6 @@ jest.mock("src/info/Info", () => {
 });
 
 // Mock the model directory as it has dependencies to the backend, and we do not want to test that here
-
 jest.mock("src/modeldirectory/ModelDirectory", () => {
   const actual = jest.requireActual("src/modeldirectory/ModelDirectory");
   return {
@@ -29,7 +32,7 @@ jest.mock("src/modeldirectory/ModelDirectory", () => {
   };
 });
 
-// Mock the not found page as
+// Mock the not found page as it has no dependencies but keeps the test isolated
 jest.mock("src/errorPage/NotFound", () => {
   const actual = jest.requireActual("src/errorPage/NotFound");
   return {
@@ -82,6 +85,64 @@ describe("Tests for router config", () => {
 
     // THEN expect the model directory to be available
     expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toBeInTheDocument();
+  });
+
+  it("should render the explorer page", () => {
+    // WHEN the EXPLORER path is chosen
+    renderWithRouter(routerPaths.EXPLORER);
+
+    // THEN expect the explorer page to be available
+    expect(screen.getByTestId(EXPLORER_DATA_TEST_ID.EXPLORER)).toBeInTheDocument();
+  });
+
+  it("should render the occupations page", () => {
+    // GIVEN an occupations path with a model ID
+    const givenPath = generatePath(routerPaths.EXPLORER_OCCUPATIONS, { modelId: "some-model-id" });
+
+    // WHEN the EXPLORER_OCCUPATIONS path is chosen
+    renderWithRouter(givenPath);
+
+    // THEN expect the occupations page to be available
+    expect(screen.getByTestId(OCCUPATIONS_EXPLORER_DATA_TEST_ID.OCCUPATIONS_EXPLORER)).toBeInTheDocument();
+  });
+
+  it("should render the occupations detail page", () => {
+    // GIVEN an occupations detail path with a model ID and occupation ID
+    const givenPath = generatePath(routerPaths.EXPLORER_OCCUPATIONS_DETAIL, {
+      modelId: "some-model-id",
+      occupationId: "some-occupation-id",
+    });
+
+    // WHEN the EXPLORER_OCCUPATIONS_DETAIL path is chosen
+    renderWithRouter(givenPath);
+
+    // THEN expect the occupations page to be available
+    expect(screen.getByTestId(OCCUPATIONS_EXPLORER_DATA_TEST_ID.OCCUPATIONS_EXPLORER)).toBeInTheDocument();
+  });
+
+  it("should render the skills page", () => {
+    // GIVEN a skills path with a model ID
+    const givenPath = generatePath(routerPaths.EXPLORER_SKILLS, { modelId: "some-model-id" });
+
+    // WHEN the EXPLORER_SKILLS path is chosen
+    renderWithRouter(givenPath);
+
+    // THEN expect the skills page to be available
+    expect(screen.getByTestId(SKILLS_EXPLORER_DATA_TEST_ID.SKILLS_EXPLORER)).toBeInTheDocument();
+  });
+
+  it("should render the skills detail page", () => {
+    // GIVEN a skills detail path with a model ID and skill ID
+    const givenPath = generatePath(routerPaths.EXPLORER_SKILLS_DETAIL, {
+      modelId: "some-model-id",
+      skillId: "some-skill-id",
+    });
+
+    // WHEN the EXPLORER_SKILLS_DETAIL path is chosen
+    renderWithRouter(givenPath);
+
+    // THEN expect the skills page to be available
+    expect(screen.getByTestId(SKILLS_EXPLORER_DATA_TEST_ID.SKILLS_EXPLORER)).toBeInTheDocument();
   });
 
   it("should render not found page", () => {
