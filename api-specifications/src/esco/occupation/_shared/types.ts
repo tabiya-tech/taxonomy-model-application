@@ -174,6 +174,24 @@ namespace OccupationTypes {
     }
   }
 
+  export namespace Detail.PUT {
+    export namespace Request {
+      export type Payload = IOccupationRequest;
+    }
+    export namespace Response {
+      export type Payload = IOccupationResponse;
+    }
+  }
+
+  export namespace Detail.PATCH {
+    export namespace Request {
+      export type Payload = Partial<IOccupationRequest>;
+    }
+    export namespace Response {
+      export type Payload = IOccupationResponse;
+    }
+  }
+
   export namespace Detail.parent.GET {
     export namespace Response {
       export type Payload = IOccupationResponse | OccupationGroupTypes.Response.IOccupationGroup | null;

@@ -4,6 +4,8 @@ import OccupationTypes from "../_shared/types";
 import OccupationRegexes from "../_shared/regex";
 
 import GETOccupationByIdOperation from "./GET";
+import PUTOccupationOperation from "./PUT";
+import PATCHOccupationOperation from "./PATCH";
 import OccupationParentAPISpecs from "./parent";
 import OccupationChildrenAPISpecs from "./children";
 import OccupationSkillsAPISpecs from "./skills";
@@ -17,9 +19,8 @@ namespace OccupationInstanceAPISpecs {
   export import Patterns = OccupationRegexes;
 
   export import GET = GETOccupationByIdOperation;
-  // Placeholders for future methods
-  // export import PUT = PUTOccupationOperation;
-  // export import DELETE = DELETEOccupationOperation;
+  export import PUT = PUTOccupationOperation;
+  export import PATCH = PATCHOccupationOperation;
 
   // Child API Paths
   export import Parent = OccupationParentAPISpecs;
