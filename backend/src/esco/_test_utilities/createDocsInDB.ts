@@ -88,6 +88,24 @@ export async function linkSkillGroupToSkillChildrenInDB(
   }));
   await getRepositoryRegistry().skillHierarchy.createMany(modelId, newHierarchySpecs);
 }
+
+export async function createChildSkillGroups(parentSkillGroup: ISkillGroup, count: number): Promise<ISkillGroup[]> {
+  const modelId = parentSkillGroup.modelId.toString();
+  const childSkillGroups = await createSkillGroupsInDB(count, modelId);
+
+  const newHierarchySpecs: INewSkillHierarchyPairSpec[] = childSkillGroups.map((childSkillGroup) => ({
+    parentId: parentSkillGroup.id.toString(),
+    parentType: ObjectTypes.SkillGroup,
+    childId: childSkillGroup.id.toString(),
+    childType: ObjectTypes.SkillGroup,
+  }));
+
+  const createdHierarchies = await getRepositoryRegistry().skillHierarchy.createMany(modelId, newHierarchySpecs);
+  if (createdHierarchies.length !== count) throw new Error("Failed to create skill hierarchy");
+
+  return childSkillGroups;
+}
+
 function getRandomOccupationGroup(modelId: string) {
   return {
     modelId: modelId,

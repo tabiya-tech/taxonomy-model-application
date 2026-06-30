@@ -19,7 +19,21 @@ import {
   createSkillsInDB,
   createModelInDB,
   createSkillGroupInDB,
+  createChildSkillGroups,
 } from "esco/_test_utilities/createDocsInDB";
+import { APIGatewayProxyEvent } from "aws-lambda";
+
+function buildRequestEvent(modelId: string, queryStringParameters: object): APIGatewayProxyEvent {
+  return {
+    httpMethod: HTTP_VERBS.GET,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    pathParameters: { modelId: modelId.toString() },
+    path: `/models/${modelId.toString()}/skillGroups`,
+    queryStringParameters,
+  } as unknown as APIGatewayProxyEvent;
+}
 
 describe("Test for skillGroup handler with a DB", () => {
   // setup the ajv validate GET, POST, etc response functions
@@ -73,18 +87,10 @@ describe("Test for skillGroup handler with a DB", () => {
     );
 
     // AND a valid request (method & header)
-    const givenEvent = {
-      httpMethod: HTTP_VERBS.GET,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      pathParameters: { modelId: givenModelInfo.id.toString() },
-      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
-      queryStringParameters: {
-        limit: limit.toString(),
-        cursor: cursor,
-      },
-    };
+    const givenEvent = buildRequestEvent(givenModelInfo.id, {
+      limit: limit.toString(),
+      cursor: cursor,
+    });
 
     // WHEN the handler is invoked with the given event
     // @ts-ignore
@@ -109,18 +115,10 @@ describe("Test for skillGroup handler with a DB", () => {
     );
 
     // AND a valid request (method & header)
-    const givenEvent = {
-      httpMethod: HTTP_VERBS.GET,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      pathParameters: { modelId: givenModelInfo.id.toString() },
-      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
-      queryStringParameters: {
-        limit: limit,
-        cursor: cursor,
-      },
-    };
+    const givenEvent = buildRequestEvent(givenModelInfo.id, {
+      limit: limit,
+      cursor: cursor,
+    });
 
     // WHEN the handler is invoked with the given event
     // @ts-ignore
@@ -152,13 +150,7 @@ describe("Test for skillGroup handler with a DB", () => {
     await createSkillGroupsInDB(5, givenModelInfo.id.toString());
 
     // Baseline: get first 3 to capture the server’s ordering
-    const baselineEvent = {
-      httpMethod: HTTP_VERBS.GET,
-      headers: { "Content-Type": "application/json" },
-      pathParameters: { modelId: givenModelInfo.id.toString() },
-      queryStringParameters: { limit: "3" },
-      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
-    };
+    const baselineEvent = buildRequestEvent(givenModelInfo.id, { limit: "3" });
     // @ts-ignore
     const baselineResponse = await skillGroupHandler(baselineEvent);
     expect(baselineResponse.statusCode).toEqual(StatusCodes.OK);
@@ -167,13 +159,7 @@ describe("Test for skillGroup handler with a DB", () => {
     expect(baselineIds).toHaveLength(3);
 
     // Page 1 (single): limit=1, no cursor
-    const page1Event = {
-      httpMethod: HTTP_VERBS.GET,
-      headers: { "Content-Type": "application/json" },
-      pathParameters: { modelId: givenModelInfo.id.toString() },
-      queryStringParameters: { limit: "1" },
-      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
-    };
+    const page1Event = buildRequestEvent(givenModelInfo.id, { limit: "1" });
     // @ts-ignore
     const page1Response = await skillGroupHandler(page1Event);
     expect(page1Response.statusCode).toEqual(StatusCodes.OK);
@@ -183,13 +169,7 @@ describe("Test for skillGroup handler with a DB", () => {
     expect(page1Body.nextCursor).toBeDefined();
 
     // Page 2 (single): limit=1 with cursor from page1
-    const page2Event = {
-      httpMethod: HTTP_VERBS.GET,
-      headers: { "Content-Type": "application/json" },
-      pathParameters: { modelId: givenModelInfo.id.toString() },
-      queryStringParameters: { limit: "1", cursor: page1Body.nextCursor },
-      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
-    };
+    const page2Event = buildRequestEvent(givenModelInfo.id, { limit: "1", cursor: page1Body.nextCursor });
     // @ts-ignore
     const page2Response = await skillGroupHandler(page2Event);
     expect(page2Response.statusCode).toEqual(StatusCodes.OK);
@@ -199,13 +179,7 @@ describe("Test for skillGroup handler with a DB", () => {
     expect(page2Body.nextCursor).toBeDefined();
 
     // Page 3 (single): limit=1 with cursor from page2
-    const page3Event = {
-      httpMethod: HTTP_VERBS.GET,
-      headers: { "Content-Type": "application/json" },
-      pathParameters: { modelId: givenModelInfo.id.toString() },
-      queryStringParameters: { limit: "1", cursor: page2Body.nextCursor },
-      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
-    };
+    const page3Event = buildRequestEvent(givenModelInfo.id, { limit: "1", cursor: page2Body.nextCursor });
     // @ts-ignore
     const page3Response = await skillGroupHandler(page3Event);
     expect(page3Response.statusCode).toEqual(StatusCodes.OK);
@@ -223,13 +197,7 @@ describe("Test for skillGroup handler with a DB", () => {
     await createSkillGroupsInDB(20, givenModelInfo.id.toString());
 
     // Baseline: first 20 to know expected order
-    const baselineEvent = {
-      httpMethod: HTTP_VERBS.GET,
-      headers: { "Content-Type": "application/json" },
-      pathParameters: { modelId: givenModelInfo.id.toString() },
-      queryStringParameters: { limit: "20" },
-      path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
-    };
+    const baselineEvent = buildRequestEvent(givenModelInfo.id, { limit: "20" });
     // @ts-ignore
     const baselineResponse = await skillGroupHandler(baselineEvent);
     expect(baselineResponse.statusCode).toEqual(StatusCodes.OK);
@@ -251,13 +219,7 @@ describe("Test for skillGroup handler with a DB", () => {
 
     // WHEN paging through with the random page sizes
     for (const size of pageSizes) {
-      const event = {
-        httpMethod: HTTP_VERBS.GET,
-        headers: { "Content-Type": "application/json" },
-        pathParameters: { modelId: givenModelInfo.id.toString() },
-        queryStringParameters: { limit: size.toString(), ...(cursor ? { cursor } : {}) },
-        path: `/models/${givenModelInfo.id.toString()}/skillGroups`,
-      };
+      const event = buildRequestEvent(givenModelInfo.id, { limit: size.toString(), ...(cursor ? { cursor } : {}) });
       // @ts-ignore
       const resp = await skillGroupHandler(event);
       expect(resp.statusCode).toEqual(StatusCodes.OK);
@@ -297,21 +259,12 @@ describe("Test for skillGroup handler with a DB", () => {
       // AND a valid request that filters by the three child skill ids and the Skill children type
       const givenChildrenIds = givenChildSkills.map((skill) => skill.id.toString()).join(";");
       const givenChildrenType = SkillGroupAPISpecs.Enums.Relations.Children.ObjectTypes.Skill;
-      const givenEvent = {
-        httpMethod: HTTP_VERBS.GET,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        pathParameters: { modelId: givenModelId },
-        path: `/models/${givenModelId}/skillGroups`,
-        queryStringParameters: {
-          childrenIds: givenChildrenIds,
-          childrenType: givenChildrenType,
-        },
-      };
+      const givenEvent = buildRequestEvent(givenModelId, {
+        childrenIds: givenChildrenIds,
+        childrenType: givenChildrenType,
+      });
 
       // WHEN the handler is invoked with the given event
-      // @ts-ignore
       const actualResponse = await skillGroupHandler(givenEvent);
 
       // THEN expect the handler to respond with the OK status code
@@ -346,21 +299,12 @@ describe("Test for skillGroup handler with a DB", () => {
       // AND a valid request that filters by random skill ids that are not children of any skillGroup
       const givenRandomChildrenIds = [getMockStringId(900), getMockStringId(901), getMockStringId(902)].join(";");
       const givenChildrenType = SkillGroupAPISpecs.Enums.Relations.Children.ObjectTypes.Skill;
-      const givenEvent = {
-        httpMethod: HTTP_VERBS.GET,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        pathParameters: { modelId: givenModelId },
-        path: `/models/${givenModelId}/skillGroups`,
-        queryStringParameters: {
-          childrenIds: givenRandomChildrenIds,
-          childrenType: givenChildrenType,
-        },
-      };
+      const givenEvent = buildRequestEvent(givenModelId, {
+        childrenIds: givenRandomChildrenIds,
+        childrenType: givenChildrenType,
+      });
 
       // WHEN the handler is invoked with the given event
-      // @ts-ignore
       const actualResponse = await skillGroupHandler(givenEvent);
 
       // THEN expect the handler to respond with the OK status code
@@ -374,6 +318,64 @@ describe("Test for skillGroup handler with a DB", () => {
       // AND the response to contain an empty array of skillGroups
       const actualSkillGroups = actualBody.data as ISkillGroup[];
       expect(actualSkillGroups).toEqual([]);
+    });
+  });
+
+  describe("GET filtering skillGroups by root", () => {
+    test("GET should only return root skillGroups when provided a query param root=true", async () => {
+      // GIVEN a taxonomy model exists in the DB
+      const givenModelInfo = await createModelInDB();
+      const givenModelId = givenModelInfo.id.toString();
+
+      // AND a parent (root) skillGroup exists in that model
+      const givenParentSkillGroup = await createSkillGroupInDB(givenModelId);
+
+      // AND two child skillGroups of the parent exist in that model
+      const givenChildSkillGroups = await createChildSkillGroups(givenParentSkillGroup, 2);
+      expect(givenChildSkillGroups).toHaveLength(2); // guard to ensure the children were actually created
+
+      // AND a valid request that filters by root=true
+      const givenRootEvent = buildRequestEvent(givenModelId, {
+        limit: "10",
+        root: "true",
+      });
+
+      // WHEN the handler is invoked with the given event
+      // @ts-ignore
+      const actualRootResponse = await skillGroupHandler(givenRootEvent);
+
+      // THEN expect the handler to respond with the OK status code
+      expect(actualRootResponse.statusCode).toEqual(StatusCodes.OK);
+
+      // AND the response to validate against the SkillGroupResponseGET schema
+      const actualRootBody = JSON.parse(actualRootResponse.body);
+      validateGETResponse(actualRootBody);
+      expect(validateGETResponse.errors).toBeNull();
+
+      // AND the response to contain exactly the parent (root) skillGroup
+      const actualRootSkillGroups = actualRootBody.data as ISkillGroup[];
+      expect(actualRootSkillGroups).toHaveLength(1);
+      expect(actualRootSkillGroups[0].id.toString()).toEqual(givenParentSkillGroup.id.toString());
+
+      // AND the child skillGroups to not be included in the response
+      const actualRootIds = actualRootSkillGroups.map((skillGroup) => skillGroup.id.toString());
+      for (const givenChildSkillGroup of givenChildSkillGroups) {
+        expect(actualRootIds).not.toContain(givenChildSkillGroup.id.toString());
+      }
+
+      // WHEN the handler is invoked without the root filter
+      const givenAllEvent = buildRequestEvent(givenModelId, {
+        limit: "10",
+      });
+
+      const actualAllResponse = await skillGroupHandler(givenAllEvent);
+
+      // THEN expect the handler to respond with the OK status code
+      expect(actualAllResponse.statusCode).toEqual(StatusCodes.OK);
+
+      // AND the response to contain the parent and all of its children
+      const actualAllBody = JSON.parse(actualAllResponse.body);
+      expect(actualAllBody.data as ISkillGroup[]).toHaveLength(1 + givenChildSkillGroups.length);
     });
   });
 });

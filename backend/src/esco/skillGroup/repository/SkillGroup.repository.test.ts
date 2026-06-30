@@ -1196,6 +1196,98 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       aggregateSpy.mockRestore();
       modelAggregateSpy.mockRestore();
     });
+
+    test("should call the model with the right pipeline when requesting root skillGroups", async () => {
+      // GIVEN a modelId, a limit and a descending sort order
+      const givenModelId = getMockStringId(1);
+      const givenLimit = 5;
+      const givenSortOrder = -1;
+      // AND a filter requesting only root skillGroups
+      const givenFilter = { root: true };
+      // AND the model's aggregate will resolve to an empty result set
+      const aggregateSpy = jest.spyOn(repository.Model, "aggregate").mockReturnValue({
+        exec: jest.fn().mockResolvedValue([]),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      // WHEN finding paginated root skillGroups
+      const actualResult = await repository.findPaginated(
+        givenModelId,
+        givenLimit,
+        givenSortOrder,
+        undefined,
+        givenFilter
+      );
+
+      // THEN expect an empty result to be returned
+      expect(actualResult).toEqual([]);
+      // AND expect aggregate to have been called exactly once with the root-aware pipeline
+      const expectedPipeline = [
+        {
+          $match: {
+            modelId: expect.any(mongoose.Types.ObjectId),
+          },
+        },
+        {
+          $lookup: {
+            from: repository.hierarchyModel.collection.name,
+            let: { groupId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$childId", "$$groupId"] },
+                  modelId: { $eq: expect.any(mongoose.Types.ObjectId) },
+                  childType: { $in: [ObjectTypes.SkillGroup] },
+                },
+              },
+            ],
+            as: "parent_links",
+          },
+        },
+        {
+          $match: {
+            parent_links: { $eq: [] },
+          },
+        },
+        { $sort: { _id: givenSortOrder } },
+        { $limit: givenLimit },
+      ];
+      expect(aggregateSpy).toHaveBeenCalledTimes(1);
+      expect(aggregateSpy).toHaveBeenCalledWith(expectedPipeline);
+
+      // AND expect the modelId used in both the lookup and the top-level match to be the given modelId
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const actualPipeline = aggregateSpy.mock.calls[0][0] as any[];
+      expect(actualPipeline[1].$lookup.pipeline[0].$match.modelId.$eq.toString()).toBe(givenModelId);
+      expect(actualPipeline[0].$match.modelId.toString()).toBe(givenModelId);
+
+      aggregateSpy.mockRestore();
+    });
+
+    test("should return only root skillGroups when filter.root is true", async () => {
+      // GIVEN a modelId
+      const givenModelId = getMockStringId(1);
+      // AND a root skillGroup that has no parent
+      const givenRootSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "root-group"));
+      // AND a child skillGroup that has the root skillGroup as a parent
+      const givenChildSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "child-group"));
+      await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.SkillGroup,
+          parentId: givenRootSkillGroup.id,
+          childType: ObjectTypes.SkillGroup,
+          childId: givenChildSkillGroup.id,
+        },
+      ]);
+
+      // WHEN finding paginated skillGroups filtered by root=true
+      const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, { root: true });
+
+      // THEN expect only the root skillGroup to be returned
+      expect(actual.map((item) => item.id)).toEqual([givenRootSkillGroup.id]);
+      // AND expect the child skillGroup to not be included in the response
+      expect(actual.map((item) => item.id)).not.toContain(givenChildSkillGroup.id);
+    });
   });
 
   describe("Test findParents()", () => {

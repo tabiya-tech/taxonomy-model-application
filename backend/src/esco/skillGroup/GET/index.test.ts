@@ -16,10 +16,12 @@ import { randomUUID } from "node:crypto";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
+import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
 jest.mock("./response");
+jest.mock("common/formatters/parseBooleanQueryParam");
 jest.mock("validator", () => ({
   ajvInstance: {
     getSchema: jest.fn(),
@@ -29,6 +31,7 @@ jest.mock("validator", () => ({
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
 const mockGetSkillGroupsPathParameters = jest.mocked(queryModule.getSkillGroupsPathParameters);
 const mockTransformPaginated = jest.mocked(responseModule.transformPaginated);
+const mockParseBooleanQueryParam = jest.mocked(parseBooleanQueryParam);
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
 
@@ -44,6 +47,8 @@ describe("SkillGroupListController", () => {
     getMockGetSchema().mockReset();
     mockGetSkillGroupsPathParameters.mockReset();
     mockTransformPaginated.mockReset();
+    mockParseBooleanQueryParam.mockReset();
+    mockParseBooleanQueryParam.mockReturnValue(false);
     checkRole.mockResolvedValue(true);
     const mockServiceRegistry = {
       skillGroup: {
@@ -180,7 +185,9 @@ describe("SkillGroupListController", () => {
     });
 
     // verify the service was called correctly
-    expect(getServiceRegistry().skillGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, limit);
+    expect(getServiceRegistry().skillGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, limit, true, {
+      root: false,
+    });
     // AND the response body contains a nextCursor (base64 encoded)
     const responseBody = JSON.parse(actualResponse.body);
     expect(responseBody.nextCursor).toBeDefined();
@@ -207,7 +214,9 @@ describe("SkillGroupListController", () => {
     const actualResponse = await controller.getSkillGroups(buildEvent(`/models/${givenModelId}/skillGroups`));
 
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
-    expect(mockServiceRegistry.skillGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, 100);
+    expect(mockServiceRegistry.skillGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, 100, true, {
+      root: false,
+    });
   });
   test("GET skillGroups should forward children filters when both childrenIds and childrenType are provided", async () => {
     const validatePathFunction = jest.fn().mockReturnValue(true);
@@ -231,8 +240,47 @@ describe("SkillGroupListController", () => {
 
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
     expect(mockServiceRegistry.skillGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, 100, true, {
+      root: false,
       childrenIds,
       childrenType,
+    });
+  });
+
+  test("GET skillGroups should parse the 'root' query parameter and forward the result to the service as the root filter", async () => {
+    // GIVEN path & query validation pass and the path resolves to the given modelId
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+
+    // AND a service that resolves to an empty page
+    const expectedDefaultLimit = 100;
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    const givenFindPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
+    mockServiceRegistry.skillGroup.findPaginated = givenFindPaginated;
+    mockTransformPaginated.mockReturnValue({ data: [], limit: expectedDefaultLimit, nextCursor: null } as never);
+
+    // AND parseBooleanQueryParam will parse the raw 'root' query parameter to a known value
+    const givenRawRoot = "some-raw-value";
+    const givenParsedRoot = true;
+    mockParseBooleanQueryParam.mockReturnValue(givenParsedRoot);
+
+    // WHEN the skillGroups handler is invoked with a 'root' query parameter
+    const controller = new SkillGroupListController();
+    const actualResponse = await controller.getSkillGroups(
+      buildEvent(`/models/${givenModelId}/skillGroups`, { root: givenRawRoot })
+    );
+
+    // THEN expect the handler to return the OK status
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+    // AND expect the raw 'root' query parameter to have been parsed
+    expect(mockParseBooleanQueryParam).toHaveBeenCalledWith(givenRawRoot);
+    // AND expect the parsed value to be forwarded to the service as the root filter
+    expect(givenFindPaginated).toHaveBeenCalledWith(givenModelId, undefined, expectedDefaultLimit, true, {
+      root: givenParsedRoot,
     });
   });
   test("GET skillGroups should respond with the BAD_REQUEST status code if the modelId is not passed as a path parameter", async () => {

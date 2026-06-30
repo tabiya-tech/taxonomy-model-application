@@ -9,6 +9,10 @@ const SchemaGETRequestQueryParam: SchemaObject = {
   additionalProperties: false,
   properties: {
     ...JSON.parse(JSON.stringify(_baseQueryParameterSchema)),
+    root: {
+      description: "Filter only root skill groups (skill groups with no parent).",
+      type: "boolean",
+    },
     childrenIds: {
       description: "Semicolon-separated IDs of children used to filter parent skill groups.",
       type: "string",

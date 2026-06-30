@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
 import {
   INewSkillGroupSpec,
@@ -18,10 +18,12 @@ import stream from "stream";
 import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { SkillHierarchyModelPaths } from "esco/skillHierarchy/skillHierarchyModel";
 
 interface FindPaginatedFilter {
   childrenIds?: string;
   childrenType?: ObjectTypes.Skill | ObjectTypes.SkillGroup;
+  root?: boolean;
 }
 
 export interface ISkillGroupRepository {
@@ -215,11 +217,37 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         };
       }
 
-      const results = await this.Model.aggregate([
-        { $match: matchStage },
-        { $sort: { _id: sortOrder } },
-        { $limit: limit },
-      ]).exec();
+      const pipeline: PipelineStage[] = [{ $match: matchStage }];
+
+      // When requesting only root skill groups, keep the ones that are not a child in the skill hierarchy.
+      if (filter?.root) {
+        pipeline.push({
+          $lookup: {
+            from: this.hierarchyModel.collection.name,
+            let: { groupId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: [`$${SkillHierarchyModelPaths.childId}`, "$$groupId"] },
+                  modelId: { $eq: modelIdObj },
+                  childType: { $in: [ObjectTypes.SkillGroup] },
+                },
+              },
+            ],
+            as: "parent_links",
+          },
+        });
+
+        pipeline.push({
+          $match: {
+            parent_links: { $eq: [] },
+          },
+        });
+      }
+
+      pipeline.push({ $sort: { _id: sortOrder } }, { $limit: limit });
+
+      const results = await this.Model.aggregate(pipeline).exec();
 
       const hydrated = results.map((r) => this.Model.hydrate(r));
       const populated = await this.Model.populate(hydrated, [
