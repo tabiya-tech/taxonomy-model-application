@@ -4,6 +4,7 @@ import {
   testValidSchema,
   testLimitField,
   testCursorField,
+  testBooleanField,
 } from "_test_utilities/stdSchemaTests";
 import OccupationGroupGETAPISpecs from "./index";
 import { getTestBase64String } from "_test_utilities/specialCharacters";
@@ -22,6 +23,7 @@ describe("Test objects against the OccupationGroupGETAPISpecs.Schemas.Request.Qu
   const givenValidOccupationGroupGetQueryParameter = {
     limit: 10,
     cursor: getTestBase64String(OccupationGroupGETAPISpecs.Constants.MAX_CURSOR_LENGTH),
+    root: true,
   };
 
   // WHEN the object is validated
@@ -59,6 +61,9 @@ describe("Test objects against the OccupationGroupGETAPISpecs.Schemas.Request.Qu
         false,
         false
       );
+    });
+    describe("Test validate of 'root'", () => {
+      testBooleanField("root", OccupationGroupGETAPISpecs.Schemas.Request.Query.Payload, [], false);
     });
   });
 });

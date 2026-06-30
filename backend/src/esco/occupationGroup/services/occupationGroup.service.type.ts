@@ -11,6 +11,10 @@ export class OccupationGroupModelValidationError extends Error {
   }
 }
 
+export interface FindPaginatedFilter {
+  root?: boolean;
+}
+
 export interface IOccupationGroupService {
   /**
    * Creates a new OccupationGroup entry.
@@ -55,6 +59,7 @@ export interface IOccupationGroupService {
    * @param {object} cursor - The cursor for pagination.
    * @param {number} limit - The maximum number of OccupationGroups to return.
    * @param {boolean} [desc] - Whether to sort the results in descending order. Default is true.
+   * @param {FindPaginatedFilter} [filter] - Optional filter to apply to the query.
    * @return {Promise<{items: IOccupationGroup[], nextCursor: {_id: string, createdAt: Date} | null}>} - An array of IOccupationGroups and the next cursor (if any)
    * Rejects with an error if the operation fails.
    */
@@ -62,7 +67,8 @@ export interface IOccupationGroupService {
     modelId: string,
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
-    desc?: boolean
+    desc?: boolean,
+    filter?: FindPaginatedFilter
   ): Promise<{ items: IOccupationGroup[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   /**

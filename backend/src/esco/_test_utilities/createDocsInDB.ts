@@ -3,14 +3,18 @@ import LocaleAPISpecs from "api-specifications/locale";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
+import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 
 import { ObjectTypes } from "esco/common/objectTypes";
 import { ISkill } from "esco/skill/_shared/skill.types";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
-import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
+import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
-import { INewSkillHierarchyPairSpec } from "../skillHierarchy/skillHierarchy.types";
+import { INewSkillHierarchyPairSpec } from "esco/skillHierarchy/skillHierarchy.types";
+import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
+import { INewOccupationGroupSpec } from "../occupationGroup/_shared/OccupationGroup.types";
 
 export async function createModelInDB() {
   return await getRepositoryRegistry().modelInfo.create({
@@ -83,4 +87,58 @@ export async function linkSkillGroupToSkillChildrenInDB(
     childType: ObjectTypes.Skill,
   }));
   await getRepositoryRegistry().skillHierarchy.createMany(modelId, newHierarchySpecs);
+}
+function getRandomOccupationGroup(modelId: string) {
+  return {
+    modelId: modelId,
+    code: getMockRandomISCOGroupCode(),
+    groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+    preferredLabel: getRandomString(OccupationGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    description: getTestString(OccupationGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+    altLabels: [getRandomString(OccupationGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    originUri: `https://example.com/resources/${randomUUID()}`,
+    UUIDHistory: [randomUUID()],
+  };
+}
+
+export async function createOccupationGroupInDB(modelId: string = getMockStringId(1)) {
+  return await getRepositoryRegistry().OccupationGroup.create(getRandomOccupationGroup(modelId));
+}
+
+export async function createChildOccupationGroups(parentOccupationGroup: string, count: number) {
+  const parentOccupationGroupDoc = await getRepositoryRegistry().OccupationGroup.findById(parentOccupationGroup);
+  if (!parentOccupationGroupDoc)
+    throw new Error(`Invalid parentOccupationGroup: ${parentOccupationGroup}. Create it first.`);
+
+  const childrenDocs: INewOccupationGroupSpec[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const occupationGroup = getRandomOccupationGroup(parentOccupationGroupDoc.modelId.toString() || "");
+    occupationGroup.code = `${parentOccupationGroupDoc.code}${getMockRandomISCOGroupCode()}`;
+    childrenDocs.push({
+      ...occupationGroup,
+      importId: getMockStringId(1000),
+    });
+  }
+
+  const createdOccupationGroups = await getRepositoryRegistry().OccupationGroup.createMany(childrenDocs);
+  if (createdOccupationGroups.length != count) throw new Error("Failed to create occupation groups");
+
+  const hierarchySpecs = [];
+  for (const occupation of createdOccupationGroups) {
+    hierarchySpecs.push({
+      parentId: parentOccupationGroupDoc.id,
+      parentType: parentOccupationGroupDoc.groupType,
+      childId: occupation.id,
+      childType: occupation.groupType,
+    });
+  }
+
+  const createdHierarchies = await getRepositoryRegistry().occupationHierarchy.createMany(
+    parentOccupationGroupDoc.modelId,
+    hierarchySpecs
+  );
+  if (createdHierarchies.length != count) throw new Error("Failed to create occupation hierarchy");
+
+  return createdOccupationGroups;
 }
