@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { NavLink } from "react-router-dom";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
-import { routerPaths } from "src/app/routerConfig";
+import { routerPaths } from "src/app/routerPaths";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "src/auth/AuthProvider";
 import ContextMenu from "src/theme/ContextMenu/ContextMenu";

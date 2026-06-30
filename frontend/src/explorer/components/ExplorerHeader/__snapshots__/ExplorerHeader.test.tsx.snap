@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ExplorerHeader loading state should render skeleton while loading 1`] = `
+<div
+  class="MuiBox-root css-hb5gpu"
+  data-testid="explorer-header-skeleton-b1c2d3e4-f5a6-7890-bcde-f01234567890"
+>
+  <span
+    class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-qn5ikh-MuiSkeleton-root"
+    style="width: 340px; height: 48px;"
+  />
+  <span
+    class="MuiSkeleton-root MuiSkeleton-rounded MuiSkeleton-pulse css-qn1zrv-MuiSkeleton-root"
+    style="width: 120px; height: 36px;"
+  />
+</div>
+`;
+
+exports[`ExplorerHeader model selected should render the selected model name and version selector 1`] = `
+<div
+  class="MuiBox-root css-5jjjh"
+  data-testid="explorer-header-container-b1c2d3e4-f5a6-7890-bcde-f01234567890"
+>
+  <h2
+    class="MuiTypography-root MuiTypography-h2 css-1cpj7qj-MuiTypography-root"
+    data-testid="explorer-header-model-name-b1c2d3e4-f5a6-7890-bcde-f01234567890"
+  >
+    Taxonomy for South Africa
+  </h2>
+  <div
+    class="MuiBox-root css-1g0z69"
+  >
+    <div
+      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-sizeSmall  css-xztyev-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
+      data-testid="explorer-header-model-select-b1c2d3e4-f5a6-7890-bcde-f01234567890"
+    >
+      <div
+        aria-controls=":r0:"
+        aria-expanded="false"
+        aria-haspopup="listbox"
+        aria-label="Select taxonomy version"
+        class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-irnmsy-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+        role="combobox"
+        tabindex="0"
+      >
+        <p
+          class="MuiTypography-root MuiTypography-body2 css-1tedo5m-MuiTypography-root"
+        >
+          v1.0.1-rc.1
+        </p>
+      </div>
+      <input
+        aria-hidden="true"
+        aria-invalid="false"
+        class="MuiSelect-nativeInput css-yf8vq0-MuiSelect-nativeInput"
+        tabindex="-1"
+        value="000000000000000000000000"
+      />
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-ewbb5d-MuiSvgIcon-root-MuiSelect-icon"
+        data-testid="ArrowDropDownIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M7 10l5 5 5-5z"
+        />
+      </svg>
+      <fieldset
+        aria-hidden="true"
+        class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+      >
+        <legend
+          class="css-ihdtdm"
+        >
+          <span
+            class="notranslate"
+          >
+            ​
+          </span>
+        </legend>
+      </fieldset>
+    </div>
+  </div>
+</div>
+`;

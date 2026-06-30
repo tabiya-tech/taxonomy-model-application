@@ -1,5 +1,5 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { BrowserRouter as Router } from "react-router-dom";
+import { MemoryRouter as Router } from "react-router-dom";
 import { applicationTheme, ThemeMode } from "../src/theme/applicationTheme/applicationTheme";
 // Load fonts
 // The application font are typically loaded in the index.html, index.css or index.tsx file
@@ -67,6 +67,7 @@ export default preview;
 
 export const decorators = [
   (Story, context) => {
+    const initialEntries: string[] = context.parameters?.initialEntries ?? ["/"];
     const userRole = context.globals.userRole;
     const authContextValue = {
       ...authContextDefaultValue,
@@ -74,7 +75,7 @@ export const decorators = [
       hasRole: (role: string) => role === userRole,
     };
     return (
-      <Router>
+      <Router initialEntries={initialEntries}>
         <CssBaseline />
         <IsOnlineProvider>
           <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>

@@ -4,7 +4,7 @@ import "src/_test_utilities/consoleMock";
 import AppHeader, { DATA_TEST_ID, MENU_ITEM_ID, MENU_ITEM_TEXT } from "./AppHeader";
 import { render, screen } from "src/_test_utilities/test-utils";
 import { HashRouter } from "react-router-dom";
-import { routerPaths } from "src/app/routerConfig";
+import { routerPaths } from "src/app/routerPaths";
 
 import { testNavigateToPath } from "src/_test_utilities/routeNavigation";
 import { act, fireEvent, waitFor, within } from "@testing-library/react";

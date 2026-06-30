@@ -18,6 +18,8 @@ import ModelPropertiesDrawer, {
   CloseEvent as DrawerCloseEvent,
 } from "./components/ModelProperties/ModelPropertiesDrawer";
 import { getApiUrl, getLocalesUrl } from "src/envService";
+import { useNavigate, generatePath } from "react-router-dom";
+import { routerPaths } from "src/app/routerPaths";
 
 const uniqueId = "8482f1cc-0786-423f-821e-34b6b712d63f";
 export const DATA_TEST_ID = {
@@ -34,6 +36,7 @@ const exportService = new ExportService(getApiUrl());
 const localesService = new LocalesService(getLocalesUrl());
 
 const ModelDirectory = () => {
+  const navigate = useNavigate();
   const [isImportDlgOpen, setIsImportDlgOpen] = React.useState(false);
   const [isBackDropShown, setIsBackDropShown] = React.useState(false);
   const [models, setModels] = React.useState([] as ModelInfoTypes.ModelInfo[]);
@@ -90,6 +93,10 @@ const ModelDirectory = () => {
   const handleNotifyOnModelDrawerClose = (_event: DrawerCloseEvent) => {
     // We keep the previous drawerModel so that during the drawer animation it keeps the model
     setIsDrawerOpen(false);
+  };
+
+  const handleNotifyOnExplore = (modelId: string) => {
+    navigate(generatePath(routerPaths.EXPLORER_OCCUPATIONS, { modelId }));
   };
 
   function modelArraysAreEqual(m1: ModelInfoTypes.ModelInfo[], m2: ModelInfoTypes.ModelInfo[]) {
@@ -221,6 +228,7 @@ const ModelDirectory = () => {
             isLoading={isLoadingModels}
             notifyOnExport={handleNotifyOnExport}
             notifyOnShowModelDetails={handleNotifyOnShowModelDetails}
+            notifyOnExplore={handleNotifyOnExplore}
           />
         }
       >

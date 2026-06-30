@@ -2,7 +2,7 @@
 
 exports[`AppSidebar render tests renders correctly 1`] = `
 <div
-  class="MuiBox-root css-8aaikx"
+  class="MuiBox-root css-1c6x7at"
   data-testid="app-sidebar-container-579896ed-8a99-4a1e-8dc4-e4236d7b06df"
 >
   <a
@@ -29,6 +29,32 @@ exports[`AppSidebar render tests renders correctly 1`] = `
       class="MuiTypography-root MuiTypography-caption css-1vghao7-MuiTypography-root"
     >
       Directory
+    </span>
+  </a>
+  <a
+    class="css-5mjdi8"
+    data-testid="app-sidebar-explore-link-579896ed-8a99-4a1e-8dc4-e4236d7b06df"
+    href="#/explorer"
+  >
+    <div
+      class="MuiBox-root css-1n6ok9e"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+        data-testid="app-sidebar-explore-icon-579896ed-8a99-4a1e-8dc4-e4236d7b06df"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M3 13h8v2H3zm0 4h8v2H3zm0-8h8v2H3zm0-4h8v2H3zm16 2v10h-4V7h4m2-2h-8v14h8V5z"
+        />
+      </svg>
+    </div>
+    <span
+      class="MuiTypography-root MuiTypography-caption css-1vghao7-MuiTypography-root"
+    >
+      Explore
     </span>
   </a>
   <a

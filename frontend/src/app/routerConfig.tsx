@@ -1,21 +1,11 @@
 import Info from "src/info/Info";
 import ModelDirectory from "src/modeldirectory/ModelDirectory";
 import NotFound from "src/errorPage/NotFound";
-import Explorer from "src/explorer/Explorer";
-import OccupationsExplorer from "src/explorer/OccupationsExplorer/OccupationsExplorer";
-import SkillsExplorer from "src/explorer/SkillsExplorer/SkillsExplorer";
+import ModelSelectionPage from "src/explorer/ModelSelectionPage";
+import ExplorerPage from "src/explorer/ExplorerPage";
 import { Navigate } from "react-router-dom";
 
-export const routerPaths = {
-  ROOT: "/",
-  SETTINGS: "/settings",
-  MODEL_DIRECTORY: "/modeldirectory",
-  EXPLORER: "/explorer",
-  EXPLORER_OCCUPATIONS: "/explorer/:modelId/occupations",
-  EXPLORER_OCCUPATIONS_DETAIL: "/explorer/:modelId/occupations/:occupationId",
-  EXPLORER_SKILLS: "/explorer/:modelId/skills",
-  EXPLORER_SKILLS_DETAIL: "/explorer/:modelId/skills/:skillId",
-};
+import { routerPaths } from "src/app/routerPaths";
 
 export const routerConfig = [
   {
@@ -35,27 +25,27 @@ export const routerConfig = [
   },
   {
     path: routerPaths.EXPLORER,
-    element: <Explorer />,
+    element: <ModelSelectionPage />,
     errorElement: <div>Sorry, the explorer could not be shown</div>,
   },
   {
     path: routerPaths.EXPLORER_OCCUPATIONS,
-    element: <OccupationsExplorer />,
+    element: <ExplorerPage initialTab="occupations" />,
     errorElement: <div>Sorry, the occupations could not be shown</div>,
   },
   {
     path: routerPaths.EXPLORER_OCCUPATIONS_DETAIL,
-    element: <OccupationsExplorer />,
+    element: <ExplorerPage initialTab="occupations" />,
     errorElement: <div>Sorry, the occupation could not be shown</div>,
   },
   {
     path: routerPaths.EXPLORER_SKILLS,
-    element: <SkillsExplorer />,
+    element: <ExplorerPage initialTab="skills" />,
     errorElement: <div>Sorry, the skills could not be shown</div>,
   },
   {
     path: routerPaths.EXPLORER_SKILLS_DETAIL,
-    element: <SkillsExplorer />,
+    element: <ExplorerPage initialTab="skills" />,
     errorElement: <div>Sorry, the skill could not be shown</div>,
   },
   {

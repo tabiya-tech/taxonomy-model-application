@@ -30,6 +30,7 @@ interface ModelsTableProps {
   isLoading?: boolean;
   notifyOnExport: (modelId: string) => void;
   notifyOnShowModelDetails: (modelId: string) => void;
+  notifyOnExplore: (modelId: string) => void;
 }
 
 const uniqueId = "ae03cd11-e992-4313-9a9e-49f497cc92d0";
@@ -174,7 +175,11 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
       model: model,
       menuItems: buildMenuItemsConfig(
         model,
-        { handleExport: props.notifyOnExport, handleShowModelDetails: props.notifyOnShowModelDetails },
+        {
+          handleExport: props.notifyOnExport,
+          handleShowModelDetails: props.notifyOnShowModelDetails,
+          handleExplore: props.notifyOnExplore,
+        },
         isOnline,
         hasRole
       ),
@@ -237,8 +242,13 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                   tabIndex={0}
                   data-modelid={model.id}
                   key={model.id}
+                  onClick={() => props.notifyOnExplore(model.id)}
                   sx={{
                     verticalAlign: "top",
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: (theme) => theme.palette.action.hover,
+                    },
                   }}
                   data-testid={DATA_TEST_ID.MODEL_TABLE_DATA_ROW}
                 >
@@ -290,7 +300,12 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                       }}
                     />
                   </StyledBodyCell>
-                  <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
+                  <TableCell
+                    align={"center"}
+                    sx={{ padding: CELL_PADDING }}
+                    data-testid={DATA_TEST_ID.MODEL_CELL}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Container
                       style={{
                         display: "contents",
@@ -302,7 +317,12 @@ const ModelsTable = (props: Readonly<ModelsTableProps>) => {
                       <ExportStateCellContent model={model} />
                     </Container>
                   </TableCell>
-                  <TableCell align={"center"} sx={{ padding: CELL_PADDING }} data-testid={DATA_TEST_ID.MODEL_CELL}>
+                  <TableCell
+                    align={"center"}
+                    sx={{ padding: CELL_PADDING }}
+                    data-testid={DATA_TEST_ID.MODEL_CELL}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Button
                       sx={{
                         minWidth: MORE_BUTTON_WIDTH,
