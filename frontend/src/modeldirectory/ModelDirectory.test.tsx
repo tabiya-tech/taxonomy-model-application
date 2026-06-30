@@ -185,6 +185,13 @@ jest.mock("src/envService", () => {
   };
 });
 
+// mock useNavigate
+const mockNavigate = jest.fn();
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockNavigate,
+}));
+
 function getTestImportData(): ImportData {
   // model name
   const name = "My Model";
@@ -298,6 +305,7 @@ describe("ModelDirectory", () => {
           models: [],
           isLoading: true,
           notifyOnExport: expect.any(Function),
+          notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
         },
         {}
@@ -316,6 +324,7 @@ describe("ModelDirectory", () => {
             models: givenMockData,
             isLoading: false,
             notifyOnExport: expect.any(Function),
+            notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
           },
           expect.anything()
@@ -353,6 +362,7 @@ describe("ModelDirectory", () => {
           models: [],
           isLoading: true,
           notifyOnExport: expect.any(Function),
+          notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
         },
         {}
@@ -369,6 +379,7 @@ describe("ModelDirectory", () => {
             models: ["foo1"],
             isLoading: false,
             notifyOnExport: expect.any(Function),
+            notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
           },
           {}
@@ -384,6 +395,7 @@ describe("ModelDirectory", () => {
             models: ["foo2"],
             isLoading: false,
             notifyOnExport: expect.any(Function),
+            notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
           },
           {}
@@ -419,6 +431,7 @@ describe("ModelDirectory", () => {
           models: [],
           isLoading: true,
           notifyOnExport: expect.any(Function),
+          notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
         },
         {}
@@ -439,6 +452,7 @@ describe("ModelDirectory", () => {
             models: ["foo"],
             isLoading: false,
             notifyOnExport: expect.any(Function),
+            notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
           },
           {}
@@ -474,6 +488,7 @@ describe("ModelDirectory", () => {
             models: ["bar"],
             isLoading: false,
             notifyOnExport: expect.any(Function),
+            notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
           },
           {}
@@ -501,6 +516,7 @@ describe("ModelDirectory", () => {
           models: [],
           isLoading: true,
           notifyOnExport: expect.any(Function),
+          notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
         },
         {}
@@ -525,6 +541,7 @@ describe("ModelDirectory", () => {
           models: [],
           isLoading: true,
           notifyOnExport: expect.any(Function),
+          notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
         },
         {}
@@ -568,6 +585,7 @@ describe("ModelDirectory", () => {
           models: [],
           isLoading: true,
           notifyOnExport: expect.any(Function),
+          notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
         },
         {}
@@ -585,6 +603,7 @@ describe("ModelDirectory", () => {
             models: givenMockData,
             isLoading: false,
             notifyOnExport: expect.any(Function),
+            notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
           },
           expect.anything()
@@ -613,6 +632,7 @@ describe("ModelDirectory", () => {
           models: givenMockData,
           isLoading: false,
           notifyOnExport: expect.any(Function),
+          notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
         },
         {}
@@ -907,6 +927,7 @@ describe("ModelDirectory", () => {
             models: [],
             isLoading: true,
             notifyOnExport: expect.any(Function),
+            notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
           },
           {}
@@ -930,6 +951,7 @@ describe("ModelDirectory", () => {
             models: [],
             isLoading: false,
             notifyOnExport: expect.any(Function),
+            notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
           },
           {}
@@ -1059,6 +1081,7 @@ describe("ModelDirectory", () => {
             models: expect.arrayContaining([givenNewModel]),
             isLoading: expect.any(Boolean),
             notifyOnExport: expect.any(Function),
+            notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
           },
           expect.anything()
@@ -1265,6 +1288,7 @@ describe("ModelDirectory", () => {
             models: [givenNewModel, ...givenExistingModels],
             isLoading: false,
             notifyOnExport: expect.any(Function),
+            notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
           },
           expect.anything()

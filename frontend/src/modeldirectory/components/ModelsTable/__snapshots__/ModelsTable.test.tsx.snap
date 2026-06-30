@@ -220,7 +220,7 @@ exports[`ModelsTable render tests should render the table with the single model 
       class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
     >
       <tr
-        class="MuiTableRow-root css-fa68kn-MuiTableRow-root"
+        class="MuiTableRow-root css-1tt40cd-MuiTableRow-root"
         data-modelid="000000000000000000000001"
         data-testid="model-table-row-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         tabindex="0"
@@ -457,7 +457,7 @@ exports[`ModelsTable render tests should render the table with the single model 
       class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
     >
       <tr
-        class="MuiTableRow-root css-fa68kn-MuiTableRow-root"
+        class="MuiTableRow-root css-1tt40cd-MuiTableRow-root"
         data-modelid="000000000000000000000001"
         data-testid="model-table-row-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         tabindex="0"
@@ -697,7 +697,7 @@ exports[`ModelsTable render tests should render the table with the single model 
       class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
     >
       <tr
-        class="MuiTableRow-root css-fa68kn-MuiTableRow-root"
+        class="MuiTableRow-root css-1tt40cd-MuiTableRow-root"
         data-modelid="000000000000000000000001"
         data-testid="model-table-row-ae03cd11-e992-4313-9a9e-49f497cc92d0"
         tabindex="0"

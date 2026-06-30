@@ -11,7 +11,7 @@ describe("buildMenuItemsConfig", () => {
     const hasRole = (role: AuthAPISpecs.Enums.TabiyaRoles) => role === AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER;
     const actualItems = buildMenuItemsConfig(
       getOneRandomModelMaxLength(),
-      { handleExport: jest.fn(), handleShowModelDetails: jest.fn },
+      { handleExport: jest.fn(), handleShowModelDetails: jest.fn, handleExplore: jest.fn() },
       true,
       hasRole
     );
@@ -36,7 +36,7 @@ describe("buildMenuItemsConfig", () => {
     const hasRole = (role: AuthAPISpecs.Enums.TabiyaRoles) => role !== AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER;
     const actualItems = buildMenuItemsConfig(
       getOneRandomModelMaxLength(),
-      { handleExport: jest.fn(), handleShowModelDetails: jest.fn },
+      { handleExport: jest.fn(), handleShowModelDetails: jest.fn, handleExplore: jest.fn() },
       true,
       hasRole
     );
@@ -63,7 +63,7 @@ describe("buildMenuItemsConfig", () => {
           // WHEN the function is called with isOnline = false
           const actualItems = buildMenuItemsConfig(
             givenModel,
-            { handleExport: jest.fn(), handleShowModelDetails: jest.fn },
+            { handleExport: jest.fn(), handleShowModelDetails: jest.fn, handleExplore: jest.fn() },
             false,
             hasRole
           );
@@ -98,7 +98,7 @@ describe("buildMenuItemsConfig", () => {
           // WHEN the function is called with isOnline = true
           const actualItems = buildMenuItemsConfig(
             givenModel,
-            { handleExport: jest.fn(), handleShowModelDetails: jest.fn },
+            { handleExport: jest.fn(), handleShowModelDetails: jest.fn, handleExplore: jest.fn() },
             true,
             hasRole
           );
@@ -136,7 +136,7 @@ describe("buildMenuItemsConfig", () => {
           // WHEN the function is called with isOnline = true
           const actualItems = buildMenuItemsConfig(
             givenModel,
-            { handleExport: jest.fn(), handleShowModelDetails: jest.fn },
+            { handleExport: jest.fn(), handleShowModelDetails: jest.fn, handleExplore: jest.fn() },
             true,
             hasRole
           );
@@ -168,7 +168,11 @@ describe("buildMenuItemsConfig", () => {
       // AND a built MenuItems Config based on the model and handleExport function
       const givenMenuItems = buildMenuItemsConfig(
         givenModel,
-        { handleExport: givenHandleExport, handleShowModelDetails: givenHandleShowModelProperties },
+        {
+          handleExport: givenHandleExport,
+          handleShowModelDetails: givenHandleShowModelProperties,
+          handleExplore: jest.fn(),
+        },
         true,
         hasRole
       );
@@ -193,7 +197,11 @@ describe("buildMenuItemsConfig", () => {
       // AND a built MenuItems Config based on the model and handleShowModelProperties function
       const givenMenuItems = buildMenuItemsConfig(
         givenModel,
-        { handleExport: givenHandleExport, handleShowModelDetails: givenHandleShowModelProperties },
+        {
+          handleExport: givenHandleExport,
+          handleShowModelDetails: givenHandleShowModelProperties,
+          handleExplore: jest.fn(),
+        },
         true,
         () => true
       );

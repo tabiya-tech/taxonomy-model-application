@@ -4,7 +4,7 @@ import "src/_test_utilities/consoleMock";
 import AppSidebar, { DATA_TEST_ID, ITEMS_LABEL_TEXT } from "./AppSidebar";
 import { HashRouter } from "react-router-dom";
 import { render, screen, within } from "src/_test_utilities/test-utils";
-import { routerPaths } from "src/app/routerConfig";
+import { routerPaths } from "src/app/routerPaths";
 import { testNavigateToPath } from "src/_test_utilities/routeNavigation";
 import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 

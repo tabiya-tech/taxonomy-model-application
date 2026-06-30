@@ -4,14 +4,16 @@ import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { MenuItemConfig } from "src/theme/ContextMenu/menuItemConfig.types";
 import DescriptionIcon from "@mui/icons-material/Description";
+import VerticalSplitOutlinedIcon from "@mui/icons-material/VerticalSplitOutlined";
 import AuthAPISpecs from "api-specifications/auth";
 
-export const MENU_ITEM_ID = ["export-model", "show-model-details"];
-export const MENU_ITEM_TEXT = ["Export", "Show Details"];
+export const MENU_ITEM_ID = ["export-model", "show-model-details", "explore-model"];
+export const MENU_ITEM_TEXT = ["Export", "Show Details", "Explore"];
 
 export const MENU_ITEM_INDEX = {
   EXPORT_MODEL: 0,
   SHOW_MODEL_DETAILS: 1,
+  EXPLORE_MODEL: 2,
 };
 
 export default function buildMenuItemsConfig(
@@ -19,6 +21,7 @@ export default function buildMenuItemsConfig(
   handlers: {
     handleExport: (modelId: string) => void;
     handleShowModelDetails: (modelId: string) => void;
+    handleExplore: (modelId: string) => void;
   },
   isOnline: boolean,
   hasRole: (role: AuthAPISpecs.Enums.TabiyaRoles) => boolean
@@ -47,6 +50,15 @@ export default function buildMenuItemsConfig(
     text: MENU_ITEM_TEXT[MENU_ITEM_INDEX.SHOW_MODEL_DETAILS],
     icon: <DescriptionIcon />,
     action: () => handlers.handleShowModelDetails(modelInfo.id),
+    disabled: false,
+  };
+
+  // Explore model
+  items[MENU_ITEM_INDEX.EXPLORE_MODEL] = {
+    id: MENU_ITEM_ID[MENU_ITEM_INDEX.EXPLORE_MODEL],
+    text: MENU_ITEM_TEXT[MENU_ITEM_INDEX.EXPLORE_MODEL],
+    icon: <VerticalSplitOutlinedIcon />,
+    action: () => handlers.handleExplore(modelInfo.id),
     disabled: false,
   };
 
