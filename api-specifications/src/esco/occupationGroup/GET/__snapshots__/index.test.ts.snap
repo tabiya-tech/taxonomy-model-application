@@ -65,6 +65,10 @@ exports[`Test the occupationGroup GET module The export module matches the snaps
               "minimum": 1,
               "type": "integer",
             },
+            "root": {
+              "description": "Filter only root occupation groups (occupation groups with no parent).",
+              "type": "boolean",
+            },
           },
           "type": "object",
         },

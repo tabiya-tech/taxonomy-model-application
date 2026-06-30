@@ -11,7 +11,9 @@ namespace OccupationGroupGETTypes {
       export type Payload = IOccupationGroupParam;
     }
     export namespace Query {
-      export type Payload = IOccupationGroupQueryParams;
+      export type Payload = IOccupationGroupQueryParams & {
+        root?: boolean;
+      };
     }
   }
 }

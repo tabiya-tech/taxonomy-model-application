@@ -7,6 +7,10 @@ const SchemaGETRequestQueryParam: SchemaObject = {
   additionalProperties: false,
   properties: {
     ...JSON.parse(JSON.stringify(_baseQueryParameterSchema)),
+    root: {
+      description: "Filter only root occupation groups (occupation groups with no parent).",
+      type: "boolean",
+    },
   },
 };
 

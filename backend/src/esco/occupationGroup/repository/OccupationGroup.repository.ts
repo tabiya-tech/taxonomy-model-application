@@ -1,5 +1,5 @@
 import { IOccupationGroup, IOccupationGroupHistoryReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
-import mongoose from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
 import {
   IOccupationGroupDoc,
@@ -11,13 +11,18 @@ import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupation
 import {
   populateOccupationGroupChildrenOptions,
   populateOccupationGroupParentOptions,
-} from "../_shared/populateOccupationHierarchyOptions";
+} from "esco/occupationGroup/_shared/populateOccupationHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
+
+interface FindPaginatedFilter {
+  root?: boolean;
+}
 
 export interface IOccupationGroupRepository {
   readonly Model: mongoose.Model<IOccupationGroupDoc>;
@@ -85,7 +90,7 @@ export interface IOccupationGroupRepository {
    * @param {number} limit - The maximum number of OccupationGroups to return.
    * @param {1 | -1} sortOrder - The sort order to apply to the query.
    * @param {string} [cursorId] - Optional cursor ID for pagination.
-   * @param {Record<string, unknown>} [filter] - Optional filter to apply to the query.
+   * @param {FindPaginatedFilter} [filter] - Optional filter to apply to the query.
    * @return {Promise<IOccupationGroup[]>} - A Promise that resolves to an array of OccupationGroups.
    * Rejects with an error if the operation fails.
    */
@@ -94,7 +99,7 @@ export interface IOccupationGroupRepository {
     limit: number,
     sortOrder: 1 | -1,
     cursorId?: string,
-    filter?: Record<string, unknown>
+    filter?: FindPaginatedFilter
   ): Promise<IOccupationGroup[]>;
 
   /**
@@ -107,7 +112,7 @@ export interface IOccupationGroupRepository {
   getOccupationGroupByUUID(uuid: string): Promise<IOccupationGroup | null>;
 
   /**
-   * Get UUIDHistory for occupation group.
+   * Get UUIDHistory for an occupation group.
    *
    * @return {Promise<IOccupationGroupHistoryReference[]|null>} - A promise that resolves to an array with the UUIDHistory for the occupationGroup. if the occupationGroup does not exist it returns an empty array
    * @param uuids - The UUIDs to resolve, if the uuid does not exist we return an object with that uuid, and null for the rest of the fields
@@ -364,12 +369,12 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     limit: number,
     sortOrder: 1 | -1,
     cursorId?: string,
-    filter?: Record<string, unknown>
+    filter?: FindPaginatedFilter
   ): Promise<IOccupationGroup[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       // Build the match stage
-      const matchStage: Record<string, unknown> = { ...filter, modelId: modelIdObj };
+      const matchStage: Record<string, unknown> = { modelId: modelIdObj };
 
       // If a cursorId is provided, add it to the match stage to get results after the cursor
       if (cursorId && mongoose.Types.ObjectId.isValid(cursorId)) {
@@ -377,13 +382,37 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
         matchStage._id = { [operator]: new mongoose.Types.ObjectId(cursorId) };
       }
 
+      const pipeline: PipelineStage[] = [{ $match: matchStage }];
+      if (filter?.root) {
+        pipeline.push({
+          $lookup: {
+            from: this.hierarchyModel.collection.name,
+            let: { groupId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: [`$${OccupationHierarchyModelPaths.childId}`, "$$groupId"] },
+                  modelId: { $eq: modelIdObj },
+                  childType: { $in: [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup] },
+                },
+              },
+            ],
+            as: "parent_links",
+          },
+        });
+
+        pipeline.push({
+          $match: {
+            parent_links: { $eq: [] },
+          },
+        });
+      }
+
+      pipeline.push(...[{ $sort: { _id: sortOrder } }, { $limit: limit }]);
+
       // Execute the aggregation pipeline
       // We use aggregation to handle filtering, sorting and limiting in a single query
-      const results = await this.Model.aggregate([
-        { $match: matchStage },
-        { $sort: { _id: sortOrder } },
-        { $limit: limit },
-      ]).exec();
+      const results = await this.Model.aggregate(pipeline).exec();
 
       // Hydrate the aggregation results to Mongoose documents
       // This is necessary because aggregate() returns plain objects, but populate() requires Mongoose documents

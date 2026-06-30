@@ -1,11 +1,15 @@
-import { IOccupationGroupService, OccupationGroupModelValidationError } from "./occupationGroup.service.type";
+import {
+  FindPaginatedFilter,
+  IOccupationGroupService,
+  OccupationGroupModelValidationError,
+} from "./occupationGroup.service.type";
 import {
   ModelForOccupationGroupValidationErrorCode,
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
   IOccupationGroupChild,
-} from "../_shared/OccupationGroup.types";
-import { IOccupationGroupRepository } from "../repository/OccupationGroup.repository";
+} from "esco/occupationGroup/_shared/OccupationGroup.types";
+import { IOccupationGroupRepository } from "esco/occupationGroup/repository/OccupationGroup.repository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 
 export class OccupationGroupService implements IOccupationGroupService {
@@ -32,12 +36,13 @@ export class OccupationGroupService implements IOccupationGroupService {
     modelId: string,
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
-    desc: boolean = true
+    desc: boolean = true,
+    filter?: FindPaginatedFilter
   ): Promise<{ items: IOccupationGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     const sortOrder = desc ? -1 : 1;
 
     // Get items + 1 to check if there's a next page
-    const items = await this.occupationGroupRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id);
+    const items = await this.occupationGroupRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id, filter);
 
     // Check if there's a next page
     const hasMore = items.length > limit;

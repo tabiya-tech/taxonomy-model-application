@@ -1794,6 +1794,73 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         ])
       );
     });
+
+    test("should call the model with the right pipeline when requesting root occupationGroups", async () => {
+      // GIVEN a modelId, a limit and a descending sort order
+      const givenModelId = getMockStringId(1);
+      const givenLimit = 5;
+      const givenSortOrder = -1;
+      // AND a filter requesting only root occupationGroups
+      const givenFilter = { root: true };
+      // AND the model's aggregate will resolve to an empty result set
+      const aggregateSpy = jest.spyOn(repository.Model, "aggregate").mockReturnValue({
+        exec: jest.fn().mockResolvedValue([]),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      // WHEN finding paginated root occupationGroups
+      const actualResult = await repository.findPaginated(
+        givenModelId,
+        givenLimit,
+        givenSortOrder,
+        undefined,
+        givenFilter
+      );
+
+      // THEN expect an empty result to be returned
+      expect(actualResult).toEqual([]);
+      // AND expect aggregate to have been called exactly once with the root-aware pipeline
+      const expectedPipeline = [
+        {
+          $match: {
+            modelId: expect.any(mongoose.Types.ObjectId),
+          },
+        },
+        {
+          $lookup: {
+            from: repository.hierarchyModel.collection.name,
+            let: { groupId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  modelId: { $eq: expect.any(mongoose.Types.ObjectId) },
+                  childType: { $in: [ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup] },
+                  $expr: { $eq: ["$childId", "$$groupId"] },
+                },
+              },
+            ],
+            as: "parent_links",
+          },
+        },
+        {
+          $match: {
+            parent_links: { $eq: [] },
+          },
+        },
+        { $sort: { _id: givenSortOrder } },
+        { $limit: givenLimit },
+      ];
+      expect(aggregateSpy).toHaveBeenCalledTimes(1);
+      expect(aggregateSpy).toHaveBeenCalledWith(expectedPipeline);
+
+      // AND expect the modelId used in both the lookup and the top-level match to be the given modelId
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const actualPipeline = aggregateSpy.mock.calls[0][0] as any[];
+      expect(actualPipeline[1].$lookup.pipeline[0].$match.modelId.$eq.toString()).toBe(givenModelId);
+      expect(actualPipeline[0].$match.modelId.toString()).toBe(givenModelId);
+
+      aggregateSpy.mockRestore();
+    });
   });
 
   describe("Test getOccupationGroupByUUID()", () => {
