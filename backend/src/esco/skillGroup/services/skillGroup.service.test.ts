@@ -269,6 +269,25 @@ describe("Test the SkillGroupService", () => {
       expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, undefined, givenFilter);
     });
 
+    test("should forward the root filter when provided", async () => {
+      // GIVEN parameters
+      const givenModelId = getMockStringId(1);
+      const givenLimit = 10;
+      const givenDesc = true;
+      // AND a filter requesting only root skillGroups
+      const givenFilter: ISkillGroupPaginatedFilter = {
+        root: true,
+      };
+
+      mockRepository.findPaginated.mockResolvedValue([]);
+
+      // WHEN calling service.findPaginated with a root filter
+      await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc, givenFilter);
+
+      // THEN expect repository.findPaginated to have been called with the root filter
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, undefined, givenFilter);
+    });
+
     test("should build ascending cursor filter when cursor is provided", async () => {
       // GIVEN parameters
       const givenModelId = getMockStringId(1);

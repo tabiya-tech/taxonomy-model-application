@@ -11,9 +11,10 @@ import { getResourcesBaseUrl } from "server/config/config";
 import { errorResponse, errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { ModelForSkillGroupValidationErrorCode } from "../_shared/skillGroup.types";
-import { ISkillGroupService } from "../services/skillGroup.service.type";
+import { ISkillGroupPaginatedFilter, ISkillGroupService } from "../services/skillGroup.service.type";
 import { decodeCursor, encodeCursor, getSkillGroupsPathParameters } from "./query";
 import { transformPaginated } from "./response";
+import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
 
 export class SkillGroupListController {
   private readonly skillGroupService: ISkillGroupService;
@@ -60,6 +61,11 @@ export class SkillGroupListController {
    *        required: false
    *        schema:
    *          $ref: '#/components/schemas/SkillGroupRequestQueryParamSchemaGET/properties/childrenType'
+   *      - in: query
+   *        name: root
+   *        required: false
+   *        schema:
+   *          $ref: '#/components/schemas/SkillGroupRequestQueryParamSchemaGET/properties/root'
    *    responses:
    *      '200':
    *        description: Successfully retrieved the paginated skill groups.
@@ -144,17 +150,19 @@ export class SkillGroupListController {
         cursor?: string;
         childrenIds?: string;
         childrenType?: SkillGroupAPISpecs.Enums.Relations.Children.ObjectTypes;
+        root?: string;
       };
-      const queryParams: SkillGroupAPISpecs.Types.GET.Request.Query.Payload = {
+      const queryParams: SkillGroupGETAPISpecs.Types.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
         cursor: rawQueryParams.cursor,
         childrenIds: rawQueryParams.childrenIds,
         childrenType: rawQueryParams.childrenType,
+        root: parseBooleanQueryParam(rawQueryParams.root),
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
         SkillGroupGETAPISpecs.Schemas.Request.Query.Payload.$id as string
-      ) as ValidateFunction<SkillGroupAPISpecs.Types.GET.Request.Query.Payload>;
+      ) as ValidateFunction<SkillGroupGETAPISpecs.Types.Request.Query.Payload>;
       const isQueryValid = validateQueryFunction(queryParams);
       if (!isQueryValid) {
         return errorResponseGET(
@@ -185,23 +193,23 @@ export class SkillGroupListController {
         }
       }
 
-      const paginationFilter =
-        queryParams.childrenIds && queryParams.childrenType
+      const paginationFilter: ISkillGroupPaginatedFilter = {
+        root: queryParams.root,
+        ...(queryParams.childrenIds && queryParams.childrenType
           ? {
               childrenIds: queryParams.childrenIds,
               childrenType: queryParams.childrenType,
             }
-          : undefined;
+          : {}),
+      };
 
-      const currentPageSkillGroups = paginationFilter
-        ? await this.skillGroupService.findPaginated(
-            requestPathParameter.modelId,
-            decodedCursor,
-            limit,
-            true,
-            paginationFilter
-          )
-        : await this.skillGroupService.findPaginated(requestPathParameter.modelId, decodedCursor, limit);
+      const currentPageSkillGroups = await this.skillGroupService.findPaginated(
+        requestPathParameter.modelId,
+        decodedCursor,
+        limit,
+        true,
+        paginationFilter
+      );
 
       let nextCursor: string | null = null;
       if (currentPageSkillGroups?.nextCursor?._id) {

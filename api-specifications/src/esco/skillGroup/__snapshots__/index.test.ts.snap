@@ -150,6 +150,10 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                 "minimum": 1,
                 "type": "integer",
               },
+              "root": {
+                "description": "Filter only root skill groups (skill groups with no parent).",
+                "type": "boolean",
+              },
             },
             "type": "object",
           },

@@ -11,7 +11,9 @@ namespace SkillGroupGETTypes {
       export type Payload = ISkillGroupParam;
     }
     export namespace Query {
-      export type Payload = ISkillGroupQueryParams;
+      export type Payload = ISkillGroupQueryParams & {
+        root?: boolean;
+      };
     }
   }
 }

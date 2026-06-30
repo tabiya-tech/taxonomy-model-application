@@ -4,6 +4,7 @@ import { ISkillGroup, ISkillGroupChild, ModelForSkillGroupValidationErrorCode } 
 export interface ISkillGroupPaginatedFilter {
   childrenIds?: string;
   childrenType?: ObjectTypes.Skill | ObjectTypes.SkillGroup;
+  root?: boolean;
 }
 
 export interface ISkillGroupService {

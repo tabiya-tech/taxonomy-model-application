@@ -1,6 +1,7 @@
 import { getTestBase64String } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import {
+  testBooleanField,
   testCursorField,
   testLimitField,
   testSchemaWithAdditionalProperties,
@@ -26,6 +27,7 @@ describe("Test objects against the SkillGroupGETAPISpecs.Schemas.GET.Request.Que
   const givenValidSkillGroupGetQueryParameter = {
     limit: 10,
     cursor: getTestBase64String(SkillGroupGETAPISpecs.Constants.MAX_CURSOR_LENGTH),
+    root: true,
   };
 
   const givenValidSkillGroupGetQueryParameterWithChildrenFilter = {
@@ -75,6 +77,9 @@ describe("Test objects against the SkillGroupGETAPISpecs.Schemas.GET.Request.Que
         false,
         false
       );
+    });
+    describe("Test validate of 'root'", () => {
+      testBooleanField("root", SkillGroupGETAPISpecs.Schemas.Request.Query.Payload, [], false);
     });
     describe("Test validate of 'childrenIds'", () => {
       const givenSchema = SkillGroupGETAPISpecs.Schemas.Request.Query.Payload;
