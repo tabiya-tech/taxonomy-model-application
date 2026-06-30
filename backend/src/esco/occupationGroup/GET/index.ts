@@ -14,6 +14,7 @@ import { ModelForOccupationGroupValidationErrorCode } from "../_shared/Occupatio
 import { IOccupationGroupService } from "../services/occupationGroup.service.type";
 import { decodeCursor, encodeCursor, getOccupationGroupsPathParameters } from "./query";
 import { transformPaginated } from "./response";
+import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
 
 export class OccupationGroupListController {
   private readonly occupationGroupService: IOccupationGroupService;
@@ -50,6 +51,10 @@ export class OccupationGroupListController {
    *        name: cursor
    *        schema:
    *          $ref: '#/components/schemas/OccupationGroupRequestQueryParamSchemaGET/properties/cursor'
+   *      - in: query
+   *        name: root
+   *        schema:
+   *          $ref: '#/components/schemas/OccupationGroupRequestQueryParamSchemaGET/properties/root'
    *    responses:
    *      '200':
    *        description: Successfully retrieved the paginated occupation groups.
@@ -132,10 +137,11 @@ export class OccupationGroupListController {
         );
       }
 
-      const rawQueryParams = (event.queryStringParameters || {}) as { limit?: string; cursor?: string };
+      const rawQueryParams = (event.queryStringParameters || {}) as { limit?: string; cursor?: string; root?: string };
       const queryParams: OccupationGroupAPISpecs.GET.Types.Request.Query.Payload = {
         limit: rawQueryParams.limit ? Number.parseInt(rawQueryParams.limit, 10) : undefined,
         cursor: rawQueryParams.cursor,
+        root: parseBooleanQueryParam(rawQueryParams.root),
       };
 
       const validateQueryFunction = ajvInstance.getSchema(
@@ -174,7 +180,11 @@ export class OccupationGroupListController {
       const currentPageOccupationGroups = await this.occupationGroupService.findPaginated(
         requestPathParameter.modelId,
         decodedCursor,
-        limit
+        limit,
+        true,
+        {
+          root: queryParams.root,
+        }
       );
 
       let nextCursor: string | null = null;

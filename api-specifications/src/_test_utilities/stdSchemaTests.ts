@@ -6,6 +6,7 @@ import {
   assertCaseForRefProperty,
   CaseType,
   constructSchemaError,
+  SchemaError,
 } from "./assertCaseForProperty";
 import { RegExp_Str_UUIDv4 } from "../regex";
 import { randomUUID } from "crypto";
@@ -235,10 +236,25 @@ export function testStringField<T>(
   );
 }
 
-export function testBooleanField(fieldName: string, givenSchema: SchemaObject, dependencies: SchemaObject[] = []) {
+type TestBooleanTestCase = [CaseType, string, unknown, SchemaError | SchemaError[] | undefined];
+
+export function testBooleanField(
+  fieldName: string,
+  givenSchema: SchemaObject,
+  dependencies: SchemaObject[] = [],
+  isRequired: boolean = true
+) {
   const fields = fieldName.split("/");
-  test.each([
-    [
+  const TEST_CASES: TestBooleanTestCase[] = [
+    [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
+    [CaseType.Failure, "not boolean", "foo", constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
+    [CaseType.Failure, "string (true)", "true", constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
+    [CaseType.Failure, "string (false)", "false", constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
+    [CaseType.Success, "true", true, undefined],
+    [CaseType.Success, "false", false, undefined],
+  ];
+  if (isRequired) {
+    TEST_CASES.push([
       CaseType.Failure,
       "undefined",
       undefined,
@@ -247,20 +263,19 @@ export function testBooleanField(fieldName: string, givenSchema: SchemaObject, d
         "required",
         `must have required property '${fields.slice(-1)}'`
       ),
-    ],
-    [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
-    [CaseType.Failure, "not boolean", "foo", constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
-    [CaseType.Failure, "string (true)", "true", constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
-    [CaseType.Failure, "string (false)", "false", constructSchemaError(`/${fieldName}`, "type", "must be boolean")],
-    [CaseType.Success, "true", true, undefined],
-    [CaseType.Success, "false", false, undefined],
-  ])(`(%s) Validate ${fieldName} when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-    // GIVEN an object with the given value
-    const givenObject = generateNestedObject(fields, givenValue);
+    ]);
+  }
 
-    // THEN expect the object to validate accordingly
-    assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
-  });
+  test.each(TEST_CASES)(
+    `(%s) Validate ${fieldName} when it is %s`,
+    (caseType, _description, givenValue, failureMessages) => {
+      // GIVEN an object with the given value
+      const givenObject = generateNestedObject(fields, givenValue);
+
+      // THEN expect the object to validate accordingly
+      assertCaseForProperty(fieldName, givenObject, givenSchema, caseType, failureMessages, dependencies);
+    }
+  );
 }
 
 export function testUUIDField<T>(fieldName: string, givenSchema: SchemaObject, dependencies: SchemaObject[] = []) {

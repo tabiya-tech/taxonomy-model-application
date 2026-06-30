@@ -17,10 +17,12 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "node:crypto";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { getRandomString } from "_test_utilities/getMockRandomData";
+import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
 jest.mock("./response");
+jest.mock("common/formatters/parseBooleanQueryParam");
 jest.mock("validator", () => ({
   ajvInstance: {
     getSchema: jest.fn(),
@@ -30,6 +32,7 @@ jest.mock("validator", () => ({
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
 const mockGetOccupationGroupsPathParameters = jest.mocked(queryModule.getOccupationGroupsPathParameters);
 const mockTransformPaginated = jest.mocked(responseModule.transformPaginated);
+const mockParseBooleanQueryParam = jest.mocked(parseBooleanQueryParam);
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
 
@@ -45,6 +48,8 @@ describe("OccupationGroupListController", () => {
     getMockGetSchema().mockReset();
     mockGetOccupationGroupsPathParameters.mockReset();
     mockTransformPaginated.mockReset();
+    mockParseBooleanQueryParam.mockReset();
+    mockParseBooleanQueryParam.mockReturnValue(false);
     checkRole.mockResolvedValue(true);
     const mockServiceRegistry = {
       occupationGroup: {
@@ -195,7 +200,13 @@ describe("OccupationGroupListController", () => {
     });
 
     // verify the service was called correctly
-    expect(getServiceRegistry().occupationGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, limit);
+    expect(getServiceRegistry().occupationGroup.findPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      undefined,
+      limit,
+      true,
+      expect.any(Object)
+    );
     // AND the response body contains a nextCursor (base64 encoded)
     const responseBody = JSON.parse(actualResponse.body);
     expect(responseBody.nextCursor).toBeDefined();
@@ -472,5 +483,41 @@ describe("OccupationGroupListController", () => {
       details: "",
     };
     expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+  });
+
+  test("should parse the 'root' query parameter and forward the result to the service as the root filter", async () => {
+    // GIVEN path & query validation pass and the path resolves to the given modelId
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetOccupationGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+    // AND a service that resolves to an empty page
+    const expectedDefaultLimit = 100;
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    const givenFindPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
+    mockServiceRegistry.occupationGroup.findPaginated = givenFindPaginated;
+    mockTransformPaginated.mockReturnValue({ data: [], limit: expectedDefaultLimit, nextCursor: null } as never);
+    // AND parseBooleanQueryParam will parse the raw 'root' query parameter to a known value
+    const givenRawRoot = "some-raw-value";
+    const givenParsedRoot = true;
+    mockParseBooleanQueryParam.mockReturnValue(givenParsedRoot);
+
+    // WHEN the occupationGroups handler is invoked with a 'root' query parameter
+    const controller = new OccupationGroupListController();
+    const actualResponse = await controller.getOccupationGroups(
+      buildEvent(`/models/${givenModelId}/occupationGroups`, { root: givenRawRoot })
+    );
+
+    // THEN expect the handler to return the OK status
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+    // AND expect the raw 'root' query parameter to have been parsed
+    expect(mockParseBooleanQueryParam).toHaveBeenCalledWith(givenRawRoot);
+    // AND expect the parsed value to be forwarded to the service as the root filter
+    expect(givenFindPaginated).toHaveBeenCalledWith(givenModelId, undefined, expectedDefaultLimit, true, {
+      root: givenParsedRoot,
+    });
   });
 });

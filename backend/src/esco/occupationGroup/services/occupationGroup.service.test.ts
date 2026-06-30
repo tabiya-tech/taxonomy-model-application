@@ -393,16 +393,22 @@ describe("Test the OccupationGroupService", () => {
       );
       mockRepository.findPaginated.mockResolvedValue(mockItems);
 
+      // AND given a filter with root=false
+      const givenFilter = {
+        root: false,
+      };
+
       // WHEN calling service.findPaginated
       const actual = await service.findPaginated(
         givenModelId,
         { id: getMockStringId(10), createdAt: new Date("2023-01-01T00:00:00.000Z") },
         givenLimit,
-        givenDesc
+        givenDesc,
+        givenFilter
       );
 
       // THEN expect repository.findPaginated to have been called with the correct parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10), givenFilter);
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
@@ -436,16 +442,28 @@ describe("Test the OccupationGroupService", () => {
       );
       mockRepository.findPaginated.mockResolvedValue(mockItems);
 
+      // AND given a filter with root=true
+      const givenFilter = {
+        root: true,
+      };
+
       // WHEN calling service.findPaginated
       const actual = await service.findPaginated(
         givenModelId,
         { id: getMockStringId(10), createdAt: new Date("2023-01-01T00:00:00.000Z") },
         givenLimit,
-        givenDesc
+        givenDesc,
+        givenFilter
       );
 
       // THEN expect repository.findPaginated to have been called with the given parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, givenLimit + 1, 1, getMockStringId(10));
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        givenLimit + 1,
+        1,
+        getMockStringId(10),
+        givenFilter
+      );
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
@@ -478,6 +496,9 @@ describe("Test the OccupationGroupService", () => {
           }) as IOccupationGroup
       );
 
+      // AND given a filter is undefined
+      const givenFilter = undefined;
+
       mockRepository.findPaginated.mockResolvedValue(mockItems);
       // WHEN calling service.findPaginated
       const actual = await service.findPaginated(
@@ -487,11 +508,12 @@ describe("Test the OccupationGroupService", () => {
           createdAt: new Date("2023-01-01T00:00:00.000Z"),
         },
         givenLimit,
-        givenDesc
+        givenDesc,
+        givenFilter
       );
 
       // AND expect repository.findPaginated to have been called with the decoded cursor
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10), givenFilter);
       //AND expect the returned paginated result
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();
@@ -527,11 +549,16 @@ describe("Test the OccupationGroupService", () => {
       );
       mockRepository.findPaginated.mockResolvedValue(mockItems);
 
+      // AND given a filter with root=undefined
+      const givenFilter = {
+        root: undefined,
+      };
+
       // WHEN calling service.findPaginated with desc=false
-      const actual = await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc);
+      const actual = await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc, givenFilter);
 
       // THEN expect repository.findPaginated to have been called with the ascending sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, undefined);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, undefined, givenFilter);
       // AND expect the returned result
       expect(actual.items).toHaveLength(5);
     });
