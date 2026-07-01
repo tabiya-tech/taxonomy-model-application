@@ -78,6 +78,7 @@ function setupSkillRepositoryMock(findAllImpl: () => Readable) {
     findChildren: jest.fn(),
     findOccupationsForSkill: jest.fn(),
     findRelatedSkills: jest.fn(),
+    findModelIdsByUUIDs: jest.fn(),
   };
   SkillRepository.mockReturnValue(mockSkillRepository);
 }

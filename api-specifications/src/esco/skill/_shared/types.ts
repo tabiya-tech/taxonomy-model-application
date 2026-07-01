@@ -1,4 +1,5 @@
 import SkillEnums from "./enums";
+import ModelInfoTypes from "../../../modelInfo/types";
 import { ISkillParentItem, ISkillParentsResponse, ISkillParentsRequestQuery } from "../[id]/parents/GET/types";
 import { ISkillChildrenResponse, ISkillChildrenRequestQuery } from "../[id]/children/GET/types";
 import { ISkillOccupationsResponse, ISkillOccupationsRequestQuery } from "../[id]/occupations/GET/types";
@@ -199,6 +200,15 @@ namespace SkillTypes {
           export namespace Query {
             export type Payload = ISkillRelatedRequestQuery;
           }
+        }
+      }
+    }
+
+    export namespace History {
+      export namespace GET {
+        export namespace Response {
+          export type ModelInfoItem = ModelInfoTypes.Response.IModelInfo;
+          export type Payload = ModelInfoTypes.Response.IModelInfo[];
         }
       }
     }

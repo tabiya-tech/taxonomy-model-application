@@ -133,6 +133,16 @@ export interface ISkillRepository {
     limit: number,
     cursor?: string
   ): Promise<SkillToSkillReferenceWithRelationType<ISkill>[]>;
+
+  /**
+   * Finds, for each of the provided skill UUIDs, the modelId of the skill with that UUID.
+   * Used to resolve a skill's UUIDHistory (its own past UUIDs) to the models it appeared in.
+   * Only UUIDs that match an existing skill are returned; the result is not ordered by the input.
+   *
+   * @param {string[]} uuids - The skill UUIDs to resolve.
+   * @return {Promise<{ UUID: string; modelId: string }[]>} - The UUID -> modelId pairs for the matched skills.
+   */
+  findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]>;
 }
 
 export class SkillRepository implements ISkillRepository {
@@ -660,6 +670,22 @@ export class SkillRepository implements ISkillRepository {
       });
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findRelatedSkills: findRelatedSkills failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]> {
+    try {
+      // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
+      // operator object this is not rewritten by the connection's sanitizeFilter=true.
+      const skills = await this.Model.find({ UUID: uuids }, { UUID: 1, modelId: 1, _id: 0 }).exec();
+      return skills.map((skill) => ({
+        UUID: skill.UUID,
+        modelId: skill.modelId.toString(),
+      }));
+    } catch (e: unknown) {
+      const err = new Error("SkillRepository.findModelIdsByUUIDs: findModelIdsByUUIDs failed", { cause: e });
       console.error(err);
       throw err;
     }

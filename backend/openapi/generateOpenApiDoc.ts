@@ -27,6 +27,8 @@ Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.loca
   "#" + Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.locale.$ref;
 OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.locale.$ref =
   "#" + OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.locale.$ref;
+Skill.Skill.History.GET.Schemas.Response.Payload.items.properties.locale.$ref =
+  "#" + Skill.Skill.History.GET.Schemas.Response.Payload.items.properties.locale.$ref;
 
 /**
  * Remove the $id from the schemas as Swagger does not like them.
@@ -106,6 +108,7 @@ delete Skill.Skill.RelatedSkills.GET.Schemas.Response.Payload.$id;
 delete Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id;
 delete Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload.$id;
 delete Skill.Skill.RelatedSkills.POST.Schemas.Response.Payload.$id;
+delete Skill.Skill.History.GET.Schemas.Response.Payload.$id;
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -465,6 +468,7 @@ function getOpenAPISpecification(
           SkillRelatedRequestSchemaPOST: Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload,
           SkillRelatedResponseSchemaPOST: Skill.Skill.RelatedSkills.POST.Schemas.Response.Payload,
           SkillRelatedRequestQueryParamSchemaGET: Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload,
+          SkillResponseSchemaGETHistory: Skill.Skill.History.GET.Schemas.Response.Payload,
         },
         securitySchemes: {
           jwt_auth: {

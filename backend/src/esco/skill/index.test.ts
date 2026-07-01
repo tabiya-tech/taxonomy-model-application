@@ -15,6 +15,7 @@ import * as getOccupationsModule from "./[id]/occupations/GET/index";
 import * as postOccupationsModule from "./[id]/occupations/POST/index";
 import * as getRelatedModule from "./[id]/related/GET/index";
 import * as postRelatedModule from "./[id]/related/POST/index";
+import * as getHistoryModule from "./[id]/history/GET/index";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
@@ -157,6 +158,20 @@ describe("Test for skill router handler", () => {
     const givenEvent = {
       httpMethod: HTTP_VERBS.GET,
       path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/related`,
+    };
+    await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("handler should route GET /history to getHistoryHandler", async () => {
+    const spy = jest.spyOn(getHistoryModule, "handler").mockResolvedValue({
+      statusCode: StatusCodes.OK,
+      body: "",
+    } as APIGatewayProxyResult);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/history`,
     };
     await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
     expect(spy).toHaveBeenCalled();
