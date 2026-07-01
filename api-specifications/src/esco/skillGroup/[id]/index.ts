@@ -1,6 +1,7 @@
 import SkillGroupGETDetailAPISpecs from "./GET";
 import SkillGroupGETParentsAPISpecs from "./parents";
 import SkillGroupGETChildrenAPISpecs from "./children";
+import SkillGroupHistoryAPISpecs from "./history";
 
 import SchemaGETRequestDetailParam from "./schema.request.param";
 
@@ -21,5 +22,6 @@ namespace SkillGroupDetailAPISpecs {
   export import GET = SkillGroupGETDetailAPISpecs;
   export import Parent = SkillGroupGETParentsAPISpecs;
   export import Children = SkillGroupGETChildrenAPISpecs;
+  export import History = SkillGroupHistoryAPISpecs;
 }
 export default SkillGroupDetailAPISpecs;

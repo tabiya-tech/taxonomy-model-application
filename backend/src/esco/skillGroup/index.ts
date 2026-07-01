@@ -7,6 +7,7 @@ import { handler as skillGroupListHandler } from "./GET";
 import { handler as skillGroupDetailHandler } from "./[id]/GET";
 import { handler as skillGroupParentsHandler } from "./[id]/parents/GET";
 import { handler as skillGroupChildrenHandler } from "./[id]/children/GET";
+import { handler as skillGroupHistoryHandler } from "./[id]/history/GET";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent
@@ -19,6 +20,8 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
       return skillGroupParentsHandler(event);
     } else if (pathToRegexp(Routes.SKILL_GROUP_CHILDREN_ROUTE).regexp.exec(pathToMatch)) {
       return skillGroupChildrenHandler(event);
+    } else if (pathToRegexp(Routes.SKILL_GROUP_HISTORY_ROUTE).regexp.exec(pathToMatch)) {
+      return skillGroupHistoryHandler(event);
     }
     return skillGroupListHandler(event);
   }

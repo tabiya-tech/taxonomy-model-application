@@ -18,6 +18,7 @@ describe("Test the skillGroup module", () => {
     expect(skillGroupModule.default.SkillGroup.Children.GET.Schemas.Request.Query.Payload).toBeDefined();
     expect(skillGroupModule.default.SkillGroup.Children.GET.Schemas.Response.Child.Payload).toBeDefined();
     expect(skillGroupModule.default.SkillGroup.Children.GET.Schemas.Response.Children.Payload).toBeDefined();
+    expect(skillGroupModule.default.SkillGroup.History.GET.Schemas.Response.Payload).toBeDefined();
 
     // AND check if constants are defined in it
     const Constants = skillGroupModule.default.Constants;

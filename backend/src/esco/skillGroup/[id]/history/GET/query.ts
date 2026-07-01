@@ -1,0 +1,7 @@
+import SkillGroupDetailAPISpecs from "api-specifications/esco/skillGroup/[id]";
+import { parsePath } from "common/parsePath/parsePath";
+import { Routes } from "routes.constant";
+
+export function getSkillGroupHistoryPathParameters(path: string): SkillGroupDetailAPISpecs.Types.Param.Payload {
+  return parsePath<SkillGroupDetailAPISpecs.Types.Param.Payload>(Routes.SKILL_GROUP_HISTORY_ROUTE, path);
+}

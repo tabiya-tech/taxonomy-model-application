@@ -52,6 +52,16 @@ export interface ISkillGroupRepository {
     limit: number,
     cursor?: string
   ): Promise<ISkillGroupChild[]>;
+
+  /**
+   * Finds, for each of the provided skill group UUIDs, the modelId of the skill group with that UUID.
+   * Used to resolve a skill group's UUIDHistory (its own past UUIDs) to the models it appeared in.
+   * Only UUIDs that match an existing skill group are returned; the result is not ordered by the input.
+   *
+   * @param {string[]} uuids - The skill group UUIDs to resolve.
+   * @return {Promise<{ UUID: string; modelId: string }[]>} - The UUID -> modelId pairs for the matched skill groups.
+   */
+  findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]>;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
@@ -424,6 +434,22 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       return result as ISkillGroupChild[];
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findChildren: findChildren failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]> {
+    try {
+      // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
+      // operator object this is not rewritten by the connection's sanitizeFilter=true.
+      const skillGroups = await this.Model.find({ UUID: uuids }, { UUID: 1, modelId: 1, _id: 0 }).exec();
+      return skillGroups.map((skillGroup) => ({
+        UUID: skillGroup.UUID,
+        modelId: skillGroup.modelId.toString(),
+      }));
+    } catch (e: unknown) {
+      const err = new Error("SkillGroupRepository.findModelIdsByUUIDs: findModelIdsByUUIDs failed", { cause: e });
       console.error(err);
       throw err;
     }

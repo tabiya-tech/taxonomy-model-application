@@ -1,4 +1,5 @@
 import SkillGroupEnums from "./enums";
+import ModelInfoTypes from "../../../modelInfo/types";
 
 export interface ISkillGroupResponse {
   id: string;
@@ -146,6 +147,10 @@ namespace SkillGroupTypes {
       }
       export namespace ById {
         export type Payload = ISkillGroupResponse;
+      }
+      export namespace History {
+        export type ModelInfoItem = ModelInfoTypes.Response.IModelInfo;
+        export type Payload = ModelInfoTypes.Response.IModelInfo[];
       }
     }
 
