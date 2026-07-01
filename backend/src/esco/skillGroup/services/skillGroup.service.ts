@@ -1,8 +1,9 @@
-import { ISkillGroupService } from "./skillGroup.service.type";
+import { ISkillGroupHistoryEntry, ISkillGroupService } from "./skillGroup.service.type";
 import { ModelForSkillGroupValidationErrorCode, ISkillGroup, ISkillGroupChild } from "../_shared/skillGroup.types";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ISkillGroupPaginatedFilter } from "./skillGroup.service.type";
+import { IModelInfoReference } from "modelInfo/modelInfo.types";
 
 export class SkillGroupService implements ISkillGroupService {
   constructor(private readonly skillGroupRepository: ISkillGroupRepository) {}
@@ -96,5 +97,64 @@ export class SkillGroupService implements ISkillGroupService {
     }
 
     return { items: pageItems, nextCursor };
+  }
+
+  async getHistory(skillGroupId: string): Promise<ISkillGroupHistoryEntry[] | null> {
+    const skillGroup = await this.skillGroupRepository.findById(skillGroupId);
+    if (!skillGroup) {
+      return null;
+    }
+
+    // The skill group's UUIDHistory holds its OWN past UUIDs (one per model it existed in), newest first.
+    // To list the models it appeared in we resolve: UUID -> skill group entity -> its modelId -> model.
+    const uuidHistory = skillGroup.UUIDHistory ?? [];
+    if (uuidHistory.length === 0) {
+      return [];
+    }
+
+    const modelRepository = getRepositoryRegistry().modelInfo;
+
+    // Resolve each historical UUID to the modelId of the skill group with that UUID (single query).
+    const uuidToModelId = await this.skillGroupRepository.findModelIdsByUUIDs(uuidHistory);
+    const modelIdByUUID = new Map(uuidToModelId.map((entry) => [entry.UUID, entry.modelId]));
+
+    // Fetch the full models for the resolved modelIds (single query).
+    const modelIds = Array.from(new Set(modelIdByUUID.values()));
+    const resolvedModels = modelIds.length > 0 ? await modelRepository.getModelsByIds(modelIds) : [];
+    const modelById = new Map(resolvedModels.map((model) => [model.id, model]));
+
+    // Resolve the modelHistory references for every resolved model's own UUIDHistory (single query).
+    const allModelHistoryUUIDs = Array.from(new Set(resolvedModels.flatMap((model) => model.UUIDHistory)));
+    const references = allModelHistoryUUIDs.length > 0 ? await modelRepository.getHistory(allModelHistoryUUIDs) : [];
+    const referenceByUUID = new Map(references.map((reference) => [reference.UUID, reference]));
+
+    // Walk the skill group's UUIDHistory (newest first), skipping UUIDs whose entity or model no longer exists.
+    // A given model appears at most once even if multiple history UUIDs map to it.
+    const history: ISkillGroupHistoryEntry[] = [];
+    const seenModelIds = new Set<string>();
+    for (const uuid of uuidHistory) {
+      const modelId = modelIdByUUID.get(uuid);
+      if (!modelId || seenModelIds.has(modelId)) {
+        continue;
+      }
+      const model = modelById.get(modelId);
+      if (!model) {
+        continue;
+      }
+      seenModelIds.add(modelId);
+      const modelHistoryDetails: IModelInfoReference[] = model.UUIDHistory.map(
+        (historyUUID) =>
+          referenceByUUID.get(historyUUID) ?? {
+            id: null,
+            UUID: historyUUID,
+            name: null,
+            version: null,
+            localeShortCode: null,
+          }
+      );
+      history.push({ model, modelHistoryDetails });
+    }
+
+    return history;
   }
 }

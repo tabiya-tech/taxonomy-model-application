@@ -92,6 +92,7 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
       Routes.SKILL_GROUP_ROUTE,
       Routes.SKILL_GROUP_PARENTS_ROUTE,
       Routes.SKILL_GROUP_CHILDREN_ROUTE,
+      Routes.SKILL_GROUP_HISTORY_ROUTE,
     ]).regexp.test(path)
   ) {
     return SkillGroupHandler(event);

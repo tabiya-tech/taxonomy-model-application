@@ -197,6 +197,10 @@ describe("test the handleRouteEvent function", () => {
     modelId: modelId.toString(),
     id: getMockStringId(2),
   });
+  const skillGroupHistoryPath = buildPathFromPattern(Routes.SKILL_GROUP_HISTORY_ROUTE, {
+    modelId: modelId.toString(),
+    id: getMockStringId(2),
+  });
   const skillsPath = buildPathFromPattern(Routes.SKILLS_ROUTE, {
     modelId: modelId.toString(),
   });
@@ -228,6 +232,7 @@ describe("test the handleRouteEvent function", () => {
     [skillGroupPath, SkillGroupHandler],
     [skillGroupParentsPath, SkillGroupHandler],
     [skillGroupChildrenPath, SkillGroupHandler],
+    [skillGroupHistoryPath, SkillGroupHandler],
     [Routes.EXPORT_ROUTE, ExportHandler],
   ])("Test Route %s", (givenPath, handler) => {
     test(`should call %s handler if path is %s and called directly`, async () => {

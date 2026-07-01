@@ -503,6 +503,7 @@ describe("Test the main async handler", () => {
         findAll: jest.fn(),
         findParents: jest.fn().mockResolvedValue([]),
         findChildren: jest.fn().mockResolvedValue([]),
+        findModelIdsByUUIDs: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
 

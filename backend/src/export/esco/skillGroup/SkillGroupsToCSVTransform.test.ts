@@ -41,6 +41,7 @@ function setupSkillGroupRepositoryMock(findAllImpl: () => Readable) {
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
     findParents: jest.fn().mockResolvedValue([]),
     findChildren: jest.fn().mockResolvedValue([]),
+    findModelIdsByUUIDs: jest.fn().mockResolvedValue([]),
   };
   SkillGroupRepository.mockReturnValue(mockSkillGroupRepository);
 }
