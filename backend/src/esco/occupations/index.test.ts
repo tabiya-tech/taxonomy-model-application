@@ -21,6 +21,9 @@ jest.mock("./[id]/skills/GET/index", () => ({
 jest.mock("./[id]/skills/POST/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 201, body: "POST_SKILLS" }),
 }));
+jest.mock("./[id]/history/GET/index", () => ({
+  handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "GET_HISTORY" }),
+}));
 
 import { handler as getHandler } from "./GET/index";
 import { handler as postHandler } from "./POST/index";
@@ -30,6 +33,7 @@ import { handler as postParentHandler } from "./[id]/parent/POST/index";
 import { handler as getChildrenHandler } from "./[id]/children/GET/index";
 import { handler as getSkillsHandler } from "./[id]/skills/GET/index";
 import { handler as postSkillsHandler } from "./[id]/skills/POST/index";
+import { handler as getHistoryHandler } from "./[id]/history/GET/index";
 
 describe("Occupations Router", () => {
   beforeEach(() => {
@@ -90,6 +94,13 @@ describe("Occupations Router", () => {
     const response = await handler(event);
     expect(getSkillsHandler).toHaveBeenCalledWith(event);
     expect(response.body).toBe("GET_SKILLS");
+  });
+
+  test("should route GET history to getHistoryHandler", async () => {
+    const event = { httpMethod: HTTP_VERBS.GET, path: "/models/1/occupations/2/history" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(getHistoryHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("GET_HISTORY");
   });
 
   test("should return METHOD_NOT_ALLOWED for unsupported verbs", async () => {

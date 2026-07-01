@@ -404,6 +404,76 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     });
   });
 
+  describe("Test getModelsByIds()", () => {
+    test("should return the full models whose id is in the provided list", async () => {
+      // GIVEN three models exist in the database
+      const givenExistingModels = [];
+      for (let i = 0; i < 3; i++) {
+        givenExistingModels.push(await repository.create(getNewModelInfoSpec()));
+      }
+
+      // WHEN we retrieve the models by a subset of their ids (plus an id that does not exist)
+      const givenRequestedIds = [givenExistingModels[0].id, givenExistingModels[2].id, getMockStringId(999)];
+      const actualFoundModels = await repository.getModelsByIds(givenRequestedIds);
+
+      // THEN expect to find only the two models that exist and match the requested ids
+      expect(actualFoundModels.length).toEqual(2);
+      expect(actualFoundModels).toContainEqual(givenExistingModels[0]);
+      expect(actualFoundModels).toContainEqual(givenExistingModels[2]);
+      expect(actualFoundModels).not.toContainEqual(givenExistingModels[1]);
+    });
+
+    testExportProcessStatePopulation(
+      async () => {
+        const givenExistingModels = [];
+        for (let i = 0; i < 3; i++) {
+          givenExistingModels.push(await repository.create(getNewModelInfoSpec()));
+        }
+        return givenExistingModels;
+      },
+      async (givenModels: IModelInfo[]) => {
+        return await repository.getModelsByIds(givenModels.map((model) => model.id));
+      }
+    );
+
+    test("should return an empty array when none of the provided ids exist", async () => {
+      // GIVEN a model exists in the database
+      await repository.create(getNewModelInfoSpec());
+
+      // WHEN we retrieve models by ids that do not exist in the database
+      const actualFoundModels = await repository.getModelsByIds([getMockStringId(998), getMockStringId(999)]);
+
+      // THEN expect the result to be an empty array
+      expect(actualFoundModels).toEqual([]);
+    });
+
+    test("should return an empty array when the provided list of ids is empty", async () => {
+      // GIVEN a model exists in the database
+      await repository.create(getNewModelInfoSpec());
+
+      // WHEN we retrieve models with an empty list of ids
+      const actualFoundModels = await repository.getModelsByIds([]);
+
+      // THEN expect the result to be an empty array
+      expect(actualFoundModels).toEqual([]);
+    });
+
+    test("should ignore ids that are not valid ObjectIds", async () => {
+      // GIVEN a model exists in the database
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+
+      // WHEN we retrieve models with a mix of a valid id and an invalid (non-ObjectId) id
+      const actualFoundModels = await repository.getModelsByIds([givenExistingModel.id, "not-a-valid-object-id"]);
+
+      // THEN expect only the valid, existing model to be returned
+      expect(actualFoundModels).toEqual([givenExistingModel]);
+    });
+
+    TestDBConnectionFailureNoSetup((repository) => {
+      return repository.modelInfo.getModelsByIds([getMockStringId(1)]);
+    });
+  });
+
   function testExportProcessStatePopulation(
     setupFn: () => Promise<IModelInfo[]>,
     getActualModelsFn: (givenModels: IModelInfo[]) => Promise<IModelInfo[]>

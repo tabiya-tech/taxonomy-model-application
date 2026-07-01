@@ -190,6 +190,7 @@ describe("Test the main async handler", () => {
       getModelByUUID: jest.fn().mockResolvedValue(null),
       getModels: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn().mockResolvedValue([]),
+      getModelsByIds: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
     // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
@@ -389,6 +390,7 @@ describe("Test the main async handler", () => {
         getModelByUUID: jest.fn().mockResolvedValue(null),
         getModels: jest.fn().mockResolvedValue([]),
         getHistory: jest.fn().mockResolvedValue(null),
+        getModelsByIds: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
       // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
@@ -451,6 +453,7 @@ describe("Test the main async handler", () => {
         getModelByUUID: jest.fn().mockResolvedValue(null),
         getModels: jest.fn().mockResolvedValue([]),
         getHistory: jest.fn().mockResolvedValue(null),
+        getModelsByIds: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
       // AND an occupation repository
@@ -465,6 +468,7 @@ describe("Test the main async handler", () => {
         encodeCursor: jest.fn(),
         decodeCursor: jest.fn(),
         getOccupationByUUID: jest.fn(),
+        findModelIdsByUUIDs: jest.fn(),
         findParent: jest.fn(),
         findChildren: jest.fn(),
         findSkillsForOccupation: jest.fn(),
@@ -515,6 +519,7 @@ describe("Test the main async handler", () => {
         decodeCursor: jest.fn(),
         getOccupationGroupByUUID: jest.fn(),
         getHistory: jest.fn(),
+        getModelsByIds: jest.fn(),
         findParent: jest.fn(),
         findChildren: jest.fn().mockResolvedValue([]),
         setParent: jest.fn().mockResolvedValue(undefined),

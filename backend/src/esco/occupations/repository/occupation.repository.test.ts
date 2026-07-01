@@ -857,6 +857,50 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     });
   });
 
+  describe("Test findModelIdsByUUIDs()", () => {
+    test("should return the UUID -> modelId pairs for the occupations matching the given UUIDs", async () => {
+      // GIVEN two occupations in different models
+      const givenModelId1 = getMockStringId(1);
+      const givenModelId2 = getMockStringId(2);
+      const givenOccupation1 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId1, "occupation_1"));
+      const givenOccupation2 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId2, "occupation_2"));
+
+      // WHEN resolving a set of UUIDs that includes both occupations' UUIDs plus a non-existent UUID
+      const actual = await repository.findModelIdsByUUIDs([givenOccupation1.UUID, randomUUID(), givenOccupation2.UUID]);
+
+      // THEN expect only the matched occupations' UUID -> modelId pairs (the non-existent UUID is omitted)
+      expect(actual).toHaveLength(2);
+      expect(actual).toContainEqual({ UUID: givenOccupation1.UUID, modelId: givenModelId1 });
+      expect(actual).toContainEqual({ UUID: givenOccupation2.UUID, modelId: givenModelId2 });
+    });
+
+    test("should return an empty array when none of the given UUIDs match an occupation", async () => {
+      // GIVEN an occupation exists
+      await repository.create(getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1"));
+
+      // WHEN resolving UUIDs that do not match any occupation
+      const actual = await repository.findModelIdsByUUIDs([randomUUID(), randomUUID()]);
+
+      // THEN expect an empty array
+      expect(actual).toEqual([]);
+    });
+
+    test("should return an empty array when given an empty list of UUIDs", async () => {
+      // GIVEN an occupation exists
+      await repository.create(getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1"));
+
+      // WHEN resolving an empty list of UUIDs
+      const actual = await repository.findModelIdsByUUIDs([]);
+
+      // THEN expect an empty array
+      expect(actual).toEqual([]);
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.occupation.findModelIdsByUUIDs([randomUUID()]);
+    });
+  });
+
   describe("Test findById()", () => {
     test("should find an Occupation by its id", async () => {
       // GIVEN an Occupation exists in the database

@@ -174,6 +174,10 @@ describe("test the handleRouteEvent function", () => {
     modelId: modelId.toString(),
     id: getMockStringId(2),
   });
+  const occupationHistoryPath = buildPathFromPattern(Routes.OCCUPATION_HISTORY_ROUTE, {
+    modelId: modelId.toString(),
+    id: getMockStringId(2),
+  });
   const skillGroupsPath = buildPathFromPattern(Routes.SKILL_GROUPS_ROUTE, {
     modelId: modelId.toString(),
   });
@@ -207,6 +211,7 @@ describe("test the handleRouteEvent function", () => {
     [occupationGroupChildrenPath, OccupationGroupHandler],
     [occupationsPath, OccupationHandler],
     [occupationPath, OccupationHandler],
+    [occupationHistoryPath, OccupationHandler],
     [skillGroupsPath, SkillGroupHandler],
     [skillsPath, SkillHandler],
     [skillPath, SkillHandler],

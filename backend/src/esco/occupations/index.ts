@@ -12,6 +12,7 @@ import { handler as postParentHandler } from "./[id]/parent/POST/index";
 import { handler as getChildrenHandler } from "./[id]/children/GET/index";
 import { handler as getSkillsHandler } from "./[id]/skills/GET/index";
 import { handler as postSkillsHandler } from "./[id]/skills/POST/index";
+import { handler as getHistoryHandler } from "./[id]/history/GET/index";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent
@@ -33,6 +34,8 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
       return getChildrenHandler(event);
     } else if (pathToRegexp(Routes.OCCUPATION_SKILLS_ROUTE).regexp.exec(pathToMatch)) {
       return getSkillsHandler(event);
+    } else if (pathToRegexp(Routes.OCCUPATION_HISTORY_ROUTE).regexp.exec(pathToMatch)) {
+      return getHistoryHandler(event);
     } else if (pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.exec(pathToMatch)) {
       return getByIdHandler(event);
     } else {

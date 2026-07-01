@@ -96,6 +96,7 @@ describe("test parseOccupations from", () => {
         findAll: jest.fn(),
         findPaginated: jest.fn().mockResolvedValue({}),
         getOccupationByUUID: jest.fn().mockResolvedValue(null),
+        findModelIdsByUUIDs: jest.fn(),
         findParent: jest.fn(),
         findChildren: jest.fn(),
         findSkillsForOccupation: jest.fn(),

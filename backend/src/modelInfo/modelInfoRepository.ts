@@ -49,6 +49,16 @@ export interface IModelRepository {
    * @param uuids - The UUIDs to resolve, if the uuid does not exist we return an object with that uuid, and null for the rest of the fields
    */
   getHistory(uuids: string[]): Promise<IModelInfoReference[]>;
+
+  /**
+   * Finds the full ModelInfo entries whose id is in the provided list.
+   *
+   * @param {string[]} ids - The ids of the ModelInfo entries to retrieve.
+   * @return {Promise<IModelInfo[]>} - A promise that resolves to an array with the found ModelInfo entries.
+   * Only the models that exist are returned, so the result may be shorter than the input and is not ordered by the input.
+   * Rejects with an error if the operation fails.
+   */
+  getModelsByIds(ids: string[]): Promise<IModelInfo[]>;
 }
 
 export class ModelRepository implements IModelRepository {
@@ -168,6 +178,24 @@ export class ModelRepository implements IModelRepository {
     } catch (e) {
       // Handle any errors
       const err = new Error("ModelInfoRepository.getUUIDHistory: getUUIDHistory failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async getModelsByIds(ids: string[]): Promise<IModelInfo[]> {
+    try {
+      const objectIds = ids
+        .filter((id) => mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+      // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
+      // operator object this is not rewritten by the connection's sanitizeFilter=true. Same idiom as getHistory().
+      const modelInfos = await this.Model.find({ _id: objectIds })
+        .populate([populateImportProcessStateOptions, populateExportProcessStateOptions])
+        .exec();
+      return modelInfos.map((modelInfo) => modelInfo.toObject());
+    } catch (e: unknown) {
+      const err = new Error("ModelInfoRepository.getModelsByIds: getModelsByIds failed", { cause: e });
       console.error(err);
       throw err;
     }

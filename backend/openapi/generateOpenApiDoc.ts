@@ -23,6 +23,8 @@ ModelInfo.Schemas.POST.Request.Payload.properties.locale.$ref =
   "#" + ModelInfo.Schemas.POST.Request.Payload.properties.locale.$ref;
 ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref =
   "#" + ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref;
+Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.locale.$ref =
+  "#" + Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.locale.$ref;
 
 /**
  * Remove the $id from the schemas as Swagger does not like them.
@@ -64,6 +66,7 @@ delete Occupation.Occupation.Children.GET.Schemas.Request.Query.Payload.$id;
 delete Occupation.Occupation.Skills.GET.Schemas.Response.Payload.$id;
 delete Occupation.Occupation.Skills.POST.Schemas.Request.Payload.$id;
 delete Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload.$id;
+delete Occupation.Occupation.History.GET.Schemas.Response.Payload.$id;
 delete SkillGroup.POST.Schemas.Request.Param.Payload.$id;
 delete SkillGroup.POST.Schemas.Request.Payload.$id;
 delete SkillGroup.POST.Schemas.Response.Payload.$id;
@@ -423,6 +426,7 @@ function getOpenAPISpecification(
            OccupationResponseSchemaGETSkills: Occupation.Occupation.Skills.GET.Schemas.Response.Payload,
            OccupationSkillsRequestSchemaPOST: Occupation.Occupation.Skills.POST.Schemas.Request.Payload,
            OccupationSkillsRequestQueryParamSchemaGET: Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload,
+          OccupationResponseSchemaGETHistory: Occupation.Occupation.History.GET.Schemas.Response.Payload,
           SkillGroupRequestSchemaPOST: SkillGroup.POST.Schemas.Request.Payload,
           SkillGroupResponseSchemaPOST: SkillGroup.POST.Schemas.Response.Payload,
           SkillGroupResponseSchemaGETById: SkillGroup.SkillGroup.GET.Schemas.Response.Payload,

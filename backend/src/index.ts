@@ -81,6 +81,7 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
       Routes.OCCUPATION_PARENT_ROUTE,
       Routes.OCCUPATION_CHILDREN_ROUTE,
       Routes.OCCUPATION_SKILLS_ROUTE,
+      Routes.OCCUPATION_HISTORY_ROUTE,
     ]).regexp.test(path)
   ) {
     return OccupationHandler(event);

@@ -1,5 +1,15 @@
 import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { INewOccupationSpecWithoutImportId, IOccupation, ISkillWithRelation } from "../_shared/occupation.types";
+import { IModelInfo, IModelInfoReference } from "modelInfo/modelInfo.types";
+
+/**
+ * A single entry of an occupation's model history: a full ModelInfo together with the resolved
+ * details of that model's own UUIDHistory (used to build the modelHistory field of the response).
+ */
+export interface IOccupationHistoryEntry {
+  model: IModelInfo;
+  modelHistoryDetails: IModelInfoReference[];
+}
 
 export enum ModelForOccupationValidationErrorCode {
   FAILED_TO_FETCH_FROM_DB,
@@ -99,4 +109,16 @@ export interface IOccupationService {
     cursor: string | undefined,
     limit: number
   ): Promise<{ items: ISkillWithRelation[]; nextCursor: { _id: string; createdAt: Date } | null }>;
+
+  /**
+   * Resolves the history of the models an Occupation appeared in, based on its UUIDHistory.
+   * For each UUID in the occupation's UUIDHistory (newest first) that resolves to an existing model,
+   * returns the full model together with the details of that model's own UUIDHistory. UUIDs that do
+   * not resolve to an existing model are skipped.
+   *
+   * @param {string} occupationId - The ID of the Occupation.
+   * @return {Promise<IOccupationHistoryEntry[] | null>} - The resolved history entries in UUIDHistory order,
+   * or null if the Occupation does not exist.
+   */
+  getHistory(occupationId: string): Promise<IOccupationHistoryEntry[] | null>;
 }
