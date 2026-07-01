@@ -7,6 +7,7 @@ import GETOccupationByIdOperation from "./GET";
 import OccupationParentAPISpecs from "./parent";
 import OccupationChildrenAPISpecs from "./children";
 import OccupationSkillsAPISpecs from "./skills";
+import OccupationHistoryAPISpecs from "./history";
 
 // Concept aggregator for [id] (Occupation Instance)
 namespace OccupationInstanceAPISpecs {
@@ -24,6 +25,7 @@ namespace OccupationInstanceAPISpecs {
   export import Parent = OccupationParentAPISpecs;
   export import Children = OccupationChildrenAPISpecs;
   export import Skills = OccupationSkillsAPISpecs;
+  export import History = OccupationHistoryAPISpecs;
 }
 
 export default OccupationInstanceAPISpecs;
