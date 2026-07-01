@@ -118,6 +118,10 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
     [LocaleAPISpecs.Schemas.Payload]
   );
 
+  // TODO: These per-field tests duplicate the field validation now covered centrally in
+  // modelInfo/schemas.base.test.ts (the POST response schema is built from _baseResponseSchema).
+  // They should be removed and this test should rely on the central base-schema test, keeping only
+  // the POST-response-specific assertions.
   describe("Validate ModelInfoAPISpecs.Schemas.POST.Response.Payload fields", () => {
     describe("Test validation of 'id'", () => {
       testObjectIdField("id", ModelInfoAPISpecs.Schemas.POST.Response.Payload, [LocaleAPISpecs.Schemas.Payload]);

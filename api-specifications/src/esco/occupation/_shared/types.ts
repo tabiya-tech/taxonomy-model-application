@@ -1,6 +1,7 @@
 import OccupationEnums from "./enums";
 import SkillTypes from "../../skill/_shared/types";
 import OccupationGroupTypes from "../../occupationGroup/_shared/types";
+import ModelInfoTypes from "../../../modelInfo/types";
 
 interface IOccupationParent {
   id: string;
@@ -181,6 +182,13 @@ namespace OccupationTypes {
       export namespace Query {
         export type Payload = IOccupationQueryParams;
       }
+    }
+  }
+
+  export namespace Detail.history.GET {
+    export namespace Response {
+      export type ModelInfoItem = ModelInfoTypes.Response.IModelInfo;
+      export type Payload = ModelInfoTypes.Response.IModelInfo[];
     }
   }
 }

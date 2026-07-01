@@ -10,6 +10,7 @@ describe("Test the Occupation Instance module", () => {
     expect(occupationInstanceModule.default.Parent.GET.Schemas.Response.Payload).toBeDefined();
     expect(occupationInstanceModule.default.Children.GET.Schemas.Response.Payload).toBeDefined();
     expect(occupationInstanceModule.default.Skills.GET.Schemas.Response.Payload).toBeDefined();
+    expect(occupationInstanceModule.default.History.GET.Schemas.Response.Payload).toBeDefined();
 
     // AND check if constants are defined
     const Constants = occupationInstanceModule.default.Constants;

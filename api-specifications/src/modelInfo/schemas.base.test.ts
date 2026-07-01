@@ -9,7 +9,6 @@ import {
   testTimestampField,
   testUUIDField,
   testURIField,
-  testArraySchemaFailureWithValidObject,
   testEnumField,
   testValidSchema,
 } from "_test_utilities/stdSchemaTests";
@@ -22,7 +21,7 @@ import {
   getStdNonEmptyStringTestCases,
   getStdStringTestCases,
 } from "_test_utilities/stdSchemaTestCases";
-import ModelInfoAPISpecs from "./index";
+import { _baseResponseSchema } from "./schemas.base";
 import { getTestString } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
@@ -33,18 +32,23 @@ import ExportProcessStateAPISpecs from "exportProcessState";
 import ModelInfoConstants from "./constants";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 
-describe("Test ModelInfoAPISpecs Schema validity", () => {
-  // WHEN the ModelInfoAPISpecs.Schemas.GET.Response.Schema.Payload schema
+// _baseResponseSchema is the shared base schema reused (via deep copy) by the modelInfo GET/POST response
+// schemas as well as by every entity endpoint that returns a full ModelInfo object (e.g. the occupation
+// history endpoint). It has no $id of its own since it is only ever spread into other schemas.
+// To exercise it directly here we give a local copy a $id so it can be registered/compiled by AJV.
+const baseResponseSchemaWithId = {
+  ...JSON.parse(JSON.stringify(_baseResponseSchema)),
+  $id: "/components/schemas/ModelInfoBaseResponseSchema",
+};
+
+describe("Test ModelInfo _baseResponseSchema validity", () => {
+  // WHEN the _baseResponseSchema
   // THEN expect the givenSchema to be valid
-  testValidSchema(
-    "ModelInfoAPISpecs.Schemas.GET.Response.Schema.Payload",
-    ModelInfoAPISpecs.Schemas.GET.Response.Payload,
-    [LocaleAPISpecs.Schemas.Payload]
-  );
+  testValidSchema("ModelInfo _baseResponseSchema", baseResponseSchemaWithId, [LocaleAPISpecs.Schemas.Payload]);
 });
 
-describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payload schema", () => {
-  // GIVEN the valid ModelInfoGETResponse objects
+describe("Test objects against the ModelInfo _baseResponseSchema", () => {
+  // GIVEN a valid full ModelInfo response object
   const givenExportProcessState = {
     id: getMockId(2),
     status: ExportProcessState.Enums.Status.PENDING,
@@ -69,32 +73,31 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-
-  const givenmodelHistory = {
+  const givenModelHistory = {
     id: getMockId(1),
     UUID: randomUUID(),
-    name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-    version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+    name: getTestString(ModelInfoConstants.NAME_MAX_LENGTH),
+    version: getTestString(ModelInfoConstants.VERSION_MAX_LENGTH),
     localeShortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
   };
 
-  const givenValidModelInfoGETResponse = {
+  const givenValidModelInfoResponse = {
     id: getMockId(1),
     UUID: randomUUID(),
-    modelHistory: [givenmodelHistory],
+    modelHistory: [givenModelHistory],
     path: "https://path/to/tabiya",
     tabiyaPath: "https://path/to/tabiya",
-    name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-    description: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-    license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
+    name: getTestString(ModelInfoConstants.NAME_MAX_LENGTH),
+    description: getTestString(ModelInfoConstants.NAME_MAX_LENGTH),
+    license: getTestString(ModelInfoConstants.LICENSE_MAX_LENGTH),
     locale: {
-      name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+      name: getTestString(ModelInfoConstants.NAME_MAX_LENGTH),
       UUID: randomUUID(),
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
-    releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
+    releaseNotes: getTestString(ModelInfoConstants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
-    version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+    version: getTestString(ModelInfoConstants.VERSION_MAX_LENGTH),
     exportProcessState: [givenExportProcessState],
     importProcessState: givenImportProcessState,
     createdAt: new Date().toISOString(),
@@ -103,68 +106,36 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
 
   // WHEN the object is validated
   // THEN expect the object to validate successfully
-  testSchemaWithValidObject(
-    "ModelInfoAPISpecs.Schemas.GET.Response.Payload",
-    ModelInfoAPISpecs.Schemas.GET.Response.Payload,
-    [givenValidModelInfoGETResponse],
-    [LocaleAPISpecs.Schemas.Payload]
-  );
+  testSchemaWithValidObject("ModelInfo _baseResponseSchema", baseResponseSchemaWithId, givenValidModelInfoResponse, [
+    LocaleAPISpecs.Schemas.Payload,
+  ]);
 
   // AND WHEN the object has additional properties
   // THEN expect the object to not validate
   testSchemaWithAdditionalProperties(
-    "ModelInfoAPISpecs.Schemas.GET.Response.Payload",
-    ModelInfoAPISpecs.Schemas.GET.Response.Payload,
-    [givenValidModelInfoGETResponse],
+    "ModelInfo _baseResponseSchema",
+    baseResponseSchemaWithId,
+    givenValidModelInfoResponse,
     [LocaleAPISpecs.Schemas.Payload]
   );
 
-  // AND WHEN the schema is called with an object instead of an array
-  // THEN expect the object not to validate
-  testArraySchemaFailureWithValidObject(
-    "ModelInfoAPISpecs.Schemas.GET.Response.Payload",
-    ModelInfoAPISpecs.Schemas.GET.Response.Payload,
-    givenValidModelInfoGETResponse,
-    [LocaleAPISpecs.Schemas.Payload]
-  );
-
-  // TODO: These per-field tests duplicate the field validation now covered centrally in
-  // modelInfo/schemas.base.test.ts (the GET response items are a deep copy of _baseResponseSchema).
-  // They should be removed and this test should rely on the central base-schema test, keeping only
-  // the array-shape assertions (valid array, additionalProperties, array-vs-object).
-  describe("Validate ModelInfoAPISpecs.Schemas.GET.Response.Payload fields", () => {
-    // spread the items of the schema into the schema itself
-    // we do this because we want to test the fields, not the fact that they are in an array
-    // and in cases where we use reusable test functions we do not have control over the givenObject
-    const { items, ...rest } = ModelInfoAPISpecs.Schemas.GET.Response.Payload;
-    const givenSchema = { ...rest, ...items };
+  describe("Validate ModelInfo _baseResponseSchema fields", () => {
+    const givenSchema = baseResponseSchemaWithId;
 
     describe("Test validation of 'id'", () => {
       testObjectIdField("id", givenSchema, [LocaleAPISpecs.Schemas.Payload]);
     });
 
     describe("Test validation of 'UUID'", () => {
-      testUUIDField<ModelInfoAPISpecs.Types.GET.Response.Payload>("UUID", givenSchema, [
-        LocaleAPISpecs.Schemas.Payload,
-      ]);
+      testUUIDField("UUID", givenSchema, [LocaleAPISpecs.Schemas.Payload]);
     });
 
     describe("Test validation of 'path'", () => {
-      testURIField<ModelInfoAPISpecs.Types.GET.Response.Payload>(
-        "path",
-        ModelInfoConstants.MAX_URI_LENGTH,
-        givenSchema,
-        [LocaleAPISpecs.Schemas.Payload]
-      );
+      testURIField("path", ModelInfoConstants.MAX_URI_LENGTH, givenSchema, [LocaleAPISpecs.Schemas.Payload]);
     });
 
     describe("Test validation of 'tabiyaPath'", () => {
-      testURIField<ModelInfoAPISpecs.Types.GET.Response.Payload>(
-        "tabiyaPath",
-        ModelInfoConstants.MAX_URI_LENGTH,
-        givenSchema,
-        [LocaleAPISpecs.Schemas.Payload]
-      );
+      testURIField("tabiyaPath", ModelInfoConstants.MAX_URI_LENGTH, givenSchema, [LocaleAPISpecs.Schemas.Payload]);
     });
 
     describe("Test validation of 'released'", () => {
@@ -172,65 +143,42 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
     });
 
     describe("Test validation of 'releaseNotes'", () => {
-      testStringField<ModelInfoAPISpecs.Types.GET.Response.Payload>(
-        "releaseNotes",
-        ModelInfoConstants.RELEASE_NOTES_MAX_LENGTH,
-        givenSchema,
-        [LocaleAPISpecs.Schemas.Payload]
-      );
+      testStringField("releaseNotes", ModelInfoConstants.RELEASE_NOTES_MAX_LENGTH, givenSchema, [
+        LocaleAPISpecs.Schemas.Payload,
+      ]);
     });
 
     describe("Test validation of 'version'", () => {
-      testStringField<ModelInfoAPISpecs.Types.GET.Response.Payload>(
-        "version",
-        ModelInfoConstants.VERSION_MAX_LENGTH,
-        givenSchema,
-        [LocaleAPISpecs.Schemas.Payload]
-      );
+      testStringField("version", ModelInfoConstants.VERSION_MAX_LENGTH, givenSchema, [LocaleAPISpecs.Schemas.Payload]);
     });
 
     describe("Test validation of 'createdAt'", () => {
-      testTimestampField<ModelInfoAPISpecs.Types.GET.Response.Payload>("createdAt", givenSchema, [
-        LocaleAPISpecs.Schemas.Payload,
-      ]);
+      testTimestampField("createdAt", givenSchema, [LocaleAPISpecs.Schemas.Payload]);
     });
 
     describe("Test validation of 'updatedAt'", () => {
-      testTimestampField<ModelInfoAPISpecs.Types.GET.Response.Payload>("updatedAt", givenSchema, [
+      testTimestampField("updatedAt", givenSchema, [LocaleAPISpecs.Schemas.Payload]);
+    });
+
+    describe("Test validation of 'name'", () => {
+      testNonEmptyStringField("name", ModelInfoConstants.NAME_MAX_LENGTH, givenSchema, [
         LocaleAPISpecs.Schemas.Payload,
       ]);
     });
 
-    describe("Test validation of 'name'", () => {
-      testNonEmptyStringField<ModelInfoAPISpecs.Types.GET.Response.Payload>(
-        "name",
-        ModelInfoConstants.NAME_MAX_LENGTH,
-        givenSchema,
-        [LocaleAPISpecs.Schemas.Payload]
-      );
-    });
-
     describe("Test validation of 'description'", () => {
-      testStringField<ModelInfoAPISpecs.Types.GET.Response.Payload>(
-        "description",
-        ModelInfoConstants.DESCRIPTION_MAX_LENGTH,
-        givenSchema,
-        [LocaleAPISpecs.Schemas.Payload]
-      );
+      testStringField("description", ModelInfoConstants.DESCRIPTION_MAX_LENGTH, givenSchema, [
+        LocaleAPISpecs.Schemas.Payload,
+      ]);
     });
 
     describe("Test validation of 'license'", () => {
-      testStringField<ModelInfoAPISpecs.Types.GET.Response.Payload>(
-        "license",
-        ModelInfoConstants.LICENSE_MAX_LENGTH,
-        givenSchema,
-        [LocaleAPISpecs.Schemas.Payload]
-      );
+      testStringField("license", ModelInfoConstants.LICENSE_MAX_LENGTH, givenSchema, [LocaleAPISpecs.Schemas.Payload]);
     });
 
     describe("Test validation of 'locale'", () => {
       const validLocale = {
-        name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+        name: getTestString(ModelInfoConstants.NAME_MAX_LENGTH),
         UUID: randomUUID(),
         shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       };
@@ -257,35 +205,22 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
           ],
         ],
         [
-          CaseType.Failure,
-          "an valid modelHistory object",
-          {
-            UUID: randomUUID(),
-            name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-            version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
-            localeShortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
-          },
-          constructSchemaError("/modelHistory", "type", "must be array"),
-        ],
-        [
           CaseType.Success,
           "an array of valid modelHistory objects",
           [
             {
               UUID: randomUUID(),
-              name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
-              version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
+              name: getTestString(ModelInfoConstants.NAME_MAX_LENGTH),
+              version: getTestString(ModelInfoConstants.VERSION_MAX_LENGTH),
               localeShortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
             },
           ],
           undefined,
         ],
       ])("(%s) Validate 'modelHistory' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-        // GIVEN an object with the given value
         const givenObject = {
           modelHistory: givenValue,
         };
-        // THEN expect the object to validate accordingly
         assertCaseForProperty("modelHistory", givenObject, givenSchema, caseType, failureMessages, [
           LocaleAPISpecs.Schemas.Payload,
         ]);
@@ -299,7 +234,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
           "(%s) Validate 'id' when it is %s",
           (caseType, _description, givenValue, failureMessages) => {
-            //   GIVEN an object with the given value
             const givenObject = {
               modelHistory: [
                 {
@@ -307,7 +241,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
                 },
               ],
             };
-            // THEN expect the object to validate accordingly
             assertCaseForProperty("/modelHistory/0/id", givenObject, givenSchema, caseType, failureMessages, [
               LocaleAPISpecs.Schemas.Payload,
             ]);
@@ -319,7 +252,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         test.each([...getStdUUIDTestCases("/modelHistory/0/UUID")])(
           `(%s) Validate 'UUID' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
             const givenObject = {
               modelHistory: [
                 {
@@ -327,7 +259,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
                 },
               ],
             };
-            // THEN expect the object to validate accordingly
             assertCaseForProperty("/modelHistory/0/UUID", givenObject, givenSchema, caseType, failureMessages, [
               LocaleAPISpecs.Schemas.Payload,
             ]);
@@ -344,7 +275,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
           `(%s) Validate 'name' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
             const givenObject = {
               modelHistory: [
                 {
@@ -352,7 +282,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
                 },
               ],
             };
-            // THEN expect the object to validate accordingly
             assertCaseForProperty("/modelHistory/0/name", givenObject, givenSchema, caseType, failureMessages, [
               LocaleAPISpecs.Schemas.Payload,
             ]);
@@ -369,7 +298,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
           `(%s) Validate 'version' when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
             //@ts-ignore
             const givenObject = {
               modelHistory: [
@@ -378,7 +306,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
                 },
               ],
             };
-            // THEN expect the object to validate accordingly
             assertCaseForProperty("/modelHistory/0/version", givenObject, givenSchema, caseType, failureMessages, [
               LocaleAPISpecs.Schemas.Payload,
             ]);
@@ -395,7 +322,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
           "(%s) Validate 'localeShortCode' when it is %s",
           (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
             const givenObject = {
               modelHistory: [
                 {
@@ -403,7 +329,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
                 },
               ],
             };
-            // THEN expect the object to validate accordingly
             assertCaseForProperty(
               "/modelHistory/0/localeShortCode",
               givenObject,
@@ -436,22 +361,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
             constructSchemaError("/exportProcessState/1", "type", "must be object"),
           ],
         ],
-        [
-          CaseType.Failure,
-          "a valid exportProcessState object",
-          {
-            id: getMockId(1),
-            status: ExportProcessStateAPISpecs.Enums.Status.PENDING,
-            result: {
-              errored: false,
-              exportErrors: false,
-              exportWarnings: false,
-            },
-            downloadUrl: "https://foo.bar.com",
-            timestamp: new Date().toISOString(),
-          },
-          constructSchemaError("/exportProcessState", "type", "must be array"),
-        ],
         [CaseType.Success, "an empty array", [], undefined],
         [
           CaseType.Success,
@@ -467,16 +376,16 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
               },
               downloadUrl: "https://foo.bar.com",
               timestamp: new Date().toISOString(),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
             },
           ],
           undefined,
         ],
       ])("(%s) Validate 'exportProcessState' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-        // GIVEN an object with the given value
         const givenObject = {
           exportProcessState: givenValue,
         };
-        // THEN expect the object to validate accordingly
         assertCaseForProperty("exportProcessState", givenObject, givenSchema, caseType, failureMessages, [
           LocaleAPISpecs.Schemas.Payload,
         ]);
@@ -488,7 +397,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         test.each([...getStdObjectIdTestCases("/exportProcessState/0/id")])(
           `(%s) Validate id when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
             const givenObject = {
               exportProcessState: [
                 {
@@ -496,7 +404,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
                 },
               ],
             };
-            // THEN expect the object to validate accordingly
             assertCaseForProperty("/exportProcessState/0/id", givenObject, givenSchema, caseType, failureMessages, [
               LocaleAPISpecs.Schemas.Payload,
             ]);
@@ -510,7 +417,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         )(
           "(%s) Validate 'exportProcessState.status' when it is %s",
           (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
             const givenObject = {
               exportProcessState: [
                 {
@@ -518,7 +424,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
                 },
               ],
             };
-            // THEN expect the object to validate accordingly
             assertCaseForProperty("/exportProcessState/0/status", givenObject, givenSchema, caseType, failureMessages, [
               LocaleAPISpecs.Schemas.Payload,
             ]);
@@ -559,7 +464,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
           [CaseType.Success, "true", true, undefined],
           [CaseType.Success, "false", false, undefined],
         ])(`(%s) Validate '%s' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
           const givenObject = {
             exportProcessState: [
               {
@@ -569,7 +473,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
               },
             ],
           };
-          // THEN expect the object to validate accordingly
           assertCaseForProperty(propertyPath, givenObject, givenSchema, caseType, failureMessages, [
             LocaleAPISpecs.Schemas.Payload,
           ]);
@@ -580,7 +483,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         test.each(
           getStdURIFieldTestCases("/exportProcessState/0/downloadUrl", ModelInfoConstants.MAX_URI_LENGTH, true)
         )(`(%s) Validate downloadUrl when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
           const givenObject = {
             exportProcessState: [
               {
@@ -588,7 +490,6 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
               },
             ],
           };
-          // THEN expect the object to validate accordingly
           assertCaseForProperty(
             "/exportProcessState/0/downloadUrl",
             givenObject,
@@ -600,77 +501,24 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         });
       });
 
-      describe("Test validation of 'exportProcessState/timestamp'", () => {
-        test.each(getStdTimestampFieldTestCases("/exportProcessState/0/timestamp"))(
-          `(%s) Validate timestamp when it is %s`,
+      describe.each([
+        ["/exportProcessState/0/timestamp", "timestamp"],
+        ["/exportProcessState/0/createdAt", "createdAt"],
+        ["/exportProcessState/0/updatedAt", "updatedAt"],
+      ])(`Test validation of '%s'`, (propertyPath, propertyName) => {
+        test.each(getStdTimestampFieldTestCases(propertyPath))(
+          `(%s) Validate ${propertyName} when it is %s`,
           (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
             const givenObject = {
               exportProcessState: [
                 {
-                  timestamp: givenValue,
+                  [propertyName]: givenValue,
                 },
               ],
             };
-            // THEN expect the object to validate accordingly
-            assertCaseForProperty(
-              "/exportProcessState/0/timestamp",
-              givenObject,
-              givenSchema,
-              caseType,
-              failureMessages,
-              [LocaleAPISpecs.Schemas.Payload]
-            );
-          }
-        );
-      });
-
-      describe("Test validation of 'exportProcessState/createdAt'", () => {
-        test.each(getStdTimestampFieldTestCases("/exportProcessState/0/createdAt"))(
-          `(%s) Validate createdAt when it is %s`,
-          (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
-            const givenObject = {
-              exportProcessState: [
-                {
-                  createdAt: givenValue,
-                },
-              ],
-            };
-            // THEN expect the object to validate accordingly
-            assertCaseForProperty(
-              "/exportProcessState/0/createdAt",
-              givenObject,
-              givenSchema,
-              caseType,
-              failureMessages,
-              [LocaleAPISpecs.Schemas.Payload]
-            );
-          }
-        );
-      });
-
-      describe("Test validation of 'exportProcessState/updatedAt'", () => {
-        test.each(getStdTimestampFieldTestCases("/exportProcessState/0/updatedAt"))(
-          `(%s) Validate updatedAt when it is %s`,
-          (caseType, _description, givenValue, failureMessages) => {
-            // GIVEN an object with the given value
-            const givenObject = {
-              exportProcessState: [
-                {
-                  updatedAt: givenValue,
-                },
-              ],
-            };
-            // THEN expect the object to validate accordingly
-            assertCaseForProperty(
-              "/exportProcessState/0/updatedAt",
-              givenObject,
-              givenSchema,
-              caseType,
-              failureMessages,
-              [LocaleAPISpecs.Schemas.Payload]
-            );
+            assertCaseForProperty(propertyPath, givenObject, givenSchema, caseType, failureMessages, [
+              LocaleAPISpecs.Schemas.Payload,
+            ]);
           }
         );
       });
@@ -695,15 +543,13 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         [
           CaseType.Success,
           "a valid importProcessState object",
-          givenValidModelInfoGETResponse.importProcessState,
+          givenValidModelInfoResponse.importProcessState,
           undefined,
         ],
       ])("(%s) Validate 'importProcessState' when it is %s", (caseType, _description, givenValue, failureMessages) => {
-        // GIVEN an object with the given value
         const givenObject = {
           importProcessState: givenValue,
         };
-        // THEN expect the object to validate accordingly
         assertCaseForProperty("importProcessState", givenObject, givenSchema, caseType, failureMessages, [
           LocaleAPISpecs.Schemas.Payload,
         ]);
@@ -727,47 +573,21 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
         testBooleanField("importProcessState/result/parsingWarnings", givenSchema, [LocaleAPISpecs.Schemas.Payload]);
       });
 
-      describe("Test validation of 'importProcessState/createdAt'", () => {
+      describe.each([
+        ["/importProcessState/createdAt", "createdAt"],
+        ["/importProcessState/updatedAt", "updatedAt"],
+      ])(`Test validation of '%s'`, (propertyPath, propertyName) => {
         test.each([
-          // we are using the standard stdTimestampFieldTestCases but we are filtering out the cases that are not applicable
-          // in this case, since the createdAt field can be undefined we filter out the "undefined" case
-          // and override it with our own case
-          ...getStdTimestampFieldTestCases("/importProcessState/createdAt").filter(
-            (testCase) => testCase[1] !== "undefined"
-          ),
+          // createdAt/updatedAt can be undefined, so filter out the "undefined" failure case and override it with a success
+          ...getStdTimestampFieldTestCases(propertyPath).filter((testCase) => testCase[1] !== "undefined"),
           [CaseType.Success, "undefined", undefined, undefined],
-        ])(`(%s) Validate createdAt when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
+        ])(`(%s) Validate ${propertyName} when it is %s`, (caseType, _description, givenValue, failureMessages) => {
           const givenObject = {
             importProcessState: {
-              createdAt: givenValue,
+              [propertyName]: givenValue,
             },
           };
-          // THEN expect the object to validate accordingly
-          assertCaseForProperty("/importProcessState/createdAt", givenObject, givenSchema, caseType, failureMessages, [
-            LocaleAPISpecs.Schemas.Payload,
-          ]);
-        });
-      });
-
-      describe("Test validation of 'importProcessState/updatedAt'", () => {
-        test.each([
-          // we are using the standard stdTimestampFieldTestCases but we are filtering out the cases that are not applicable
-          // in this case, since the updatedAt field can be undefined, we filter out the "undefined" case
-          // and override them with our own cases
-          ...getStdTimestampFieldTestCases("/importProcessState/updatedAt").filter(
-            (testCase) => testCase[1] !== "undefined"
-          ),
-          [CaseType.Success, "undefined", undefined, undefined],
-        ])(`(%s) Validate createdAt when it is %s`, (caseType, _description, givenValue, failureMessages) => {
-          // GIVEN an object with the given value
-          const givenObject = {
-            importProcessState: {
-              updatedAt: givenValue,
-            },
-          };
-          // THEN expect the object to validate accordingly
-          assertCaseForProperty("/importProcessState/updatedAt", givenObject, givenSchema, caseType, failureMessages, [
+          assertCaseForProperty(propertyPath, givenObject, givenSchema, caseType, failureMessages, [
             LocaleAPISpecs.Schemas.Payload,
           ]);
         });
