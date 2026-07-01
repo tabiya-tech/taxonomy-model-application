@@ -204,6 +204,10 @@ describe("test the handleRouteEvent function", () => {
     modelId: modelId.toString(),
     id: getMockStringId(2),
   });
+  const skillHistoryPath = buildPathFromPattern(Routes.SKILL_HISTORY_ROUTE, {
+    modelId: modelId.toString(),
+    id: getMockStringId(2),
+  });
   describe.each([
     [Routes.APPLICATION_INFO_ROUTE, InfoHandler],
     [Routes.PRESIGNED_ROUTE, PresignedHandler],
@@ -220,6 +224,7 @@ describe("test the handleRouteEvent function", () => {
     [skillGroupsPath, SkillGroupHandler],
     [skillsPath, SkillHandler],
     [skillPath, SkillHandler],
+    [skillHistoryPath, SkillHandler],
     [skillGroupPath, SkillGroupHandler],
     [skillGroupParentsPath, SkillGroupHandler],
     [skillGroupChildrenPath, SkillGroupHandler],

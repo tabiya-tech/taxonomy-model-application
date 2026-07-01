@@ -2100,4 +2100,48 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       expect(typeof actualRelated[0].relationId).toBe("string");
     });
   });
+
+  describe("Test findModelIdsByUUIDs()", () => {
+    test("should return the UUID -> modelId pairs for the skills matching the given UUIDs", async () => {
+      // GIVEN two skills in different models
+      const givenModelId1 = getMockStringId(1);
+      const givenModelId2 = getMockStringId(2);
+      const givenSkill1 = await repository.create(getSimpleNewSkillSpec(givenModelId1, "skill_1"));
+      const givenSkill2 = await repository.create(getSimpleNewSkillSpec(givenModelId2, "skill_2"));
+
+      // WHEN resolving a set of UUIDs that includes both skills' UUIDs plus a non-existent UUID
+      const actual = await repository.findModelIdsByUUIDs([givenSkill1.UUID, randomUUID(), givenSkill2.UUID]);
+
+      // THEN expect only the matched skills' UUID -> modelId pairs (the non-existent UUID is omitted)
+      expect(actual).toHaveLength(2);
+      expect(actual).toContainEqual({ UUID: givenSkill1.UUID, modelId: givenModelId1 });
+      expect(actual).toContainEqual({ UUID: givenSkill2.UUID, modelId: givenModelId2 });
+    });
+
+    test("should return an empty array when none of the given UUIDs match a skill", async () => {
+      // GIVEN a skill exists
+      await repository.create(getSimpleNewSkillSpec(getMockStringId(1), "skill_1"));
+
+      // WHEN resolving UUIDs that do not match any skill
+      const actual = await repository.findModelIdsByUUIDs([randomUUID(), randomUUID()]);
+
+      // THEN expect an empty array
+      expect(actual).toEqual([]);
+    });
+
+    test("should return an empty array when given an empty list of UUIDs", async () => {
+      // GIVEN a skill exists
+      await repository.create(getSimpleNewSkillSpec(getMockStringId(1), "skill_1"));
+
+      // WHEN resolving an empty list of UUIDs
+      const actual = await repository.findModelIdsByUUIDs([]);
+
+      // THEN expect an empty array
+      expect(actual).toEqual([]);
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skill.findModelIdsByUUIDs([randomUUID()]);
+    });
+  });
 });

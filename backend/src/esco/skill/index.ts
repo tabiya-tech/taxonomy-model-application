@@ -13,6 +13,7 @@ import { handler as getOccupationsHandler } from "./[id]/occupations/GET";
 import { handler as postOccupationsHandler } from "./[id]/occupations/POST";
 import { handler as getRelatedHandler } from "./[id]/related/GET";
 import { handler as postRelatedHandler } from "./[id]/related/POST";
+import { handler as getHistoryHandler } from "./[id]/history/GET";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent
@@ -38,6 +39,8 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
       return getOccupationsHandler(event);
     } else if (pathToRegexp(Routes.SKILL_RELATED_ROUTE).regexp.exec(pathToMatch)) {
       return getRelatedHandler(event);
+    } else if (pathToRegexp(Routes.SKILL_HISTORY_ROUTE).regexp.exec(pathToMatch)) {
+      return getHistoryHandler(event);
     } else {
       const individualMatch = pathToRegexp(Routes.SKILL_ROUTE).regexp.exec(pathToMatch);
       return individualMatch ? getByIdHandler(event) : getHandler(event);

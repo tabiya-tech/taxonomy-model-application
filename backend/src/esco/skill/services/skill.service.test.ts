@@ -13,6 +13,8 @@ import { ISkillRepository } from "../repository/skill.repository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getISkillMockData } from "../_shared/testDataHelper";
 import { IModelInfo } from "modelInfo/modelInfo.types";
+import { getIModelInfoMockData } from "modelInfo/testDataHelper";
+import { randomUUID } from "crypto";
 import mongoose from "mongoose";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
@@ -44,10 +46,13 @@ describe("Test the SkillService", () => {
       findChildren: jest.fn(),
       findOccupationsForSkill: jest.fn(),
       findRelatedSkills: jest.fn(),
+      findModelIdsByUUIDs: jest.fn(),
     } as unknown as jest.Mocked<ISkillRepository>;
 
     mockModelRepository = {
       getModelById: jest.fn(),
+      getModelsByIds: jest.fn(),
+      getHistory: jest.fn(),
     } as unknown as jest.Mocked<IModelRepository>;
 
     service = new SkillService(mockRepository, mockModelRepository);
@@ -659,6 +664,85 @@ describe("Test the SkillService", () => {
       expect(result.nextCursor).not.toBeNull();
       expect(result.nextCursor!.createdAt).toBeInstanceOf(Date);
       expect(result.nextCursor!._id).toBe(givenItems[0].id);
+    });
+  });
+
+  describe("getHistory", () => {
+    // A skill's UUIDHistory holds its OWN past UUIDs; the service resolves each to the skill with that UUID,
+    // reads its modelId, then fetches that model. This helper builds a model with a given id.
+    function givenModelWithId(n: number, modelId: string, uuidHistory: string[]): IModelInfo {
+      return {
+        ...getIModelInfoMockData(n),
+        id: modelId,
+        UUID: uuidHistory[0],
+        UUIDHistory: uuidHistory,
+      };
+    }
+
+    test("should return null when the skill does not exist", async () => {
+      mockRepository.findById.mockResolvedValue(null);
+
+      const actual = await service.getHistory(getMockStringId(1));
+
+      expect(actual).toBeNull();
+      expect(mockRepository.findModelIdsByUUIDs).not.toHaveBeenCalled();
+      expect(mockModelRepository.getModelsByIds).not.toHaveBeenCalled();
+    });
+
+    test("should return an empty array when the skill has an empty UUIDHistory", async () => {
+      mockRepository.findById.mockResolvedValue({ UUIDHistory: [] } as unknown as ISkill);
+
+      const actual = await service.getHistory(getMockStringId(1));
+
+      expect(actual).toEqual([]);
+      expect(mockRepository.findModelIdsByUUIDs).not.toHaveBeenCalled();
+    });
+
+    test("should resolve UUID->modelId->model, preserve UUIDHistory order, and skip unresolved UUIDs", async () => {
+      const givenUuidA = randomUUID();
+      const givenUuidMissing = randomUUID();
+      const givenUuidB = randomUUID();
+      mockRepository.findById.mockResolvedValue({
+        UUIDHistory: [givenUuidA, givenUuidMissing, givenUuidB],
+      } as unknown as ISkill);
+      const givenModelAId = getMockStringId(10);
+      const givenModelBId = getMockStringId(20);
+      mockRepository.findModelIdsByUUIDs.mockResolvedValue([
+        { UUID: givenUuidB, modelId: givenModelBId },
+        { UUID: givenUuidA, modelId: givenModelAId },
+      ]);
+      const givenModelA = givenModelWithId(1, givenModelAId, [randomUUID()]);
+      const givenModelB = givenModelWithId(2, givenModelBId, [randomUUID()]);
+      mockModelRepository.getModelsByIds.mockResolvedValue([givenModelB, givenModelA]);
+      mockModelRepository.getHistory.mockResolvedValue([]);
+
+      const actual = await service.getHistory(getMockStringId(1));
+
+      expect(actual).toHaveLength(2);
+      expect(actual![0].model).toEqual(givenModelA);
+      expect(actual![1].model).toEqual(givenModelB);
+      expect(mockRepository.findModelIdsByUUIDs).toHaveBeenCalledTimes(1);
+      expect(mockRepository.findModelIdsByUUIDs).toHaveBeenCalledWith([givenUuidA, givenUuidMissing, givenUuidB]);
+      expect(mockModelRepository.getModelsByIds).toHaveBeenCalledTimes(1);
+    });
+
+    test("should return a model at most once even if several history UUIDs map to the same model", async () => {
+      const givenUuid1 = randomUUID();
+      const givenUuid2 = randomUUID();
+      mockRepository.findById.mockResolvedValue({ UUIDHistory: [givenUuid1, givenUuid2] } as unknown as ISkill);
+      const givenModelId = getMockStringId(10);
+      mockRepository.findModelIdsByUUIDs.mockResolvedValue([
+        { UUID: givenUuid1, modelId: givenModelId },
+        { UUID: givenUuid2, modelId: givenModelId },
+      ]);
+      const givenModel = givenModelWithId(1, givenModelId, [randomUUID()]);
+      mockModelRepository.getModelsByIds.mockResolvedValue([givenModel]);
+      mockModelRepository.getHistory.mockResolvedValue([]);
+
+      const actual = await service.getHistory(getMockStringId(1));
+
+      expect(actual).toHaveLength(1);
+      expect(actual![0].model).toEqual(givenModel);
     });
   });
 });

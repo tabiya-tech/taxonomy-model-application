@@ -2,6 +2,7 @@ import * as ParentEnums from "../[id]/parents/GET/enums";
 import * as ChildrenEnums from "../[id]/children/GET/enums";
 import * as OccupationsEnums from "../[id]/occupations/GET/enums";
 import * as RelatedSkillsEnums from "../[id]/relatedSkills/GET/enums";
+import * as HistoryEnums from "../[id]/history/GET/enums";
 
 namespace GETSkillsErrors {
   export namespace Status400 {
@@ -23,6 +24,9 @@ namespace GETSkillsErrors {
     export namespace RelatedSkills {
       export import ErrorCodes = RelatedSkillsEnums.GET.Response.Status400.ErrorCodes;
     }
+    export namespace History {
+      export import ErrorCodes = HistoryEnums.GET.Response.Status400.ErrorCodes;
+    }
   }
   export namespace Status404 {
     export enum ErrorCodes {
@@ -41,6 +45,9 @@ namespace GETSkillsErrors {
     export namespace RelatedSkills {
       export import ErrorCodes = RelatedSkillsEnums.GET.Response.Status404.ErrorCodes;
     }
+    export namespace History {
+      export import ErrorCodes = HistoryEnums.GET.Response.Status404.ErrorCodes;
+    }
   }
   export namespace Status500 {
     export enum ErrorCodes {
@@ -58,6 +65,9 @@ namespace GETSkillsErrors {
     }
     export namespace RelatedSkills {
       export import ErrorCodes = RelatedSkillsEnums.GET.Response.Status500.ErrorCodes;
+    }
+    export namespace History {
+      export import ErrorCodes = HistoryEnums.GET.Response.Status500.ErrorCodes;
     }
   }
 }

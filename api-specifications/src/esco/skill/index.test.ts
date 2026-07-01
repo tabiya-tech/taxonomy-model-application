@@ -14,6 +14,7 @@ describe("Test the Skill module", () => {
     expect(skillModule.default.Skill.Children.GET.Schemas.Response.Payload).toBeDefined();
     expect(skillModule.default.Skill.Occupations.GET.Schemas.Response.Payload).toBeDefined();
     expect(skillModule.default.Skill.RelatedSkills.GET.Schemas.Response.Payload).toBeDefined();
+    expect(skillModule.default.Skill.History.GET.Schemas.Response.Payload).toBeDefined();
 
     // AND check if constants are defined
     const Constants = skillModule.default.Constants;

@@ -3,11 +3,21 @@ import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { IModelInfo, IModelInfoReference } from "modelInfo/modelInfo.types";
 
 export class SkillModelValidationError extends Error {
   constructor(public code: ModelForSkillValidationErrorCode) {
     super();
   }
+}
+
+/**
+ * A single entry of a skill's model history: a full ModelInfo together with the resolved
+ * details of that model's own UUIDHistory (used to build the modelHistory field of the response).
+ */
+export interface ISkillHistoryEntry {
+  model: IModelInfo;
+  modelHistoryDetails: IModelInfoReference[];
 }
 
 export interface ISkillService {
@@ -115,4 +125,16 @@ export interface ISkillService {
     items: SkillToSkillReferenceWithRelationType<ISkill>[];
     nextCursor: { _id: string; createdAt: Date } | null;
   }>;
+
+  /**
+   * Resolves the history of the models a Skill appeared in, based on its UUIDHistory.
+   * For each UUID in the skill's UUIDHistory (newest first) that resolves to an existing skill, returns the full
+   * model that skill belonged to, together with that model's own UUIDHistory details. UUIDs that do not resolve
+   * to an existing skill are skipped, and each model appears at most once.
+   *
+   * @param {string} skillId - The ID of the Skill.
+   * @return {Promise<ISkillHistoryEntry[] | null>} - The resolved history entries in UUIDHistory order,
+   * or null if the Skill does not exist.
+   */
+  getHistory(skillId: string): Promise<ISkillHistoryEntry[] | null>;
 }

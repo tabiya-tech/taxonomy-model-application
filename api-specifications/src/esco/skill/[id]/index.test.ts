@@ -9,6 +9,7 @@ describe("Test the Skill Instance module", () => {
     expect(module.default.Children.GET.Schemas.Response.Payload).toBeDefined();
     expect(module.default.Occupations.GET.Schemas.Response.Payload).toBeDefined();
     expect(module.default.RelatedSkills.GET.Schemas.Response.Payload).toBeDefined();
+    expect(module.default.History.GET.Schemas.Response.Payload).toBeDefined();
 
     const Constants = module.default.Constants;
     expect(Constants.DESCRIPTION_MAX_LENGTH).toBeDefined();
