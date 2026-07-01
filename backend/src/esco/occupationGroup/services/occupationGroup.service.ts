@@ -1,4 +1,5 @@
 import {
+  IOccupationGroupHistoryEntry,
   FindPaginatedFilter,
   IOccupationGroupService,
   OccupationGroupModelValidationError,
@@ -13,8 +14,9 @@ import {
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { IOccupationGroupRepository } from "esco/occupationGroup/repository/OccupationGroup.repository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { IModelInfoReference } from "modelInfo/modelInfo.types";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { IOccupationHierarchyRepository } from "../../occupationHierarchy/occupationHierarchyRepository";
+import { IOccupationHierarchyRepository } from "esco/occupationHierarchy/occupationHierarchyRepository";
 
 export class OccupationGroupService implements IOccupationGroupService {
   constructor(
@@ -121,5 +123,64 @@ export class OccupationGroupService implements IOccupationGroupService {
       console.error("Error validating model for occupation group:", e);
       return ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
     }
+  }
+
+  async getHistory(occupationGroupId: string): Promise<IOccupationGroupHistoryEntry[] | null> {
+    const occupationGroup = await this.occupationGroupRepository.findById(occupationGroupId);
+    if (!occupationGroup) {
+      return null;
+    }
+
+    // The occupation group's UUIDHistory holds its OWN past UUIDs (one per model it existed in), newest first.
+    // To list the models it appeared in we resolve: UUID -> occupation group entity -> its modelId -> model.
+    const uuidHistory = occupationGroup.UUIDHistory ?? [];
+    if (uuidHistory.length === 0) {
+      return [];
+    }
+
+    const modelRepository = getRepositoryRegistry().modelInfo;
+
+    // Resolve each historical UUID to the modelId of the occupation group with that UUID (single query).
+    const uuidToModelId = await this.occupationGroupRepository.findModelIdsByUUIDs(uuidHistory);
+    const modelIdByUUID = new Map(uuidToModelId.map((entry) => [entry.UUID, entry.modelId]));
+
+    // Fetch the full models for the resolved modelIds (single query).
+    const modelIds = Array.from(new Set(modelIdByUUID.values()));
+    const resolvedModels = modelIds.length > 0 ? await modelRepository.getModelsByIds(modelIds) : [];
+    const modelById = new Map(resolvedModels.map((model) => [model.id, model]));
+
+    // Resolve the modelHistory references for every resolved model's own UUIDHistory (single query).
+    const allModelHistoryUUIDs = Array.from(new Set(resolvedModels.flatMap((model) => model.UUIDHistory)));
+    const references = allModelHistoryUUIDs.length > 0 ? await modelRepository.getHistory(allModelHistoryUUIDs) : [];
+    const referenceByUUID = new Map(references.map((reference) => [reference.UUID, reference]));
+
+    // Walk the occupation group's UUIDHistory (newest first), skipping UUIDs whose entity or model no longer
+    // exists. A given model appears at most once even if multiple history UUIDs map to it.
+    const history: IOccupationGroupHistoryEntry[] = [];
+    const seenModelIds = new Set<string>();
+    for (const uuid of uuidHistory) {
+      const modelId = modelIdByUUID.get(uuid);
+      if (!modelId || seenModelIds.has(modelId)) {
+        continue;
+      }
+      const model = modelById.get(modelId);
+      if (!model) {
+        continue;
+      }
+      seenModelIds.add(modelId);
+      const modelHistoryDetails: IModelInfoReference[] = model.UUIDHistory.map(
+        (historyUUID) =>
+          referenceByUUID.get(historyUUID) ?? {
+            id: null,
+            UUID: historyUUID,
+            name: null,
+            version: null,
+            localeShortCode: null,
+          }
+      );
+      history.push({ model, modelHistoryDetails });
+    }
+
+    return history;
   }
 }

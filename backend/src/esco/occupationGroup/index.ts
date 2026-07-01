@@ -9,6 +9,7 @@ import { handler as occupationGroupParentHandler } from "./[id]/parent/GET";
 import { handler as occupationGroupParentCreateHandler } from "./[id]/parent/POST";
 import { handler as occupationGroupChildrenHandler } from "./[id]/children/GET";
 import { handler as occupationGroupDetailHandler } from "./[id]/GET";
+import { handler as occupationGroupHistoryHandler } from "./[id]/history/GET";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -30,6 +31,8 @@ export const handler: (
       return occupationGroupParentHandler(event);
     } else if (pathToRegexp(Routes.OCCUPATION_GROUP_CHILDREN_ROUTE).regexp.exec(pathToMatch)) {
       return occupationGroupChildrenHandler(event);
+    } else if (pathToRegexp(Routes.OCCUPATION_GROUP_HISTORY_ROUTE).regexp.exec(pathToMatch)) {
+      return occupationGroupHistoryHandler(event);
     }
     return occupationGroupListHandler(event);
   }

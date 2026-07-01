@@ -520,6 +520,7 @@ describe("Test the main async handler", () => {
         getOccupationGroupByUUID: jest.fn(),
         getHistory: jest.fn(),
         getModelsByIds: jest.fn(),
+        findModelIdsByUUIDs: jest.fn(),
         findParent: jest.fn(),
         findChildren: jest.fn().mockResolvedValue([]),
         setParent: jest.fn().mockResolvedValue(undefined),

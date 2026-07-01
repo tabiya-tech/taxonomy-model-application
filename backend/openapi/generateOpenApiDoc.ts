@@ -25,6 +25,8 @@ ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref =
   "#" + ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref;
 Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.locale.$ref =
   "#" + Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.locale.$ref;
+OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.locale.$ref =
+  "#" + OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.locale.$ref;
 
 /**
  * Remove the $id from the schemas as Swagger does not like them.
@@ -53,6 +55,7 @@ delete OccupationGroup.OccupationGroup.GET.Schemas.Response.Payload.$id;
 delete OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload.$id;
 delete OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Child.Payload.$id;
 delete OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Children.Payload.$id;
+delete OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.$id;
 delete Occupation.POST.Schemas.Request.Payload.$id;
 delete Occupation.POST.Schemas.Response.Payload.$id;
 delete Occupation.GET.Schemas.Response.Payload.$id;
@@ -407,6 +410,7 @@ function getOpenAPISpecification(
           OccupationGroupParentResponseSchemaGET: OccupationGroup.OccupationGroup.Parent.GET.Schemas.Response.Payload,
           OccupationGroupChildrenResponseSchemaGET:
             OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Children.Payload,
+          OccupationGroupResponseSchemaGETHistory: OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload,
           OccupationGroupRequestParamSchemaGET: OccupationGroup.GET.Schemas.Request.Param.Payload,
           OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.GET.Schemas.Request.Query.Payload,
           OccupationGroupResponseSchemaGET: OccupationGroup.GET.Schemas.Response.Payload,

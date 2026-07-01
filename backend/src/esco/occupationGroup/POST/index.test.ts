@@ -67,6 +67,7 @@ describe("OccupationGroupCreateController", () => {
         findPaginated: jest.fn(),
         validateModelForOccupationGroup: jest.fn(),
         findChildren: jest.fn(),
+        getHistory: jest.fn(),
         setParent: jest.fn(),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;
@@ -184,6 +185,7 @@ describe("OccupationGroupCreateController", () => {
       findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
       findChildren: jest.fn().mockResolvedValue([]),
+      getHistory: jest.fn(),
       setParent: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -257,6 +259,7 @@ describe("OccupationGroupCreateController", () => {
       findChildren: jest.fn().mockResolvedValue([]),
       findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
+      getHistory: jest.fn(),
       setParent: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -388,6 +391,7 @@ describe("OccupationGroupCreateController", () => {
       findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
       findChildren: jest.fn().mockResolvedValue([]),
+      getHistory: jest.fn(),
       setParent: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -596,6 +600,7 @@ describe("OccupationGroupCreateController", () => {
       findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
       findChildren: jest.fn().mockResolvedValue([]),
+      getHistory: jest.fn(),
       setParent: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -644,6 +649,7 @@ describe("OccupationGroupCreateController", () => {
       findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
       findChildren: jest.fn().mockResolvedValue([]),
+      getHistory: jest.fn(),
       setParent: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();

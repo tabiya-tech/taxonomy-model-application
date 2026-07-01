@@ -1,4 +1,5 @@
 import OccupationGroupEnums from "./enums";
+import ModelInfoTypes from "../../../modelInfo/types";
 
 export interface IOccupationGroupResponse {
   id: string;
@@ -100,6 +101,13 @@ namespace OccupationGroupTypes {
   const _ = 0;
   export namespace Response {
     export type IOccupationGroup = IOccupationGroupResponse;
+  }
+
+  export namespace Detail.history.GET {
+    export namespace Response {
+      export type ModelInfoItem = ModelInfoTypes.Response.IModelInfo;
+      export type Payload = ModelInfoTypes.Response.IModelInfo[];
+    }
   }
 }
 

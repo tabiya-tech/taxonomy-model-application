@@ -59,6 +59,7 @@ describe("OccupationGroupListController", () => {
         findPaginated: jest.fn(),
         validateModelForOccupationGroup: jest.fn(),
         findChildren: jest.fn(),
+        getHistory: jest.fn(),
         setParent: jest.fn(),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;
@@ -178,6 +179,7 @@ describe("OccupationGroupListController", () => {
       validateModelForOccupationGroup: jest.fn().mockResolvedValue(null),
       findChildren: jest.fn().mockResolvedValue([]),
       setParent: jest.fn(),
+      getHistory: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -366,6 +368,7 @@ describe("OccupationGroupListController", () => {
       validateModelForOccupationGroup: jest
         .fn()
         .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+      getHistory: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -406,6 +409,7 @@ describe("OccupationGroupListController", () => {
       findParent: jest.fn().mockResolvedValue(null),
       validateModelForOccupationGroup: jest.fn(),
       findChildren: jest.fn(),
+      getHistory: jest.fn(),
       setParent: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -460,6 +464,7 @@ describe("OccupationGroupListController", () => {
       findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
       getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
       getHistory: jest.fn().mockResolvedValue([]),
+      findModelIdsByUUIDs: jest.fn().mockResolvedValue([]),
       findParent: jest.fn().mockResolvedValue(null),
       findChildren: jest.fn().mockResolvedValue([]),
       setParent: jest.fn().mockResolvedValue(undefined),
