@@ -58,6 +58,7 @@ describe("Test for occupation POST handler", () => {
         getParent: jest.fn().mockResolvedValue(null),
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getHistory: jest.fn(),
       } as IOccupationService,
       initialize: jest.fn(),
     } as unknown as ServiceRegistry;
@@ -142,6 +143,7 @@ describe("Test for occupation POST handler", () => {
         getParent: jest.fn(),
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getHistory: jest.fn(),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupation = givenOccupationServiceMock;
@@ -266,6 +268,7 @@ describe("Test for occupation POST handler", () => {
         getParent: jest.fn(),
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getHistory: jest.fn(),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupation = givenOccupationServiceMock;
@@ -276,6 +279,7 @@ describe("Test for occupation POST handler", () => {
         getModelByUUID: jest.fn(),
         getModels: jest.fn(),
         getHistory: jest.fn(),
+        getModelsByIds: jest.fn(),
       } as IModelRepository;
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
@@ -417,6 +421,7 @@ describe("Test for occupation POST handler", () => {
         getParent: jest.fn(),
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getHistory: jest.fn(),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupation = givenOccupationServiceMock;
@@ -464,6 +469,7 @@ describe("Test for occupation POST handler", () => {
         getParent: jest.fn(),
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getHistory: jest.fn(),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupation = givenOccupationServiceMock;
@@ -535,6 +541,7 @@ describe("Test for occupation POST handler", () => {
         getParent: jest.fn(),
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getHistory: jest.fn(),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupation = givenOccupationServiceMock;
@@ -580,6 +587,7 @@ describe("Test for occupation POST handler", () => {
         getParent: jest.fn(),
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getHistory: jest.fn(),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
       mockServiceRegistry.occupation = givenOccupationServiceMock;

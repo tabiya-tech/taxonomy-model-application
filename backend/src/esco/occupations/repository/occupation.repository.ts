@@ -100,6 +100,16 @@ export interface IOccupationRepository {
   getOccupationByUUID(uuid: string): Promise<IOccupation | null>;
 
   /**
+   * Finds, for each of the provided occupation UUIDs, the modelId of the occupation with that UUID.
+   * Used to resolve an occupation's UUIDHistory (its own past UUIDs) to the models it appeared in.
+   * Only UUIDs that match an existing occupation are returned; the result is not ordered by the input.
+   *
+   * @param {string[]} uuids - The occupation UUIDs to resolve.
+   * @return {Promise<{ UUID: string; modelId: string }[]>} - The UUID -> modelId pairs for the matched occupations.
+   */
+  findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]>;
+
+  /**
    * Finds the parent Occupation of an Occupation.
    *
    * @param {string} modelId - The modelId of the Occupation.
@@ -332,6 +342,19 @@ export class OccupationRepository implements IOccupationRepository {
       const err = new Error("OccupationRepository.getOccupationByUUID: getOccupationByUUID failed", {
         cause: e,
       });
+      throw err;
+    }
+  }
+
+  async findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]> {
+    try {
+      const occupations = await this.Model.find({ UUID: uuids }, { UUID: 1, modelId: 1, _id: 0 }).exec();
+      return occupations.map((occupation) => ({
+        UUID: occupation.UUID,
+        modelId: occupation.modelId.toString(),
+      }));
+    } catch (e: unknown) {
+      const err = new Error("OccupationRepository.findModelIdsByUUIDs: findModelIdsByUUIDs failed", { cause: e });
       throw err;
     }
   }

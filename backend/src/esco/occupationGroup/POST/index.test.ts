@@ -196,6 +196,7 @@ describe("OccupationGroupCreateController", () => {
       getModelByUUID: jest.fn().mockResolvedValue(null),
       getModels: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn().mockResolvedValue([]),
+      getModelsByIds: jest.fn(),
     } as IModelRepository;
 
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
@@ -268,6 +269,7 @@ describe("OccupationGroupCreateController", () => {
       getModelByUUID: jest.fn().mockResolvedValue(null),
       getModels: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn().mockResolvedValue([]),
+      getModelsByIds: jest.fn(),
     };
 
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
@@ -370,6 +372,7 @@ describe("OccupationGroupCreateController", () => {
       getModelByUUID: jest.fn().mockResolvedValue(null),
       getModels: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn().mockResolvedValue([]),
+      getModelsByIds: jest.fn(),
     };
 
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
