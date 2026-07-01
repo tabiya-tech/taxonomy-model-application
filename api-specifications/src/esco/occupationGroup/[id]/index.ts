@@ -1,6 +1,7 @@
 import OccupationGroupGETDetailAPISpecs from "./GET";
 import OccupationGroupGETParentAPISpecs from "./parent";
 import OccupationGroupGETChildrenAPISpecs from "./children";
+import OccupationGroupHistoryAPISpecs from "./history";
 
 import SchemaGETRequestDetailParam from "./schema.request.param";
 
@@ -22,5 +23,6 @@ namespace OccupationGroupDetailAPISpecs {
 
   export import Parent = OccupationGroupGETParentAPISpecs;
   export import Children = OccupationGroupGETChildrenAPISpecs;
+  export import History = OccupationGroupHistoryAPISpecs;
 }
 export default OccupationGroupDetailAPISpecs;

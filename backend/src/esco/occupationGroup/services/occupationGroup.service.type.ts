@@ -5,6 +5,7 @@ import {
   IOccupationGroupChild,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { IModelInfo, IModelInfoReference } from "modelInfo/modelInfo.types";
 
 export class OccupationGroupModelValidationError extends Error {
   constructor(public code: ModelForOccupationGroupValidationErrorCode) {
@@ -14,6 +15,15 @@ export class OccupationGroupModelValidationError extends Error {
 
 export interface FindPaginatedFilter {
   root?: boolean;
+}
+
+/**
+ * A single entry of an occupation group's model history: a full ModelInfo together with the resolved
+ * details of that model's own UUIDHistory (used to build the modelHistory field of the response).
+ */
+export interface IOccupationGroupHistoryEntry {
+  model: IModelInfo;
+  modelHistoryDetails: IModelInfoReference[];
 }
 
 export enum SetOccupationGroupParentErrorCode {
@@ -108,4 +118,16 @@ export interface IOccupationGroupService {
     parentType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
     modelId: string;
   }): Promise<IOccupationGroup>;
+
+  /**
+   * Resolves the history of the models an OccupationGroup appeared in, based on its UUIDHistory.
+   * For each UUID in the occupation group's UUIDHistory (newest first) that resolves to an existing occupation
+   * group, returns the full model that occupation group belonged to, together with that model's own UUIDHistory
+   * details. UUIDs that do not resolve to an existing occupation group are skipped, and each model appears once.
+   *
+   * @param {string} occupationGroupId - The ID of the OccupationGroup.
+   * @return {Promise<IOccupationGroupHistoryEntry[] | null>} - The resolved history entries in UUIDHistory order,
+   * or null if the OccupationGroup does not exist.
+   */
+  getHistory(occupationGroupId: string): Promise<IOccupationGroupHistoryEntry[] | null>;
 }

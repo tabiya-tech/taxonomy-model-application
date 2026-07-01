@@ -10,6 +10,7 @@ export const Routes = {
   OCCUPATION_GROUP_ROUTE: "/models/:modelId/occupationGroups/:id",
   OCCUPATION_GROUP_PARENT_ROUTE: "/models/:modelId/occupationGroups/:id/parent",
   OCCUPATION_GROUP_CHILDREN_ROUTE: "/models/:modelId/occupationGroups/:id/children",
+  OCCUPATION_GROUP_HISTORY_ROUTE: "/models/:modelId/occupationGroups/:id/history",
   SKILL_GROUPS_ROUTE: "/models/:modelId/skillGroups",
   SKILL_GROUP_ROUTE: "/models/:modelId/skillGroups/:id",
   SKILL_GROUP_PARENTS_ROUTE: "/models/:modelId/skillGroups/:id/parents",

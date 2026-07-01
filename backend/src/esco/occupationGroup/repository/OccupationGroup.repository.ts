@@ -112,6 +112,16 @@ export interface IOccupationGroupRepository {
   getOccupationGroupByUUID(uuid: string): Promise<IOccupationGroup | null>;
 
   /**
+   * Finds, for each of the provided occupation group UUIDs, the modelId of the occupation group with that UUID.
+   * Used to resolve an occupation group's UUIDHistory (its own past UUIDs) to the models it appeared in.
+   * Only UUIDs that match an existing occupation group are returned; the result is not ordered by the input.
+   *
+   * @param {string[]} uuids - The occupation group UUIDs to resolve.
+   * @return {Promise<{ UUID: string; modelId: string }[]>} - The UUID -> modelId pairs for the matched occupation groups.
+   */
+  findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]>;
+
+  /**
    * Get UUIDHistory for an occupation group.
    *
    * @return {Promise<IOccupationGroupHistoryReference[]|null>} - A promise that resolves to an array with the UUIDHistory for the occupationGroup. if the occupationGroup does not exist it returns an empty array
@@ -334,6 +344,22 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       const err = new Error("OccupationGroupRepository.getOccupationGroupByUUID: getOccupationGroupByUUID failed", {
         cause: e,
       });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]> {
+    try {
+      // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
+      // operator object this is not rewritten by the connection's sanitizeFilter=true. Same idiom as getHistory().
+      const occupationGroups = await this.Model.find({ UUID: uuids }, { UUID: 1, modelId: 1, _id: 0 }).exec();
+      return occupationGroups.map((occupationGroup) => ({
+        UUID: occupationGroup.UUID,
+        modelId: occupationGroup.modelId.toString(),
+      }));
+    } catch (e: unknown) {
+      const err = new Error("OccupationGroupRepository.findModelIdsByUUIDs: findModelIdsByUUIDs failed", { cause: e });
       console.error(err);
       throw err;
     }

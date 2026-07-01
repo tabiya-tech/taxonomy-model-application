@@ -47,6 +47,7 @@ describe("OccupationGroupDetailController", () => {
         validateModelForOccupationGroup: jest.fn(),
         findChildren: jest.fn(),
         setParent: jest.fn(),
+        getHistory: jest.fn(),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;
 

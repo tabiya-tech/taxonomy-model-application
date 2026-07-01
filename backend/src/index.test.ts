@@ -163,6 +163,10 @@ describe("test the handleRouteEvent function", () => {
     modelId: modelId.toString(),
     id: getMockStringId(2),
   });
+  const occupationGroupHistoryPath = buildPathFromPattern(Routes.OCCUPATION_GROUP_HISTORY_ROUTE, {
+    modelId: modelId.toString(),
+    id: getMockStringId(2),
+  });
   const occupationGroupChildrenPath = buildPathFromPattern(Routes.OCCUPATION_GROUP_CHILDREN_ROUTE, {
     modelId: modelId.toString(),
     id: getMockStringId(2),
@@ -209,6 +213,7 @@ describe("test the handleRouteEvent function", () => {
     [occupationsGroupsPath, OccupationGroupHandler],
     [occupationGroupParentPath, OccupationGroupHandler],
     [occupationGroupChildrenPath, OccupationGroupHandler],
+    [occupationGroupHistoryPath, OccupationGroupHandler],
     [occupationsPath, OccupationHandler],
     [occupationPath, OccupationHandler],
     [occupationHistoryPath, OccupationHandler],
