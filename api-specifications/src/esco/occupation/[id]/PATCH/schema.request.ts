@@ -12,6 +12,7 @@ const SchemaPATCHRequest: SchemaObject = {
     ..._baseProperties,
   },
   if: {
+    required: ["occupationType"],
     properties: {
       occupationType: { const: OccupationEnums.OccupationType.ESCOOccupation },
     },
@@ -31,16 +32,24 @@ const SchemaPATCHRequest: SchemaObject = {
     },
   },
   else: {
-    properties: {
-      code: {
-        type: "string",
-        maxLength: OccupationConstants.CODE_PATTERN_MAX_LENGTH,
-        pattern: OccupationRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
+    if: {
+      required: ["occupationType"],
+      properties: {
+        occupationType: { const: OccupationEnums.OccupationType.LocalOccupation },
       },
-      occupationGroupCode: {
-        type: "string",
-        maxLength: OccupationConstants.CODE_PATTERN_MAX_LENGTH,
-        pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
+    },
+    then: {
+      properties: {
+        code: {
+          type: "string",
+          maxLength: OccupationConstants.CODE_PATTERN_MAX_LENGTH,
+          pattern: OccupationRegexes.Str.ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE,
+        },
+        occupationGroupCode: {
+          type: "string",
+          maxLength: OccupationConstants.CODE_PATTERN_MAX_LENGTH,
+          pattern: `${OccupationRegexes.Str.LOCAL_GROUP_CODE}|${OccupationRegexes.Str.ISCO_GROUP_CODE}`,
+        },
       },
     },
   },
