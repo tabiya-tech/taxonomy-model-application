@@ -155,6 +155,13 @@ describe("Test objects against the OccupationAPISpecs.Occupation.PATCH.Schemas.R
           OccupationEnums.OccupationType.LocalOccupation,
           undefined,
         ],
+        [
+          CaseType.Success,
+          "a valid ISCO group code",
+          getTestISCOGroupCode(),
+          OccupationEnums.OccupationType.LocalOccupation,
+          undefined,
+        ],
       ] as const)(
         "%s Validate 'occupationGroupCode' when it is %s with %s occupationType",
         (caseType, _description, givenValue, occupationType, failureMessage) => {

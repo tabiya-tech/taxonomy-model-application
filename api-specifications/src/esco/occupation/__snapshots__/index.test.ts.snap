@@ -1645,16 +1645,28 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             "$id": "/components/schemas/OccupationRequestSchemaPATCH",
             "additionalProperties": false,
             "else": {
-              "properties": {
-                "code": {
-                  "maxLength": 100,
-                  "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
-                  "type": "string",
+              "if": {
+                "properties": {
+                  "occupationType": {
+                    "const": "localoccupation",
+                  },
                 },
-                "occupationGroupCode": {
-                  "maxLength": 100,
-                  "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
-                  "type": "string",
+                "required": [
+                  "occupationType",
+                ],
+              },
+              "then": {
+                "properties": {
+                  "code": {
+                    "maxLength": 100,
+                    "pattern": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+                    "type": "string",
+                  },
+                  "occupationGroupCode": {
+                    "maxLength": 100,
+                    "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
+                    "type": "string",
+                  },
                 },
               },
             },
@@ -1664,6 +1676,9 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                   "const": "escooccupation",
                 },
               },
+              "required": [
+                "occupationType",
+              ],
             },
             "properties": {
               "UUIDHistory": {
@@ -2414,7 +2429,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                 },
                 "occupationGroupCode": {
                   "maxLength": 100,
-                  "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                  "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
                   "type": "string",
                 },
               },
@@ -6513,7 +6528,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
               },
               "occupationGroupCode": {
                 "maxLength": 100,
-                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+                "pattern": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$|^\\d{1,4}$",
                 "type": "string",
               },
             },

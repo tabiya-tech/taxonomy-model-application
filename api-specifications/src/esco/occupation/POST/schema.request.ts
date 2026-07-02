@@ -41,7 +41,7 @@ const SchemaPOSTRequest: SchemaObject = {
       occupationGroupCode: {
         type: "string",
         maxLength: OccupationConstants.CODE_PATTERN_MAX_LENGTH,
-        pattern: OccupationRegexes.Str.LOCAL_GROUP_CODE,
+        pattern: `${OccupationRegexes.Str.LOCAL_GROUP_CODE}|${OccupationRegexes.Str.ISCO_GROUP_CODE}`,
       },
     },
   },

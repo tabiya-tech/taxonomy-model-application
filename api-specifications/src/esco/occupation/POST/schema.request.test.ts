@@ -278,34 +278,26 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
           constructSchemaError(
             "/occupationGroupCode",
             "pattern",
-            `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
-          ),
-        ],
-        [
-          CaseType.Failure,
-          "an invalid code",
-          "1234",
-          OccupationEnums.OccupationType.LocalOccupation,
-          constructSchemaError(
-            "/occupationGroupCode",
-            "pattern",
-            `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
-          ),
-        ],
-        [
-          CaseType.Failure,
-          "a valid code of different type",
-          getTestISCOGroupCode(),
-          OccupationEnums.OccupationType.LocalOccupation,
-          constructSchemaError(
-            "/occupationGroupCode",
-            "pattern",
-            `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}"`
+            `must match pattern "${OccupationAPISpecs.Patterns.Str.LOCAL_GROUP_CODE}|${OccupationAPISpecs.Patterns.Str.ISCO_GROUP_CODE}"`
           ),
         ],
         [
           CaseType.Success,
-          "a valid code",
+          "a valid ISCO numeric code",
+          "1234",
+          OccupationEnums.OccupationType.LocalOccupation,
+          undefined,
+        ],
+        [
+          CaseType.Success,
+          "a valid ISCO group code",
+          getTestISCOGroupCode(),
+          OccupationEnums.OccupationType.LocalOccupation,
+          undefined,
+        ],
+        [
+          CaseType.Success,
+          "a valid local group code",
           getTestLocalGroupCode(),
           OccupationEnums.OccupationType.LocalOccupation,
           undefined,
