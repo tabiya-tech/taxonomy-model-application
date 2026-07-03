@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, generatePath } from "react-router-dom";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import ExplorerService from "src/explorer/explorer.service";
+import { ExplorerItemDetail } from "src/explorer/explorer.types";
 import { getApiUrl } from "src/envService";
 import { ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
@@ -21,6 +23,7 @@ export const DATA_TEST_ID = {
 };
 
 const modelInfoService = new ModelInfoService(getApiUrl());
+const explorerService = new ExplorerService(getApiUrl());
 
 const findItemById = (items: ExplorerTreeItem[], id: string): ExplorerTreeItem | undefined => {
   for (const item of items) {
@@ -32,6 +35,17 @@ const findItemById = (items: ExplorerTreeItem[], id: string): ExplorerTreeItem |
   }
   return undefined;
 };
+
+const replaceItemInTree = (
+  items: ExplorerTreeItem[],
+  id: string,
+  updater: (item: ExplorerTreeItem) => ExplorerTreeItem
+): ExplorerTreeItem[] =>
+  items.map((item) => {
+    if (item.id === id) return updater(item);
+    if (item.children) return { ...item, children: replaceItemInTree(item.children, id, updater) };
+    return item;
+  });
 
 type ExplorerPageProps = {
   initialTab?: "occupations" | "skills";
@@ -50,6 +64,12 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [searchValue, setSearchValue] = useState("");
 
+  const [treeItems, setTreeItems] = useState<ExplorerTreeItem[]>([]);
+  const [isTreeLoading, setIsTreeLoading] = useState(true);
+
+  const [detail, setDetail] = useState<ExplorerItemDetail | null>(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+
   useEffect(() => {
     modelInfoService
       .getAllModels()
@@ -63,21 +83,76 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
 
   const selectedModel = models.find((m) => m.id === modelId) ?? null;
 
-  // TODO: fetch from API using modelId + initialTab
-  const treeItems: ExplorerTreeItem[] = [];
-  const isTreeLoading = false;
+  useEffect(() => {
+    if (!modelId) {
+      setTreeItems([]);
+      return;
+    }
+    setIsTreeLoading(true);
+    setTreeItems([]);
+    explorerService
+      .getRootItems(modelId, initialTab)
+      .then(setTreeItems)
+      .catch((e) => {
+        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
+        else console.error(e);
+        setTreeItems([]);
+      })
+      .finally(() => setIsTreeLoading(false));
+  }, [modelId, initialTab]);
+
+  const handleExpandItem = (item: ExplorerTreeItem) => {
+    if (!modelId) return;
+    setTreeItems((prev) => replaceItemInTree(prev, item.id, (i) => ({ ...i, isLoadingChildren: true })));
+    explorerService
+      .getChildren(modelId, item)
+      .then((children) => {
+        setTreeItems((prev) => replaceItemInTree(prev, item.id, (i) => ({ ...i, children, isLoadingChildren: false })));
+      })
+      .catch((e) => {
+        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
+        else console.error(e);
+        setTreeItems((prev) => replaceItemInTree(prev, item.id, (i) => ({ ...i, isLoadingChildren: false })));
+      });
+  };
 
   const selectedItemId = (initialTab === "occupations" ? occupationId : skillId) ?? treeItems[0]?.id;
 
-  // TODO: fetch from API using modelId + selectedItemId
   const selectedTreeItem = selectedItemId ? findItemById(treeItems, selectedItemId) : null;
+  // Only spread detail when it belongs to the currently selected item to avoid
+  // showing stale data from a previous selection before the new fetch completes.
+  const matchingDetail = detail?.id === selectedTreeItem?.id ? detail : null;
   const detailItem: ExplorerDetailItem | null = selectedTreeItem
-    ? { id: selectedTreeItem.id, code: selectedTreeItem.code, title: selectedTreeItem.title }
+    ? { ...matchingDetail, id: selectedTreeItem.id, code: selectedTreeItem.code, title: selectedTreeItem.title }
     : null;
-  const isDetailLoading = false;
+
+  const treeItemsRef = useRef(treeItems);
+  treeItemsRef.current = treeItems;
+
+  useEffect(() => {
+    const currentItem = selectedItemId ? findItemById(treeItemsRef.current, selectedItemId) : null;
+    if (!modelId || !currentItem) {
+      setDetail(null);
+      return;
+    }
+    setIsDetailLoading(true);
+    explorerService
+      .getItemDetail(modelId, currentItem)
+      .then(setDetail)
+      .catch((e) => {
+        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
+        else console.error(e);
+        setDetail(null);
+      })
+      .finally(() => setIsDetailLoading(false));
+  }, [modelId, selectedItemId, isTreeLoading]);
 
   const handleModelChange = (newModelId: string) => {
-    navigate(generatePath(routerPaths.EXPLORER_OCCUPATIONS, { modelId: newModelId }));
+    navigate(
+      generatePath(initialTab === "occupations" ? routerPaths.EXPLORER_OCCUPATIONS : routerPaths.EXPLORER_SKILLS, {
+        modelId: newModelId,
+      })
+    );
   };
 
   const handleTabChange = (tab: "occupations" | "skills") => {
@@ -108,38 +183,41 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
           />
         }
         mainComponent={
-          <Box display="flex" flexDirection="row" height="100%" width="100%" overflow="hidden" gap={2}>
-            <Box
-              flexShrink={0}
-              width="35%"
-              height="100%"
-              overflow="auto"
-              bgcolor="common.white"
-              borderRadius={theme.tabiyaRounding.sm}
-              border={1}
-              borderColor="grey.200"
-            >
-              <ExplorerTreePanel
-                activeTab={initialTab}
-                onTabChange={handleTabChange}
-                items={treeItems}
-                selectedItemId={selectedItemId}
-                onSelectItem={handleSelectItem}
-                searchValue={searchValue}
-                onSearchChange={setSearchValue}
-                isLoading={isTreeLoading}
-              />
-            </Box>
-            <Box
-              flex={1}
-              height="100%"
-              overflow="auto"
-              bgcolor="common.white"
-              borderRadius={theme.tabiyaRounding.sm}
-              border={1}
-              borderColor="grey.200"
-            >
-              <ExplorerDetailPanel item={detailItem} isLoading={isDetailLoading} />
+          <Box height="100%" width="100%" sx={{ overflowX: "auto", overflowY: "hidden" }}>
+            <Box display="flex" flexDirection="row" height="100%" minWidth={700} gap={2}>
+              <Box
+                flexShrink={0}
+                width="35%"
+                height="100%"
+                overflow="auto"
+                bgcolor="common.white"
+                borderRadius={theme.tabiyaRounding.sm}
+                border={1}
+                borderColor="grey.200"
+              >
+                <ExplorerTreePanel
+                  activeTab={initialTab}
+                  onTabChange={handleTabChange}
+                  items={treeItems}
+                  selectedItemId={selectedItemId}
+                  onSelectItem={handleSelectItem}
+                  onExpandItem={handleExpandItem}
+                  searchValue={searchValue}
+                  onSearchChange={setSearchValue}
+                  isLoading={isTreeLoading}
+                />
+              </Box>
+              <Box
+                flex={1}
+                height="100%"
+                overflow="auto"
+                bgcolor="common.white"
+                borderRadius={theme.tabiyaRounding.sm}
+                border={1}
+                borderColor="grey.200"
+              >
+                <ExplorerDetailPanel item={detailItem} isLoading={isDetailLoading} />
+              </Box>
             </Box>
           </Box>
         }
