@@ -11,6 +11,7 @@ import {
   ListItemIcon,
   Collapse,
   Skeleton,
+  Typography,
   useTheme,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -35,6 +36,9 @@ export type ExplorerTreeItem = {
   id: string;
   code: string;
   title: string;
+  objectType: string;
+  hasChildren: boolean;
+  isLoadingChildren?: boolean;
   children?: ExplorerTreeItem[];
 };
 
@@ -44,6 +48,7 @@ type ExplorerTreePanelProps = {
   items: ExplorerTreeItem[];
   selectedItemId?: string;
   onSelectItem: (item: ExplorerTreeItem) => void;
+  onExpandItem: (item: ExplorerTreeItem) => void;
   searchValue: string;
   onSearchChange: (value: string) => void;
   isLoading?: boolean;
@@ -53,6 +58,7 @@ type TreeNodeProps = {
   item: ExplorerTreeItem;
   selectedItemId?: string;
   onSelectItem: (item: ExplorerTreeItem) => void;
+  onExpandItem: (item: ExplorerTreeItem) => void;
   depth: number;
 };
 
@@ -69,19 +75,27 @@ const SKELETON_ROWS: { width: string; indent: number }[] = [
   { width: "63%", indent: 0 },
 ];
 
-const TreeNode = ({ item, selectedItemId, onSelectItem, depth }: Readonly<TreeNodeProps>) => {
+const TreeNode = ({ item, selectedItemId, onSelectItem, onExpandItem, depth }: Readonly<TreeNodeProps>) => {
   const [expanded, setExpanded] = useState(false);
-  const hasChildren = item.children && item.children.length > 0;
+  const hasChildren = item.hasChildren;
+
+  const expandIfNeeded = () => {
+    const next = !expanded;
+    setExpanded(next);
+    if (next && item.children === undefined && !item.isLoadingChildren) {
+      onExpandItem(item);
+    }
+  };
 
   const handleExpandClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setExpanded((prev) => !prev);
+    expandIfNeeded();
   };
 
   const handleItemClick = () => {
     onSelectItem(item);
     if (hasChildren) {
-      setExpanded((prev) => !prev);
+      expandIfNeeded();
     }
   };
 
@@ -118,23 +132,31 @@ const TreeNode = ({ item, selectedItemId, onSelectItem, depth }: Readonly<TreeNo
           )}
         </ListItemIcon>
         <ListItemText
-          primary={`${item.code} · ${item.title}`}
+          primary={item.code ? `${item.code} · ${item.title}` : item.title}
           primaryTypographyProps={{ variant: "body2", noWrap: true }}
         />
       </ListItemButton>
       {hasChildren && (
         <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <List disablePadding>
-            {item.children?.map((child) => (
-              <TreeNode
-                key={child.id}
-                item={child}
-                selectedItemId={selectedItemId}
-                onSelectItem={onSelectItem}
-                depth={depth + 1}
-              />
-            ))}
-          </List>
+          {item.isLoadingChildren || item.children === undefined ? (
+            <Box display="flex" alignItems="center" py={0.75} pl={2 + (depth + 1) * 2}>
+              <Skeleton variant="circular" width={10} height={10} sx={{ mr: 1.5, flexShrink: 0 }} />
+              <Skeleton variant="text" width="50%" height={20} />
+            </Box>
+          ) : (
+            <List disablePadding>
+              {item.children.map((child) => (
+                <TreeNode
+                  key={child.id}
+                  item={child}
+                  selectedItemId={selectedItemId}
+                  onSelectItem={onSelectItem}
+                  onExpandItem={onExpandItem}
+                  depth={depth + 1}
+                />
+              ))}
+            </List>
+          )}
         </Collapse>
       )}
     </ListItem>
@@ -147,6 +169,7 @@ const ExplorerTreePanel = ({
   items,
   selectedItemId,
   onSelectItem,
+  onExpandItem,
   searchValue,
   onSearchChange,
   isLoading = false,
@@ -244,6 +267,12 @@ const ExplorerTreePanel = ({
               </Box>
             ))}
           </Box>
+        ) : items.length === 0 ? (
+          <Box px={2} py={2}>
+            <Typography variant="body2" color="text.secondary">
+              {activeTab === "occupations" ? "No occupations found" : "No skills found"}
+            </Typography>
+          </Box>
         ) : (
           <List
             disablePadding
@@ -256,6 +285,7 @@ const ExplorerTreePanel = ({
                 item={item}
                 selectedItemId={selectedItemId}
                 onSelectItem={onSelectItem}
+                onExpandItem={onExpandItem}
                 depth={0}
               />
             ))}

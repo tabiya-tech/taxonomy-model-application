@@ -32,9 +32,10 @@ const ExplorerHeader = ({ models, selectedModel, isLoading, onModelChange }: Exp
   }
 
   if (!selectedModel) {
+    const message = models.length === 0 ? "No Models available" : "Model not found";
     return (
       <Typography variant="h2" color="text.secondary" data-testid={DATA_TEST_ID.NO_MODELS_TEXT}>
-        No Models available
+        {message}
       </Typography>
     );
   }

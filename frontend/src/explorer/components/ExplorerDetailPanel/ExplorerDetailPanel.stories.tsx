@@ -12,12 +12,6 @@ export default meta;
 
 type Story = StoryObj<typeof ExplorerDetailPanel>;
 
-export const NoSelection: Story = {
-  args: {
-    item: null,
-  },
-};
-
 export const WithSelection: Story = {
   args: {
     item: {
@@ -27,6 +21,12 @@ export const WithSelection: Story = {
       definition:
         "Determine the cause of abnormality by examining the patient using physical examination techniques and by reviewing medical history, results of diagnostic tests, and other data, in order to formulate a diagnosis.",
     },
+  },
+};
+
+export const NoSelection: Story = {
+  args: {
+    item: null,
   },
 };
 
