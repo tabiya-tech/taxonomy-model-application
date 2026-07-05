@@ -26,6 +26,18 @@ import {
 import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
 import { populateEmptySkillToSkillRelation } from "esco/skillToSkillRelation/populateFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { IOccupationReference } from "../_shared/occupationReference.types";
+
+/**
+ * A single UUID from an entity's UUIDHistory resolved to the entity's reference (as it was in that model) and
+ * the modelId of the model it belonged to. Both are null when no entity with that UUID exists. Order-preserving
+ * against the input UUIDs.
+ */
+export interface IOccupationModelHistoryReference {
+  UUID: string;
+  modelId: string | null;
+  reference: IOccupationReference | null;
+}
 
 export type SearchFilter = {
   occupationType?: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
@@ -100,14 +112,15 @@ export interface IOccupationRepository {
   getOccupationByUUID(uuid: string): Promise<IOccupation | null>;
 
   /**
-   * Finds, for each of the provided occupation UUIDs, the modelId of the occupation with that UUID.
-   * Used to resolve an occupation's UUIDHistory (its own past UUIDs) to the models it appeared in.
-   * Only UUIDs that match an existing occupation are returned; the result is not ordered by the input.
+   * Resolves each of the provided occupation UUIDs (an occupation's own UUIDHistory) to the occupation's
+   * reference (as it appeared in that model) and the modelId of the model it belonged to.
+   * The result is order-preserving against the input UUIDs; entries whose UUID matches no occupation carry
+   * null modelId and null reference.
    *
    * @param {string[]} uuids - The occupation UUIDs to resolve.
-   * @return {Promise<{ UUID: string; modelId: string }[]>} - The UUID -> modelId pairs for the matched occupations.
+   * @return {Promise<IOccupationModelHistoryReference[]>} - The resolved reference + modelId per input UUID.
    */
-  findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]>;
+  findHistoryReferencesByUUIDs(uuids: string[]): Promise<IOccupationModelHistoryReference[]>;
 
   /**
    * Finds the parent Occupation of an Occupation.
@@ -346,15 +359,39 @@ export class OccupationRepository implements IOccupationRepository {
     }
   }
 
-  async findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]> {
+  async findHistoryReferencesByUUIDs(uuids: string[]): Promise<IOccupationModelHistoryReference[]> {
     try {
-      const occupations = await this.Model.find({ UUID: uuids }, { UUID: 1, modelId: 1, _id: 0 }).exec();
-      return occupations.map((occupation) => ({
-        UUID: occupation.UUID,
-        modelId: occupation.modelId.toString(),
-      }));
+      // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
+      // operator object this is not rewritten by the connection's sanitizeFilter=true.
+      const occupations = await this.Model.find(
+        { UUID: uuids },
+        { UUID: 1, _id: 1, modelId: 1, preferredLabel: 1, occupationGroupCode: 1, code: 1, occupationType: 1, isLocalized: 1 }
+      ).exec();
+      const byUUID = new Map(occupations.map((occupation) => [occupation.UUID, occupation]));
+      // Map over the INPUT uuids to preserve order; null-fill for UUIDs that don't resolve to an occupation.
+      return uuids.map((uuid) => {
+        const occupation = byUUID.get(uuid);
+        if (!occupation) {
+          return { UUID: uuid, modelId: null, reference: null };
+        }
+        return {
+          UUID: uuid,
+          modelId: occupation.modelId.toString(),
+          reference: {
+            id: occupation._id.toString(),
+            UUID: occupation.UUID,
+            preferredLabel: occupation.preferredLabel,
+            occupationGroupCode: occupation.occupationGroupCode,
+            code: occupation.code,
+            occupationType: occupation.occupationType,
+            isLocalized: occupation.isLocalized,
+          },
+        };
+      });
     } catch (e: unknown) {
-      const err = new Error("OccupationRepository.findModelIdsByUUIDs: findModelIdsByUUIDs failed", { cause: e });
+      const err = new Error("OccupationRepository.findHistoryReferencesByUUIDs: findHistoryReferencesByUUIDs failed", {
+        cause: e,
+      });
       throw err;
     }
   }

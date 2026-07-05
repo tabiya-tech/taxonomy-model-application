@@ -83,11 +83,10 @@ describe("test parseOccupationGroups from", () => {
           );
         }),
         findPaginated: jest.fn().mockResolvedValue({}),
-        getHistory: jest.fn().mockResolvedValue([]),
         findById: jest.fn().mockResolvedValue({}),
         findAll: jest.fn(),
         getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
-        findModelIdsByUUIDs: jest.fn().mockResolvedValue([]),
+        findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),
         findParent: jest.fn().mockResolvedValue(null),
         findChildren: jest.fn().mockResolvedValue([]),
       };

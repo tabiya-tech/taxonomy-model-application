@@ -21,6 +21,7 @@ import { getIModelInfoMockData } from "modelInfo/testDataHelper";
 import { randomUUID } from "crypto";
 import mongoose from "mongoose";
 import { getNewISCOGroupSpecsWithoutImportId } from "esco/_test_utilities/getNewSpecs";
+import { IOccupationGroupReference } from "../_shared/OccupationGroup.types";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { getIOccupationGroupMockData } from "esco/occupationGroup/_shared/testDataHelper";
 
@@ -45,10 +46,9 @@ describe("Test the OccupationGroupService", () => {
       findAllByImportId: jest.fn(),
       findPaginated: jest.fn(),
       getOccupationGroupByUUID: jest.fn(),
-      findModelIdsByUUIDs: jest.fn(),
+      findHistoryReferencesByUUIDs: jest.fn(),
       findParent: jest.fn(),
       findChildren: jest.fn(),
-      getHistory: jest.fn(),
     } as unknown as jest.Mocked<IOccupationGroupRepository>;
 
     mockOccupationHierarchyRepository = {
@@ -703,12 +703,29 @@ describe("Test the OccupationGroupService", () => {
   });
 
   describe("getHistory", () => {
-    function givenModelWithId(n: number, modelId: string, uuidHistory: string[]): IModelInfo {
+    // An occupation group's UUIDHistory holds its OWN past UUIDs; the service resolves each to the group's
+    // reference (as it was in that model) + its modelId, then fetches that model and strips it to a reference.
+    function givenModelWithId(n: number, modelId: string): IModelInfo {
+      return { ...getIModelInfoMockData(n), id: modelId };
+    }
+
+    function givenReference(uuid: string): IOccupationGroupReference {
       return {
-        ...getIModelInfoMockData(n),
-        id: modelId,
-        UUID: uuidHistory[0],
-        UUIDHistory: uuidHistory,
+        id: getMockStringId(Math.floor(Math.random() * 100000)),
+        UUID: uuid,
+        code: getRandomString(5),
+        preferredLabel: getRandomString(10),
+        objectType: ObjectTypes.ISCOGroup,
+      };
+    }
+
+    function expectedModelReference(model: IModelInfo) {
+      return {
+        id: model.id,
+        UUID: model.UUID,
+        name: model.name,
+        version: model.version,
+        localeShortCode: model.locale.shortCode,
       };
     }
 
@@ -723,75 +740,117 @@ describe("Test the OccupationGroupService", () => {
     }
 
     test("should return null when the occupation group does not exist", async () => {
+      // GIVEN the occupation group does not exist
       mockRepository.findById.mockResolvedValue(null);
       mockModelInfoRepository({});
 
+      // WHEN calling getHistory
       const actual = await service.getHistory(getMockStringId(1));
 
+      // THEN expect null and no further lookups
       expect(actual).toBeNull();
-      expect(mockRepository.findModelIdsByUUIDs).not.toHaveBeenCalled();
+      expect(mockRepository.findHistoryReferencesByUUIDs).not.toHaveBeenCalled();
     });
 
     test("should return an empty array when the occupation group has an empty UUIDHistory", async () => {
+      // GIVEN an occupation group with an empty UUIDHistory
       mockRepository.findById.mockResolvedValue({ UUIDHistory: [] } as unknown as IOccupationGroup);
       mockModelInfoRepository({});
 
+      // WHEN calling getHistory
       const actual = await service.getHistory(getMockStringId(1));
 
+      // THEN expect an empty array and no further lookups
       expect(actual).toEqual([]);
-      expect(mockRepository.findModelIdsByUUIDs).not.toHaveBeenCalled();
+      expect(mockRepository.findHistoryReferencesByUUIDs).not.toHaveBeenCalled();
     });
 
-    test("should resolve UUID->modelId->model, preserve UUIDHistory order, and skip unresolved UUIDs", async () => {
+    test("should resolve entity ref + stripped model per UUID, preserve UUIDHistory order, and skip unresolved UUIDs", async () => {
+      // GIVEN an occupation group whose own UUIDHistory has two resolvable UUIDs with a non-existent one in between
       const givenUuidA = randomUUID();
       const givenUuidMissing = randomUUID();
       const givenUuidB = randomUUID();
       mockRepository.findById.mockResolvedValue({
         UUIDHistory: [givenUuidA, givenUuidMissing, givenUuidB],
       } as unknown as IOccupationGroup);
+
+      // AND uuidA/uuidB resolve to occupation group references in models A and B (missing UUID resolves to nulls)
       const givenModelAId = getMockStringId(10);
       const givenModelBId = getMockStringId(20);
-      mockRepository.findModelIdsByUUIDs.mockResolvedValue([
-        { UUID: givenUuidB, modelId: givenModelBId },
-        { UUID: givenUuidA, modelId: givenModelAId },
+      const givenRefA = givenReference(givenUuidA);
+      const givenRefB = givenReference(givenUuidB);
+      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([
+        { UUID: givenUuidA, modelId: givenModelAId, reference: givenRefA },
+        { UUID: givenUuidMissing, modelId: null, reference: null },
+        { UUID: givenUuidB, modelId: givenModelBId, reference: givenRefB },
       ]);
-      const givenModelA = givenModelWithId(1, givenModelAId, [randomUUID()]);
-      const givenModelB = givenModelWithId(2, givenModelBId, [randomUUID()]);
+
+      // AND the models are fetched by id (returned out of order to prove ordering comes from UUIDHistory)
+      const givenModelA = givenModelWithId(1, givenModelAId);
+      const givenModelB = givenModelWithId(2, givenModelBId);
       mockModelInfoRepository({
         getModelsByIds: jest.fn().mockResolvedValue([givenModelB, givenModelA]),
-        getHistory: jest.fn().mockResolvedValue([]),
       });
 
+      // WHEN calling getHistory
       const actual = await service.getHistory(getMockStringId(1));
 
-      expect(actual).toHaveLength(2);
-      expect(actual![0].model).toEqual(givenModelA);
-      expect(actual![1].model).toEqual(givenModelB);
-      expect(mockRepository.findModelIdsByUUIDs).toHaveBeenCalledTimes(1);
-      expect(mockRepository.findModelIdsByUUIDs).toHaveBeenCalledWith([givenUuidA, givenUuidMissing, givenUuidB]);
+      // THEN expect one entry per resolvable UUID in UUIDHistory order (A before B), missing skipped
+      expect(actual).toEqual([
+        { entity: givenRefA, model: expectedModelReference(givenModelA) },
+        { entity: givenRefB, model: expectedModelReference(givenModelB) },
+      ]);
+      // AND resolution uses single batched queries (no N+1): UUIDs -> refs+modelIds, then modelIds -> models
+      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledTimes(1);
+      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledWith([
+        givenUuidA,
+        givenUuidMissing,
+        givenUuidB,
+      ]);
     });
 
     test("should return a model at most once even if several history UUIDs map to the same model", async () => {
+      // GIVEN two of the occupation group's historical UUIDs resolve to the SAME model
       const givenUuid1 = randomUUID();
       const givenUuid2 = randomUUID();
       mockRepository.findById.mockResolvedValue({
         UUIDHistory: [givenUuid1, givenUuid2],
       } as unknown as IOccupationGroup);
       const givenModelId = getMockStringId(10);
-      mockRepository.findModelIdsByUUIDs.mockResolvedValue([
-        { UUID: givenUuid1, modelId: givenModelId },
-        { UUID: givenUuid2, modelId: givenModelId },
+      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([
+        { UUID: givenUuid1, modelId: givenModelId, reference: givenReference(givenUuid1) },
+        { UUID: givenUuid2, modelId: givenModelId, reference: givenReference(givenUuid2) },
       ]);
-      const givenModel = givenModelWithId(1, givenModelId, [randomUUID()]);
+      const givenModel = givenModelWithId(1, givenModelId);
       mockModelInfoRepository({
         getModelsByIds: jest.fn().mockResolvedValue([givenModel]),
-        getHistory: jest.fn().mockResolvedValue([]),
       });
 
+      // WHEN calling getHistory
       const actual = await service.getHistory(getMockStringId(1));
 
+      // THEN the model appears only once (the first history UUID that maps to it wins)
       expect(actual).toHaveLength(1);
-      expect(actual![0].model).toEqual(givenModel);
+      expect(actual![0].model).toEqual(expectedModelReference(givenModel));
+    });
+
+    test("should skip a UUID whose model no longer exists", async () => {
+      // GIVEN a UUID that resolves to a reference + modelId, but the model itself is gone
+      const givenUuid = randomUUID();
+      const givenModelId = getMockStringId(10);
+      mockRepository.findById.mockResolvedValue({ UUIDHistory: [givenUuid] } as unknown as IOccupationGroup);
+      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([
+        { UUID: givenUuid, modelId: givenModelId, reference: givenReference(givenUuid) },
+      ]);
+      mockModelInfoRepository({
+        getModelsByIds: jest.fn().mockResolvedValue([]), // model not found
+      });
+
+      // WHEN calling getHistory
+      const actual = await service.getHistory(getMockStringId(1));
+
+      // THEN the entry is skipped
+      expect(actual).toEqual([]);
     });
   });
 

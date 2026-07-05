@@ -1,9 +1,14 @@
-import { ISkill, ModelForSkillValidationErrorCode, INewSkillSpecWithoutImportId } from "../_shared/skill.types";
+import {
+  ISkill,
+  ISkillReference,
+  ModelForSkillValidationErrorCode,
+  INewSkillSpecWithoutImportId,
+} from "../_shared/skill.types";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { IModelInfo, IModelInfoReference } from "modelInfo/modelInfo.types";
+import { IModelInfoReference } from "modelInfo/modelInfo.types";
 
 export class SkillModelValidationError extends Error {
   constructor(public code: ModelForSkillValidationErrorCode) {
@@ -12,12 +17,12 @@ export class SkillModelValidationError extends Error {
 }
 
 /**
- * A single entry of a skill's model history: a full ModelInfo together with the resolved
- * details of that model's own UUIDHistory (used to build the modelHistory field of the response).
+ * A single entry of a skill's model history: the skill's reference (as it appeared in that model)
+ * together with a lightweight reference to the model it belonged to.
  */
 export interface ISkillHistoryEntry {
-  model: IModelInfo;
-  modelHistoryDetails: IModelInfoReference[];
+  entity: ISkillReference;
+  model: IModelInfoReference;
 }
 
 export interface ISkillService {

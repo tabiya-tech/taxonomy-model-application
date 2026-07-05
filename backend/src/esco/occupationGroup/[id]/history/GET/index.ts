@@ -7,11 +7,10 @@ import ErrorAPISpecs from "api-specifications/error";
 import { RoleRequired } from "auth/authorizer";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { ajvInstance } from "validator";
-import { getResourcesBaseUrl } from "server/config/config";
 import { errorResponse, errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { ModelForOccupationGroupValidationErrorCode } from "../../../_shared/OccupationGroup.types";
-import { IOccupationGroupService } from "../../../services/occupationGroup.service.type";
+import { ModelForOccupationGroupValidationErrorCode } from "esco/occupationGroup/_shared/OccupationGroup.types";
+import { IOccupationGroupService } from "esco/occupationGroup/services/occupationGroup.service.type";
 import { getOccupationGroupHistoryPathParameters } from "./query";
 import { buildHistoryResponse } from "./response";
 
@@ -129,7 +128,7 @@ export class OccupationGroupHistoryController {
         );
       }
 
-      return responseJSON(StatusCodes.OK, buildHistoryResponse(history, getResourcesBaseUrl()));
+      return responseJSON(StatusCodes.OK, buildHistoryResponse(history));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Failed to get occupation group history:", error);

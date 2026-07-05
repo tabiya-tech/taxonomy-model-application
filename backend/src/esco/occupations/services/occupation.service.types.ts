@@ -1,14 +1,15 @@
 import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { INewOccupationSpecWithoutImportId, IOccupation, ISkillWithRelation } from "../_shared/occupation.types";
-import { IModelInfo, IModelInfoReference } from "modelInfo/modelInfo.types";
+import { IModelInfoReference } from "modelInfo/modelInfo.types";
+import { IOccupationReference } from "../_shared/occupationReference.types";
 
 /**
- * A single entry of an occupation's model history: a full ModelInfo together with the resolved
- * details of that model's own UUIDHistory (used to build the modelHistory field of the response).
+ * A single entry of an occupation's model history: the occupation's reference (as it appeared in that model)
+ * together with a lightweight reference to the model it belonged to.
  */
 export interface IOccupationHistoryEntry {
-  model: IModelInfo;
-  modelHistoryDetails: IModelInfoReference[];
+  entity: IOccupationReference;
+  model: IModelInfoReference;
 }
 
 export enum ModelForOccupationValidationErrorCode {

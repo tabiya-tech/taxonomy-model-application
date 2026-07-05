@@ -43,8 +43,7 @@ function setupOccupationGroupRepositoryMock(findAllImpl: () => Readable) {
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
     findPaginated: jest.fn().mockResolvedValue({}),
     getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
-    getHistory: jest.fn().mockResolvedValue([]),
-    findModelIdsByUUIDs: jest.fn().mockResolvedValue([]),
+    findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),
     findParent: jest.fn().mockResolvedValue(null),
     findChildren: jest.fn().mockResolvedValue([]),
   };

@@ -1,7 +1,7 @@
 import { ISkillHistoryEntry, ISkillService, SkillModelValidationError } from "./skill.service.types";
 import { ISkillRepository } from "esco/skill/repository/skill.repository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
-import { IModelInfoReference } from "modelInfo/modelInfo.types";
+import { toModelReference } from "modelInfo/modelInfoReference";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -170,46 +170,32 @@ export class SkillService implements ISkillService {
       return [];
     }
 
-    // Resolve each historical skill UUID to the modelId of the skill with that UUID (single query).
-    const uuidToModelId = await this.skillRepository.findModelIdsByUUIDs(uuidHistory);
-    const modelIdByUUID = new Map(uuidToModelId.map((entry) => [entry.UUID, entry.modelId]));
+    // Resolve each historical UUID to the skill's reference (as it was in that model) + its modelId.
+    const historyReferences = await this.skillRepository.findHistoryReferencesByUUIDs(uuidHistory);
+    const referenceByUUID = new Map(historyReferences.map((entry) => [entry.UUID, entry]));
 
-    // Fetch the full models for the resolved modelIds (single query).
-    const modelIds = Array.from(new Set(modelIdByUUID.values()));
+    // Fetch the models for the resolved modelIds (single query) and map them to lightweight references.
+    const modelIds = Array.from(
+      new Set(historyReferences.map((entry) => entry.modelId).filter((id): id is string => id !== null))
+    );
     const resolvedModels = modelIds.length > 0 ? await this.modelRepository.getModelsByIds(modelIds) : [];
     const modelById = new Map(resolvedModels.map((model) => [model.id, model]));
-
-    // Resolve the modelHistory references for every resolved model's own UUIDHistory (single query).
-    const allModelHistoryUUIDs = Array.from(new Set(resolvedModels.flatMap((model) => model.UUIDHistory)));
-    const references =
-      allModelHistoryUUIDs.length > 0 ? await this.modelRepository.getHistory(allModelHistoryUUIDs) : [];
-    const referenceByUUID = new Map(references.map((reference) => [reference.UUID, reference]));
 
     // Walk the skill's UUIDHistory (newest first), skipping UUIDs whose skill or model no longer exists.
     // A given model appears at most once even if multiple history UUIDs map to it.
     const history: ISkillHistoryEntry[] = [];
     const seenModelIds = new Set<string>();
     for (const uuid of uuidHistory) {
-      const modelId = modelIdByUUID.get(uuid);
-      if (!modelId || seenModelIds.has(modelId)) {
+      const entry = referenceByUUID.get(uuid);
+      if (!entry || entry.modelId === null || entry.reference === null || seenModelIds.has(entry.modelId)) {
         continue;
       }
-      const model = modelById.get(modelId);
+      const model = modelById.get(entry.modelId);
       if (!model) {
         continue;
       }
-      seenModelIds.add(modelId);
-      const modelHistoryDetails: IModelInfoReference[] = model.UUIDHistory.map(
-        (historyUUID) =>
-          referenceByUUID.get(historyUUID) ?? {
-            id: null,
-            UUID: historyUUID,
-            name: null,
-            version: null,
-            localeShortCode: null,
-          }
-      );
-      history.push({ model, modelHistoryDetails });
+      seenModelIds.add(entry.modelId);
+      history.push({ entity: entry.reference, model: toModelReference(model) });
     }
 
     return history;

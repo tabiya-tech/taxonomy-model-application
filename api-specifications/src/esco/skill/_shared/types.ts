@@ -5,6 +5,17 @@ import { ISkillChildrenResponse, ISkillChildrenRequestQuery } from "../[id]/chil
 import { ISkillOccupationsResponse, ISkillOccupationsRequestQuery } from "../[id]/occupations/GET/types";
 import { ISkillRelatedResponse, ISkillRelatedRequestQuery } from "../[id]/relatedSkills/GET/types";
 
+// A single entry of the skill's model history: the skill's reference fields as it appeared in a model, plus a
+// stripped-down reference to that model.
+interface ISkillHistoryItem {
+  id: string;
+  UUID: string;
+  preferredLabel: string;
+  isLocalized: boolean;
+  objectType: SkillEnums.ObjectTypes.Skill;
+  model: ModelInfoTypes.Response.IModelInfoReference;
+}
+
 interface ISkillResponse {
   id: string;
   UUID: string;
@@ -207,8 +218,8 @@ namespace SkillTypes {
     export namespace History {
       export namespace GET {
         export namespace Response {
-          export type ModelInfoItem = ModelInfoTypes.Response.IModelInfo;
-          export type Payload = ModelInfoTypes.Response.IModelInfo[];
+          export type HistoryItem = ISkillHistoryItem;
+          export type Payload = ISkillHistoryItem[];
         }
       }
     }

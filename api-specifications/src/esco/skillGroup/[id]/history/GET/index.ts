@@ -13,7 +13,7 @@ namespace GETSkillGroupHistoryOperation {
 
   export namespace Types {
     export namespace Response {
-      export type ModelInfoItem = SkillGroupTypes.GET.Response.History.ModelInfoItem;
+      export type HistoryItem = SkillGroupTypes.GET.Response.History.HistoryItem;
       export type Payload = SkillGroupTypes.GET.Response.History.Payload;
     }
   }

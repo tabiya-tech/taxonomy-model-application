@@ -7,8 +7,8 @@ import * as responseModule from "./response";
 import { SkillGroupHistoryController } from "./index";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
-import { ISkillGroupService } from "../../../services/skillGroup.service.type";
-import { ModelForSkillGroupValidationErrorCode } from "../../../_shared/skillGroup.types";
+import { ISkillGroupService } from "esco/skillGroup/services/skillGroup.service.type";
+import { ModelForSkillGroupValidationErrorCode } from "esco/skillGroup/_shared/skillGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
@@ -65,8 +65,8 @@ describe("SkillGroupHistoryController", () => {
   const givenPath = "/models/model-1/skillGroups/group-1/history";
 
   test("returns OK and the built history when the skill group exists", async () => {
-    const givenHistory = [{ model: { id: "model-1" }, modelHistoryDetails: [] }];
-    mockBuildHistoryResponse.mockReturnValue([{ id: "model-1" }] as never);
+    const givenHistory = [{ entity: { id: "group-1" }, model: { id: "model-1" } }];
+    mockBuildHistoryResponse.mockReturnValue([{ id: "group-1", model: { id: "model-1" } }] as never);
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup.getHistory = jest.fn().mockResolvedValue(givenHistory);
 
@@ -75,7 +75,7 @@ describe("SkillGroupHistoryController", () => {
 
     expect(mockGetSkillGroupHistoryPathParameters).toHaveBeenCalledWith(givenPath);
     expect(mockServiceRegistry.skillGroup.getHistory).toHaveBeenCalledWith("group-1");
-    expect(mockBuildHistoryResponse).toHaveBeenCalledWith(givenHistory, "https://resources.example.com");
+    expect(mockBuildHistoryResponse).toHaveBeenCalledWith(givenHistory);
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
   });
 

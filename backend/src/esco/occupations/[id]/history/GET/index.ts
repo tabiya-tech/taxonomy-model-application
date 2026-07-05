@@ -5,12 +5,11 @@ import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { buildHistoryResponse } from "./response";
-import { getResourcesBaseUrl } from "server/config/config";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForOccupationValidationErrorCode } from "../../../services/occupation.service.types";
+import { ModelForOccupationValidationErrorCode } from "esco/occupations/services/occupation.service.types";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
-import { extractAndValidateIdParams } from "../../../_shared/params";
+import { extractAndValidateIdParams } from "esco/occupations/_shared/params";
 
 export class OccupationHistoryController {
   /**
@@ -111,7 +110,7 @@ export class OccupationHistoryController {
         );
       }
 
-      return responseJSON(StatusCodes.OK, buildHistoryResponse(history, getResourcesBaseUrl()));
+      return responseJSON(StatusCodes.OK, buildHistoryResponse(history));
     } catch (error: unknown) {
       console.error("Failed to get occupation history:", error);
       errorLoggerInstance.logError(

@@ -1,15 +1,15 @@
 import "_test_utilities/consoleMock";
-import * as transformModule from "modelInfo/transform";
 import { handler as getHistoryHandler } from "./index";
 import { StatusCodes } from "server/httpUtils";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { ISkillHistoryEntry, ISkillService } from "../../../services/skill.service.types";
-import { ModelForSkillValidationErrorCode } from "../../../_shared/skill.types";
-import { getIModelInfoMockData } from "modelInfo/testDataHelper";
+import { ISkillHistoryEntry, ISkillService } from "esco/skill/services/skill.service.types";
+import { ModelForSkillValidationErrorCode } from "esco/skill/_shared/skill.types";
+import { ISkillReference } from "esco/skill/_shared/skill.types";
+import { IModelInfoReference } from "modelInfo/modelInfo.types";
+import { ObjectTypes } from "esco/common/objectTypes";
 import SkillAPISpecs from "api-specifications/esco/skill";
-import * as config from "server/config/config";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
@@ -21,7 +21,6 @@ describe("SkillHistoryGetController", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(config, "getResourcesBaseUrl").mockReturnValue("https://resources.example.com");
   });
 
   function mockService(overrides: Partial<ISkillService>) {
@@ -35,16 +34,31 @@ describe("SkillHistoryGetController", () => {
   }
 
   test("should return 200 and the history for a valid skill", async () => {
-    const transformSpy = jest.spyOn(transformModule, "transform");
-    const givenModel = getIModelInfoMockData(3);
-    const givenHistory: ISkillHistoryEntry[] = [{ model: givenModel, modelHistoryDetails: [] }];
+    // GIVEN the service resolves a history with one entry: the skill reference + a stripped model reference
+    const givenEntity: ISkillReference = {
+      id: getMockStringId(2),
+      UUID: "d4e5f6a7-b8c9-4d0e-9f1a-2b3c4d5e6f70",
+      preferredLabel: "Some skill",
+      isLocalized: false,
+      objectType: ObjectTypes.Skill,
+    };
+    const givenModel: IModelInfoReference = {
+      id: givenModelId,
+      UUID: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      name: "Some model",
+      version: "1.0.0",
+      localeShortCode: "en",
+    };
+    const givenHistory: ISkillHistoryEntry[] = [{ entity: givenEntity, model: givenModel }];
     mockService({ getHistory: jest.fn().mockResolvedValue(givenHistory) });
 
     const actualResponse = await getHistoryHandler({ path: givenPath } as unknown as APIGatewayProxyEvent);
 
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-    expect(transformSpy).toHaveBeenCalledWith(givenModel, "https://resources.example.com", []);
-    expect(JSON.parse(actualResponse.body)).toHaveLength(1);
+    // AND the handler returns an array of items with the skill reference fields flat and a nested model
+    const actualBody = JSON.parse(actualResponse.body);
+    expect(actualBody).toHaveLength(1);
+    expect(actualBody[0]).toEqual({ ...givenEntity, model: givenModel });
   });
 
   test("should return 200 and an empty array when the history is empty", async () => {

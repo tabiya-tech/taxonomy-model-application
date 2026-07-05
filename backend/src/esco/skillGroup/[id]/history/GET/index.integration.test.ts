@@ -7,7 +7,7 @@ import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
 
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
-import LocaleAPISpecs from "api-specifications/locale";
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
 
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
@@ -16,7 +16,7 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { ISkillGroup } from "../../../_shared/skillGroup.types";
+import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
 
@@ -46,7 +46,7 @@ async function createSkillGroupInDB(modelId: string, uuidHistory: string[] = [ra
 describe("Test for skillGroup History GET handler with a DB", () => {
   const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
   addFormats(ajv);
-  ajv.addSchema(LocaleAPISpecs.Schemas.Payload);
+  ajv.addSchema(ModelInfoAPISpecs.Schemas.Reference);
   ajv.addSchema(SkillGroupAPISpecs.SkillGroup.History.GET.Schemas.Response.Payload);
   const validateHistoryResponse: ValidateFunction = ajv.getSchema(
     SkillGroupAPISpecs.SkillGroup.History.GET.Schemas.Response.Payload.$id as string
@@ -100,8 +100,11 @@ describe("Test for skillGroup History GET handler with a DB", () => {
     const actualBody = JSON.parse(actualResponse.body);
     expect(validateHistoryResponse(actualBody)).toBeTruthy();
     expect(actualBody).toHaveLength(2);
-    expect(actualBody[0].id).toEqual(givenCurrentModel.id);
-    expect(actualBody[1].id).toEqual(givenPriorModel.id);
+    // Each item is the group's reference (as it was in that model) flat, plus the stripped model under `model`.
+    expect(actualBody[0].id).toEqual(givenCurrentGroup.id);
+    expect(actualBody[0].model.id).toEqual(givenCurrentModel.id);
+    expect(actualBody[1].id).toEqual(givenPriorGroup.id);
+    expect(actualBody[1].model.id).toEqual(givenPriorModel.id);
   });
 
   test("GET /skillGroups/{id}/history should return only the current model for a freshly created skill group", async () => {
@@ -123,7 +126,8 @@ describe("Test for skillGroup History GET handler with a DB", () => {
     const actualBody = JSON.parse(actualResponse.body);
     expect(validateHistoryResponse(actualBody)).toBeTruthy();
     expect(actualBody).toHaveLength(1);
-    expect(actualBody[0].id).toEqual(givenModel.id);
+    expect(actualBody[0].id).toEqual(givenGroup.id);
+    expect(actualBody[0].model.id).toEqual(givenModel.id);
   });
 
   test("GET /skillGroups/{id}/history should respond with NOT_FOUND when the skill group does not exist", async () => {

@@ -1,18 +1,22 @@
 import Locale from "../locale";
 import ImportProcessState from "../importProcessState";
 import ExportProcessState from "../exportProcessState";
+// A lightweight reference to a model. This is the stripped-down shape used wherever we only need to identify/show
+// a model (e.g. an entity's model history, or a model's own modelHistory) rather than the full model info.
+interface _IModelInfoReference {
+  id: string | null;
+  UUID: string;
+  name: string | null;
+  version: string | null;
+  localeShortCode: string | null;
+}
+
 // Have a common supertype for all the responses to inherit from
 // These types are hidden because they should only be referenced through the index.
 interface IModelInfoResponse {
   id: string;
   UUID: string;
-  modelHistory: {
-    id: string | null;
-    UUID: string;
-    name: string | null;
-    version: string | null;
-    localeShortCode: string | null;
-  }[];
+  modelHistory: _IModelInfoReference[];
   name: string;
   description: string;
   license: string;
@@ -67,6 +71,7 @@ namespace ModelInfoTypes {
   // ---
   export namespace Response {
     export type IModelInfo = IModelInfoResponse;
+    export type IModelInfoReference = _IModelInfoReference;
   }
   export namespace POST {
     export namespace Response {

@@ -468,7 +468,7 @@ describe("Test the main async handler", () => {
         encodeCursor: jest.fn(),
         decodeCursor: jest.fn(),
         getOccupationByUUID: jest.fn(),
-        findModelIdsByUUIDs: jest.fn(),
+        findHistoryReferencesByUUIDs: jest.fn(),
         findParent: jest.fn(),
         findChildren: jest.fn(),
         findSkillsForOccupation: jest.fn(),
@@ -487,7 +487,7 @@ describe("Test the main async handler", () => {
         findChildren: jest.fn(),
         findOccupationsForSkill: jest.fn(),
         findRelatedSkills: jest.fn(),
-        findModelIdsByUUIDs: jest.fn(),
+        findHistoryReferencesByUUIDs: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "skill", "get").mockReturnValue(givenSkillRepositoryMock);
 
@@ -503,7 +503,7 @@ describe("Test the main async handler", () => {
         findAll: jest.fn(),
         findParents: jest.fn().mockResolvedValue([]),
         findChildren: jest.fn().mockResolvedValue([]),
-        findModelIdsByUUIDs: jest.fn(),
+        findHistoryReferencesByUUIDs: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
 
@@ -522,7 +522,7 @@ describe("Test the main async handler", () => {
         getOccupationGroupByUUID: jest.fn(),
         getHistory: jest.fn(),
         getModelsByIds: jest.fn(),
-        findModelIdsByUUIDs: jest.fn(),
+        findHistoryReferencesByUUIDs: jest.fn(),
         findParent: jest.fn(),
         findChildren: jest.fn().mockResolvedValue([]),
         setParent: jest.fn().mockResolvedValue(undefined),

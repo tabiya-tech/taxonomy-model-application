@@ -6,9 +6,8 @@ import AuthAPISpecs from "api-specifications/auth";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForSkillValidationErrorCode } from "../../../_shared/skill.types";
-import { extractAndValidateIdParams } from "../../../_shared/params";
-import { getResourcesBaseUrl } from "server/config/config";
+import { ModelForSkillValidationErrorCode } from "esco/skill/_shared/skill.types";
+import { extractAndValidateIdParams } from "esco/skill/_shared/params";
 import { buildHistoryResponse } from "./response";
 
 export class SkillHistoryGetController {
@@ -103,7 +102,7 @@ export class SkillHistoryGetController {
         );
       }
 
-      return responseJSON(StatusCodes.OK, buildHistoryResponse(history, getResourcesBaseUrl()));
+      return responseJSON(StatusCodes.OK, buildHistoryResponse(history));
     } catch (error: unknown) {
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,

@@ -682,6 +682,59 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
         },
       },
     },
+    "Reference": {
+      "$id": "/components/schemas/ModelInfoReferenceSchema",
+      "additionalProperties": false,
+      "properties": {
+        "UUID": {
+          "description": "The UUID of the model.",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string",
+        },
+        "id": {
+          "description": "The identifier of the specific model.",
+          "pattern": "^[0-9a-f]{24}$",
+          "type": [
+            "string",
+            "null",
+          ],
+        },
+        "localeShortCode": {
+          "description": "The short code of the locale",
+          "maxLength": 20,
+          "pattern": "\\S",
+          "type": [
+            "string",
+            "null",
+          ],
+        },
+        "name": {
+          "description": "The name of the model.",
+          "maxLength": 256,
+          "pattern": "\\S",
+          "type": [
+            "string",
+            "null",
+          ],
+        },
+        "version": {
+          "description": "The version of the model.",
+          "maxLength": 256,
+          "type": [
+            "string",
+            "null",
+          ],
+        },
+      },
+      "required": [
+        "id",
+        "UUID",
+        "name",
+        "version",
+        "localeShortCode",
+      ],
+      "type": "object",
+    },
   },
   "Types": {},
 }

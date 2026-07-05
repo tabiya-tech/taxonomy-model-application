@@ -1,4 +1,4 @@
-import { IOccupationGroup, IOccupationGroupHistoryReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
+import { IOccupationGroup, IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
 import {
@@ -22,6 +22,17 @@ import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupati
 
 interface FindPaginatedFilter {
   root?: boolean;
+}
+
+/**
+ * A single UUID from an occupation group's UUIDHistory resolved to the group's reference (as it was in that
+ * model) and the modelId of the model it belonged to. Both null when no group with that UUID exists.
+ * Order-preserving against the input UUIDs.
+ */
+export interface IOccupationGroupModelHistoryReference {
+  UUID: string;
+  modelId: string | null;
+  reference: IOccupationGroupReference | null;
 }
 
 export interface IOccupationGroupRepository {
@@ -112,22 +123,14 @@ export interface IOccupationGroupRepository {
   getOccupationGroupByUUID(uuid: string): Promise<IOccupationGroup | null>;
 
   /**
-   * Finds, for each of the provided occupation group UUIDs, the modelId of the occupation group with that UUID.
-   * Used to resolve an occupation group's UUIDHistory (its own past UUIDs) to the models it appeared in.
-   * Only UUIDs that match an existing occupation group are returned; the result is not ordered by the input.
+   * Resolves each of the provided occupation group UUIDs (a group's own UUIDHistory) to the group's reference
+   * (as it appeared in that model) and the modelId of the model it belonged to. Order-preserving against the
+   * input UUIDs; entries whose UUID matches no group carry null modelId and null reference.
    *
    * @param {string[]} uuids - The occupation group UUIDs to resolve.
-   * @return {Promise<{ UUID: string; modelId: string }[]>} - The UUID -> modelId pairs for the matched occupation groups.
+   * @return {Promise<IOccupationGroupModelHistoryReference[]>} - The resolved reference + modelId per input UUID.
    */
-  findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]>;
-
-  /**
-   * Get UUIDHistory for an occupation group.
-   *
-   * @return {Promise<IOccupationGroupHistoryReference[]|null>} - A promise that resolves to an array with the UUIDHistory for the occupationGroup. if the occupationGroup does not exist it returns an empty array
-   * @param uuids - The UUIDs to resolve, if the uuid does not exist we return an object with that uuid, and null for the rest of the fields
-   */
-  getHistory(uuids: string[]): Promise<IOccupationGroupHistoryReference[]>;
+  findHistoryReferencesByUUIDs(uuids: string[]): Promise<IOccupationGroupModelHistoryReference[]>;
 }
 
 export class OccupationGroupRepository implements IOccupationGroupRepository {
@@ -349,17 +352,38 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     }
   }
 
-  async findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]> {
+  async findHistoryReferencesByUUIDs(uuids: string[]): Promise<IOccupationGroupModelHistoryReference[]> {
     try {
       // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
-      // operator object this is not rewritten by the connection's sanitizeFilter=true. Same idiom as getHistory().
-      const occupationGroups = await this.Model.find({ UUID: uuids }, { UUID: 1, modelId: 1, _id: 0 }).exec();
-      return occupationGroups.map((occupationGroup) => ({
-        UUID: occupationGroup.UUID,
-        modelId: occupationGroup.modelId.toString(),
-      }));
+      // operator object this is not rewritten by the connection's sanitizeFilter=true.
+      const occupationGroups = await this.Model.find(
+        { UUID: uuids },
+        { UUID: 1, _id: 1, modelId: 1, code: 1, preferredLabel: 1, groupType: 1 }
+      ).exec();
+      const byUUID = new Map(occupationGroups.map((group) => [group.UUID, group]));
+      // Map over the INPUT uuids to preserve order; null-fill for UUIDs that don't resolve to a group.
+      return uuids.map((uuid) => {
+        const group = byUUID.get(uuid);
+        if (!group) {
+          return { UUID: uuid, modelId: null, reference: null };
+        }
+        return {
+          UUID: uuid,
+          modelId: group.modelId.toString(),
+          reference: {
+            id: group._id.toString(),
+            UUID: group.UUID,
+            code: group.code,
+            preferredLabel: group.preferredLabel,
+            objectType: group.groupType,
+          },
+        };
+      });
     } catch (e: unknown) {
-      const err = new Error("OccupationGroupRepository.findModelIdsByUUIDs: findModelIdsByUUIDs failed", { cause: e });
+      const err = new Error(
+        "OccupationGroupRepository.findHistoryReferencesByUUIDs: findHistoryReferencesByUUIDs failed",
+        { cause: e }
+      );
       console.error(err);
       throw err;
     }
@@ -451,46 +475,6 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       return populated.map((doc) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.findPaginated: findPaginated failed", { cause: e });
-      console.error(err);
-      throw err;
-    }
-  }
-
-  async getHistory(uuids: string[]): Promise<IOccupationGroupHistoryReference[]> {
-    try {
-      // Turns out mongoose adds the $in operator automatically, and fails for string fields if we try to use $in
-      const occupationGroupsFromDb = await this.Model.find(
-        { UUID: uuids },
-        { UUID: 1, _id: 1, code: 1, preferredLabel: 1, groupType: 1 }
-      ).exec();
-
-      // Create a map of UUIDs to OccupationGroup for easy lookup
-      const occupationGroupsMap = new Map(occupationGroupsFromDb.map((group) => [group.UUID, group]));
-
-      return uuids.map((uuid) => {
-        const group = occupationGroupsMap.get(uuid);
-        if (group) {
-          return {
-            id: group._id.toString(),
-            UUID: group.UUID,
-            code: group.code,
-            preferredLabel: group.preferredLabel,
-            objectType: group.groupType,
-          };
-        } else {
-          // Return null values for UUIDs not found in the database
-          return {
-            id: null,
-            UUID: uuid,
-            code: null,
-            preferredLabel: null,
-            objectType: null,
-          };
-        }
-      });
-    } catch (e) {
-      // Handle any errors
-      const err = new Error("OccupationGroupRepository.getUUIDHistory: getUUIDHistory failed", { cause: e });
       console.error(err);
       throw err;
     }

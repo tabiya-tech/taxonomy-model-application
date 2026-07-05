@@ -23,14 +23,15 @@ ModelInfo.Schemas.POST.Request.Payload.properties.locale.$ref =
   "#" + ModelInfo.Schemas.POST.Request.Payload.properties.locale.$ref;
 ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref =
   "#" + ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref;
-Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.locale.$ref =
-  "#" + Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.locale.$ref;
-OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.locale.$ref =
-  "#" + OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.locale.$ref;
-Skill.Skill.History.GET.Schemas.Response.Payload.items.properties.locale.$ref =
-  "#" + Skill.Skill.History.GET.Schemas.Response.Payload.items.properties.locale.$ref;
-SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.items.properties.locale.$ref =
-  "#" + SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.items.properties.locale.$ref;
+// Each history item embeds a stripped-down `model` (a ModelInfoReference) via $ref that must be prefixed with "#".
+Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
+  "#" + Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
+OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
+  "#" + OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
+Skill.Skill.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
+  "#" + Skill.Skill.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
+SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
+  "#" + SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
 
 /**
  * Remove the $id from the schemas as Swagger does not like them.
@@ -39,6 +40,7 @@ SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.items.properties.loca
 delete ModelInfo.Schemas.POST.Response.Payload.$id;
 delete ModelInfo.Schemas.POST.Request.Payload.$id;
 delete ModelInfo.Schemas.GET.Response.Payload.$id;
+delete ModelInfo.Schemas.Reference.$id;
 delete Locale.Schemas.Payload.$id;
 delete Presigned.Schemas.GET.Response.Payload.$id;
 delete Import.Schemas.POST.Request.Payload.$id;
@@ -406,6 +408,7 @@ function getOpenAPISpecification(
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
           ModelInfoResponseSchemaGET: ModelInfo.Schemas.GET.Response.Payload,
+          ModelInfoReferenceSchema: ModelInfo.Schemas.Reference,
           LocaleSchema: Locale.Schemas.Payload,
           ImportSchema: Import.Schemas.POST.Request.Payload,
           ExportSchema: Export.Schemas.POST.Request.Payload,

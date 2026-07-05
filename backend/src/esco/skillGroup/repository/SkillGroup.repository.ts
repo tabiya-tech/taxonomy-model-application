@@ -6,6 +6,7 @@ import {
   ISkillGroup,
   ISkillGroupChild,
   ISkillGroupDoc,
+  ISkillGroupReference,
 } from "../_shared/skillGroup.types";
 import {
   populateSkillGroupChildrenOptions,
@@ -24,6 +25,17 @@ interface FindPaginatedFilter {
   childrenIds?: string;
   childrenType?: ObjectTypes.Skill | ObjectTypes.SkillGroup;
   root?: boolean;
+}
+
+/**
+ * A single UUID from a skill group's UUIDHistory resolved to the group's reference (as it was in that model)
+ * and the modelId of the model it belonged to. Both null when no group with that UUID exists. Order-preserving
+ * against the input UUIDs.
+ */
+export interface ISkillGroupModelHistoryReference {
+  UUID: string;
+  modelId: string | null;
+  reference: ISkillGroupReference | null;
 }
 
 export interface ISkillGroupRepository {
@@ -61,7 +73,15 @@ export interface ISkillGroupRepository {
    * @param {string[]} uuids - The skill group UUIDs to resolve.
    * @return {Promise<{ UUID: string; modelId: string }[]>} - The UUID -> modelId pairs for the matched skill groups.
    */
-  findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]>;
+  /**
+   * Resolves each of the provided skill group UUIDs (a group's own UUIDHistory) to the group's reference (as it
+   * appeared in that model) and the modelId of the model it belonged to. Order-preserving against the input
+   * UUIDs; entries whose UUID matches no group carry null modelId and null reference.
+   *
+   * @param {string[]} uuids - The skill group UUIDs to resolve.
+   * @return {Promise<ISkillGroupModelHistoryReference[]>} - The resolved reference + modelId per input UUID.
+   */
+  findHistoryReferencesByUUIDs(uuids: string[]): Promise<ISkillGroupModelHistoryReference[]>;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
@@ -439,17 +459,37 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
   }
 
-  async findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]> {
+  async findHistoryReferencesByUUIDs(uuids: string[]): Promise<ISkillGroupModelHistoryReference[]> {
     try {
       // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
       // operator object this is not rewritten by the connection's sanitizeFilter=true.
-      const skillGroups = await this.Model.find({ UUID: uuids }, { UUID: 1, modelId: 1, _id: 0 }).exec();
-      return skillGroups.map((skillGroup) => ({
-        UUID: skillGroup.UUID,
-        modelId: skillGroup.modelId.toString(),
-      }));
+      const skillGroups = await this.Model.find(
+        { UUID: uuids },
+        { UUID: 1, _id: 1, modelId: 1, code: 1, preferredLabel: 1 }
+      ).exec();
+      const byUUID = new Map(skillGroups.map((skillGroup) => [skillGroup.UUID, skillGroup]));
+      // Map over the INPUT uuids to preserve order; null-fill for UUIDs that don't resolve to a skill group.
+      return uuids.map((uuid) => {
+        const skillGroup = byUUID.get(uuid);
+        if (!skillGroup) {
+          return { UUID: uuid, modelId: null, reference: null };
+        }
+        return {
+          UUID: uuid,
+          modelId: skillGroup.modelId.toString(),
+          reference: {
+            id: skillGroup._id.toString(),
+            UUID: skillGroup.UUID,
+            code: skillGroup.code,
+            preferredLabel: skillGroup.preferredLabel,
+            objectType: ObjectTypes.SkillGroup,
+          },
+        };
+      });
     } catch (e: unknown) {
-      const err = new Error("SkillGroupRepository.findModelIdsByUUIDs: findModelIdsByUUIDs failed", { cause: e });
+      const err = new Error("SkillGroupRepository.findHistoryReferencesByUUIDs: findHistoryReferencesByUUIDs failed", {
+        cause: e,
+      });
       console.error(err);
       throw err;
     }

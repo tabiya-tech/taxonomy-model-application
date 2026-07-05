@@ -7,6 +7,7 @@ import ModelInfoTypes from "./types";
 import SchemaGETResponse from "./schema.GET.response";
 import SchemaPOSTRequest from "./schema.POST.request";
 import SchemaPOSTResponse from "./schema.POST.response";
+import SchemaModelInfoReference from "./schema.reference";
 import ModelInfoEnums from "./enums";
 
 /**
@@ -18,6 +19,7 @@ import ModelInfoEnums from "./enums";
  */
 
 namespace ModelInfoSchemas {
+  export const Reference = SchemaModelInfoReference;
   export namespace GET {
     export namespace Response {
       export const Payload = SchemaGETResponse;

@@ -1,7 +1,5 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import "_test_utilities/consoleMock";
-import * as config from "server/config/config";
-import * as transformModule from "modelInfo/transform";
 import { handler as occupationHistoryHandler } from "./index";
 import { StatusCodes } from "server/httpUtils";
 import { getMockStringId } from "_test_utilities/mockMongoId";
@@ -9,18 +7,18 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 
 import * as authenticatorModule from "auth/authorizer";
-import { getIModelInfoMockData } from "modelInfo/testDataHelper";
+import { ObjectTypes } from "esco/common/objectTypes";
+import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
+import { IModelInfoReference } from "modelInfo/modelInfo.types";
 import {
   IOccupationHistoryEntry,
   IOccupationService,
   ModelForOccupationValidationErrorCode,
-} from "../../../services/occupation.service.types";
+} from "esco/occupations/services/occupation.service.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
-
-const transformSpy = jest.spyOn(transformModule, "transform");
 
 // Mock the service registry
 jest.mock("server/serviceRegistry/serviceRegistry");
@@ -55,26 +53,24 @@ describe("Test for occupation History GET handler", () => {
       const givenEvent = givenValidEvent(givenModelId, givenOccupationId);
       checkRole.mockResolvedValue(true);
 
-      // AND a configured base path for resource
-      const givenResourcesBaseUrl = "https://some/path/to/api/resources";
-      jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
-
-      // AND the service resolves a history with one entry
-      const givenModel = getIModelInfoMockData(1);
-      const givenHistory: IOccupationHistoryEntry[] = [
-        {
-          model: givenModel,
-          modelHistoryDetails: [
-            {
-              id: givenModel.id,
-              UUID: givenModel.UUID,
-              name: givenModel.name,
-              version: givenModel.version,
-              localeShortCode: givenModel.locale.shortCode,
-            },
-          ],
-        },
-      ];
+      // AND the service resolves a history with one entry: the occupation reference + a stripped model reference
+      const givenEntity: IOccupationReference = {
+        id: getMockStringId(2),
+        UUID: "d4e5f6a7-b8c9-4d0e-9f1a-2b3c4d5e6f70",
+        preferredLabel: "Software developer",
+        occupationGroupCode: "2512",
+        code: "2512.1",
+        occupationType: ObjectTypes.ESCOOccupation,
+        isLocalized: false,
+      };
+      const givenModel: IModelInfoReference = {
+        id: givenModelId,
+        UUID: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+        name: "Some model",
+        version: "1.0.0",
+        localeShortCode: "en",
+      };
+      const givenHistory: IOccupationHistoryEntry[] = [{ entity: givenEntity, model: givenModel }];
       const givenOccupationServiceMock = {
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockResolvedValue(givenHistory),
@@ -86,16 +82,10 @@ describe("Test for occupation History GET handler", () => {
 
       // THEN expect respond with OK
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-      // AND the transform function is called for the resolved model
-      expect(transformModule.transform).toHaveBeenCalledWith(
-        givenModel,
-        givenResourcesBaseUrl,
-        givenHistory[0].modelHistoryDetails
-      );
-      // AND the handler returns the transformed array
+      // AND the handler returns an array of items with the occupation reference fields flat and a nested model
       const actualBody = JSON.parse(actualResponse.body);
       expect(actualBody).toHaveLength(1);
-      expect(actualBody[0]).toMatchObject(transformSpy.mock.results[0].value);
+      expect(actualBody[0]).toEqual({ ...givenEntity, model: givenModel });
     });
 
     test("GET should respond with OK and an empty array when the history is empty", async () => {

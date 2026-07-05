@@ -1,9 +1,9 @@
 import { RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4 } from "../regex";
 import ModelInfoConstants from "./constants";
 import Locale from "../locale";
-import LocaleConstants from "../locale/constants";
 import { baseImportProcessStateProperties } from "../importProcessState/schema.GET.response";
 import { baseExportProcessStateProperties } from "../exportProcessState/schema.GET.response";
+import { _modelInfoReferenceProperties } from "./schema.reference";
 
 /**
  *  The base schema for the model info request
@@ -116,33 +116,7 @@ export const _baseResponseSchema = {
         type: "object",
         additionalProperties: false,
         properties: {
-          id: {
-            description: "The identifier of the specific model.",
-            type: ["string", "null"],
-            pattern: RegExp_Str_ID,
-          },
-          UUID: {
-            description: "The UUID of the model.",
-            type: "string",
-            pattern: RegExp_Str_UUIDv4,
-          },
-          name: {
-            description: "The name of the model.",
-            type: ["string", "null"],
-            pattern: RegExp_Str_NotEmptyString,
-            maxLength: ModelInfoConstants.NAME_MAX_LENGTH,
-          },
-          version: {
-            description: "The version of the model.",
-            type: ["string", "null"],
-            maxLength: ModelInfoConstants.VERSION_MAX_LENGTH,
-          },
-          localeShortCode: {
-            description: "The short code of the locale",
-            type: ["string", "null"],
-            pattern: RegExp_Str_NotEmptyString,
-            maxLength: LocaleConstants.LOCALE_SHORTCODE_MAX_LENGTH,
-          },
+          ...JSON.parse(JSON.stringify(_modelInfoReferenceProperties)), // deep copy the model reference properties
         },
         required: ["id", "UUID", "name", "version", "localeShortCode"],
       },

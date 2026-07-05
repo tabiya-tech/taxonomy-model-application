@@ -464,7 +464,7 @@ describe("OccupationGroupListController", () => {
       findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
       getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
       getHistory: jest.fn().mockResolvedValue([]),
-      findModelIdsByUUIDs: jest.fn().mockResolvedValue([]),
+      findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),
       findParent: jest.fn().mockResolvedValue(null),
       findChildren: jest.fn().mockResolvedValue([]),
       setParent: jest.fn().mockResolvedValue(undefined),
