@@ -1,10 +1,9 @@
 import SkillAPISpecs from "api-specifications/esco/skill";
-import { transform } from "modelInfo/transform";
-import { ISkillHistoryEntry } from "../../../services/skill.service.types";
+import { ISkillHistoryEntry } from "esco/skill/services/skill.service.types";
 
 export function buildHistoryResponse(
-  history: ISkillHistoryEntry[],
-  baseURL: string
+  history: ISkillHistoryEntry[]
 ): SkillAPISpecs.Skill.History.GET.Types.Response.Payload {
-  return history.map(({ model, modelHistoryDetails }) => transform(model, baseURL, modelHistoryDetails));
+  // Each item is the skill's reference fields (as it appeared in a model) flat, plus the stripped model.
+  return history.map(({ entity, model }) => ({ ...entity, model }));
 }

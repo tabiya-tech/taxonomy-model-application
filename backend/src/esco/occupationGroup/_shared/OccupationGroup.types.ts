@@ -76,17 +76,6 @@ export interface IOccupationGroupReferenceDoc
 }
 
 /**
- * Describes how an occupation group history is returned from the API.
- */
-
-export interface IOccupationGroupHistoryReference {
-  id: string | null;
-  UUID: string;
-  preferredLabel: string | null;
-  code: string | null;
-  objectType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup | null;
-}
-/**
  * These are service level error codes for validating a model for occupation group operations
  */
 export enum ModelForOccupationGroupValidationErrorCode {

@@ -517,7 +517,7 @@ describe("SkillGroupListController", () => {
       findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
       findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-      findModelIdsByUUIDs: jest.fn().mockResolvedValue([]),
+      findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),
     };
     jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
     const limit = 2;

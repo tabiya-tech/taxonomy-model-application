@@ -11,7 +11,7 @@ namespace Detail.history.GETOperation {
 
   export namespace Types {
     export namespace Response {
-      export type ModelInfoItem = OccupationGroupTypes.Detail.history.GET.Response.ModelInfoItem;
+      export type HistoryItem = OccupationGroupTypes.Detail.history.GET.Response.HistoryItem;
       export type Payload = OccupationGroupTypes.Detail.history.GET.Response.Payload;
     }
   }

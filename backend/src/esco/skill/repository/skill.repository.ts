@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { INewSkillSpec, INewSkillSpecWithoutImportId, ISkill, ISkillDoc } from "../_shared/skill.types";
+import { INewSkillSpec, INewSkillSpecWithoutImportId, ISkill, ISkillDoc, ISkillReference } from "../_shared/skill.types";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -24,6 +24,17 @@ import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransfo
 import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
 import { populateEmptySkillToSkillRelation } from "esco/skillToSkillRelation/populateFunctions";
 import { populateEmptyRequiredByOccupations } from "esco/occupationToSkillRelation/populateFunctions";
+
+/**
+ * A single UUID from a skill's UUIDHistory resolved to the skill's reference (as it was in that model) and the
+ * modelId of the model it belonged to. Both null when no skill with that UUID exists. Order-preserving against
+ * the input UUIDs.
+ */
+export interface ISkillModelHistoryReference {
+  UUID: string;
+  modelId: string | null;
+  reference: ISkillReference | null;
+}
 
 export interface ISkillRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
@@ -142,7 +153,15 @@ export interface ISkillRepository {
    * @param {string[]} uuids - The skill UUIDs to resolve.
    * @return {Promise<{ UUID: string; modelId: string }[]>} - The UUID -> modelId pairs for the matched skills.
    */
-  findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]>;
+  /**
+   * Resolves each of the provided skill UUIDs (a skill's own UUIDHistory) to the skill's reference (as it
+   * appeared in that model) and the modelId of the model it belonged to. Order-preserving against the input
+   * UUIDs; entries whose UUID matches no skill carry null modelId and null reference.
+   *
+   * @param {string[]} uuids - The skill UUIDs to resolve.
+   * @return {Promise<ISkillModelHistoryReference[]>} - The resolved reference + modelId per input UUID.
+   */
+  findHistoryReferencesByUUIDs(uuids: string[]): Promise<ISkillModelHistoryReference[]>;
 }
 
 export class SkillRepository implements ISkillRepository {
@@ -675,17 +694,37 @@ export class SkillRepository implements ISkillRepository {
     }
   }
 
-  async findModelIdsByUUIDs(uuids: string[]): Promise<{ UUID: string; modelId: string }[]> {
+  async findHistoryReferencesByUUIDs(uuids: string[]): Promise<ISkillModelHistoryReference[]> {
     try {
       // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
       // operator object this is not rewritten by the connection's sanitizeFilter=true.
-      const skills = await this.Model.find({ UUID: uuids }, { UUID: 1, modelId: 1, _id: 0 }).exec();
-      return skills.map((skill) => ({
-        UUID: skill.UUID,
-        modelId: skill.modelId.toString(),
-      }));
+      const skills = await this.Model.find(
+        { UUID: uuids },
+        { UUID: 1, _id: 1, modelId: 1, preferredLabel: 1, isLocalized: 1 }
+      ).exec();
+      const byUUID = new Map(skills.map((skill) => [skill.UUID, skill]));
+      // Map over the INPUT uuids to preserve order; null-fill for UUIDs that don't resolve to a skill.
+      return uuids.map((uuid) => {
+        const skill = byUUID.get(uuid);
+        if (!skill) {
+          return { UUID: uuid, modelId: null, reference: null };
+        }
+        return {
+          UUID: uuid,
+          modelId: skill.modelId.toString(),
+          reference: {
+            id: skill._id.toString(),
+            UUID: skill.UUID,
+            preferredLabel: skill.preferredLabel,
+            isLocalized: skill.isLocalized,
+            objectType: ObjectTypes.Skill,
+          },
+        };
+      });
     } catch (e: unknown) {
-      const err = new Error("SkillRepository.findModelIdsByUUIDs: findModelIdsByUUIDs failed", { cause: e });
+      const err = new Error("SkillRepository.findHistoryReferencesByUUIDs: findHistoryReferencesByUUIDs failed", {
+        cause: e,
+      });
       console.error(err);
       throw err;
     }

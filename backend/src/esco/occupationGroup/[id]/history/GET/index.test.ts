@@ -7,8 +7,8 @@ import * as responseModule from "./response";
 import { OccupationGroupHistoryController } from "./index";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
-import { IOccupationGroupService } from "../../../services/occupationGroup.service.type";
-import { ModelForOccupationGroupValidationErrorCode } from "../../../_shared/OccupationGroup.types";
+import { IOccupationGroupService } from "esco/occupationGroup/services/occupationGroup.service.type";
+import { ModelForOccupationGroupValidationErrorCode } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
@@ -67,8 +67,8 @@ describe("OccupationGroupHistoryController", () => {
   const givenPath = "/models/model-1/occupationGroups/group-1/history";
 
   test("returns OK and the built history when the occupation group exists", async () => {
-    const givenHistory = [{ model: { id: "model-1" }, modelHistoryDetails: [] }];
-    mockBuildHistoryResponse.mockReturnValue([{ id: "model-1" }] as never);
+    const givenHistory = [{ entity: { id: "group-1" }, model: { id: "model-1" } }];
+    mockBuildHistoryResponse.mockReturnValue([{ id: "group-1", model: { id: "model-1" } }] as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.getHistory = jest.fn().mockResolvedValue(givenHistory);
@@ -78,7 +78,7 @@ describe("OccupationGroupHistoryController", () => {
 
     expect(mockGetOccupationGroupHistoryPathParameters).toHaveBeenCalledWith(givenPath);
     expect(mockServiceRegistry.occupationGroup.getHistory).toHaveBeenCalledWith("group-1");
-    expect(mockBuildHistoryResponse).toHaveBeenCalledWith(givenHistory, "https://resources.example.com");
+    expect(mockBuildHistoryResponse).toHaveBeenCalledWith(givenHistory);
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
   });
 

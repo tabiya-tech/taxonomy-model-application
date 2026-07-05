@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
 
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
-import LocaleAPISpecs from "api-specifications/locale";
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
 
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { handler as occupationGroupHistoryHandler } from "./index";
@@ -40,7 +40,7 @@ async function createOccupationGroupInDB(modelId: string, spec?: Partial<INewOcc
 describe("Test for occupationGroup History GET handler with a DB", () => {
   const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
   addFormats(ajv);
-  ajv.addSchema(LocaleAPISpecs.Schemas.Payload);
+  ajv.addSchema(ModelInfoAPISpecs.Schemas.Reference);
   ajv.addSchema(OccupationGroupAPISpecs.OccupationGroup.History.GET.Schemas.Response.Payload);
   const validateHistoryResponse: ValidateFunction = ajv.getSchema(
     OccupationGroupAPISpecs.OccupationGroup.History.GET.Schemas.Response.Payload.$id as string
@@ -96,8 +96,11 @@ describe("Test for occupationGroup History GET handler with a DB", () => {
     const actualBody = JSON.parse(actualResponse.body);
     expect(validateHistoryResponse(actualBody)).toBeTruthy();
     expect(actualBody).toHaveLength(2);
-    expect(actualBody[0].id).toEqual(givenCurrentModel.id);
-    expect(actualBody[1].id).toEqual(givenPriorModel.id);
+    // Each item is the group's reference (as it was in that model) flat, plus the stripped model under `model`.
+    expect(actualBody[0].id).toEqual(givenCurrentGroup.id);
+    expect(actualBody[0].model.id).toEqual(givenCurrentModel.id);
+    expect(actualBody[1].id).toEqual(givenPriorGroup.id);
+    expect(actualBody[1].model.id).toEqual(givenPriorModel.id);
   });
 
   test("GET /occupationGroups/{id}/history should return only the current model for a freshly created occupation group", async () => {
@@ -119,7 +122,8 @@ describe("Test for occupationGroup History GET handler with a DB", () => {
     const actualBody = JSON.parse(actualResponse.body);
     expect(validateHistoryResponse(actualBody)).toBeTruthy();
     expect(actualBody).toHaveLength(1);
-    expect(actualBody[0].id).toEqual(givenModel.id);
+    expect(actualBody[0].id).toEqual(givenGroup.id);
+    expect(actualBody[0].model.id).toEqual(givenModel.id);
   });
 
   test("GET /occupationGroups/{id}/history should respond with NOT_FOUND when the occupation group does not exist", async () => {

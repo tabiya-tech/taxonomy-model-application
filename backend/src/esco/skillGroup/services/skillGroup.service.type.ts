@@ -1,6 +1,11 @@
 import { ObjectTypes } from "esco/common/objectTypes";
-import { ISkillGroup, ISkillGroupChild, ModelForSkillGroupValidationErrorCode } from "../_shared/skillGroup.types";
-import { IModelInfo, IModelInfoReference } from "modelInfo/modelInfo.types";
+import {
+  ISkillGroup,
+  ISkillGroupChild,
+  ISkillGroupReference,
+  ModelForSkillGroupValidationErrorCode,
+} from "../_shared/skillGroup.types";
+import { IModelInfoReference } from "modelInfo/modelInfo.types";
 
 export interface ISkillGroupPaginatedFilter {
   childrenIds?: string;
@@ -9,12 +14,12 @@ export interface ISkillGroupPaginatedFilter {
 }
 
 /**
- * A single entry of a skill group's model history: a full ModelInfo together with the resolved
- * details of that model's own UUIDHistory (used to build the modelHistory field of the response).
+ * A single entry of a skill group's model history: the skill group's reference (as it appeared in that model)
+ * together with a lightweight reference to the model it belonged to.
  */
 export interface ISkillGroupHistoryEntry {
-  model: IModelInfo;
-  modelHistoryDetails: IModelInfoReference[];
+  entity: ISkillGroupReference;
+  model: IModelInfoReference;
 }
 
 export interface ISkillGroupService {

@@ -2034,32 +2034,60 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       });
     });
 
-    describe("Test findModelIdsByUUIDs()", () => {
-      test("should return the UUID -> modelId pairs for the occupation groups matching the given UUIDs", async () => {
+    describe("Test findHistoryReferencesByUUIDs()", () => {
+      test("should resolve each UUID to its occupation group reference + modelId, preserving input order and null-filling misses", async () => {
         // GIVEN two occupation groups in different models
         const givenModelId1 = getMockStringId(1);
         const givenModelId2 = getMockStringId(2);
         const givenGroup1 = await repository.create(getSimpleNewISCOGroupSpec(givenModelId1, "group_1"));
         const givenGroup2 = await repository.create(getSimpleNewISCOGroupSpec(givenModelId2, "group_2"));
+        const givenMissingUUID = randomUUID();
 
         // WHEN resolving a set of UUIDs that includes both groups' UUIDs plus a non-existent UUID
-        const actual = await repository.findModelIdsByUUIDs([givenGroup1.UUID, randomUUID(), givenGroup2.UUID]);
+        const actual = await repository.findHistoryReferencesByUUIDs([
+          givenGroup1.UUID,
+          givenMissingUUID,
+          givenGroup2.UUID,
+        ]);
 
-        // THEN expect only the matched groups' UUID -> modelId pairs (the non-existent UUID is omitted)
-        expect(actual).toHaveLength(2);
-        expect(actual).toContainEqual({ UUID: givenGroup1.UUID, modelId: givenModelId1 });
-        expect(actual).toContainEqual({ UUID: givenGroup2.UUID, modelId: givenModelId2 });
+        // THEN expect one entry per input UUID in input order, with the reference + modelId for matches and nulls for the miss
+        expect(actual).toEqual([
+          {
+            UUID: givenGroup1.UUID,
+            modelId: givenModelId1,
+            reference: {
+              id: givenGroup1.id,
+              UUID: givenGroup1.UUID,
+              code: givenGroup1.code,
+              preferredLabel: givenGroup1.preferredLabel,
+              objectType: givenGroup1.groupType,
+            },
+          },
+          { UUID: givenMissingUUID, modelId: null, reference: null },
+          {
+            UUID: givenGroup2.UUID,
+            modelId: givenModelId2,
+            reference: {
+              id: givenGroup2.id,
+              UUID: givenGroup2.UUID,
+              code: givenGroup2.code,
+              preferredLabel: givenGroup2.preferredLabel,
+              objectType: givenGroup2.groupType,
+            },
+          },
+        ]);
       });
 
-      test("should return an empty array when none of the given UUIDs match an occupation group", async () => {
+      test("should null-fill every entry when none of the given UUIDs match an occupation group", async () => {
         // GIVEN an occupation group exists
         await repository.create(getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1"));
+        const givenUUIDs = [randomUUID(), randomUUID()];
 
         // WHEN resolving UUIDs that do not match any occupation group
-        const actual = await repository.findModelIdsByUUIDs([randomUUID(), randomUUID()]);
+        const actual = await repository.findHistoryReferencesByUUIDs(givenUUIDs);
 
-        // THEN expect an empty array
-        expect(actual).toEqual([]);
+        // THEN expect a null-filled entry per input UUID
+        expect(actual).toEqual(givenUUIDs.map((uuid) => ({ UUID: uuid, modelId: null, reference: null })));
       });
 
       test("should return an empty array when given an empty list of UUIDs", async () => {
@@ -2067,81 +2095,14 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         await repository.create(getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1"));
 
         // WHEN resolving an empty list of UUIDs
-        const actual = await repository.findModelIdsByUUIDs([]);
+        const actual = await repository.findHistoryReferencesByUUIDs([]);
 
         // THEN expect an empty array
         expect(actual).toEqual([]);
       });
 
       TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-        return repositoryRegistry.OccupationGroup.findModelIdsByUUIDs([randomUUID()]);
-      });
-    });
-
-    describe("Test getHistory()", () => {
-      test("should return the detailed UUIDHistory of an OccupationGroup", async () => {
-        const givenValidModelId = getMockStringId(1);
-        //GIVEN an OccupationGroup in the database
-        const givenExistingOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenValidModelId, "group_1");
-        const givenExistingOccupationGroup = await repository.create(givenExistingOccupationGroupSpecs);
-
-        // AND a target OccupationGroup with the given OccupationGroup in it's uuid history
-        const givenTargetOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenValidModelId, "group_2");
-        const givenTargetOccupationGroup = await repository.create(givenTargetOccupationGroupSpecs);
-        // AND the target has its own UUID in it's UUIDHistory
-        // AND the target has the given occupationGroup in it's UUIDHistory
-        // AND the target occupationGroup has a random UUID in it's UUIDHistory
-        // AND the target occupationGroup has a uuid that is not the current UUID of the occupationGroup even if it exists in it's history array
-        givenTargetOccupationGroup.UUIDHistory = [
-          givenTargetOccupationGroup.UUID,
-          givenExistingOccupationGroup.UUID,
-          randomUUID(),
-          givenExistingOccupationGroup.UUIDHistory.at(-1)!,
-        ];
-
-        // WHEN we retrieve the UUIDHistory of the occupationGroup
-        const actualUUIDHistory = await repository.getHistory(givenTargetOccupationGroup.UUIDHistory);
-
-        // THEN expect the UUIDHistory to have the details for the target OccupationGroup and the given OccupationGroup
-        const expectedUUIDHistory = [
-          // the UUID of the target itself occupationGroup
-          {
-            id: givenTargetOccupationGroup.id,
-            UUID: givenTargetOccupationGroup.UUID,
-            preferredLabel: givenTargetOccupationGroup.preferredLabel,
-            code: givenTargetOccupationGroup.code,
-            objectType: givenTargetOccupationGroup.groupType,
-          },
-          // the UUID of the given occupationGroup
-          {
-            id: givenExistingOccupationGroup.id,
-            UUID: givenExistingOccupationGroup.UUID,
-            preferredLabel: givenExistingOccupationGroup.preferredLabel,
-            code: givenExistingOccupationGroup.code,
-            objectType: givenExistingOccupationGroup.groupType,
-          },
-          // AND the randomUUID
-          {
-            id: null,
-            UUID: givenTargetOccupationGroup.UUIDHistory[2],
-            preferredLabel: null,
-            code: null,
-            objectType: null,
-          },
-          // AND the last UUID in the history of the given model
-          {
-            id: null,
-            UUID: givenExistingOccupationGroup.UUIDHistory.at(-1),
-            preferredLabel: null,
-            code: null,
-            objectType: null,
-          },
-        ];
-
-        expect(actualUUIDHistory).toEqual(expectedUUIDHistory);
-      });
-      TestDBConnectionFailureNoSetup((repository) => {
-        return repository.OccupationGroup.getHistory([randomUUID()]);
+        return repositoryRegistry.OccupationGroup.findHistoryReferencesByUUIDs([randomUUID()]);
       });
     });
   });

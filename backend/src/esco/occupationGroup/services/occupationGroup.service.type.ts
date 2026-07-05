@@ -3,9 +3,10 @@ import {
   IOccupationGroup,
   ModelForOccupationGroupValidationErrorCode,
   IOccupationGroupChild,
+  IOccupationGroupReference,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { IModelInfo, IModelInfoReference } from "modelInfo/modelInfo.types";
+import { IModelInfoReference } from "modelInfo/modelInfo.types";
 
 export class OccupationGroupModelValidationError extends Error {
   constructor(public code: ModelForOccupationGroupValidationErrorCode) {
@@ -18,12 +19,12 @@ export interface FindPaginatedFilter {
 }
 
 /**
- * A single entry of an occupation group's model history: a full ModelInfo together with the resolved
- * details of that model's own UUIDHistory (used to build the modelHistory field of the response).
+ * A single entry of an occupation group's model history: the occupation group's reference (as it appeared
+ * in that model) together with a lightweight reference to the model it belonged to.
  */
 export interface IOccupationGroupHistoryEntry {
-  model: IModelInfo;
-  modelHistoryDetails: IModelInfoReference[];
+  entity: IOccupationGroupReference;
+  model: IModelInfoReference;
 }
 
 export enum SetOccupationGroupParentErrorCode {

@@ -1,6 +1,17 @@
 import SkillGroupEnums from "./enums";
 import ModelInfoTypes from "../../../modelInfo/types";
 
+// A single entry of the skill group's model history: the group's reference fields as it appeared in a model,
+// plus a stripped-down reference to that model.
+export interface ISkillGroupHistoryItem {
+  id: string;
+  UUID: string;
+  code: string;
+  preferredLabel: string;
+  objectType: SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup;
+  model: ModelInfoTypes.Response.IModelInfoReference;
+}
+
 export interface ISkillGroupResponse {
   id: string;
   UUID: string;
@@ -149,8 +160,8 @@ namespace SkillGroupTypes {
         export type Payload = ISkillGroupResponse;
       }
       export namespace History {
-        export type ModelInfoItem = ModelInfoTypes.Response.IModelInfo;
-        export type Payload = ModelInfoTypes.Response.IModelInfo[];
+        export type HistoryItem = ISkillGroupHistoryItem;
+        export type Payload = ISkillGroupHistoryItem[];
       }
     }
 

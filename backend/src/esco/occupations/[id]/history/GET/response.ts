@@ -1,10 +1,9 @@
 import OccupationAPISpecs from "api-specifications/esco/occupation";
-import { transform } from "modelInfo/transform";
-import { IOccupationHistoryEntry } from "../../../services/occupation.service.types";
+import { IOccupationHistoryEntry } from "esco/occupations/services/occupation.service.types";
 
 export function buildHistoryResponse(
-  history: IOccupationHistoryEntry[],
-  baseURL: string
+  history: IOccupationHistoryEntry[]
 ): OccupationAPISpecs.Occupation.History.GET.Types.Response.Payload {
-  return history.map(({ model, modelHistoryDetails }) => transform(model, baseURL, modelHistoryDetails));
+  // Each item is the occupation's reference fields (as it appeared in a model) flat, plus the stripped model.
+  return history.map(({ entity, model }) => ({ ...entity, model }));
 }

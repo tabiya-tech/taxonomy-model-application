@@ -11,6 +11,19 @@ interface IOccupationParent {
   objectType: OccupationEnums.Relations.Parent.ObjectTypes;
 }
 
+// A single entry of the occupation's model history: the occupation's reference fields as it appeared in a model,
+// plus a stripped-down reference to that model.
+interface IOccupationHistoryItem {
+  id: string;
+  UUID: string;
+  preferredLabel: string;
+  occupationGroupCode: string;
+  code: string;
+  occupationType: OccupationEnums.OccupationType;
+  isLocalized: boolean;
+  model: ModelInfoTypes.Response.IModelInfoReference;
+}
+
 interface IOccupationChild {
   id: string;
   UUID: string;
@@ -187,8 +200,8 @@ namespace OccupationTypes {
 
   export namespace Detail.history.GET {
     export namespace Response {
-      export type ModelInfoItem = ModelInfoTypes.Response.IModelInfo;
-      export type Payload = ModelInfoTypes.Response.IModelInfo[];
+      export type HistoryItem = IOccupationHistoryItem;
+      export type Payload = IOccupationHistoryItem[];
     }
   }
 }

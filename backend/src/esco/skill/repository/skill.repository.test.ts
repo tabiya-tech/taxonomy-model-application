@@ -2101,32 +2101,60 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     });
   });
 
-  describe("Test findModelIdsByUUIDs()", () => {
-    test("should return the UUID -> modelId pairs for the skills matching the given UUIDs", async () => {
+  describe("Test findHistoryReferencesByUUIDs()", () => {
+    test("should resolve each UUID to its skill reference + modelId, preserving input order and null-filling misses", async () => {
       // GIVEN two skills in different models
       const givenModelId1 = getMockStringId(1);
       const givenModelId2 = getMockStringId(2);
       const givenSkill1 = await repository.create(getSimpleNewSkillSpec(givenModelId1, "skill_1"));
       const givenSkill2 = await repository.create(getSimpleNewSkillSpec(givenModelId2, "skill_2"));
+      const givenMissingUUID = randomUUID();
 
       // WHEN resolving a set of UUIDs that includes both skills' UUIDs plus a non-existent UUID
-      const actual = await repository.findModelIdsByUUIDs([givenSkill1.UUID, randomUUID(), givenSkill2.UUID]);
+      const actual = await repository.findHistoryReferencesByUUIDs([
+        givenSkill1.UUID,
+        givenMissingUUID,
+        givenSkill2.UUID,
+      ]);
 
-      // THEN expect only the matched skills' UUID -> modelId pairs (the non-existent UUID is omitted)
-      expect(actual).toHaveLength(2);
-      expect(actual).toContainEqual({ UUID: givenSkill1.UUID, modelId: givenModelId1 });
-      expect(actual).toContainEqual({ UUID: givenSkill2.UUID, modelId: givenModelId2 });
+      // THEN expect one entry per input UUID in input order, with the reference + modelId for matches and nulls for the miss
+      expect(actual).toEqual([
+        {
+          UUID: givenSkill1.UUID,
+          modelId: givenModelId1,
+          reference: {
+            id: givenSkill1.id,
+            UUID: givenSkill1.UUID,
+            preferredLabel: givenSkill1.preferredLabel,
+            isLocalized: givenSkill1.isLocalized,
+            objectType: ObjectTypes.Skill,
+          },
+        },
+        { UUID: givenMissingUUID, modelId: null, reference: null },
+        {
+          UUID: givenSkill2.UUID,
+          modelId: givenModelId2,
+          reference: {
+            id: givenSkill2.id,
+            UUID: givenSkill2.UUID,
+            preferredLabel: givenSkill2.preferredLabel,
+            isLocalized: givenSkill2.isLocalized,
+            objectType: ObjectTypes.Skill,
+          },
+        },
+      ]);
     });
 
-    test("should return an empty array when none of the given UUIDs match a skill", async () => {
+    test("should null-fill every entry when none of the given UUIDs match a skill", async () => {
       // GIVEN a skill exists
       await repository.create(getSimpleNewSkillSpec(getMockStringId(1), "skill_1"));
+      const givenUUIDs = [randomUUID(), randomUUID()];
 
       // WHEN resolving UUIDs that do not match any skill
-      const actual = await repository.findModelIdsByUUIDs([randomUUID(), randomUUID()]);
+      const actual = await repository.findHistoryReferencesByUUIDs(givenUUIDs);
 
-      // THEN expect an empty array
-      expect(actual).toEqual([]);
+      // THEN expect a null-filled entry per input UUID
+      expect(actual).toEqual(givenUUIDs.map((uuid) => ({ UUID: uuid, modelId: null, reference: null })));
     });
 
     test("should return an empty array when given an empty list of UUIDs", async () => {
@@ -2134,14 +2162,14 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       await repository.create(getSimpleNewSkillSpec(getMockStringId(1), "skill_1"));
 
       // WHEN resolving an empty list of UUIDs
-      const actual = await repository.findModelIdsByUUIDs([]);
+      const actual = await repository.findHistoryReferencesByUUIDs([]);
 
       // THEN expect an empty array
       expect(actual).toEqual([]);
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-      return repositoryRegistry.skill.findModelIdsByUUIDs([randomUUID()]);
+      return repositoryRegistry.skill.findHistoryReferencesByUUIDs([randomUUID()]);
     });
   });
 });

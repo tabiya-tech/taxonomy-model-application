@@ -1,6 +1,17 @@
 import OccupationGroupEnums from "./enums";
 import ModelInfoTypes from "../../../modelInfo/types";
 
+// A single entry of the occupation group's model history: the group's reference fields as it appeared in a
+// model, plus a stripped-down reference to that model.
+export interface IOccupationGroupHistoryItem {
+  id: string;
+  UUID: string;
+  code: string;
+  preferredLabel: string;
+  objectType: OccupationGroupEnums.ObjectTypes;
+  model: ModelInfoTypes.Response.IModelInfoReference;
+}
+
 export interface IOccupationGroupResponse {
   id: string;
   UUID: string;
@@ -105,8 +116,8 @@ namespace OccupationGroupTypes {
 
   export namespace Detail.history.GET {
     export namespace Response {
-      export type ModelInfoItem = ModelInfoTypes.Response.IModelInfo;
-      export type Payload = ModelInfoTypes.Response.IModelInfo[];
+      export type HistoryItem = IOccupationGroupHistoryItem;
+      export type Payload = IOccupationGroupHistoryItem[];
     }
   }
 }

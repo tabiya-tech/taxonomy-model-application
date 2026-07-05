@@ -7,11 +7,10 @@ import ErrorAPISpecs from "api-specifications/error";
 import { RoleRequired } from "auth/authorizer";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { ajvInstance } from "validator";
-import { getResourcesBaseUrl } from "server/config/config";
 import { errorResponse, errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { ModelForSkillGroupValidationErrorCode } from "../../../_shared/skillGroup.types";
-import { ISkillGroupService } from "../../../services/skillGroup.service.type";
+import { ModelForSkillGroupValidationErrorCode } from "esco/skillGroup/_shared/skillGroup.types";
+import { ISkillGroupService } from "esco/skillGroup/services/skillGroup.service.type";
 import { getSkillGroupHistoryPathParameters } from "./query";
 import { buildHistoryResponse } from "./response";
 
@@ -125,7 +124,7 @@ export class SkillGroupHistoryController {
         );
       }
 
-      return responseJSON(StatusCodes.OK, buildHistoryResponse(history, getResourcesBaseUrl()));
+      return responseJSON(StatusCodes.OK, buildHistoryResponse(history));
     } catch (error: unknown) {
       console.error("Failed to get skill group history:", error);
       errorLoggerInstance.logError(
