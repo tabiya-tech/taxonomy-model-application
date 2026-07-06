@@ -43,7 +43,11 @@ import {
 import { expectedOccupationGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { Readable } from "node:stream";
-import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/queriesWithExplainPlan";
+import {
+  getExpectedPlan,
+  setUpFindWithExplain,
+  setUpPopulateWithExplain,
+} from "esco/_test_utilities/queriesWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 import { resetMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
@@ -106,6 +110,8 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     // reset the mock implementation of Model.populate and Query.exec that might have been set up by setUpPopulateWithExplain()
     jest.spyOn(mongoose.Model, "populate").mockRestore();
     jest.spyOn(mongoose.Query.prototype, "exec").mockRestore();
+    // reset the mock implementation of Model.find that might have been set up by setUpFindWithExplain()
+    jest.spyOn(mongoose.Model, "find").mockRestore();
     //---
     // reset the code between tests so that we dont run out of codes when we're building hierarchies.
     // This is important because codes for entities in hierarchies are based on their parents and appended after each other,
@@ -2099,6 +2105,30 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
         // THEN expect an empty array
         expect(actual).toEqual([]);
+      });
+
+      test("should use the UUID index and not do a collection scan", async () => {
+        // GIVEN two occupation groups exist in the database
+        const givenGroup1 = await repository.create(getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1"));
+        const givenGroup2 = await repository.create(getSimpleNewISCOGroupSpec(getMockStringId(2), "group_2"));
+
+        // WHEN resolving their UUIDs
+        // setup find with explain to assert the query plan uses the UUID index and is not doing a collection scan
+        const actualPlans = setUpFindWithExplain<IOccupationGroupDoc>(repository.Model);
+        await repository.findHistoryReferencesByUUIDs([givenGroup1.UUID, givenGroup2.UUID]);
+
+        // THEN expect the query plan to use the UUID index
+        await expect(actualPlans).resolves.toHaveLength(1);
+        await expect(actualPlans).resolves.toEqual(
+          expect.arrayContaining([
+            getExpectedPlan({
+              collectionName: repository.Model.collection.name,
+              filter: { UUID: { $in: [givenGroup1.UUID, givenGroup2.UUID] } },
+              usedIndex: { UUID: 1 },
+              withProjection: true,
+            }),
+          ])
+        );
       });
 
       TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {

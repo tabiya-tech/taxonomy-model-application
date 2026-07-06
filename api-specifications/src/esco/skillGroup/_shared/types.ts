@@ -1,14 +1,19 @@
 import SkillGroupEnums from "./enums";
 import ModelInfoTypes from "../../../modelInfo/types";
 
-// A single entry of the skill group's model history: the group's reference fields as it appeared in a model,
-// plus a stripped-down reference to that model.
-export interface ISkillGroupHistoryItem {
+// A reference to a skill group — the lightweight shape used when a group is shown from the outside (e.g. as it
+// appeared in a model in its history). Mirrors the SkillGroupReferenceSchema.
+export interface _ISkillGroupReference {
   id: string;
   UUID: string;
   code: string;
   preferredLabel: string;
   objectType: SkillGroupEnums.Relations.Children.ObjectTypes.SkillGroup;
+}
+
+// A single entry of the skill group's model history: the group's reference fields as it appeared in a model,
+// plus a stripped-down reference to that model.
+export interface ISkillGroupHistoryItem extends _ISkillGroupReference {
   model: ModelInfoTypes.Response.IModelInfoReference;
 }
 
@@ -127,6 +132,7 @@ namespace SkillGroupTypes {
   const _ = 0;
   export namespace Response {
     export type ISkillGroup = ISkillGroupResponse;
+    export type ISkillGroupReference = _ISkillGroupReference;
   }
   export namespace POST {
     export namespace Response {

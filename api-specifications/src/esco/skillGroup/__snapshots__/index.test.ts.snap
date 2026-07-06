@@ -890,6 +890,51 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
       "SKILL_GROUP_CODE": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
     },
   },
+  "Schemas": {
+    "Reference": {
+      "$id": "/components/schemas/SkillGroupReferenceSchema",
+      "additionalProperties": false,
+      "properties": {
+        "UUID": {
+          "description": "The UUID of the skill group.",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string",
+        },
+        "code": {
+          "description": "The code of the skill group.",
+          "maxLength": 256,
+          "pattern": "^([a-zA-Z]\\d+(\\.\\d+)*|[a-zA-Z])$",
+          "type": "string",
+        },
+        "id": {
+          "description": "The id of the skill group.",
+          "pattern": "^[0-9a-f]{24}$",
+          "type": "string",
+        },
+        "objectType": {
+          "description": "The type of the entity (skill group).",
+          "enum": [
+            "skillgroup",
+          ],
+          "type": "string",
+        },
+        "preferredLabel": {
+          "description": "The preferred label of the skill group.",
+          "maxLength": 256,
+          "pattern": "\\S",
+          "type": "string",
+        },
+      },
+      "required": [
+        "id",
+        "UUID",
+        "code",
+        "preferredLabel",
+        "objectType",
+      ],
+      "type": "object",
+    },
+  },
   "SkillGroup": {
     "Children": {
       "GET": {
@@ -1722,7 +1767,7 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                 "additionalProperties": false,
                 "properties": {
                   "UUID": {
-                    "description": "The UUID of the skill group in this model.",
+                    "description": "The UUID of the skill group.",
                     "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                     "type": "string",
                   },
@@ -1733,7 +1778,7 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                     "type": "string",
                   },
                   "id": {
-                    "description": "The id of the skill group in this model.",
+                    "description": "The id of the skill group.",
                     "pattern": "^[0-9a-f]{24}$",
                     "type": "string",
                   },

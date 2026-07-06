@@ -75,6 +75,7 @@ describe("OccupationGroupParentPOSTController", () => {
         findPaginated: jest.fn(),
         validateModelForOccupationGroup: jest.fn(),
         findChildren: jest.fn(),
+        getHistory: jest.fn(),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);

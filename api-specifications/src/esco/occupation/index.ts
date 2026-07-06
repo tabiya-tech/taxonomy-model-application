@@ -2,6 +2,7 @@ import OccupationConstants from "./_shared/constants";
 import OccupationEnums from "./_shared/enums";
 import OccupationTypes from "./_shared/types";
 import OccupationRegexes from "./_shared/regex";
+import SchemaOccupationReference from "./_shared/schema.reference";
 
 import GETOccupationsOperation from "./GET";
 import POSTOccupationOperation from "./POST";
@@ -12,6 +13,11 @@ namespace OccupationAPISpecs {
   export import Enums = OccupationEnums;
   export import Types = OccupationTypes;
   export import Patterns = OccupationRegexes;
+
+  // Shared, cross-endpoint schemas
+  export namespace Schemas {
+    export const Reference = SchemaOccupationReference;
+  }
 
   // Collection-level operations
   export import GET = GETOccupationsOperation;

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import {
   getOccupationGroupDocReference,
   OccupationGroupDocument,
-} from "esco/occupationGroup/services/OccupationGroupReference";
+} from "esco/occupationGroup/_shared/OccupationGroupReference";
 import {
   IOccupationGroupReference,
   IOccupationGroupReferenceDoc,
@@ -13,7 +13,7 @@ import {
   getOccupationHierarchyChildReference,
   getOccupationHierarchyParentReference,
 } from "esco/occupationHierarchy/populateFunctions";
-import { getOccupationDocReference, OccupationDocument } from "esco/occupations/services/occupation.reference";
+import { getOccupationDocReference, OccupationDocument } from "esco/occupations/_shared/occupation.reference";
 import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/_shared/occupationReference.types";
 import { OccupationGroupModelPaths } from "../model/OccupationGroup.model";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";

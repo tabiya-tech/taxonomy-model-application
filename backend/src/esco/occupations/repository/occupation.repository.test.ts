@@ -57,7 +57,7 @@ import {
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENT } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { INDEX_FOR_REQUIRES_SKILLS } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
-import { INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE } from "../model/occupation.model";
+import { INDEX_FOR_FIND_MODEL_OCCUPATION_TYPE, INDEX_FOR_UUID } from "../model/occupation.model";
 import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 import { resetMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 
@@ -926,6 +926,34 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // THEN expect an empty array
       expect(actual).toEqual([]);
+    });
+
+    test("should use the UUID index and not do a collection scan", async () => {
+      // GIVEN two occupations exist in the database
+      const givenOccupation1 = await repository.create(
+        getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1")
+      );
+      const givenOccupation2 = await repository.create(
+        getSimpleNewESCOOccupationSpec(getMockStringId(2), "occupation_2")
+      );
+
+      // WHEN resolving their UUIDs
+      // setup find with explain to assert the query plan uses the UUID index and is not doing a collection scan
+      const actualPlans = setUpFindWithExplain<IOccupationDoc>(repository.Model);
+      await repository.findHistoryReferencesByUUIDs([givenOccupation1.UUID, givenOccupation2.UUID]);
+
+      // THEN expect the query plan to use the UUID index
+      await expect(actualPlans).resolves.toHaveLength(1);
+      await expect(actualPlans).resolves.toEqual(
+        expect.arrayContaining([
+          getExpectedPlan({
+            collectionName: repository.Model.collection.name,
+            filter: { UUID: { $in: [givenOccupation1.UUID, givenOccupation2.UUID] } },
+            usedIndex: INDEX_FOR_UUID,
+            withProjection: true,
+          }),
+        ])
+      );
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {

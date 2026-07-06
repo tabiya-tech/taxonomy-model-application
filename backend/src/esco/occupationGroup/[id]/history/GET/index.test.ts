@@ -43,6 +43,7 @@ describe("OccupationGroupHistoryController", () => {
         findPaginated: jest.fn(),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue(null),
         findChildren: jest.fn(),
+        setParent: jest.fn(),
         getHistory: jest.fn().mockResolvedValue([]),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;

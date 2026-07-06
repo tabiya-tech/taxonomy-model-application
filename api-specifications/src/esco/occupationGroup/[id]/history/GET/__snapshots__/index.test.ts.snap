@@ -28,7 +28,7 @@ exports[`Test the occupationGroup GET history operation module The export module
           "additionalProperties": false,
           "properties": {
             "UUID": {
-              "description": "The UUID of the occupation group in this model.",
+              "description": "The UUID of the occupation group.",
               "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
               "type": "string",
             },
@@ -38,7 +38,7 @@ exports[`Test the occupationGroup GET history operation module The export module
               "type": "string",
             },
             "id": {
-              "description": "The id of the occupation group in this model.",
+              "description": "The id of the occupation group.",
               "pattern": "^[0-9a-f]{24}$",
               "type": "string",
             },

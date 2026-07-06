@@ -29,7 +29,7 @@ exports[`Test the skillGroup GET history module The export module matches the sn
             "additionalProperties": false,
             "properties": {
               "UUID": {
-                "description": "The UUID of the skill group in this model.",
+                "description": "The UUID of the skill group.",
                 "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                 "type": "string",
               },
@@ -40,7 +40,7 @@ exports[`Test the skillGroup GET history module The export module matches the sn
                 "type": "string",
               },
               "id": {
-                "description": "The id of the skill group in this model.",
+                "description": "The id of the skill group.",
                 "pattern": "^[0-9a-f]{24}$",
                 "type": "string",
               },

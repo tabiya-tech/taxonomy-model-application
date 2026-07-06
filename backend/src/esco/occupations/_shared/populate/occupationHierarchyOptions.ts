@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import {
   getOccupationGroupDocReference,
   OccupationGroupDocument,
-} from "esco/occupationGroup/services/OccupationGroupReference";
-import { getOccupationDocReference, OccupationDocument } from "esco/occupations/services/occupation.reference";
+} from "esco/occupationGroup/_shared/OccupationGroupReference";
+import { getOccupationDocReference, OccupationDocument } from "esco/occupations/_shared/occupation.reference";
 import {
   IOccupationGroupReference,
   IOccupationGroupReferenceDoc,

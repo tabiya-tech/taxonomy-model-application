@@ -1,4 +1,4 @@
-import { IOccupationGroupDoc, IOccupationGroupReferenceDoc } from "../_shared/OccupationGroup.types";
+import { IOccupationGroupDoc, IOccupationGroupReferenceDoc } from "./OccupationGroup.types";
 import mongoose from "mongoose";
 
 type _Document<T> = mongoose.Document<unknown, undefined, T> & T;

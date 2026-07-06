@@ -1,6 +1,6 @@
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import mongoose from "mongoose";
-import { getOccupationDocReference, OccupationDocument } from "esco/occupations/services/occupation.reference";
+import { getOccupationDocReference, OccupationDocument } from "esco/occupations/_shared/occupation.reference";
 import { getRequiredByOccupationReference } from "esco/occupationToSkillRelation/populateFunctions";
 import { SkillModelPaths } from "../model/skill.model";
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
