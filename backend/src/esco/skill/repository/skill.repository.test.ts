@@ -46,7 +46,11 @@ import {
   OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { Readable } from "node:stream";
-import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/queriesWithExplainPlan";
+import {
+  getExpectedPlan,
+  setUpFindWithExplain,
+  setUpPopulateWithExplain,
+} from "esco/_test_utilities/queriesWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENTS } from "esco/skillHierarchy/skillHierarchyModel";
 import {
   INDEX_FOR_REQUIRED_BY_SKILLS,
@@ -102,6 +106,8 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     // reset the mock implementation of Model.populate and Query.exec that might have been set up by setUpPopulateWithExplain()
     jest.spyOn(mongoose.Model, "populate").mockRestore();
     jest.spyOn(mongoose.Query.prototype, "exec").mockRestore();
+    // reset the mock implementation of Model.find that might have been set up by setUpFindWithExplain()
+    jest.spyOn(mongoose.Model, "find").mockRestore();
     //---
   });
 
@@ -2166,6 +2172,30 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
       // THEN expect an empty array
       expect(actual).toEqual([]);
+    });
+
+    test("should use the UUID index and not do a collection scan", async () => {
+      // GIVEN two skills exist in the database
+      const givenSkill1 = await repository.create(getSimpleNewSkillSpec(getMockStringId(1), "skill_1"));
+      const givenSkill2 = await repository.create(getSimpleNewSkillSpec(getMockStringId(2), "skill_2"));
+
+      // WHEN resolving their UUIDs
+      // setup find with explain to assert the query plan uses the UUID index and is not doing a collection scan
+      const actualPlans = setUpFindWithExplain<ISkillDoc>(repository.Model);
+      await repository.findHistoryReferencesByUUIDs([givenSkill1.UUID, givenSkill2.UUID]);
+
+      // THEN expect the query plan to use the UUID index
+      await expect(actualPlans).resolves.toHaveLength(1);
+      await expect(actualPlans).resolves.toEqual(
+        expect.arrayContaining([
+          getExpectedPlan({
+            collectionName: repository.Model.collection.name,
+            filter: { UUID: { $in: [givenSkill1.UUID, givenSkill2.UUID] } },
+            usedIndex: { UUID: 1 },
+            withProjection: true,
+          }),
+        ])
+      );
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {

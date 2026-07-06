@@ -2,7 +2,7 @@ import {
   IPopulatedOccupationToSkillRelationPairDoc,
   OccupationToSkillReferenceWithRelationType,
 } from "./occupationToSkillRelation.types";
-import { getOccupationReferenceWithRelationType } from "esco/occupations/services/occupation.reference";
+import { getOccupationReferenceWithRelationType } from "esco/occupations/_shared/occupation.reference";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { ISkillDoc, ISkillReference } from "esco/skill/_shared/skill.types";
 import { getSkillReferenceWithRelationType } from "esco/skill/_shared/skillReference";

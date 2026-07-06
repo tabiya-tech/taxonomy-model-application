@@ -11,9 +11,9 @@ interface IOccupationParent {
   objectType: OccupationEnums.Relations.Parent.ObjectTypes;
 }
 
-// A single entry of the occupation's model history: the occupation's reference fields as it appeared in a model,
-// plus a stripped-down reference to that model.
-interface IOccupationHistoryItem {
+// A reference to an occupation — the lightweight shape used when an occupation is shown from the outside
+// (e.g. as it appeared in a model in its history). Mirrors the OccupationReferenceSchema.
+interface _IOccupationReference {
   id: string;
   UUID: string;
   preferredLabel: string;
@@ -21,6 +21,11 @@ interface IOccupationHistoryItem {
   code: string;
   occupationType: OccupationEnums.OccupationType;
   isLocalized: boolean;
+}
+
+// A single entry of the occupation's model history: the occupation's reference fields as it appeared in a model,
+// plus a stripped-down reference to that model.
+interface IOccupationHistoryItem extends _IOccupationReference {
   model: ModelInfoTypes.Response.IModelInfoReference;
 }
 
@@ -134,6 +139,7 @@ namespace OccupationTypes {
   export namespace Response {
     export type IOccupation = IOccupationResponse;
     export type RequiresSkillItem = IOccupationRequiredSkill;
+    export type IOccupationReference = _IOccupationReference;
   }
 
   export namespace POSTOccupation {

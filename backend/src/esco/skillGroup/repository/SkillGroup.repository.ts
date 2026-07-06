@@ -12,6 +12,7 @@ import {
   populateSkillGroupChildrenOptions,
   populateSkillGroupParentsOptions,
 } from "../_shared/populateSkillHierarchyOptions";
+import { getSkillGroupDocReference, SkillGroupDocument } from "../_shared/skillGroupReference";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
@@ -474,17 +475,9 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         if (!skillGroup) {
           return { UUID: uuid, modelId: null, reference: null };
         }
-        return {
-          UUID: uuid,
-          modelId: skillGroup.modelId.toString(),
-          reference: {
-            id: skillGroup._id.toString(),
-            UUID: skillGroup.UUID,
-            code: skillGroup.code,
-            preferredLabel: skillGroup.preferredLabel,
-            objectType: ObjectTypes.SkillGroup,
-          },
-        };
+        // Reuse the shared reference mapper; the reference itself does not carry the modelId, so split it out.
+        const { modelId, ...reference } = getSkillGroupDocReference(skillGroup as SkillGroupDocument);
+        return { UUID: uuid, modelId: modelId.toString(), reference };
       });
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findHistoryReferencesByUUIDs: findHistoryReferencesByUUIDs failed", {

@@ -1,7 +1,14 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { INewSkillSpec, INewSkillSpecWithoutImportId, ISkill, ISkillDoc, ISkillReference } from "../_shared/skill.types";
+import {
+  INewSkillSpec,
+  INewSkillSpecWithoutImportId,
+  ISkill,
+  ISkillDoc,
+  ISkillReference,
+} from "../_shared/skill.types";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
+import { getSkillDocReference, SkillDocument } from "../_shared/skillReference";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
@@ -709,17 +716,9 @@ export class SkillRepository implements ISkillRepository {
         if (!skill) {
           return { UUID: uuid, modelId: null, reference: null };
         }
-        return {
-          UUID: uuid,
-          modelId: skill.modelId.toString(),
-          reference: {
-            id: skill._id.toString(),
-            UUID: skill.UUID,
-            preferredLabel: skill.preferredLabel,
-            isLocalized: skill.isLocalized,
-            objectType: ObjectTypes.Skill,
-          },
-        };
+        // Reuse the shared reference mapper; the reference itself does not carry the modelId, so split it out.
+        const { modelId, ...reference } = getSkillDocReference(skill as SkillDocument);
+        return { UUID: uuid, modelId: modelId.toString(), reference };
       });
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findHistoryReferencesByUUIDs: findHistoryReferencesByUUIDs failed", {

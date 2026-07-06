@@ -1,4 +1,5 @@
 import { IOccupationGroup, IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
+import { getOccupationGroupDocReference, OccupationGroupDocument } from "../_shared/OccupationGroupReference";
 import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
 import {
@@ -367,17 +368,9 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
         if (!group) {
           return { UUID: uuid, modelId: null, reference: null };
         }
-        return {
-          UUID: uuid,
-          modelId: group.modelId.toString(),
-          reference: {
-            id: group._id.toString(),
-            UUID: group.UUID,
-            code: group.code,
-            preferredLabel: group.preferredLabel,
-            objectType: group.groupType,
-          },
-        };
+        // Reuse the shared reference mapper; the reference itself does not carry the modelId, so split it out.
+        const { modelId, ...reference } = getOccupationGroupDocReference(group as OccupationGroupDocument);
+        return { UUID: uuid, modelId: modelId.toString(), reference };
       });
     } catch (e: unknown) {
       const err = new Error(

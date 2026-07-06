@@ -27,6 +27,7 @@ import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctio
 import { populateEmptySkillToSkillRelation } from "esco/skillToSkillRelation/populateFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationReference } from "../_shared/occupationReference.types";
+import { getOccupationDocReference, OccupationDocument } from "../_shared/occupation.reference";
 
 /**
  * A single UUID from an entity's UUIDHistory resolved to the entity's reference (as it was in that model) and
@@ -365,7 +366,16 @@ export class OccupationRepository implements IOccupationRepository {
       // operator object this is not rewritten by the connection's sanitizeFilter=true.
       const occupations = await this.Model.find(
         { UUID: uuids },
-        { UUID: 1, _id: 1, modelId: 1, preferredLabel: 1, occupationGroupCode: 1, code: 1, occupationType: 1, isLocalized: 1 }
+        {
+          UUID: 1,
+          _id: 1,
+          modelId: 1,
+          preferredLabel: 1,
+          occupationGroupCode: 1,
+          code: 1,
+          occupationType: 1,
+          isLocalized: 1,
+        }
       ).exec();
       const byUUID = new Map(occupations.map((occupation) => [occupation.UUID, occupation]));
       // Map over the INPUT uuids to preserve order; null-fill for UUIDs that don't resolve to an occupation.
@@ -374,24 +384,15 @@ export class OccupationRepository implements IOccupationRepository {
         if (!occupation) {
           return { UUID: uuid, modelId: null, reference: null };
         }
-        return {
-          UUID: uuid,
-          modelId: occupation.modelId.toString(),
-          reference: {
-            id: occupation._id.toString(),
-            UUID: occupation.UUID,
-            preferredLabel: occupation.preferredLabel,
-            occupationGroupCode: occupation.occupationGroupCode,
-            code: occupation.code,
-            occupationType: occupation.occupationType,
-            isLocalized: occupation.isLocalized,
-          },
-        };
+        // Reuse the shared reference mapper; the reference itself does not carry the modelId, so split it out.
+        const { modelId, ...reference } = getOccupationDocReference(occupation as OccupationDocument);
+        return { UUID: uuid, modelId: modelId.toString(), reference };
       });
     } catch (e: unknown) {
       const err = new Error("OccupationRepository.findHistoryReferencesByUUIDs: findHistoryReferencesByUUIDs failed", {
         cause: e,
       });
+      console.error(err);
       throw err;
     }
   }

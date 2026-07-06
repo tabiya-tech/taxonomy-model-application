@@ -1382,7 +1382,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 "additionalProperties": false,
                 "properties": {
                   "UUID": {
-                    "description": "The UUID of the occupation group in this model.",
+                    "description": "The UUID of the occupation group.",
                     "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
                     "type": "string",
                   },
@@ -1392,7 +1392,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                     "type": "string",
                   },
                   "id": {
-                    "description": "The id of the occupation group in this model.",
+                    "description": "The id of the occupation group.",
                     "pattern": "^[0-9a-f]{24}$",
                     "type": "string",
                   },
@@ -2774,6 +2774,51 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
       "ISCO_GROUP_CODE": "^\\d{1,4}$",
       "LOCAL_GROUP_CODE": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
       "LOCAL_OCCUPATION_CODE": "(^[a-zA-Z\\d]+)(?:_\\d+)+$",
+    },
+  },
+  "Schemas": {
+    "Reference": {
+      "$id": "/components/schemas/OccupationGroupReferenceSchema",
+      "additionalProperties": false,
+      "properties": {
+        "UUID": {
+          "description": "The UUID of the occupation group.",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string",
+        },
+        "code": {
+          "description": "The code of the occupation group.",
+          "maxLength": 256,
+          "type": "string",
+        },
+        "id": {
+          "description": "The id of the occupation group.",
+          "pattern": "^[0-9a-f]{24}$",
+          "type": "string",
+        },
+        "objectType": {
+          "description": "The type of the occupation group.",
+          "enum": [
+            "iscogroup",
+            "localgroup",
+          ],
+          "type": "string",
+        },
+        "preferredLabel": {
+          "description": "The preferred label of the occupation group.",
+          "maxLength": 256,
+          "pattern": "\\S",
+          "type": "string",
+        },
+      },
+      "required": [
+        "id",
+        "UUID",
+        "code",
+        "preferredLabel",
+        "objectType",
+      ],
+      "type": "object",
     },
   },
   "Types": {},

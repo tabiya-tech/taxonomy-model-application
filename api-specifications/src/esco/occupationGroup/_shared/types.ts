@@ -1,14 +1,19 @@
 import OccupationGroupEnums from "./enums";
 import ModelInfoTypes from "../../../modelInfo/types";
 
-// A single entry of the occupation group's model history: the group's reference fields as it appeared in a
-// model, plus a stripped-down reference to that model.
-export interface IOccupationGroupHistoryItem {
+// A reference to an occupation group — the lightweight shape used when a group is shown from the outside
+// (e.g. as it appeared in a model in its history). Mirrors the OccupationGroupReferenceSchema.
+export interface _IOccupationGroupReference {
   id: string;
   UUID: string;
   code: string;
   preferredLabel: string;
   objectType: OccupationGroupEnums.ObjectTypes;
+}
+
+// A single entry of the occupation group's model history: the group's reference fields as it appeared in a
+// model, plus a stripped-down reference to that model.
+export interface IOccupationGroupHistoryItem extends _IOccupationGroupReference {
   model: ModelInfoTypes.Response.IModelInfoReference;
 }
 
@@ -112,6 +117,7 @@ namespace OccupationGroupTypes {
   const _ = 0;
   export namespace Response {
     export type IOccupationGroup = IOccupationGroupResponse;
+    export type IOccupationGroupReference = _IOccupationGroupReference;
   }
 
   export namespace Detail.history.GET {

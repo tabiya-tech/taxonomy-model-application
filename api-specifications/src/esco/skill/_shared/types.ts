@@ -5,14 +5,19 @@ import { ISkillChildrenResponse, ISkillChildrenRequestQuery } from "../[id]/chil
 import { ISkillOccupationsResponse, ISkillOccupationsRequestQuery } from "../[id]/occupations/GET/types";
 import { ISkillRelatedResponse, ISkillRelatedRequestQuery } from "../[id]/relatedSkills/GET/types";
 
-// A single entry of the skill's model history: the skill's reference fields as it appeared in a model, plus a
-// stripped-down reference to that model.
-interface ISkillHistoryItem {
+// A reference to a skill — the lightweight shape used when a skill is shown from the outside (e.g. as it
+// appeared in a model in its history). Mirrors the SkillReferenceSchema.
+interface _ISkillReference {
   id: string;
   UUID: string;
   preferredLabel: string;
   isLocalized: boolean;
   objectType: SkillEnums.ObjectTypes.Skill;
+}
+
+// A single entry of the skill's model history: the skill's reference fields as it appeared in a model, plus a
+// stripped-down reference to that model.
+interface ISkillHistoryItem extends _ISkillReference {
   model: ModelInfoTypes.Response.IModelInfoReference;
 }
 
@@ -121,6 +126,7 @@ namespace SkillTypes {
 
   export namespace Response {
     export type ISkill = ISkillResponse;
+    export type ISkillReference = _ISkillReference;
   }
 
   export namespace POSTSkill {

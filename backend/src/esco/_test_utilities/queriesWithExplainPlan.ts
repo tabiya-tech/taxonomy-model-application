@@ -124,25 +124,38 @@ export type ExplainedPlanPartial = {
 /**
  * This function returns an object that can be used in an expect() call to check that the query plan is as expected.
  * @param plan
+ * @param plan.withProjection When the query specifies a projection, mongo wraps the FETCH stage in a
+ *   PROJECTION_SIMPLE (or PROJECTION_COVERED) stage. Set this to true so the assertion walks through that
+ *   wrapper to reach the FETCH -> IXSCAN stages.
  */
 export function getExpectedPlan(plan: {
   collectionName: string;
   filter: mongoose.FilterQuery<unknown>;
   usedIndex: mongoose.IndexDefinition;
+  withProjection?: boolean;
 }) {
+  const fetchStage = {
+    stage: "FETCH",
+    inputStage: expect.objectContaining({
+      stage: "IXSCAN",
+      keyPattern: plan.usedIndex,
+    }),
+  };
+  // A projection adds a PROJECTION_* stage on top of the FETCH stage; without one the FETCH stage is the winner.
+  const winningPlan = plan.withProjection
+    ? expect.objectContaining({
+        stage: expect.stringMatching(/^PROJECTION_/),
+        inputStage: expect.objectContaining(fetchStage),
+      })
+    : fetchStage;
+
   return expect.objectContaining({
     command: expect.objectContaining({
       find: plan.collectionName,
       filter: plan.filter,
     }),
     queryPlanner: expect.objectContaining({
-      winningPlan: {
-        stage: "FETCH",
-        inputStage: expect.objectContaining({
-          stage: "IXSCAN",
-          keyPattern: plan.usedIndex,
-        }),
-      },
+      winningPlan,
     }),
   });
 }

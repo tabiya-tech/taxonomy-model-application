@@ -35,7 +35,11 @@ import {
 } from "_test_utilities/testDBConnectionFaillure";
 import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
 import { Readable } from "node:stream";
-import { getExpectedPlan, setUpPopulateWithExplain } from "esco/_test_utilities/queriesWithExplainPlan";
+import {
+  getExpectedPlan,
+  setUpFindWithExplain,
+  setUpPopulateWithExplain,
+} from "esco/_test_utilities/queriesWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENTS } from "esco/skillHierarchy/skillHierarchyModel";
 import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
 
@@ -99,6 +103,8 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     // reset the mock implementation of Model.populate and Query.exec that might have been set up by setUpPopulateWithExplain()
     jest.spyOn(mongoose.Model, "populate").mockRestore();
     jest.spyOn(mongoose.Query.prototype, "exec").mockRestore();
+    // reset the mock implementation of Model.find that might have been set up by setUpFindWithExplain()
+    jest.spyOn(mongoose.Model, "find").mockRestore();
     //---
   });
 
@@ -1602,6 +1608,30 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
       // THEN expect an empty array
       expect(actual).toEqual([]);
+    });
+
+    test("should use the UUID index and not do a collection scan", async () => {
+      // GIVEN two skill groups exist in the database
+      const givenGroup1 = await repository.create(getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1"));
+      const givenGroup2 = await repository.create(getSimpleNewSkillGroupSpec(getMockStringId(2), "group_2"));
+
+      // WHEN resolving their UUIDs
+      // setup find with explain to assert the query plan uses the UUID index and is not doing a collection scan
+      const actualPlans = setUpFindWithExplain<ISkillGroupDoc>(repository.Model);
+      await repository.findHistoryReferencesByUUIDs([givenGroup1.UUID, givenGroup2.UUID]);
+
+      // THEN expect the query plan to use the UUID index
+      await expect(actualPlans).resolves.toHaveLength(1);
+      await expect(actualPlans).resolves.toEqual(
+        expect.arrayContaining([
+          getExpectedPlan({
+            collectionName: repository.Model.collection.name,
+            filter: { UUID: { $in: [givenGroup1.UUID, givenGroup2.UUID] } },
+            usedIndex: { UUID: 1 },
+            withProjection: true,
+          }),
+        ])
+      );
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {

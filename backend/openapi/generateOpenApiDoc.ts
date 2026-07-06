@@ -41,6 +41,10 @@ delete ModelInfo.Schemas.POST.Response.Payload.$id;
 delete ModelInfo.Schemas.POST.Request.Payload.$id;
 delete ModelInfo.Schemas.GET.Response.Payload.$id;
 delete ModelInfo.Schemas.Reference.$id;
+delete Occupation.Schemas.Reference.$id;
+delete OccupationGroup.Schemas.Reference.$id;
+delete Skill.Schemas.Reference.$id;
+delete SkillGroup.Schemas.Reference.$id;
 delete Locale.Schemas.Payload.$id;
 delete Presigned.Schemas.GET.Response.Payload.$id;
 delete Import.Schemas.POST.Request.Payload.$id;
@@ -409,6 +413,10 @@ function getOpenAPISpecification(
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
           ModelInfoResponseSchemaGET: ModelInfo.Schemas.GET.Response.Payload,
           ModelInfoReferenceSchema: ModelInfo.Schemas.Reference,
+          OccupationReferenceSchema: Occupation.Schemas.Reference,
+          OccupationGroupReferenceSchema: OccupationGroup.Schemas.Reference,
+          SkillReferenceSchema: Skill.Schemas.Reference,
+          SkillGroupReferenceSchema: SkillGroup.Schemas.Reference,
           LocaleSchema: Locale.Schemas.Payload,
           ImportSchema: Import.Schemas.POST.Request.Payload,
           ExportSchema: Export.Schemas.POST.Request.Payload,

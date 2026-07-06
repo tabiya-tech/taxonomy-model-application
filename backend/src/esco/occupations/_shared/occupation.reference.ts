@@ -1,8 +1,4 @@
-import {
-  IBaseOccupationDoc,
-  IOccupationReference,
-  IOccupationReferenceDoc,
-} from "../_shared/occupationReference.types";
+import { IBaseOccupationDoc, IOccupationReference, IOccupationReferenceDoc } from "./occupationReference.types";
 import mongoose from "mongoose";
 import {
   OccupationToSkillReferenceWithRelationType,

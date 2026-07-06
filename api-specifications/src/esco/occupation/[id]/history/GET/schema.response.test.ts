@@ -9,10 +9,7 @@ import ModelInfoAPISpecs from "modelInfo";
 import { getTestString } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
-import {
-  getTestESCOOccupationCode,
-  getTestISCOGroupCode,
-} from "../../../../_test_utilities/testUtils";
+import { getTestESCOOccupationCode, getTestISCOGroupCode } from "../../../../_test_utilities/testUtils";
 
 // Each history item is the occupation's reference fields (as it appeared in a model) plus a nested stripped
 // `model` (a ModelInfoReference). The per-field validation of the model reference is covered centrally in

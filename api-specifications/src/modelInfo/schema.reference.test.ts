@@ -4,7 +4,11 @@ import {
   testValidSchema,
   testUUIDField,
 } from "_test_utilities/stdSchemaTests";
-import { getStdObjectIdTestCases, getStdNonEmptyStringTestCases, getStdStringTestCases } from "_test_utilities/stdSchemaTestCases";
+import {
+  getStdObjectIdTestCases,
+  getStdNonEmptyStringTestCases,
+  getStdStringTestCases,
+} from "_test_utilities/stdSchemaTestCases";
 import { assertCaseForProperty, CaseType } from "_test_utilities/assertCaseForProperty";
 import ModelInfoAPISpecs from "./index";
 import ModelInfoConstants from "./constants";
@@ -27,7 +31,11 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.Reference schema", 
   };
 
   // WHEN the object is a valid reference
-  testSchemaWithValidObject("ModelInfoAPISpecs.Schemas.Reference", ModelInfoAPISpecs.Schemas.Reference, givenValidReference);
+  testSchemaWithValidObject(
+    "ModelInfoAPISpecs.Schemas.Reference",
+    ModelInfoAPISpecs.Schemas.Reference,
+    givenValidReference
+  );
 
   // AND a reference where all the nullable fields are null (only UUID is required non-null)
   testSchemaWithValidObject("ModelInfoAPISpecs.Schemas.Reference (nulls)", ModelInfoAPISpecs.Schemas.Reference, {
@@ -95,7 +103,13 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.Reference schema", 
       test.each([...testCases, [CaseType.Success, "null", null, undefined]])(
         "(%s) Validate 'localeShortCode' when it is %s",
         (caseType, _description, givenValue, failureMessages) => {
-          assertCaseForProperty("/localeShortCode", { localeShortCode: givenValue }, givenSchema, caseType, failureMessages);
+          assertCaseForProperty(
+            "/localeShortCode",
+            { localeShortCode: givenValue },
+            givenSchema,
+            caseType,
+            failureMessages
+          );
         }
       );
     });
