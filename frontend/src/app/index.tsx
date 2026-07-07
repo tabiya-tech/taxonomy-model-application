@@ -4,6 +4,7 @@ import routerConfig from "./routerConfig";
 import { AppLayout } from "./components";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineContext } from "./providers";
+import { routerPaths } from "./routerPaths";
 
 const uniqueId = "8490f1cc-0786-476f-821e-34b6b712d63f";
 
@@ -51,13 +52,16 @@ export const TaxonomyModelApp = () => {
 
   return (
     <HashRouter>
-      <AppLayout>
-        <Routes>
-          {routerConfig.map((route) => (
-            <Route key={route.path} path={route.path} element={route.element} errorElement={route.errorElement} />
-          ))}
-        </Routes>
-      </AppLayout>
+      <Routes>
+        {routerConfig.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={route.path === routerPaths.ROOT ? route.element : <AppLayout>{route.element}</AppLayout>}
+            errorElement={route.errorElement}
+          />
+        ))}
+      </Routes>
     </HashRouter>
   );
 };
