@@ -7,6 +7,19 @@ import { DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID } from "src/modeldirectory
 import { DATA_TEST_ID as NOT_FOUND_DATA_TEST_ID } from "src/errorPage/NotFound";
 import { DATA_TEST_ID as MODEL_SELECTION_PAGE_DATA_TEST_ID } from "src/explorer/ModelSelectionPage";
 import { DATA_TEST_ID as EXPLORER_PAGE_DATA_TEST_ID } from "src/explorer/ExplorerPage";
+import { DATA_TEST_ID as LANDING_PAGE_DATA_TEST_ID } from "src/landingPage/LandingPage";
+
+// Mock the landing page as it has dependencies to the auth context, and we do not want to test that here
+jest.mock("src/landingPage/LandingPage", () => {
+  const actual = jest.requireActual("src/landingPage/LandingPage");
+  return {
+    ...actual,
+    __esModule: true,
+    default: () => {
+      return <div data-testid={actual.DATA_TEST_ID.LANDING_PAGE_ROOT}>Landing Page</div>;
+    },
+  };
+});
 
 // Mock the Info component as it has dependencies to the backend, and we do not want to test that here
 jest.mock("src/info/Info", () => {
@@ -54,21 +67,12 @@ function renderWithRouter(route: string) {
 }
 
 describe("Tests for router config", () => {
-  it("should render the full application given root", async () => {
+  it("should render the landing page given root", async () => {
     // WHEN the ROOT is chosen
     renderWithRouter(routerPaths.ROOT);
 
-    // THEN expect model directory to be the landing page
-    expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toBeInTheDocument();
-  });
-
-  it("should redirect from ROOT to MODEL_DIRECTORY", async () => {
-    // WHEN the ROOT is chosen
-    const { router } = renderWithRouter(routerPaths.ROOT);
-
-    // THEN expect the path to be changed to the model directory
-    const expectedPathname = router.state.location.pathname;
-    expect(expectedPathname).toBe(routerPaths.MODEL_DIRECTORY);
+    // THEN expect the landing page to be shown
+    expect(screen.getByTestId(LANDING_PAGE_DATA_TEST_ID.LANDING_PAGE_ROOT)).toBeInTheDocument();
   });
 
   it("should render the settings", async () => {

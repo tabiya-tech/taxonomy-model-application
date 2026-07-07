@@ -5,6 +5,8 @@ import { render, screen } from "src/_test_utilities/test-utils";
 import TaxonomyModelApp, { SNACKBAR_AUTO_HIDE_DURATION, SNACKBAR_KEYS } from "./index";
 import { Route } from "react-router-dom";
 import routerConfig from "./routerConfig";
+import { routerPaths } from "./routerPaths";
+import { AppLayout } from "./components";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 import { unmockBrowserIsOnLine, mockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 
@@ -55,17 +57,28 @@ describe("main taxonomy app test", () => {
     const router = screen.getByTestId("hash-router-id");
     expect(router).toBeInTheDocument();
 
-    // AND expect the AppLayout to be in the document
-    const app = screen.getByTestId("app-layout-id");
-    expect(app).toBeInTheDocument();
-
     // AND for each path to have a route configured
     const allRoutes = screen.queryAllByTestId("route-id");
     expect(allRoutes.length).toBe(routerConfig.length);
 
-    // AND The routes to be configured with the router config
-    routerConfig.forEach((cfg) => {
-      expect(Route).toHaveBeenCalledWith(cfg, {});
+    const calls = (Route as jest.Mock).mock.calls.map(([props]) => props);
+    const findCall = (path: string) => calls.find((c) => c.path === path);
+
+    // AND the root route to be configured with its own element, without the AppLayout shell
+    const rootConfig = routerConfig.find((cfg) => cfg.path === routerPaths.ROOT)!;
+    const rootCall = findCall(rootConfig.path);
+    expect(rootCall).toBeDefined();
+    expect(rootCall.errorElement).toBe(rootConfig.errorElement);
+    expect(rootCall.element).toBe(rootConfig.element);
+
+    // AND every other route to be configured with its element wrapped in the AppLayout shell
+    const shellConfigs = routerConfig.filter((cfg) => cfg.path !== routerPaths.ROOT);
+    shellConfigs.forEach((cfg) => {
+      const call = findCall(cfg.path);
+      expect(call).toBeDefined();
+      expect(call.errorElement).toBe(cfg.errorElement);
+      expect(call.element.type).toBe(AppLayout);
+      expect(call.element.props.children).toBe(cfg.element);
     });
   });
 

@@ -87,6 +87,10 @@ describe("AppHeader", () => {
       expect(appHeaderAuthButton).toBeInTheDocument();
       const appHeaderUserIcon = within(appHeaderAuthButton).getByTestId(DATA_TEST_ID.APP_HEADER_ICON_USER);
       expect(appHeaderUserIcon).toBeInTheDocument();
+      // AND the Documentation link to be shown
+      expect(screen.getByTestId(DATA_TEST_ID.APP_HEADER_DOCUMENTATION_LINK)).toBeInTheDocument();
+      // AND the API docs link to be shown
+      expect(screen.getByTestId(DATA_TEST_ID.APP_HEADER_API_DOCS_LINK)).toBeInTheDocument();
       // AND the contextMenu to be called with the correct initial props
       const expectedContextMenuProps = {
         anchorEl: null,
@@ -124,6 +128,10 @@ describe("AppHeader", () => {
       expect(appHeaderAuthButton).toBeInTheDocument();
       const appHeaderUserIcon = within(appHeaderAuthButton).getByTestId(DATA_TEST_ID.APP_HEADER_ICON_USER);
       expect(appHeaderUserIcon).toBeInTheDocument();
+      // AND the Documentation link to be shown
+      expect(screen.getByTestId(DATA_TEST_ID.APP_HEADER_DOCUMENTATION_LINK)).toBeInTheDocument();
+      // AND the API docs link to be shown
+      expect(screen.getByTestId(DATA_TEST_ID.APP_HEADER_API_DOCS_LINK)).toBeInTheDocument();
       // AND the contextMenu to be called with the correct initial props
       const expectedContextMenuProps = {
         anchorEl: null,

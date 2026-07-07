@@ -1,0 +1,202 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing LandingPage component should render the landing page successfully 1`] = `
+<div
+  class="MuiBox-root css-rn3eyv"
+  data-testid="landing-page-root-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+>
+  <div
+    class="MuiBox-root css-11yieka"
+    data-testid="landing-page-nav-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+  >
+    <div
+      data-testid="mock-app-header"
+    />
+  </div>
+  <div
+    class="MuiBox-root css-1vr73ym"
+  >
+    <div
+      class="MuiBox-root css-1nn57ec"
+      data-testid="landing-page-hero-header-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-overline css-17o62j5-MuiTypography-root"
+        data-testid="landing-page-eyebrow-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+      >
+        Inclusive Livelihoods Taxonomy
+      </span>
+      <h1
+        class="MuiTypography-root MuiTypography-h1 css-1t12whv-MuiTypography-root"
+        data-testid="landing-page-heading-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+      >
+        Every form of work builds skills. We make them visible.
+      </h1>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-19n14lw-MuiTypography-root"
+        data-testid="landing-page-description-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+      >
+        An open taxonomy of occupations and skills covering the
+         
+        <span
+          class="MuiBox-root css-zzefjg"
+        >
+          seen economy
+        </span>
+         
+        of formal work, based on ESCO, and the
+         
+        <span
+          class="MuiBox-root css-zzefjg"
+        >
+          unseen economy
+        </span>
+         
+        of care and informal work, based on ICATUS. Localized for the labour markets where our partners operate.
+      </p>
+      <p
+        class="MuiTypography-root MuiTypography-body2 css-nzlw26-MuiTypography-root"
+        data-testid="landing-page-audience-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+      >
+        For partners, researchers, employers and governments.
+      </p>
+      <a
+        class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineAlways css-1qnxsp0-MuiTypography-root-MuiLink-root"
+        data-testid="landing-page-conceived-link-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+        href="https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy"
+      >
+        Read what the taxonomy is and how it was conceived →
+      </a>
+      <div
+        class="MuiBox-root css-188y3ek"
+      >
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-fwypri-MuiButtonBase-root-MuiButton-root"
+          data-testid="landing-page-start-exploring-button-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+          style="white-space: nowrap;"
+          tabindex="0"
+          type="button"
+        >
+          Start exploring
+          <span
+            class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+              data-testid="ArrowForwardIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="m12 4-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-140m69p-MuiButtonBase-root-MuiButton-root"
+          data-testid="landing-page-browse-taxonomies-button-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+          style="white-space: nowrap;"
+          tabindex="0"
+          type="button"
+        >
+          Browse all taxonomies
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+      </div>
+      <span
+        class="MuiTypography-root MuiTypography-caption css-pouf3q-MuiTypography-root"
+        data-testid="landing-page-cta-caption-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+      >
+        Start exploring opens the latest Base taxonomy · browse for country versions, CSV download and API access.
+      </span>
+    </div>
+    <div
+      class="MuiBox-root css-3kfceq"
+    >
+      <div
+        class="MuiBox-root css-65ep7t"
+        data-testid="landing-page-stats-section-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+      >
+        <div
+          class="MuiBox-root css-1vpv8gb"
+          data-testid="landing-page-stat-occupations-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+        >
+          <h3
+            class="MuiTypography-root MuiTypography-h3 css-80gmt7-MuiTypography-root"
+          >
+            3,000+
+          </h3>
+          <p
+            class="MuiTypography-root MuiTypography-body2 css-nzlw26-MuiTypography-root"
+          >
+            occupations across the seen and unseen economy
+          </p>
+        </div>
+        <div
+          class="MuiBox-root css-1vpv8gb"
+          data-testid="landing-page-stat-skills-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+        >
+          <h3
+            class="MuiTypography-root MuiTypography-h3 css-80gmt7-MuiTypography-root"
+          >
+            13,000+
+          </h3>
+          <p
+            class="MuiTypography-root MuiTypography-body2 css-nzlw26-MuiTypography-root"
+          >
+            skills and competencies, cross-linked to occupations
+          </p>
+        </div>
+        <div
+          class="MuiBox-root css-1vpv8gb"
+          data-testid="landing-page-stat-taxonomies-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+        >
+          <h3
+            class="MuiTypography-root MuiTypography-h3 css-80gmt7-MuiTypography-root"
+          >
+            4
+          </h3>
+          <p
+            class="MuiTypography-root MuiTypography-body2 css-nzlw26-MuiTypography-root"
+          >
+            taxonomies: Base (EN·ES), South Africa, Kenya, Zambia
+          </p>
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-1q06otc"
+        data-testid="landing-page-api-banner-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+      >
+        <div
+          class="MuiBox-root css-0"
+        >
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+          >
+            Building on the taxonomy?
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body2 css-nzlw26-MuiTypography-root"
+          >
+            Every taxonomy offers Explore, API integration and CSV download from the directory.
+          </p>
+        </div>
+        <a
+          class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineAlways css-6byi7c-MuiTypography-root-MuiLink-root"
+          data-testid="landing-page-api-banner-link-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+          href="#"
+        >
+          Read the API docs →
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+`;

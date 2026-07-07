@@ -3,14 +3,14 @@ import ModelDirectory from "src/modeldirectory/ModelDirectory";
 import NotFound from "src/errorPage/NotFound";
 import ModelSelectionPage from "src/explorer/ModelSelectionPage";
 import ExplorerPage from "src/explorer/ExplorerPage";
-import { Navigate } from "react-router-dom";
+import LandingPage from "src/landingPage/LandingPage";
 
 import { routerPaths } from "src/app/routerPaths";
 
 export const routerConfig = [
   {
     path: routerPaths.ROOT,
-    element: <Navigate to={routerPaths.MODEL_DIRECTORY} />,
+    element: <LandingPage />,
     errorElement: <div>Sorry, something went wrong</div>,
   },
   {
