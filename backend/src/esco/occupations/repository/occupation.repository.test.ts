@@ -2436,7 +2436,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         populate: jest.fn().mockResolvedValue(undefined),
         toObject: jest.fn(),
       };
-      jest.spyOn(repository.Model, "findById").mockResolvedValueOnce(mockDoc as any);
+      jest.spyOn(repository.Model, "findById").mockResolvedValueOnce(mockDoc as unknown as IOccupationDoc);
 
       // WHEN updating
       // THEN expect an error
@@ -2501,7 +2501,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         populate: jest.fn().mockResolvedValue(undefined),
         toObject: jest.fn(),
       };
-      jest.spyOn(repository.Model, "findById").mockResolvedValueOnce(mockDoc as any);
+      jest.spyOn(repository.Model, "findById").mockResolvedValueOnce(mockDoc as unknown as IOccupationDoc);
 
       // WHEN patching
       // THEN expect an error

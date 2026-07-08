@@ -449,5 +449,56 @@ describe("Test for occupation PUT handler", () => {
         OccupationAPISpecs.Occupation.PUT.Errors.Status500.ErrorCodes.DB_FAILED_TO_UPDATE_OCCUPATION
       );
     });
+
+    test("should handle LocalOccupation type and map to ObjectTypes.LocalOccupation", async () => {
+      // GIVEN a request with LocalOccupation type
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenPayload = givenValidPayload();
+      givenPayload.modelId = givenModelId;
+      givenPayload.occupationType = OccupationAPISpecs.Enums.OccupationType.LocalOccupation;
+      givenPayload.code = getMockRandomOccupationCode(true);
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.PUT,
+        body: JSON.stringify(givenPayload),
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+      } as unknown as APIGatewayProxyEvent;
+
+      const givenOccupation: IOccupation = getIOccupationMockData();
+      const givenOccupationServiceMock = {
+        update: jest.fn().mockResolvedValue(givenOccupation),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      // WHEN the handler is invoked
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect OK
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    });
+
+    test("should respond with BAD_REQUEST when JSON parse throws a non-Error", async () => {
+      // GIVEN a body that will cause JSON.parse to throw something other than an Error
+      const givenModelId = getMockStringId(1);
+      const originalJSONParse = JSON.parse;
+      JSON.parse = jest.fn().mockImplementation(() => {
+        throw "string error message";
+      });
+
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.PUT,
+        body: "something",
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations/${getMockStringId(2)}`,
+      } as unknown as APIGatewayProxyEvent;
+
+      // WHEN the handler is invoked
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect BAD_REQUEST
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      JSON.parse = originalJSONParse;
+    });
   });
 });
