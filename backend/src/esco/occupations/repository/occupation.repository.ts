@@ -165,21 +165,23 @@ export interface IOccupationRepository {
    * Fully replaces the mutable fields of an Occupation (PUT semantics).
    *
    * @param {string} id - The ID of the Occupation to update.
+   * @param {string} modelId - The model ID the Occupation belongs to.
    * @param {IUpdateOccupationSpec} spec - The full set of new field values.
    * @return {Promise<IOccupation | null>} - The updated occupation, or null if not found.
    * Rejects with an error if the operation fails.
    */
-  update(id: string, spec: IUpdateOccupationSpec): Promise<IOccupation | null>;
+  update(id: string, modelId: string, spec: IUpdateOccupationSpec): Promise<IOccupation | null>;
 
   /**
    * Partially updates an Occupation (PATCH semantics).
    *
    * @param {string} id - The ID of the Occupation to update.
+   * @param {string} modelId - The model ID the Occupation belongs to.
    * @param {IPartialUpdateOccupationSpec} spec - Only the fields to update.
    * @return {Promise<IOccupation | null>} - The updated occupation, or null if not found.
    * Rejects with an error if the operation fails.
    */
-  patch(id: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null>;
+  patch(id: string, modelId: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null>;
 }
 
 export class OccupationRepository implements IOccupationRepository {
@@ -655,10 +657,10 @@ export class OccupationRepository implements IOccupationRepository {
     }
   }
 
-  async update(id: string, spec: IUpdateOccupationSpec): Promise<IOccupation | null> {
+  async update(id: string, modelId: string, spec: IUpdateOccupationSpec): Promise<IOccupation | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
-      const doc = await this.Model.findById(id).exec();
+      const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
       doc.set(spec);
       await doc.save();
@@ -674,10 +676,10 @@ export class OccupationRepository implements IOccupationRepository {
     }
   }
 
-  async patch(id: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null> {
+  async patch(id: string, modelId: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
-      const doc = await this.Model.findById(id).exec();
+      const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
       doc.set(spec);
       await doc.save();

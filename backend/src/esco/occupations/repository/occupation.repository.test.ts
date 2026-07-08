@@ -2360,7 +2360,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         occupationGroupCode: newSpec.occupationGroupCode,
         UUIDHistory: newSpec.UUIDHistory,
       };
-      const actual = await repository.update(occupation.id, updateSpec);
+      const actual = await repository.update(occupation.id, modelId, updateSpec);
 
       // THEN expect it to be updated
       expect(actual).not.toBeNull();
@@ -2397,7 +2397,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       };
 
       // WHEN updating
-      const actual = await repository.update(nonExistentId, updateSpec);
+      const actual = await repository.update(nonExistentId, getMockStringId(1), updateSpec);
 
       // THEN expect null
       expect(actual).toBeNull();
@@ -2405,7 +2405,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
     test("should return null if invalid ID is provided", async () => {
       // WHEN updating with invalid ID
-      const actual = await repository.update("invalid-id", {} as IUpdateOccupationSpec);
+      const actual = await repository.update("invalid-id", getMockStringId(1), {} as IUpdateOccupationSpec);
       // THEN expect null
       expect(actual).toBeNull();
     });
@@ -2436,11 +2436,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         populate: jest.fn().mockResolvedValue(undefined),
         toObject: jest.fn(),
       };
-      jest.spyOn(repository.Model, "findById").mockResolvedValueOnce(mockDoc as unknown as IOccupationDoc);
+      jest.spyOn(repository.Model, "findOne").mockResolvedValueOnce(mockDoc as unknown as IOccupationDoc);
 
       // WHEN updating
       // THEN expect an error
-      await expect(repository.update(new mongoose.Types.ObjectId().toHexString(), updateSpec)).rejects.toThrow(
+      await expect(repository.update(new mongoose.Types.ObjectId().toHexString(), modelId, updateSpec)).rejects.toThrow(
         "OccupationRepository.update: update failed."
       );
     });
@@ -2458,7 +2458,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         preferredLabel: "patched label",
         description: "patched desc",
       };
-      const actual = await repository.patch(occupation.id, patchSpec);
+      const actual = await repository.patch(occupation.id, modelId, patchSpec);
 
       // THEN expect it to be patched
       expect(actual).not.toBeNull();
@@ -2475,7 +2475,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       };
 
       // WHEN patching
-      const actual = await repository.patch(nonExistentId, patchSpec);
+      const actual = await repository.patch(nonExistentId, getMockStringId(1), patchSpec);
 
       // THEN expect null
       expect(actual).toBeNull();
@@ -2483,7 +2483,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
     test("should return null if invalid ID is provided", async () => {
       // WHEN patching with invalid ID
-      const actual = await repository.patch("invalid-id", {} as IPartialUpdateOccupationSpec);
+      const actual = await repository.patch("invalid-id", getMockStringId(1), {} as IPartialUpdateOccupationSpec);
       // THEN expect null
       expect(actual).toBeNull();
     });
@@ -2501,13 +2501,13 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         populate: jest.fn().mockResolvedValue(undefined),
         toObject: jest.fn(),
       };
-      jest.spyOn(repository.Model, "findById").mockResolvedValueOnce(mockDoc as unknown as IOccupationDoc);
+      jest.spyOn(repository.Model, "findOne").mockResolvedValueOnce(mockDoc as unknown as IOccupationDoc);
 
       // WHEN patching
       // THEN expect an error
-      await expect(repository.patch(new mongoose.Types.ObjectId().toHexString(), patchSpec)).rejects.toThrow(
-        "OccupationRepository.patch: patch failed."
-      );
+      await expect(
+        repository.patch(new mongoose.Types.ObjectId().toHexString(), getMockStringId(1), patchSpec)
+      ).rejects.toThrow("OccupationRepository.patch: patch failed.");
     });
   });
 });
