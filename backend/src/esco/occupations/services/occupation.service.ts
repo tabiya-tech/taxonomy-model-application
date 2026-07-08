@@ -5,7 +5,12 @@ import {
   ModelForOccupationValidationErrorCode,
   OccupationModelValidationError,
 } from "./occupation.service.types";
-import { INewOccupationSpecWithoutImportId, IOccupation } from "../_shared/occupation.types";
+import {
+  INewOccupationSpecWithoutImportId,
+  IOccupation,
+  IPartialUpdateOccupationSpec,
+  IUpdateOccupationSpec,
+} from "../_shared/occupation.types";
 import { IOccupationRepository } from "../repository/occupation.repository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { toModelReference } from "modelInfo/modelInfoReference";
@@ -138,33 +143,25 @@ export class OccupationService implements IOccupationService {
     };
   }
 
+<<<<<<< HEAD
   async getHistory(occupationId: string): Promise<IOccupationHistoryEntry[] | null> {
     const occupation = await this.occupationRepository.findById(occupationId);
     if (!occupation) {
       return null;
     }
 
-    // The occupation's UUIDHistory holds the occupation's OWN past UUIDs (one per model it existed in),
-    // newest first. To describe the occupation as it appeared in each model we resolve:
-    // UUID -> occupation entity reference + its modelId -> a stripped-down reference to that model.
     const uuidHistory = occupation.UUIDHistory ?? [];
-    if (uuidHistory.length === 0) {
-      return [];
-    }
+    if (uuidHistory.length === 0) return [];
 
-    // Resolve each historical UUID to the occupation's reference (as it was in that model) + its modelId.
     const historyReferences = await this.occupationRepository.findHistoryReferencesByUUIDs(uuidHistory);
     const referenceByUUID = new Map(historyReferences.map((entry) => [entry.UUID, entry]));
 
-    // Fetch the models for the resolved modelIds (single query) and map them to lightweight references.
     const modelIds = Array.from(
       new Set(historyReferences.map((entry) => entry.modelId).filter((id): id is string => id !== null))
     );
     const resolvedModels = modelIds.length > 0 ? await this.modelRepository.getModelsByIds(modelIds) : [];
     const modelById = new Map(resolvedModels.map((model) => [model.id, model]));
 
-    // Walk the occupation's UUIDHistory (newest first), skipping UUIDs whose occupation or model no longer exists.
-    // A given model appears at most once even if multiple history UUIDs map to it.
     const history: IOccupationHistoryEntry[] = [];
     const seenModelIds = new Set<string>();
     for (const uuid of uuidHistory) {
@@ -173,13 +170,27 @@ export class OccupationService implements IOccupationService {
         continue;
       }
       const model = modelById.get(entry.modelId);
-      if (!model) {
-        continue;
-      }
+      if (!model) continue;
       seenModelIds.add(entry.modelId);
       history.push({ entity: entry.reference, model: toModelReference(model) });
     }
 
     return history;
+  }
+
+  async update(id: string, modelId: string, spec: IUpdateOccupationSpec): Promise<IOccupation | null> {
+    const errorCode = await this.validateModelForOccupation(modelId);
+    if (errorCode != null) {
+      throw new OccupationModelValidationError(errorCode);
+    }
+    return this.occupationRepository.update(id, spec);
+  }
+
+  async patch(id: string, modelId: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null> {
+    const errorCode = await this.validateModelForOccupation(modelId);
+    if (errorCode != null) {
+      throw new OccupationModelValidationError(errorCode);
+    }
+    return this.occupationRepository.patch(id, spec);
   }
 }

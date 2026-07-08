@@ -76,3 +76,30 @@ export type INewOccupationSpecWithoutImportId = Omit<INewOccupationSpec, "import
 export interface IOccupationWithoutImportId extends Omit<IOccupation, "importId"> {
   importId: string | null;
 }
+
+/**
+ * Describes the mutable fields for a full occupation replacement (PUT).
+ * Excludes server-managed fields: id, UUID, importId, parent, children, requiresSkills, createdAt, updatedAt.
+ */
+export type IUpdateOccupationSpec = Pick<
+  IOccupation,
+  | "code"
+  | "occupationGroupCode"
+  | "preferredLabel"
+  | "originUri"
+  | "altLabels"
+  | "definition"
+  | "description"
+  | "regulatedProfessionNote"
+  | "scopeNote"
+  | "modelId"
+  | "occupationType"
+  | "UUIDHistory"
+  | "isLocalized"
+>;
+
+/**
+ * Describes the mutable fields for a partial occupation update (PATCH).
+ * All fields are optional.
+ */
+export type IPartialUpdateOccupationSpec = Partial<IUpdateOccupationSpec>;

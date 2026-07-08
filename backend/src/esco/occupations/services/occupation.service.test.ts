@@ -4,16 +4,18 @@ import {
   ModelForOccupationValidationErrorCode,
   OccupationModelValidationError,
 } from "./occupation.service.types";
-import { INewOccupationSpecWithoutImportId, IOccupation } from "../_shared/occupation.types";
-import { IOccupationReference } from "../_shared/occupationReference.types";
+import {
+  INewOccupationSpecWithoutImportId,
+  IOccupation,
+  IPartialUpdateOccupationSpec,
+  IUpdateOccupationSpec,
+} from "../_shared/occupation.types";
 import { IOccupationRepository } from "../repository/occupation.repository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { IModelInfo } from "modelInfo/modelInfo.types";
-import { getIModelInfoMockData } from "modelInfo/testDataHelper";
-import { randomUUID } from "crypto";
 import mongoose from "mongoose";
 
 // Mock the module at the top level
@@ -34,16 +36,15 @@ describe("Test the OccupationService", () => {
       findAll: jest.fn(),
       findPaginated: jest.fn(),
       getOccupationByUUID: jest.fn(),
-      findHistoryReferencesByUUIDs: jest.fn(),
       findParent: jest.fn(),
       findChildren: jest.fn(),
       findSkillsForOccupation: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as unknown as jest.Mocked<IOccupationRepository>;
 
     mockModelRepository = {
       getModelById: jest.fn(),
-      getModelsByIds: jest.fn(),
-      getHistory: jest.fn(),
     } as unknown as jest.Mocked<IModelRepository>;
 
     service = new OccupationService(mockRepository, mockModelRepository);
@@ -653,143 +654,252 @@ describe("Test the OccupationService", () => {
     });
   });
 
-  describe("getHistory", () => {
-    // An occupation's UUIDHistory holds its OWN past UUIDs; the service resolves each to the occupation's
-    // reference (as it was in that model) + its modelId, then fetches that model and strips it to a reference.
-    function givenModelWithId(n: number, modelId: string): IModelInfo {
-      return { ...getIModelInfoMockData(n), id: modelId };
-    }
+  describe("update", () => {
+    const buildSpec = (): IUpdateOccupationSpec => ({
+      modelId: getMockStringId(1),
+      preferredLabel: getRandomString(10),
+      code: getRandomString(5),
+      altLabels: [getRandomString(5)],
+      description: getRandomString(20),
+      definition: getRandomString(20),
+      scopeNote: getRandomString(20),
+      regulatedProfessionNote: getRandomString(20),
+      occupationType: ObjectTypes.ESCOOccupation,
+      isLocalized: false,
+      originUri: getRandomString(10),
+      occupationGroupCode: getRandomString(5),
+      UUIDHistory: [],
+    });
 
-    function givenReference(uuid: string): IOccupationReference {
-      return {
-        id: getMockStringId(Math.floor(Math.random() * 100000)),
-        UUID: uuid,
-        preferredLabel: getRandomString(10),
-        occupationGroupCode: getRandomString(5),
+    test("should call repository.update with the given spec when model validation passes", async () => {
+      // GIVEN a full update spec
+      const givenId = getMockStringId(2);
+      const givenSpec = buildSpec();
+
+      // AND the model is not released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenSpec.modelId,
+        released: false,
+      } as unknown as IModelInfo);
+
+      // AND the repository returns the updated occupation
+      const givenUpdatedOccupation: IOccupation = {
+        ...givenSpec,
+        id: givenId,
+        UUID: getRandomString(10),
+        parent: null,
+        children: [],
+        requiresSkills: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        importId: "",
+      };
+      mockRepository.update = jest.fn().mockResolvedValue(givenUpdatedOccupation);
+
+      // WHEN calling service.update
+      const actual = await service.update(givenId, givenSpec.modelId, givenSpec);
+
+      // THEN expect repository.update to be called with the spec
+      expect(mockRepository.update).toHaveBeenCalledWith(givenId, givenSpec);
+      // AND expect the returned occupation
+      expect(actual).toEqual(givenUpdatedOccupation);
+    });
+
+    test("should return null if repository.update returns null (occupation not found)", async () => {
+      // GIVEN a full update spec
+      const givenId = getMockStringId(2);
+      const givenSpec = buildSpec();
+
+      // AND the model is not released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenSpec.modelId,
+        released: false,
+      } as unknown as IModelInfo);
+
+      // AND the repository returns null (occupation not found)
+      mockRepository.update = jest.fn().mockResolvedValue(null);
+
+      // WHEN calling service.update
+      const actual = await service.update(givenId, givenSpec.modelId, givenSpec);
+
+      // THEN expect null
+      expect(actual).toBeNull();
+    });
+
+    test("should throw OccupationModelValidationError if model is not found", async () => {
+      // GIVEN a full update spec
+      const givenId = getMockStringId(2);
+      const givenSpec = buildSpec();
+
+      // AND the model does not exist
+      mockModelRepository.getModelById.mockResolvedValue(null);
+
+      // WHEN calling service.update
+      // THEN expect it to throw
+      await expect(service.update(givenId, givenSpec.modelId, givenSpec)).rejects.toThrow(
+        OccupationModelValidationError
+      );
+    });
+
+    test("should throw OccupationModelValidationError if model is released", async () => {
+      // GIVEN a full update spec
+      const givenId = getMockStringId(2);
+      const givenSpec = buildSpec();
+
+      // AND the model is released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenSpec.modelId,
+        released: true,
+      } as unknown as IModelInfo);
+
+      // WHEN calling service.update
+      // THEN expect it to throw
+      await expect(service.update(givenId, givenSpec.modelId, givenSpec)).rejects.toThrow(
+        OccupationModelValidationError
+      );
+    });
+
+    test("should rethrow if repository.update throws", async () => {
+      // GIVEN a full update spec
+      const givenId = getMockStringId(2);
+      const givenSpec = buildSpec();
+
+      // AND the model is not released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenSpec.modelId,
+        released: false,
+      } as unknown as IModelInfo);
+
+      // AND the repository throws
+      const givenError = new Error("Repository error");
+      mockRepository.update = jest.fn().mockRejectedValue(givenError);
+
+      // WHEN calling service.update
+      // THEN expect it to rethrow
+      await expect(service.update(givenId, givenSpec.modelId, givenSpec)).rejects.toThrow(givenError);
+    });
+  });
+
+  describe("patch", () => {
+    test("should call repository.patch with the given partial spec when model validation passes", async () => {
+      // GIVEN a partial patch spec (only preferredLabel)
+      const givenId = getMockStringId(2);
+      const givenModelId = getMockStringId(1);
+      const givenSpec: IPartialUpdateOccupationSpec = { preferredLabel: getRandomString(10) };
+
+      // AND the model is not released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenModelId,
+        released: false,
+      } as unknown as IModelInfo);
+
+      // AND the repository returns the updated occupation
+      const givenUpdatedOccupation: IOccupation = {
+        id: givenId,
+        modelId: givenModelId,
+        UUID: getRandomString(10),
+        preferredLabel: givenSpec.preferredLabel!,
         code: getRandomString(5),
+        altLabels: [],
+        description: getRandomString(10),
+        definition: getRandomString(10),
+        scopeNote: getRandomString(10),
+        regulatedProfessionNote: getRandomString(10),
         occupationType: ObjectTypes.ESCOOccupation,
         isLocalized: false,
+        originUri: getRandomString(10),
+        occupationGroupCode: getRandomString(5),
+        UUIDHistory: [],
+        importId: "",
+        parent: null,
+        children: [],
+        requiresSkills: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
-    }
+      mockRepository.patch = jest.fn().mockResolvedValue(givenUpdatedOccupation);
 
-    function expectedModelReference(model: IModelInfo) {
-      return {
-        id: model.id,
-        UUID: model.UUID,
-        name: model.name,
-        version: model.version,
-        localeShortCode: model.locale.shortCode,
-      };
-    }
+      // WHEN calling service.patch
+      const actual = await service.patch(givenId, givenModelId, givenSpec);
 
-    test("should return null when the occupation does not exist", async () => {
-      // GIVEN the occupation does not exist
-      mockRepository.findById.mockResolvedValue(null);
+      // THEN expect repository.patch to be called with the spec
+      expect(mockRepository.patch).toHaveBeenCalledWith(givenId, givenSpec);
+      // AND expect the returned occupation
+      expect(actual).toEqual(givenUpdatedOccupation);
+    });
 
-      // WHEN calling getHistory
-      const actual = await service.getHistory(getMockStringId(1));
+    test("should return null if repository.patch returns null (occupation not found)", async () => {
+      // GIVEN a partial patch spec
+      const givenId = getMockStringId(2);
+      const givenModelId = getMockStringId(1);
+      const givenSpec: IPartialUpdateOccupationSpec = { description: "Updated" };
 
-      // THEN expect null and no further lookups
+      // AND the model is not released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenModelId,
+        released: false,
+      } as unknown as IModelInfo);
+
+      // AND the repository returns null
+      mockRepository.patch = jest.fn().mockResolvedValue(null);
+
+      // WHEN calling service.patch
+      const actual = await service.patch(givenId, givenModelId, givenSpec);
+
+      // THEN expect null
       expect(actual).toBeNull();
-      expect(mockRepository.findHistoryReferencesByUUIDs).not.toHaveBeenCalled();
-      expect(mockModelRepository.getModelsByIds).not.toHaveBeenCalled();
     });
 
-    test("should return an empty array when the occupation has an empty UUIDHistory", async () => {
-      // GIVEN an occupation with an empty UUIDHistory
-      mockRepository.findById.mockResolvedValue({ UUIDHistory: [] } as unknown as IOccupation);
+    test("should throw OccupationModelValidationError if model is released", async () => {
+      // GIVEN a partial patch spec
+      const givenId = getMockStringId(2);
+      const givenModelId = getMockStringId(1);
+      const givenSpec: IPartialUpdateOccupationSpec = { preferredLabel: "Label" };
 
-      // WHEN calling getHistory
-      const actual = await service.getHistory(getMockStringId(1));
+      // AND the model is released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenModelId,
+        released: true,
+      } as unknown as IModelInfo);
 
-      // THEN expect an empty array and no further lookups
-      expect(actual).toEqual([]);
-      expect(mockRepository.findHistoryReferencesByUUIDs).not.toHaveBeenCalled();
-      expect(mockModelRepository.getModelsByIds).not.toHaveBeenCalled();
+      // WHEN calling service.patch
+      // THEN expect it to throw
+      await expect(service.patch(givenId, givenModelId, givenSpec)).rejects.toThrow(OccupationModelValidationError);
     });
 
-    test("should resolve entity ref + stripped model per UUID, preserve UUIDHistory order, and skip unresolved UUIDs", async () => {
-      // GIVEN an occupation whose own UUIDHistory has two resolvable UUIDs with a non-existent one in between
-      const givenUuidA = randomUUID();
-      const givenUuidMissing = randomUUID();
-      const givenUuidB = randomUUID();
-      mockRepository.findById.mockResolvedValue({
-        UUIDHistory: [givenUuidA, givenUuidMissing, givenUuidB],
-      } as unknown as IOccupation);
+    test("should throw OccupationModelValidationError if model is not found", async () => {
+      // GIVEN a partial patch spec
+      const givenId = getMockStringId(2);
+      const givenModelId = getMockStringId(1);
+      const givenSpec: IPartialUpdateOccupationSpec = { preferredLabel: "Label" };
 
-      // AND uuidA/uuidB resolve to occupation references in models A and B (missing UUID resolves to nulls)
-      const givenModelAId = getMockStringId(10);
-      const givenModelBId = getMockStringId(20);
-      const givenRefA = givenReference(givenUuidA);
-      const givenRefB = givenReference(givenUuidB);
-      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([
-        { UUID: givenUuidA, modelId: givenModelAId, reference: givenRefA },
-        { UUID: givenUuidMissing, modelId: null, reference: null },
-        { UUID: givenUuidB, modelId: givenModelBId, reference: givenRefB },
-      ]);
+      // AND the model does not exist
+      mockModelRepository.getModelById.mockResolvedValue(null);
 
-      // AND the models are fetched by id (returned out of order to prove ordering comes from UUIDHistory)
-      const givenModelA = givenModelWithId(1, givenModelAId);
-      const givenModelB = givenModelWithId(2, givenModelBId);
-      mockModelRepository.getModelsByIds.mockResolvedValue([givenModelB, givenModelA]);
-
-      // WHEN calling getHistory
-      const actual = await service.getHistory(getMockStringId(1));
-
-      // THEN expect one entry per resolvable UUID in UUIDHistory order (A before B), missing skipped
-      expect(actual).toEqual([
-        { entity: givenRefA, model: expectedModelReference(givenModelA) },
-        { entity: givenRefB, model: expectedModelReference(givenModelB) },
-      ]);
-      // AND resolution uses single batched queries (no N+1): UUIDs -> refs+modelIds, then modelIds -> models
-      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledTimes(1);
-      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledWith([
-        givenUuidA,
-        givenUuidMissing,
-        givenUuidB,
-      ]);
-      expect(mockModelRepository.getModelsByIds).toHaveBeenCalledTimes(1);
-      expect(mockModelRepository.getModelsByIds).toHaveBeenCalledWith([givenModelAId, givenModelBId]);
-      // AND the heavy model.getHistory is NOT used anymore
-      expect(mockModelRepository.getHistory).not.toHaveBeenCalled();
+      // WHEN calling service.patch
+      // THEN expect it to throw
+      await expect(service.patch(givenId, givenModelId, givenSpec)).rejects.toThrow(OccupationModelValidationError);
     });
 
-    test("should return a model at most once even if several history UUIDs map to the same model", async () => {
-      // GIVEN two of the occupation's historical UUIDs resolve to the SAME model
-      const givenUuid1 = randomUUID();
-      const givenUuid2 = randomUUID();
-      mockRepository.findById.mockResolvedValue({ UUIDHistory: [givenUuid1, givenUuid2] } as unknown as IOccupation);
-      const givenModelId = getMockStringId(10);
-      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([
-        { UUID: givenUuid1, modelId: givenModelId, reference: givenReference(givenUuid1) },
-        { UUID: givenUuid2, modelId: givenModelId, reference: givenReference(givenUuid2) },
-      ]);
-      const givenModel = givenModelWithId(1, givenModelId);
-      mockModelRepository.getModelsByIds.mockResolvedValue([givenModel]);
+    test("should rethrow if repository.patch throws", async () => {
+      // GIVEN a partial patch spec
+      const givenId = getMockStringId(2);
+      const givenModelId = getMockStringId(1);
+      const givenSpec: IPartialUpdateOccupationSpec = { preferredLabel: "Label" };
 
-      // WHEN calling getHistory
-      const actual = await service.getHistory(getMockStringId(1));
+      // AND the model is not released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenModelId,
+        released: false,
+      } as unknown as IModelInfo);
 
-      // THEN the model appears only once (the first history UUID that maps to it wins)
-      expect(actual).toHaveLength(1);
-      expect(actual![0].model).toEqual(expectedModelReference(givenModel));
-    });
+      // AND the repository throws
+      const givenError = new Error("Repository patch error");
+      mockRepository.patch = jest.fn().mockRejectedValue(givenError);
 
-    test("should skip a UUID whose model no longer exists", async () => {
-      // GIVEN a UUID that resolves to a reference + modelId, but the model itself is gone
-      const givenUuid = randomUUID();
-      const givenModelId = getMockStringId(10);
-      mockRepository.findById.mockResolvedValue({ UUIDHistory: [givenUuid] } as unknown as IOccupation);
-      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([
-        { UUID: givenUuid, modelId: givenModelId, reference: givenReference(givenUuid) },
-      ]);
-      mockModelRepository.getModelsByIds.mockResolvedValue([]); // model not found
-
-      // WHEN calling getHistory
-      const actual = await service.getHistory(getMockStringId(1));
-
-      // THEN the entry is skipped
-      expect(actual).toEqual([]);
+      // WHEN calling service.patch
+      // THEN expect it to rethrow
+      await expect(service.patch(givenId, givenModelId, givenSpec)).rejects.toThrow(givenError);
     });
   });
 });

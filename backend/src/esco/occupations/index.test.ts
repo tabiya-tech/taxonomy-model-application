@@ -21,8 +21,11 @@ jest.mock("./[id]/skills/GET/index", () => ({
 jest.mock("./[id]/skills/POST/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 201, body: "POST_SKILLS" }),
 }));
-jest.mock("./[id]/history/GET/index", () => ({
-  handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "GET_HISTORY" }),
+jest.mock("./[id]/PUT/index", () => ({
+  handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "PUT" }),
+}));
+jest.mock("./[id]/PATCH/index", () => ({
+  handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "PATCH" }),
 }));
 
 import { handler as getHandler } from "./GET/index";
@@ -33,7 +36,8 @@ import { handler as postParentHandler } from "./[id]/parent/POST/index";
 import { handler as getChildrenHandler } from "./[id]/children/GET/index";
 import { handler as getSkillsHandler } from "./[id]/skills/GET/index";
 import { handler as postSkillsHandler } from "./[id]/skills/POST/index";
-import { handler as getHistoryHandler } from "./[id]/history/GET/index";
+import { handler as putByIdHandler } from "./[id]/PUT/index";
+import { handler as patchByIdHandler } from "./[id]/PATCH/index";
 
 describe("Occupations Router", () => {
   beforeEach(() => {
@@ -96,13 +100,6 @@ describe("Occupations Router", () => {
     expect(response.body).toBe("GET_SKILLS");
   });
 
-  test("should route GET history to getHistoryHandler", async () => {
-    const event = { httpMethod: HTTP_VERBS.GET, path: "/models/1/occupations/2/history" } as APIGatewayProxyEvent;
-    const response = await handler(event);
-    expect(getHistoryHandler).toHaveBeenCalledWith(event);
-    expect(response.body).toBe("GET_HISTORY");
-  });
-
   test("should return METHOD_NOT_ALLOWED for unsupported verbs", async () => {
     const event = { httpMethod: HTTP_VERBS.DELETE } as APIGatewayProxyEvent;
     const response = await handler(event);
@@ -121,5 +118,31 @@ describe("Occupations Router", () => {
     const response = await handler(event);
     expect(postHandler).toHaveBeenCalledWith(event);
     expect(response.body).toBe("POST");
+  });
+
+  test("should route PUT to putByIdHandler", async () => {
+    const event = { httpMethod: HTTP_VERBS.PUT, path: "/models/1/occupations/2" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(putByIdHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("PUT");
+  });
+
+  test("should route PATCH to patchByIdHandler", async () => {
+    const event = { httpMethod: HTTP_VERBS.PATCH, path: "/models/1/occupations/2" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(patchByIdHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("PATCH");
+  });
+
+  test("should return METHOD_NOT_ALLOWED for PUT without matching path", async () => {
+    const event = { httpMethod: HTTP_VERBS.PUT, path: "/invalid/path" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(response).toEqual(STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED);
+  });
+
+  test("should return METHOD_NOT_ALLOWED for PATCH without matching path", async () => {
+    const event = { httpMethod: HTTP_VERBS.PATCH, path: "/invalid/path" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(response).toEqual(STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED);
   });
 });

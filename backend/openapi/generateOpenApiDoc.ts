@@ -23,15 +23,6 @@ ModelInfo.Schemas.POST.Request.Payload.properties.locale.$ref =
   "#" + ModelInfo.Schemas.POST.Request.Payload.properties.locale.$ref;
 ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref =
   "#" + ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref;
-// Each history item embeds a stripped-down `model` (a ModelInfoReference) via $ref that must be prefixed with "#".
-Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
-  "#" + Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
-OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
-  "#" + OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
-Skill.Skill.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
-  "#" + Skill.Skill.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
-SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
-  "#" + SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
 
 /**
  * Remove the $id from the schemas as Swagger does not like them.
@@ -40,11 +31,6 @@ SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.items.properties.mode
 delete ModelInfo.Schemas.POST.Response.Payload.$id;
 delete ModelInfo.Schemas.POST.Request.Payload.$id;
 delete ModelInfo.Schemas.GET.Response.Payload.$id;
-delete ModelInfo.Schemas.Reference.$id;
-delete Occupation.Schemas.Reference.$id;
-delete OccupationGroup.Schemas.Reference.$id;
-delete Skill.Schemas.Reference.$id;
-delete SkillGroup.Schemas.Reference.$id;
 delete Locale.Schemas.Payload.$id;
 delete Presigned.Schemas.GET.Response.Payload.$id;
 delete Import.Schemas.POST.Request.Payload.$id;
@@ -62,10 +48,8 @@ delete OccupationGroup.GET.Schemas.Request.Query.Payload.$id;
 delete OccupationGroup.OccupationGroup.Schemas.Request.Param.Payload.$id;
 delete OccupationGroup.OccupationGroup.GET.Schemas.Response.Payload.$id;
 delete OccupationGroup.OccupationGroup.GET.Schemas.Response.Payload.$id;
-delete OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload.$id;
 delete OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Child.Payload.$id;
 delete OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Children.Payload.$id;
-delete OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.$id;
 delete Occupation.POST.Schemas.Request.Payload.$id;
 delete Occupation.POST.Schemas.Response.Payload.$id;
 delete Occupation.GET.Schemas.Response.Payload.$id;
@@ -79,7 +63,10 @@ delete Occupation.Occupation.Children.GET.Schemas.Request.Query.Payload.$id;
 delete Occupation.Occupation.Skills.GET.Schemas.Response.Payload.$id;
 delete Occupation.Occupation.Skills.POST.Schemas.Request.Payload.$id;
 delete Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload.$id;
-delete Occupation.Occupation.History.GET.Schemas.Response.Payload.$id;
+delete Occupation.Occupation.PUT.Schemas.Request.Payload.$id;
+delete Occupation.Occupation.PUT.Schemas.Response.Payload.$id;
+delete Occupation.Occupation.PATCH.Schemas.Request.Payload.$id;
+delete Occupation.Occupation.PATCH.Schemas.Response.Payload.$id;
 delete SkillGroup.POST.Schemas.Request.Param.Payload.$id;
 delete SkillGroup.POST.Schemas.Request.Payload.$id;
 delete SkillGroup.POST.Schemas.Response.Payload.$id;
@@ -96,7 +83,6 @@ delete SkillGroup.SkillGroup.Parent.POST.Schemas.Response.Payload.$id;
 delete SkillGroup.SkillGroup.Children.GET.Schemas.Request.Query.Payload.$id;
 delete SkillGroup.SkillGroup.Children.GET.Schemas.Response.Child.Payload.$id;
 delete SkillGroup.SkillGroup.Children.GET.Schemas.Response.Children.Payload.$id;
-delete SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.$id;
 delete Skill.POST.Schemas.Request.Payload.$id;
 delete Skill.POST.Schemas.Request.Param.Payload.$id;
 delete Skill.POST.Schemas.Response.Payload.$id;
@@ -119,7 +105,6 @@ delete Skill.Skill.RelatedSkills.GET.Schemas.Response.Payload.$id;
 delete Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id;
 delete Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload.$id;
 delete Skill.Skill.RelatedSkills.POST.Schemas.Response.Payload.$id;
-delete Skill.Skill.History.GET.Schemas.Response.Payload.$id;
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -308,6 +293,31 @@ function getOpenAPISpecification(
               ...Object.values(Occupation.Occupation.Skills.GET.Errors.Status404.ErrorCodes),
             ]) as unknown as string[]),
           ]),
+          // PUT/PATCH Occupation-specific error schemas
+          PUTOccupation400ErrorSchema: APIError.Schemas.getPayload(
+            "PUT",
+            "Occupation",
+            400,
+            Object.values(Occupation.Occupation.PUT.Errors.Status400.ErrorCodes)
+          ),
+          PUTOccupation404ErrorSchema: APIError.Schemas.getPayload(
+            "PUT",
+            "Occupation",
+            404,
+            Object.values(Occupation.Occupation.PUT.Errors.Status404.ErrorCodes)
+          ),
+          PATCHOccupation400ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "Occupation",
+            400,
+            Object.values(Occupation.Occupation.PATCH.Errors.Status400.ErrorCodes)
+          ),
+          PATCHOccupation404ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "Occupation",
+            404,
+            Object.values(Occupation.Occupation.PATCH.Errors.Status404.ErrorCodes)
+          ),
           GETSkillGroup400ErrorSchema: APIError.Schemas.getPayload("GET", "SkillGroup", 400, [
             ...(new Set([
               ...Object.values(SkillGroup.GET.Enums.Response.Status400.ErrorCodes),
@@ -414,11 +424,6 @@ function getOpenAPISpecification(
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
           ModelInfoResponseSchemaGET: ModelInfo.Schemas.GET.Response.Payload,
-          ModelInfoReferenceSchema: ModelInfo.Schemas.Reference,
-          OccupationReferenceSchema: Occupation.Schemas.Reference,
-          OccupationGroupReferenceSchema: OccupationGroup.Schemas.Reference,
-          SkillReferenceSchema: Skill.Schemas.Reference,
-          SkillGroupReferenceSchema: SkillGroup.Schemas.Reference,
           LocaleSchema: Locale.Schemas.Payload,
           ImportSchema: Import.Schemas.POST.Request.Payload,
           ExportSchema: Export.Schemas.POST.Request.Payload,
@@ -429,12 +434,10 @@ function getOpenAPISpecification(
           OccupationGroupParentResponseSchemaGET: OccupationGroup.OccupationGroup.Parent.GET.Schemas.Response.Payload,
           OccupationGroupChildrenResponseSchemaGET:
             OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Children.Payload,
-          OccupationGroupResponseSchemaGETHistory: OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload,
           OccupationGroupRequestParamSchemaGET: OccupationGroup.GET.Schemas.Request.Param.Payload,
           OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.GET.Schemas.Request.Query.Payload,
           OccupationGroupResponseSchemaGET: OccupationGroup.GET.Schemas.Response.Payload,
           OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.OccupationGroup.Schemas.Request.Param.Payload,
-          OccupationGroupParentRequestSchemaPOST: OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload,
           OccupationRequestSchemaPOST: Occupation.POST.Schemas.Request.Payload,
           OccupationResponseSchemaPOST: Occupation.POST.Schemas.Response.Payload,
           OccupationRequestParamSchemaGET: Occupation.GET.Schemas.Request.Param.Payload,
@@ -450,6 +453,10 @@ function getOpenAPISpecification(
           OccupationSkillsRequestSchemaPOST: Occupation.Occupation.Skills.POST.Schemas.Request.Payload,
           OccupationSkillsRequestQueryParamSchemaGET: Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload,
           OccupationResponseSchemaGETHistory: Occupation.Occupation.History.GET.Schemas.Response.Payload,
+          OccupationRequestSchemaPUT: Occupation.Occupation.PUT.Schemas.Request.Payload,
+          OccupationResponseSchemaPUT: Occupation.Occupation.PUT.Schemas.Response.Payload,
+          OccupationRequestSchemaPATCH: Occupation.Occupation.PATCH.Schemas.Request.Payload,
+          OccupationResponseSchemaPATCH: Occupation.Occupation.PATCH.Schemas.Response.Payload,
           SkillGroupRequestSchemaPOST: SkillGroup.POST.Schemas.Request.Payload,
           SkillGroupResponseSchemaPOST: SkillGroup.POST.Schemas.Response.Payload,
           SkillGroupParentRequestSchemaPOST: SkillGroup.SkillGroup.Parent.POST.Schemas.Request.Payload,
@@ -458,7 +465,6 @@ function getOpenAPISpecification(
           SkillGroupParentsResponseSchemaGET: SkillGroup.SkillGroup.Parent.GET.Schemas.Response.Parents.Payload,
           SkillGroupParentsRequestQueryParamSchemaGET: SkillGroup.SkillGroup.Parent.GET.Schemas.Request.Query.Payload,
           SkillGroupChildrenResponseSchemaGET: SkillGroup.SkillGroup.Children.GET.Schemas.Response.Children.Payload,
-          SkillGroupResponseSchemaGETHistory: SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload,
           SkillGroupChildrenRequestQueryParamSchemaGET:
             SkillGroup.SkillGroup.Children.GET.Schemas.Request.Query.Payload,
           SkillGroupRequestParamSchemaGET: SkillGroup.SkillGroup.Schemas.Request.Param.Payload,
@@ -487,7 +493,6 @@ function getOpenAPISpecification(
           SkillRelatedRequestSchemaPOST: Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload,
           SkillRelatedResponseSchemaPOST: Skill.Skill.RelatedSkills.POST.Schemas.Response.Payload,
           SkillRelatedRequestQueryParamSchemaGET: Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload,
-          SkillResponseSchemaGETHistory: Skill.Skill.History.GET.Schemas.Response.Payload,
         },
         securitySchemes: {
           jwt_auth: {

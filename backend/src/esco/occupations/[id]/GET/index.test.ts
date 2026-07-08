@@ -37,7 +37,8 @@ describe("Test for occupation Detail GET handler", () => {
         getParent: jest.fn().mockResolvedValue(null),
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-        getHistory: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       } as IOccupationService,
       initialize: jest.fn(),
     } as unknown as ServiceRegistry;
