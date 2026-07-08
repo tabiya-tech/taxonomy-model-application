@@ -6,6 +6,7 @@ import { handler as occupationHandler } from "./index";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
+import { ObjectTypes } from "esco/common/objectTypes";
 import * as authenticatorModule from "auth/authorizer";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import { IOccupation } from "../../_shared/occupation.types";
@@ -472,6 +473,154 @@ describe("Test for occupation PATCH handler", () => {
       expect(body.errorCode).toEqual(
         OccupationAPISpecs.Occupation.PATCH.Errors.Status500.ErrorCodes.DB_FAILED_TO_UPDATE_OCCUPATION
       );
+    });
+
+    test("should respond with BAD_REQUEST when payload modelId does not match path modelId", async () => {
+      // GIVEN a request with mismatched modelId
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.PATCH,
+        body: JSON.stringify({ modelId: getMockStringId(99) }),
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+      } as unknown as APIGatewayProxyEvent;
+
+      // WHEN the handler is invoked
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect BAD_REQUEST
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    });
+
+    test("should pass all provided fields through to the service", async () => {
+      // GIVEN a PATCH request with all mutable fields
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenPayload = {
+        code: "1234.5.6",
+        occupationGroupCode: "1234",
+        preferredLabel: "New Label",
+        originUri: "http://example.com/new",
+        altLabels: ["alt1", "alt2"],
+        definition: "New Definition",
+        description: "New Description",
+        regulatedProfessionNote: "New Note",
+        scopeNote: "New Scope",
+        modelId: givenModelId,
+        UUIDHistory: ["550e8400-e29b-41d4-a716-446655440000"],
+        isLocalized: true,
+        occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
+      };
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.PATCH,
+        body: JSON.stringify(givenPayload),
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+      } as unknown as APIGatewayProxyEvent;
+
+      const givenOccupation: IOccupation = getIOccupationMockData();
+      const givenOccupationServiceMock = {
+        patch: jest.fn().mockResolvedValue(givenOccupation),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      // WHEN the handler is invoked
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect OK
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      // AND all fields are passed to the service
+      const callArgs = (givenOccupationServiceMock.patch as jest.Mock).mock.calls[0];
+      const passedSpec = callArgs[2];
+      expect(passedSpec).toMatchObject({
+        code: "1234.5.6",
+        occupationGroupCode: "1234",
+        preferredLabel: "New Label",
+        originUri: "http://example.com/new",
+        altLabels: ["alt1", "alt2"],
+        definition: "New Definition",
+        description: "New Description",
+        regulatedProfessionNote: "New Note",
+        scopeNote: "New Scope",
+        modelId: givenModelId,
+        UUIDHistory: ["550e8400-e29b-41d4-a716-446655440000"],
+        isLocalized: true,
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+    });
+
+    test("should map ESCOOccupation enum to ObjectTypes.ESCOOccupation", async () => {
+      // GIVEN a PATCH request with ESCOOccupation type
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.PATCH,
+        body: JSON.stringify({ occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation }),
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+      } as unknown as APIGatewayProxyEvent;
+
+      const givenOccupation: IOccupation = getIOccupationMockData();
+      const givenOccupationServiceMock = {
+        patch: jest.fn().mockResolvedValue(givenOccupation),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      // WHEN
+      await occupationHandler(givenEvent);
+
+      // THEN occupationType is mapped
+      const callArgs = (givenOccupationServiceMock.patch as jest.Mock).mock.calls[0];
+      expect(callArgs[2].occupationType).toEqual(ObjectTypes.ESCOOccupation);
+    });
+
+    test("should map LocalOccupation enum to ObjectTypes.LocalOccupation", async () => {
+      // GIVEN a PATCH request with LocalOccupation type
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.PATCH,
+        body: JSON.stringify({ occupationType: OccupationAPISpecs.Enums.OccupationType.LocalOccupation }),
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+      } as unknown as APIGatewayProxyEvent;
+
+      const givenOccupation: IOccupation = getIOccupationMockData();
+      const givenOccupationServiceMock = {
+        patch: jest.fn().mockResolvedValue(givenOccupation),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      // WHEN
+      await occupationHandler(givenEvent);
+
+      // THEN occupationType is mapped to LocalOccupation
+      const callArgs = (givenOccupationServiceMock.patch as jest.Mock).mock.calls[0];
+      expect(callArgs[2].occupationType).toEqual(ObjectTypes.LocalOccupation);
+    });
+
+    test("should respond with BAD_REQUEST when JSON parse throws a non-Error", async () => {
+      // GIVEN a body that will cause JSON.parse to throw something other than an Error
+      const givenModelId = getMockStringId(1);
+      const originalJSONParse = JSON.parse;
+      JSON.parse = jest.fn().mockImplementation(() => {
+        throw "string error message";
+      });
+
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.PATCH,
+        body: "something",
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations/${getMockStringId(2)}`,
+      } as unknown as APIGatewayProxyEvent;
+
+      // WHEN the handler is invoked
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect BAD_REQUEST
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      JSON.parse = originalJSONParse;
     });
   });
 });

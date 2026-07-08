@@ -108,6 +108,15 @@ export class OccupationPATCHController {
       return params;
     }
 
+    if (payload.modelId !== undefined && payload.modelId !== params.modelId) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        OccupationAPISpecs.Occupation.PATCH.Errors.Status400.ErrorCodes.INVALID_MODEL_ID,
+        "modelId in payload does not match modelId in path",
+        `Payload modelId: ${payload.modelId}, Path modelId: ${params.modelId}`
+      );
+    }
+
     // Build partial spec — only include fields explicitly present in the payload
     const spec: IPartialUpdateOccupationSpec = {};
     if (payload.code !== undefined) spec.code = payload.code;

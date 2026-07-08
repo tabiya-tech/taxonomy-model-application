@@ -145,4 +145,16 @@ describe("Occupations Router", () => {
     const response = await handler(event);
     expect(response).toEqual(STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED);
   });
+
+  test("should handle missing path in PUT request", async () => {
+    const event = { httpMethod: HTTP_VERBS.PUT } as unknown as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(response).toEqual(STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED);
+  });
+
+  test("should handle missing path in PATCH request", async () => {
+    const event = { httpMethod: HTTP_VERBS.PATCH } as unknown as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(response).toEqual(STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED);
+  });
 });
