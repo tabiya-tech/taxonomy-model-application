@@ -700,7 +700,7 @@ describe("Test the OccupationService", () => {
       const actual = await service.update(givenId, givenSpec.modelId, givenSpec);
 
       // THEN expect repository.update to be called with the spec
-      expect(mockRepository.update).toHaveBeenCalledWith(givenId, givenSpec);
+      expect(mockRepository.update).toHaveBeenCalledWith(givenId, givenSpec.modelId, givenSpec);
       // AND expect the returned occupation
       expect(actual).toEqual(givenUpdatedOccupation);
     });
@@ -823,7 +823,7 @@ describe("Test the OccupationService", () => {
       const actual = await service.patch(givenId, givenModelId, givenSpec);
 
       // THEN expect repository.patch to be called with the spec
-      expect(mockRepository.patch).toHaveBeenCalledWith(givenId, givenSpec);
+      expect(mockRepository.patch).toHaveBeenCalledWith(givenId, givenModelId, givenSpec);
       // AND expect the returned occupation
       expect(actual).toEqual(givenUpdatedOccupation);
     });

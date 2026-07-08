@@ -183,7 +183,7 @@ export class OccupationService implements IOccupationService {
     if (errorCode != null) {
       throw new OccupationModelValidationError(errorCode);
     }
-    return this.occupationRepository.update(id, spec);
+    return this.occupationRepository.update(id, modelId, spec);
   }
 
   async patch(id: string, modelId: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null> {
@@ -191,6 +191,6 @@ export class OccupationService implements IOccupationService {
     if (errorCode != null) {
       throw new OccupationModelValidationError(errorCode);
     }
-    return this.occupationRepository.patch(id, spec);
+    return this.occupationRepository.patch(id, modelId, spec);
   }
 }
