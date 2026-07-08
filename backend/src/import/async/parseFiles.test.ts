@@ -472,6 +472,8 @@ describe("Test the main async handler", () => {
         findParent: jest.fn(),
         findChildren: jest.fn(),
         findSkillsForOccupation: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(givenOccupationRepositoryMock);
       // AND a skill repository

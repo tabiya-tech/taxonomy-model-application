@@ -51,6 +51,8 @@ function setupOccupationRepositoryMock(findAllImpl: () => Readable) {
     findParent: jest.fn(),
     findChildren: jest.fn(),
     findSkillsForOccupation: jest.fn(),
+    update: jest.fn(),
+    patch: jest.fn(),
   };
   OccupationRepositorySpy.mockReturnValue(mockOccupationRepository);
 }

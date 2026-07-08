@@ -100,6 +100,8 @@ describe("test parseOccupations from", () => {
         findParent: jest.fn(),
         findChildren: jest.fn(),
         findSkillsForOccupation: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       };
       // @ts-ignore
       jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(mockRepository);

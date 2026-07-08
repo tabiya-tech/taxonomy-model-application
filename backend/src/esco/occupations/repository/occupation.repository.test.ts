@@ -10,7 +10,13 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { IOccupationRepository, SearchFilter } from "./occupation.repository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { INewOccupationSpec, IOccupation, IOccupationDoc } from "../_shared/occupation.types";
+import {
+  INewOccupationSpec,
+  IOccupation,
+  IOccupationDoc,
+  IPartialUpdateOccupationSpec,
+  IUpdateOccupationSpec,
+} from "../_shared/occupation.types";
 import { INewSkillSpec, ISkillReference, ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import {
@@ -2327,6 +2333,181 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       );
 
       aggregateSpy.mockRestore();
+    });
+  });
+
+  describe("update", () => {
+    test("should successfully update an occupation", async () => {
+      // GIVEN an occupation exists in the database
+      const modelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_to_update");
+      const occupation = await repository.create(givenSpec);
+
+      // WHEN updating the occupation
+      const newSpec = getNewESCOOccupationSpec();
+      const updateSpec: IUpdateOccupationSpec = {
+        modelId,
+        preferredLabel: newSpec.preferredLabel,
+        code: newSpec.code,
+        altLabels: newSpec.altLabels,
+        description: newSpec.description,
+        definition: newSpec.definition,
+        scopeNote: newSpec.scopeNote,
+        regulatedProfessionNote: newSpec.regulatedProfessionNote,
+        occupationType: ObjectTypes.ESCOOccupation,
+        isLocalized: false,
+        originUri: newSpec.originUri,
+        occupationGroupCode: newSpec.occupationGroupCode,
+        UUIDHistory: newSpec.UUIDHistory,
+      };
+      const actual = await repository.update(occupation.id, updateSpec);
+
+      // THEN expect it to be updated
+      expect(actual).not.toBeNull();
+      expect(actual?.preferredLabel).toEqual(updateSpec.preferredLabel);
+      expect(actual?.code).toEqual(updateSpec.code);
+      expect(actual?.altLabels).toEqual(updateSpec.altLabels);
+      expect(actual?.description).toEqual(updateSpec.description);
+      expect(actual?.definition).toEqual(updateSpec.definition);
+      expect(actual?.scopeNote).toEqual(updateSpec.scopeNote);
+      expect(actual?.regulatedProfessionNote).toEqual(updateSpec.regulatedProfessionNote);
+      expect(actual?.originUri).toEqual(updateSpec.originUri);
+      expect(actual?.occupationGroupCode).toEqual(updateSpec.occupationGroupCode);
+      expect(actual?.UUIDHistory).toEqual(updateSpec.UUIDHistory);
+    });
+
+    test("should return null if occupation does not exist", async () => {
+      // GIVEN a non-existent occupation ID
+      const nonExistentId = getMockStringId(2);
+      const newSpec = getNewESCOOccupationSpec();
+      const updateSpec: IUpdateOccupationSpec = {
+        modelId: getMockStringId(1),
+        preferredLabel: newSpec.preferredLabel,
+        code: newSpec.code,
+        altLabels: newSpec.altLabels,
+        description: newSpec.description,
+        definition: newSpec.definition,
+        scopeNote: newSpec.scopeNote,
+        regulatedProfessionNote: newSpec.regulatedProfessionNote,
+        occupationType: ObjectTypes.ESCOOccupation,
+        isLocalized: false,
+        originUri: newSpec.originUri,
+        occupationGroupCode: newSpec.occupationGroupCode,
+        UUIDHistory: newSpec.UUIDHistory,
+      };
+
+      // WHEN updating
+      const actual = await repository.update(nonExistentId, updateSpec);
+
+      // THEN expect null
+      expect(actual).toBeNull();
+    });
+
+    test("should return null if invalid ID is provided", async () => {
+      // WHEN updating with invalid ID
+      const actual = await repository.update("invalid-id", {} as IUpdateOccupationSpec);
+      // THEN expect null
+      expect(actual).toBeNull();
+    });
+
+    test("should throw if save fails during update", async () => {
+      // GIVEN a valid ID and spec
+      const modelId = getMockStringId(1);
+      const updateSpec: IUpdateOccupationSpec = {
+        modelId,
+        preferredLabel: "new label",
+        code: "1234.5.6",
+        altLabels: [],
+        description: "new desc",
+        definition: "new def",
+        scopeNote: "new scope",
+        regulatedProfessionNote: "new note",
+        occupationType: ObjectTypes.ESCOOccupation,
+        isLocalized: false,
+        originUri: "http://example.com",
+        occupationGroupCode: "1234",
+        UUIDHistory: [],
+      };
+
+      // AND findById returns a mock doc whose save will fail
+      const mockDoc = {
+        set: jest.fn(),
+        save: jest.fn().mockRejectedValue(new Error("Save failed")),
+        populate: jest.fn().mockResolvedValue(undefined),
+        toObject: jest.fn(),
+      };
+      jest.spyOn(repository.Model, "findById").mockResolvedValueOnce(mockDoc as any);
+
+      // WHEN updating
+      // THEN expect an error
+      await expect(repository.update(new mongoose.Types.ObjectId().toHexString(), updateSpec)).rejects.toThrow(
+        "OccupationRepository.update: update failed."
+      );
+    });
+  });
+
+  describe("patch", () => {
+    test("should successfully patch an occupation", async () => {
+      // GIVEN an occupation exists in the database
+      const modelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_to_patch");
+      const occupation = await repository.create(givenSpec);
+
+      // WHEN patching the occupation
+      const patchSpec: IPartialUpdateOccupationSpec = {
+        preferredLabel: "patched label",
+        description: "patched desc",
+      };
+      const actual = await repository.patch(occupation.id, patchSpec);
+
+      // THEN expect it to be patched
+      expect(actual).not.toBeNull();
+      expect(actual?.preferredLabel).toEqual(patchSpec.preferredLabel);
+      expect(actual?.description).toEqual(patchSpec.description);
+      expect(actual?.code).toEqual(occupation.code); // Unchanged
+    });
+
+    test("should return null if occupation does not exist", async () => {
+      // GIVEN a non-existent occupation ID
+      const nonExistentId = getMockStringId(2);
+      const patchSpec: IPartialUpdateOccupationSpec = {
+        preferredLabel: "patched label",
+      };
+
+      // WHEN patching
+      const actual = await repository.patch(nonExistentId, patchSpec);
+
+      // THEN expect null
+      expect(actual).toBeNull();
+    });
+
+    test("should return null if invalid ID is provided", async () => {
+      // WHEN patching with invalid ID
+      const actual = await repository.patch("invalid-id", {} as IPartialUpdateOccupationSpec);
+      // THEN expect null
+      expect(actual).toBeNull();
+    });
+
+    test("should throw if save fails during patch", async () => {
+      // GIVEN a valid ID and spec
+      const patchSpec: IPartialUpdateOccupationSpec = {
+        preferredLabel: "patched label",
+      };
+
+      // AND findById returns a mock doc whose save will fail
+      const mockDoc = {
+        set: jest.fn(),
+        save: jest.fn().mockRejectedValue(new Error("Save failed")),
+        populate: jest.fn().mockResolvedValue(undefined),
+        toObject: jest.fn(),
+      };
+      jest.spyOn(repository.Model, "findById").mockResolvedValueOnce(mockDoc as any);
+
+      // WHEN patching
+      // THEN expect an error
+      await expect(repository.patch(new mongoose.Types.ObjectId().toHexString(), patchSpec)).rejects.toThrow(
+        "OccupationRepository.patch: patch failed."
+      );
     });
   });
 });

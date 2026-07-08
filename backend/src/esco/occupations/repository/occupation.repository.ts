@@ -5,7 +5,9 @@ import {
   INewOccupationSpecWithoutImportId,
   IOccupation,
   IOccupationDoc,
+  IPartialUpdateOccupationSpec,
   ISkillWithRelation,
+  IUpdateOccupationSpec,
 } from "../_shared/occupation.types";
 import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import {
@@ -158,6 +160,26 @@ export interface IOccupationRepository {
     limit: number,
     cursor?: string
   ): Promise<ISkillWithRelation[]>;
+
+  /**
+   * Fully replaces the mutable fields of an Occupation (PUT semantics).
+   *
+   * @param {string} id - The ID of the Occupation to update.
+   * @param {IUpdateOccupationSpec} spec - The full set of new field values.
+   * @return {Promise<IOccupation | null>} - The updated occupation, or null if not found.
+   * Rejects with an error if the operation fails.
+   */
+  update(id: string, spec: IUpdateOccupationSpec): Promise<IOccupation | null>;
+
+  /**
+   * Partially updates an Occupation (PATCH semantics).
+   *
+   * @param {string} id - The ID of the Occupation to update.
+   * @param {IPartialUpdateOccupationSpec} spec - Only the fields to update.
+   * @return {Promise<IOccupation | null>} - The updated occupation, or null if not found.
+   * Rejects with an error if the operation fails.
+   */
+  patch(id: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null>;
 }
 
 export class OccupationRepository implements IOccupationRepository {
@@ -629,6 +651,44 @@ export class OccupationRepository implements IOccupationRepository {
       const err = new Error("OccupationRepository.findSkillsForOccupation: findSkillsForOccupation failed", {
         cause: e,
       });
+      throw err;
+    }
+  }
+
+  async update(id: string, spec: IUpdateOccupationSpec): Promise<IOccupation | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const doc = await this.Model.findById(id).exec();
+      if (!doc) return null;
+      doc.set(spec);
+      await doc.save();
+      await doc.populate([
+        populateOccupationParentOptions,
+        populateOccupationChildrenOptions,
+        populateOccupationRequiresSkillsOptions,
+      ]);
+      return doc.toObject();
+    } catch (e: unknown) {
+      const err = new Error("OccupationRepository.update: update failed.", { cause: e });
+      throw err;
+    }
+  }
+
+  async patch(id: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const doc = await this.Model.findById(id).exec();
+      if (!doc) return null;
+      doc.set(spec);
+      await doc.save();
+      await doc.populate([
+        populateOccupationParentOptions,
+        populateOccupationChildrenOptions,
+        populateOccupationRequiresSkillsOptions,
+      ]);
+      return doc.toObject();
+    } catch (e: unknown) {
+      const err = new Error("OccupationRepository.patch: patch failed.", { cause: e });
       throw err;
     }
   }
