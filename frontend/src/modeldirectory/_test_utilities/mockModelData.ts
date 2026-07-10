@@ -10,7 +10,8 @@ import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { getMockId } from "src/_test_utilities/mockMongoId";
 import { getRandomLorem, getRandomString, getTestString } from "src/_test_utilities/specialCharacters";
 import { faker } from "@faker-js/faker";
-import { CELL_MAX_LENGTH } from "src/modeldirectory/components/ModelsTable/ModelsTable";
+
+const SHORT_DESCRIPTION_LENGTH = 256;
 
 export function getOneFakeModel(id?: number): ModelInfoTypes.ModelInfo {
   const model = getArrayOfFakeModels(1)[0];
@@ -47,7 +48,7 @@ export function getArrayOfFakeModels(count: number): ModelInfoTypes.ModelInfo[] 
       description:
         i % 2 === 0
           ? getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)
-          : getRandomLorem(CELL_MAX_LENGTH / 2), // 50% chance of long description
+          : getRandomLorem(SHORT_DESCRIPTION_LENGTH / 2), // 50% chance of long description
       license: faker.lorem.text().substring(0, ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
       released: i % 2 === 0, // 50% chance of released
       releaseNotes: faker.lorem.text().substring(0, ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
@@ -233,6 +234,74 @@ export function getOneFakeExportProcessState(i: number): ModelInfoTypes.ExportPr
     timestamp: new Date(Date.now() - i * 1000 * 60 * 60 * 24),
     createdAt: new Date(Date.now() - i * 1000 * 60 * 60 * 24),
     updatedAt: new Date(),
+  };
+}
+
+export function getMockUUID(i: number): string {
+  return `00000000-0000-0000-0000-${String(i).padStart(12, "0")}`;
+}
+
+export function getOneFakeSuccessfulExportProcessState(i: number): ModelInfoTypes.ExportProcessState {
+  return {
+    id: getMockId(20000 + i),
+    status: ExportProcessStateAPISpecs.Enums.Status.COMPLETED,
+    result: {
+      errored: false,
+      exportErrors: false,
+      exportWarnings: false,
+    },
+    downloadUrl: `https://download.example.com/model-${i}.csv.zip`,
+    timestamp: new Date(`2023-06-0${(i % 9) + 1}T12:00:00.000Z`),
+    createdAt: new Date(`2023-06-0${(i % 9) + 1}T12:00:00.000Z`),
+    updatedAt: new Date(`2023-06-0${(i % 9) + 1}T12:30:00.000Z`),
+  };
+}
+
+export function getOneDeterministicFakeModel(
+  seed: number,
+  overrides: Partial<ModelInfoTypes.ModelInfo> = {}
+): ModelInfoTypes.ModelInfo {
+  const createdAt = new Date(`2023-05-0${(seed % 9) + 1}T10:00:00.000Z`);
+  return {
+    id: getMockId(seed),
+    UUID: getMockUUID(seed),
+    modelHistory: [
+      {
+        id: getMockId(1000 + seed),
+        UUID: getMockUUID(1000 + seed),
+        name: `History model ${seed}`,
+        version: `v${seed}.0.0`,
+        localeShortCode: "ZA",
+      },
+    ],
+    name: `Deterministic model ${seed}`,
+    locale: {
+      UUID: getMockUUID(2000 + seed),
+      name: `Locale ${seed}`,
+      shortCode: "ZA",
+    },
+    description: `Description of the deterministic model ${seed}`,
+    license: "MIT",
+    released: true,
+    releaseNotes: `Release notes of the deterministic model ${seed}`,
+    version: `v${seed}.0.0`,
+    createdAt: createdAt,
+    updatedAt: createdAt,
+    path: `https://path.example.com/${seed}`,
+    tabiyaPath: `https://tabiya-path.example.com/${seed}`,
+    exportProcessState: [getOneFakeSuccessfulExportProcessState(seed)],
+    importProcessState: {
+      id: getMockId(10000 + seed),
+      status: ImportProcessStateAPISpecs.Enums.Status.COMPLETED,
+      result: {
+        errored: false,
+        parsingErrors: false,
+        parsingWarnings: false,
+      },
+      createdAt: createdAt,
+      updatedAt: createdAt,
+    },
+    ...overrides,
   };
 }
 

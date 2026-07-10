@@ -4,7 +4,7 @@ import {
   getFakeUUIDHistoryDetailsArray,
   getFakeUUIDHistoryDetailsArrayWithUnresolvedUUIDS,
 } from "./_test_utilities/mockData";
-import { getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getOneFakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
 
 const meta: Meta<typeof ModelHistoryTimeline> = {
   title:

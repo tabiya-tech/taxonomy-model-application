@@ -1,6 +1,6 @@
 import ModelPropertiesHeader from "./ModelPropertiesHeader";
 import { Meta, StoryObj } from "@storybook/react";
-import { getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getOneFakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
 import { getRandomLorem } from "src/_test_utilities/specialCharacters";
 
 const meta: Meta<typeof ModelPropertiesHeader> = {

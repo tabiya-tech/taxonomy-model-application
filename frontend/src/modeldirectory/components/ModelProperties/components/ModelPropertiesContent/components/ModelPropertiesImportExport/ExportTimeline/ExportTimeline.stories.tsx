@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from "@storybook/react";
-import { getArrayOfFakeExportProcessStates } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getArrayOfFakeExportProcessStates } from "src/modeldirectory/_test_utilities/mockModelData";
 import ExportTimeline from "./ExportTimeline";
 
 const meta: Meta<typeof ExportTimeline> = {

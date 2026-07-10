@@ -79,9 +79,10 @@ const LandingPage = () => {
       <Box
         sx={{
           boxSizing: "border-box",
-          maxWidth: "64rem",
+          maxWidth: "65rem",
           marginX: "auto",
           paddingBottom: (theme) => theme.fixedSpacing(theme.tabiyaSpacing.xl * 2.5),
+          paddingX: (theme) => theme.fixedSpacing(theme.tabiyaSpacing.md),
           display: "flex",
           flexDirection: "column",
         }}

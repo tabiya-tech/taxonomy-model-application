@@ -2,40 +2,65 @@
 
 exports[`ModelDirectoryHeader should render model directory header component 1`] = `
 <div
-  class="MuiBox-root css-115mvb4"
+  class="MuiBox-root css-csotst"
   data-testid="model-directory-header-8482f1cc-0786-423f-821e-34b6b712d78u"
 >
-  <h2
-    class="MuiTypography-root MuiTypography-h2 css-ca93eg-MuiTypography-root"
-    data-testid="model-directory-title-8482f1cc-0786-423f-821e-34b6b712d78u"
+  <div
+    class="MuiBox-root css-115mvb4"
   >
-    Model Directory
-  </h2>
-  <button
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-fwypri-MuiButtonBase-root-MuiButton-root"
-    data-testid="import-model-button-8482f1cc-0786-423f-821e-34b6b712d78u"
-    tabindex="0"
-    type="button"
-  >
-    <span
-      class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+    <h2
+      class="MuiTypography-root MuiTypography-h2 css-ca93eg-MuiTypography-root"
+      data-testid="model-directory-title-8482f1cc-0786-423f-821e-34b6b712d78u"
     >
-      <svg
-        aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
-        data-testid="AddCircleOutlinedIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
+      Our taxonomies
+    </h2>
+    <button
+      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-fwypri-MuiButtonBase-root-MuiButton-root"
+      data-testid="import-model-button-8482f1cc-0786-423f-821e-34b6b712d78u"
+      tabindex="0"
+      type="button"
+    >
+      <span
+        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
       >
-        <path
-          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
-        />
-      </svg>
-    </span>
-    Import Model
-    <span
-      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-    />
-  </button>
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+          data-testid="AddCircleOutlinedIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+          />
+        </svg>
+      </span>
+      Import Model
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+  </div>
+  <p
+    class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+    data-testid="model-directory-intro-8482f1cc-0786-423f-821e-34b6b712d78u"
+  >
+    Each taxonomy can be explored in the browser, integrated via the read API, or downloaded as CSV. Expand a taxonomy for earlier versions.
+  </p>
+  <p
+    class="MuiTypography-root MuiTypography-body2 css-1in7vq8-MuiTypography-root"
+    data-testid="model-directory-intro-secondary-8482f1cc-0786-423f-821e-34b6b712d78u"
+  >
+    Country versions are derived from Base with our open localization framework. See 
+    <a
+      class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1evtjsv-MuiTypography-root-MuiLink-root"
+      href="https://github.com/tabiya-tech/tabiya-esco-localization"
+      rel="noreferrer noopener"
+      target="_blank"
+    >
+      tabiya-esco-localization
+    </a>
+     for how we adapt the taxonomy to each labour market.
+  </p>
 </div>
 `;

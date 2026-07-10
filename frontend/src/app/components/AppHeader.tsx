@@ -84,7 +84,9 @@ const AppHeader = () => {
           API docs
         </Link>
         <Box display="flex" alignItems="center" sx={{ gap: (theme) => theme.tabiyaSpacing.sm }}>
-          <Typography variant="body1">{user?.username}</Typography>
+          <Typography variant="body1" fontWeight="bold">
+            {user?.username}
+          </Typography>
           <PrimaryIconButton
             onClick={(event) => setAnchorEl(event.currentTarget)}
             data-testid={DATA_TEST_ID.APP_HEADER_AUTH_BUTTON}

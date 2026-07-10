@@ -1,0 +1,133 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VersionRow should render the version row with all the common elements 1`] = `
+<div
+  class="MuiBox-root css-ynpy0w"
+  data-testid="version-row-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
+>
+  <div
+    class="MuiBox-root css-1vz7s72"
+  >
+    <p
+      class="MuiTypography-root MuiTypography-body2 css-pmyg7z-MuiTypography-root"
+      data-testid="version-text-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
+    >
+      v1.0.0
+    </p>
+    <div
+      class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-93s463-MuiChip-root"
+      data-testid="latest-chip-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
+    >
+      <span
+        class="MuiChip-label MuiChip-labelSmall css-t3ycia-MuiChip-label"
+      >
+        latest
+      </span>
+    </div>
+    <div
+      class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-6k04vf-MuiChip-root"
+      data-testid="locale-chip-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
+    >
+      <span
+        class="MuiChip-label MuiChip-labelSmall css-t3ycia-MuiChip-label"
+      >
+        ZA
+      </span>
+    </div>
+  </div>
+  <div
+    class="MuiBox-root css-mebn01"
+  >
+    <button
+      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-jsbdaj-MuiButtonBase-root-MuiButton-root"
+      data-testid="explore-button-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
+      tabindex="0"
+      type="button"
+    >
+      Explore
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+    <button
+      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-s8v40s-MuiButtonBase-root-MuiButton-root"
+      data-testid="api-button-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
+      tabindex="0"
+      type="button"
+    >
+      <span
+        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-y6rp3m-MuiButton-startIcon"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+          data-testid="CodeIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M9.4 16.6 4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0 4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"
+          />
+        </svg>
+      </span>
+      API
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+    <a
+      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-s8v40s-MuiButtonBase-root-MuiButton-root"
+      data-testid="csv-button-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
+      download="model-1.csv.zip"
+      href="https://download.example.com/model-1.csv.zip"
+      tabindex="0"
+    >
+      <span
+        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-y6rp3m-MuiButton-startIcon"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+          data-testid="FileDownloadIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"
+          />
+        </svg>
+      </span>
+      CSV
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </a>
+    <button
+      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-s8v40s-MuiButtonBase-root-MuiButton-root"
+      data-testid="show-details-button-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
+      tabindex="0"
+      type="button"
+    >
+      <span
+        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-y6rp3m-MuiButton-startIcon"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-etbowg-MuiSvgIcon-root"
+          data-testid="DescriptionOutlinedIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"
+          />
+        </svg>
+      </span>
+      Details
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+  </div>
+</div>
+`;

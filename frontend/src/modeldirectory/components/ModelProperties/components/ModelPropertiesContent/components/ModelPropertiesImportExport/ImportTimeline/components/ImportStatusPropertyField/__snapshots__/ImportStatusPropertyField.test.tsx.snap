@@ -25,7 +25,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed 1
       class="MuiBox-root css-1t5r8n4"
     >
       <svg
-        class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeMedium css-1x9cg3q-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-ldtitb-MuiSvgIcon-root"
         data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
         focusable="false"
         role="img"

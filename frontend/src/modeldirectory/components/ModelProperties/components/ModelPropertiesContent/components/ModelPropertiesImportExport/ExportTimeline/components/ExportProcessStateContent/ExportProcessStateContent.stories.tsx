@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from "@storybook/react";
-import { getOneFakeExportProcessState } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getOneFakeExportProcessState } from "src/modeldirectory/_test_utilities/mockModelData";
 import ExportProcessStateContent from "./ExportProcessStateContent";
 
 const meta: Meta<typeof ExportProcessStateContent> = {

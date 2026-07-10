@@ -4,7 +4,7 @@ import "src/_test_utilities/consoleMock";
 import { render, screen, within } from "src/_test_utilities/test-utils";
 import ModelPropertiesHeader, { DATA_TEST_ID } from "./ModelPropertiesHeader";
 import userEvent from "@testing-library/user-event";
-import { fakeModel, getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { fakeModel, getOneFakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
 
 import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorizationTests";
 

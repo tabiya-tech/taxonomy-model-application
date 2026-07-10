@@ -1,7 +1,7 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import ModelDirectoryHeader, { DATA_TEST_ID } from "./ModelDirectoryHeader";
+import ModelDirectoryHeader, { DATA_TEST_ID, TEXT } from "./ModelDirectoryHeader";
 import { render, screen } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
@@ -38,6 +38,12 @@ describe("ModelDirectoryHeader", () => {
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_HEADER)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toBeInTheDocument();
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_TITLE)).toBeInTheDocument();
+    // AND the title and the intro to show the expected texts
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_TITLE)).toHaveTextContent(TEXT.TITLE);
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_INTRO)).toHaveTextContent(TEXT.INTRO);
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_INTRO_SECONDARY)).toHaveTextContent(
+      TEXT.INTRO_SECONDARY_LINK
+    );
     // AND to match the snapshot
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_DIRECTORY_HEADER)).toMatchSnapshot();
     // AND the import button to be disabled when offline and not loading
@@ -108,7 +114,7 @@ describe("ModelDirectoryHeader", () => {
     );
 
     // THEN expect the loading spinner to be present in the document
-    expect(screen.getByTestId(DATA_TEST_ID.IMPORT_MODEL_BUTTON)).toContainHTML("CircularProgress");
+    expect(screen.getByTitle("loading locales")).toBeInTheDocument();
     // AND the import button to be disabled
     expect(PrimaryButtonModule.default as jest.Mock).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -6,7 +6,7 @@ import ExportProcessStateContent, { FIELD_ID, DATA_TEST_ID } from "./ExportProce
 import ExportStatusPropertyField from "../ExportStatusPropertyField/ExportStatusPropertyField";
 import DurationPropertyField from "src/theme/PropertyFieldLayout/DurationPropertyField/DurationPropertyField";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { fakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
 
 // mock the ExportStatusPropertyField component
 jest.mock(

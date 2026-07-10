@@ -4,7 +4,7 @@ import "src/_test_utilities/consoleMock";
 import ImportTimelineItem, { DATA_TEST_ID as IMPORT_TIMELINE_ITEM_DATA_TEST_ID } from "./ImportTimelineItem";
 import { render, screen } from "src/_test_utilities/test-utils";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { fakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
 import ImportProcessStateContent, {
   DATA_TEST_ID as IMPROT_PROCESS_STATE_CONTENT_DATA_TEST_ID,
 } from "src/modeldirectory/components/ModelProperties/components/ModelPropertiesContent/components/ModelPropertiesImportExport/ImportTimeline/components/ImportProcessStateContent/ImportProcessStateContent";
