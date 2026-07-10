@@ -5,7 +5,7 @@ import ImportDirectorService from "src/import/importDirector.service";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 import { writeServiceErrorToLog } from "src/error/logger";
 import { Backdrop } from "src/theme/Backdrop/Backdrop";
-import ModelsTable from "./components/ModelsTable/ModelsTable";
+import ModelsCardList from "./components/ModelsCardList/ModelsCardList";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import LocalesService from "src/locale/locales.service";
@@ -75,7 +75,6 @@ const ModelDirectory = () => {
   };
 
   const handleNotifyOnShowModelDetails = (modelId: string) => {
-    // set the drawerModel based on the modelID
     const modelToShow = models.find((model) => model.id === modelId);
     if (!modelToShow) {
       enqueueSnackbar(
@@ -223,7 +222,7 @@ const ModelDirectory = () => {
           <ModelDirectoryHeader onModelImport={handleOpenModelDialog} isImportModelLoading={isImportModelLoading} />
         }
         mainComponent={
-          <ModelsTable
+          <ModelsCardList
             models={models}
             isLoading={isLoadingModels}
             notifyOnExport={handleNotifyOnExport}

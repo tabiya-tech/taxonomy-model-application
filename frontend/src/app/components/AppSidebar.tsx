@@ -79,12 +79,7 @@ const AppSidebar = () => {
     >
       {appSidebarItems.map((item) => (
         <CustomNavLink key={item.pathName} to={item.pathName} data-testid={item.dataTestId}>
-          <Box
-            lineHeight={"0"}
-            paddingY={theme.tabiyaSpacing.xs}
-            paddingX={theme.tabiyaSpacing.md}
-            borderRadius={theme.tabiyaRounding.sm}
-          >
+          <Box lineHeight={"0"} padding={theme.fixedSpacing(1.3)} borderRadius={theme.tabiyaRounding.sm}>
             {item.icon}
           </Box>
           <Typography variant="caption">{item.label}</Typography>

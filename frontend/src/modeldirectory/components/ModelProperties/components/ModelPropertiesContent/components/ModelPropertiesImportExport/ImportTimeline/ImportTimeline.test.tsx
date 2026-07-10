@@ -1,7 +1,7 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { getOneRandomModelMaxLength } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getOneRandomModelMaxLength } from "src/modeldirectory/_test_utilities/mockModelData";
 import { render, screen } from "@testing-library/react";
 import ImportTimeline, { DATA_TEST_ID as TIMELINE_DATA_TEST_ID } from "./ImportTimeline";
 import ImportTimelineItem, {

@@ -4,7 +4,7 @@ import "src/_test_utilities/consoleMock";
 import ExplorerHeader, { DATA_TEST_ID } from "./ExplorerHeader";
 import { render, screen, within } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
-import { getArrayOfFakeModels } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 
 describe("ExplorerHeader", () => {
   beforeEach(() => {

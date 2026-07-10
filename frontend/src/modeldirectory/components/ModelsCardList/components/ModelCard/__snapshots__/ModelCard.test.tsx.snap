@@ -1,0 +1,125 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelCard should render the collapsed card with the model summary 1`] = `
+<div
+  class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiAccordion-root MuiAccordion-rounded css-88wzxs-MuiPaper-root-MuiAccordion-root"
+  data-testid="model-card-2fb5e5e4-8f4b-486c-b419-a68f207b1bcd"
+>
+  <div
+    aria-controls="model-card-details-00000000-0000-0000-0000-000000005001"
+    aria-expanded="false"
+    class="MuiButtonBase-root MuiAccordionSummary-root css-1qo7mnc-MuiButtonBase-root-MuiAccordionSummary-root"
+    data-testid="model-card-summary-2fb5e5e4-8f4b-486c-b419-a68f207b1bcd"
+    id="model-card-summary-00000000-0000-0000-0000-000000005001"
+    role="button"
+    tabindex="0"
+  >
+    <div
+      class="MuiAccordionSummary-content css-1betqn-MuiAccordionSummary-content"
+    >
+      <div
+        class="MuiBox-root css-kjjar9"
+      >
+        <div
+          class="MuiBox-root css-1fac03z"
+          data-testid="model-card-status-icon-container-2fb5e5e4-8f4b-486c-b419-a68f207b1bcd"
+        >
+          <div
+            data-testid="mock-ImportProcessState-icon"
+          />
+        </div>
+        <div
+          class="MuiBox-root css-164jx7l"
+        >
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-ypytb1-MuiTypography-root"
+            data-testid="model-card-title-2fb5e5e4-8f4b-486c-b419-a68f207b1bcd"
+          >
+            South Africa
+          </p>
+          <p
+            class="MuiTypography-root MuiTypography-body2 css-abuh0y-MuiTypography-root"
+            data-testid="model-card-subtitle-2fb5e5e4-8f4b-486c-b419-a68f207b1bcd"
+          >
+            Localized for the South Africa labour market
+          </p>
+          <div
+            class="MuiBox-root css-w7qght"
+            data-testid="model-card-description-2fb5e5e4-8f4b-486c-b419-a68f207b1bcd"
+          >
+            <span
+              data-testid="mock-markdown-property-field"
+            >
+              Description of the deterministic model 1
+            </span>
+          </div>
+        </div>
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-1xs8ryx-MuiTypography-root"
+          data-testid="model-card-versions-count-2fb5e5e4-8f4b-486c-b419-a68f207b1bcd"
+        >
+          3 versions
+        </p>
+      </div>
+    </div>
+    <div
+      class="MuiAccordionSummary-expandIconWrapper css-yw020d-MuiAccordionSummary-expandIconWrapper"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-il7e6s-MuiSvgIcon-root"
+        data-testid="ArrowDropDownIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="m7 10 5 5 5-5z"
+        />
+      </svg>
+    </div>
+  </div>
+  <div
+    class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+    style="min-height: 0px;"
+  >
+    <div
+      class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+    >
+      <div
+        class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+      >
+        <div
+          aria-labelledby="model-card-summary-00000000-0000-0000-0000-000000005001"
+          class="MuiAccordion-region"
+          id="model-card-details-00000000-0000-0000-0000-000000005001"
+          role="region"
+        >
+          <div
+            class="MuiAccordionDetails-root css-10js6cw-MuiAccordionDetails-root"
+            data-testid="model-card-details-2fb5e5e4-8f4b-486c-b419-a68f207b1bcd"
+          >
+            <hr
+              class="MuiDivider-root MuiDivider-fullWidth css-9mgopn-MuiDivider-root"
+            />
+            <div
+              data-testid="mock-VersionRow"
+            />
+            <hr
+              class="MuiDivider-root MuiDivider-fullWidth css-9mgopn-MuiDivider-root"
+            />
+            <div
+              data-testid="mock-VersionRow"
+            />
+            <hr
+              class="MuiDivider-root MuiDivider-fullWidth css-9mgopn-MuiDivider-root"
+            />
+            <div
+              data-testid="mock-VersionRow"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

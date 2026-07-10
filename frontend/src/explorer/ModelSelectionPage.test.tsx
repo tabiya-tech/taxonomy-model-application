@@ -6,7 +6,7 @@ import { render, screen } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import ModelSelectionPage, { DATA_TEST_ID } from "./ModelSelectionPage";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
-import { getArrayOfFakeModels } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 import { routerPaths } from "src/app/routerPaths";
 
 const givenModels = getArrayOfFakeModels(2);

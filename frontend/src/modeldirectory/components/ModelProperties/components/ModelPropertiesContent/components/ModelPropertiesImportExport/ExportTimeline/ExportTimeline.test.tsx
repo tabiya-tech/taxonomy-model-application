@@ -1,7 +1,7 @@
 // mute chatty console
 import "src/_test_utilities/consoleMock";
 
-import { getOneFakeExportProcessState } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getOneFakeExportProcessState } from "src/modeldirectory/_test_utilities/mockModelData";
 import { render, screen } from "@testing-library/react";
 import ExportTimeline, { DATA_TEST_ID as EXPORT_TIMELINE_DATA_TEST_ID } from "./ExportTimeline";
 import ExportTimelineItem from "./components/ExportTimelineItem/ExportTimelineItem";

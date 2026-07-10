@@ -3,7 +3,7 @@ import "src/_test_utilities/consoleMock";
 
 import { render, screen } from "src/_test_utilities/test-utils";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import { fakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { fakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
 import ExportTimelineItem, { DATA_TEST_ID } from "./ExportTimelineItem";
 import { DATA_TEST_ID as DOWNLOAD_TEST_ID } from "src/modeldirectory/components/DownloadModelButton/DownloadModelButton";
 import { within } from "@testing-library/react";

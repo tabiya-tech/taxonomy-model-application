@@ -10,7 +10,7 @@ import ModelInfoService from "src/modelInfo/modelInfo.service";
 import ExplorerService from "src/explorer/explorer.service";
 import { ExplorerTreeItem } from "src/explorer/components/ExplorerTreePanel/ExplorerTreePanel";
 import { ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
-import { getArrayOfFakeModels } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 import { routerPaths } from "src/app/routerPaths";
 
 const givenModels = getArrayOfFakeModels(1);

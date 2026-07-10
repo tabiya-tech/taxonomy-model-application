@@ -7,7 +7,7 @@ import ModelPropertiesContent, {
   MODEL_PROPERTIES_TAB_LABEL,
 } from "./ModelPropertiesContent";
 import { render, screen } from "@testing-library/react";
-import { getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getOneFakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
 import ModelPropertiesDescription from "./components/ModelPropertiesDescription/ModelPropertiesDescription";
 import TabControl from "src/theme/TabControl/TabControl";
 import ModelPropertiesVersion from "./components/ModelPropertiesVersion/ModelPropertiesVersion";

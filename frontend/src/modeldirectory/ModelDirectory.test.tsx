@@ -12,7 +12,9 @@ import ImportDirectorService from "src/import/importDirector.service";
 import { ImportFiles } from "src/import/ImportFiles.type";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 import { Backdrop, DATA_TEST_ID as BACKDROP_DATA_TEST_ID } from "src/theme/Backdrop/Backdrop";
-import ModelsTable, { DATA_TEST_ID as MODELS_TABLE_DATA_TEST_ID } from "./components/ModelsTable/ModelsTable";
+import ModelsCardList, {
+  DATA_TEST_ID as MODELS_CARD_LIST_DATA_TEST_ID,
+} from "./components/ModelsCardList/ModelsCardList";
 import ModelDirectoryHeader, {
   DATA_TEST_ID as MODEL_DIRECTORY_HEADER_DATA_TEST_ID,
 } from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
@@ -21,10 +23,7 @@ import ExportService from "src/export/export.service";
 import LocalesService from "src/locale/locales.service";
 import ImportAPISpecs from "api-specifications/import";
 
-import {
-  getArrayOfRandomModelsMaxLength,
-  getOneRandomModelMaxLength,
-} from "./components/ModelsTable/_test_utilities/mockModelData";
+import { getArrayOfRandomModelsMaxLength, getOneRandomModelMaxLength } from "./_test_utilities/mockModelData";
 import { getArrayOfFakeLocales } from "src/locale/_test_utilities/mockLocales";
 import LocaleAPISpecs from "api-specifications/locale";
 import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
@@ -104,17 +103,17 @@ jest.mock("src/import/ImportModelDialog", () => {
   };
 });
 
-// mock the ModelsTable
-jest.mock("src/modeldirectory/components/ModelsTable/ModelsTable", () => {
-  const actual = jest.requireActual("src/modeldirectory/components/ModelsTable/ModelsTable");
-  const mockModelsTable = jest.fn().mockImplementation(() => {
-    return <div data-testid={actual.DATA_TEST_ID.MODELS_TABLE_ID}> My Models Table</div>;
+// mock the ModelsCardList
+jest.mock("src/modeldirectory/components/ModelsCardList/ModelsCardList", () => {
+  const actual = jest.requireActual("src/modeldirectory/components/ModelsCardList/ModelsCardList");
+  const mockModelsCardList = jest.fn().mockImplementation(() => {
+    return <div data-testid={actual.DATA_TEST_ID.MODELS_CARD_LIST}> My Models Card List</div>;
   });
 
   return {
     ...actual,
     __esModule: true,
-    default: mockModelsTable,
+    default: mockModelsCardList,
   };
 });
 
@@ -253,7 +252,7 @@ describe("ModelDirectory", () => {
         testIds: [
           MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE,
           MODEL_DIRECTORY_HEADER_DATA_TEST_ID.MODEL_DIRECTORY_HEADER,
-          MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID,
+          MODELS_CARD_LIST_DATA_TEST_ID.MODELS_CARD_LIST,
         ],
       })
     );
@@ -283,9 +282,9 @@ describe("ModelDirectory", () => {
         {}
       );
 
-      // AND expect the ModelsTable to be visible
-      const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
-      expect(modelsTable).toBeInTheDocument();
+      // AND expect the ModelsCardList to be visible
+      const modelsCardList = screen.getByTestId(MODELS_CARD_LIST_DATA_TEST_ID.MODELS_CARD_LIST);
+      expect(modelsCardList).toBeInTheDocument();
 
       // AND the modelPropertiesDrawer is hidden
       expect(ModelPropertiesDrawer).toHaveBeenNthCalledWith(
@@ -298,8 +297,8 @@ describe("ModelDirectory", () => {
         {}
       );
 
-      // AND the ModelsTable should show an empty table with a loading spinner
-      expect(ModelsTable).toHaveBeenNthCalledWith(
+      // AND the ModelsCardList should show an empty table with a loading spinner
+      expect(ModelsCardList).toHaveBeenNthCalledWith(
         1,
         {
           models: [],
@@ -316,9 +315,9 @@ describe("ModelDirectory", () => {
         // THEN expect the ModelInfoService to have been called
         expect(ModelInfoService.prototype.fetchAllModelsPeriodically).toHaveBeenCalled();
       });
-      // AND the ModelsTable should re-render with the resolved data and the loading prop should be set to false
+      // AND the ModelsCardList should re-render with the resolved data and the loading prop should be set to false
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenNthCalledWith(
+        expect(ModelsCardList).toHaveBeenNthCalledWith(
           2,
           {
             models: givenMockData,
@@ -337,7 +336,7 @@ describe("ModelDirectory", () => {
       expect(console.warn).not.toHaveBeenCalled();
     });
 
-    test("should re-render the modelTable when new models are fetched", async () => {
+    test("should re-render the card list when new models are fetched", async () => {
       jest.useFakeTimers();
       // GIVEN the model info service fetchPeriodically will resolve with each time with new data
       let counter = 0;
@@ -355,8 +354,8 @@ describe("ModelDirectory", () => {
       // WHEN the ModelDirectory is mounted
       render(<ModelDirectory />);
 
-      // The ModelsTable should be rendered with the default props
-      expect(ModelsTable).toHaveBeenNthCalledWith(
+      // The ModelsCardList should be rendered with the default props
+      expect(ModelsCardList).toHaveBeenNthCalledWith(
         1,
         {
           models: [],
@@ -367,13 +366,13 @@ describe("ModelDirectory", () => {
         },
         {}
       );
-      // AND the ModelsTable should be rendered succeeds at first
+      // AND the ModelsCardList should be rendered succeeds at first
       act(() => {
         jest.advanceTimersToNextTimer();
       });
 
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenNthCalledWith(
+        expect(ModelsCardList).toHaveBeenNthCalledWith(
           2,
           {
             models: ["foo1"],
@@ -389,7 +388,7 @@ describe("ModelDirectory", () => {
         jest.advanceTimersToNextTimer();
       });
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenNthCalledWith(
+        expect(ModelsCardList).toHaveBeenNthCalledWith(
           3,
           {
             models: ["foo2"],
@@ -408,7 +407,7 @@ describe("ModelDirectory", () => {
       expect(console.warn).not.toHaveBeenCalled();
     });
 
-    test("should not re-render the modelTable when the models fetched are the same as the previous", async () => {
+    test("should not re-render the card list when the models fetched are the same as the previous", async () => {
       jest.useFakeTimers();
       // GIVEN the model info service fetchPeriodically will resolve with each time with the same data
       const callback = jest.fn();
@@ -424,8 +423,8 @@ describe("ModelDirectory", () => {
       // WHEN the ModelDirectory is mounted
       render(<ModelDirectory />);
 
-      // The ModelsTable should be rendered with the default props
-      expect(ModelsTable).toHaveBeenNthCalledWith(
+      // The ModelsCardList should be rendered with the default props
+      expect(ModelsCardList).toHaveBeenNthCalledWith(
         1,
         {
           models: [],
@@ -437,7 +436,7 @@ describe("ModelDirectory", () => {
         {}
       );
 
-      // AND the ModelsTable should be rendered with the data returned by the ModelInfoService
+      // AND the ModelsCardList should be rendered with the data returned by the ModelInfoService
       act(() => {
         jest.advanceTimersToNextTimer();
       });
@@ -446,7 +445,7 @@ describe("ModelDirectory", () => {
         expect(callback).toHaveBeenCalledTimes(1);
       });
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenNthCalledWith(
+        expect(ModelsCardList).toHaveBeenNthCalledWith(
           2,
           {
             models: ["foo"],
@@ -459,7 +458,7 @@ describe("ModelDirectory", () => {
         );
       });
 
-      // AND the ModelsTable should not be re-rendered when the ModelInfoService returns the same data
+      // AND the ModelsCardList should not be re-rendered when the ModelInfoService returns the same data
 
       //  let the timer run and to fetch the data again
       act(() => {
@@ -480,9 +479,9 @@ describe("ModelDirectory", () => {
       await waitFor(() => {
         expect(callback).toHaveBeenCalledTimes(3);
       });
-      // now the ModelsTable should be re-rendered with the new data for a total of 3 times ( it was not re-rendered when the same data was returned)
+      // now the ModelsCardList should be re-rendered with the new data for a total of 3 times ( it was not re-rendered when the same data was returned)
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenNthCalledWith(
+        expect(ModelsCardList).toHaveBeenNthCalledWith(
           3,
           {
             models: ["bar"],
@@ -496,7 +495,7 @@ describe("ModelDirectory", () => {
       });
     });
 
-    test("should show the error message when data fetching fails while the table is loading for the first time", async () => {
+    test("should show the error message when data fetching fails while the card list is loading for the first time", async () => {
       // GIVEN the model info service will fail with some error
       const givenError = new Error("foo");
       jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((_, onError) => {
@@ -507,11 +506,11 @@ describe("ModelDirectory", () => {
       // WHEN the ModelDirectory is mounted
       render(<ModelDirectory />);
 
-      // AND  expect the ModelsTable to be visible
-      const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
-      expect(modelsTable).toBeInTheDocument();
-      // AND the ModelsTable should receive the correct default props.
-      expect(ModelsTable).toHaveBeenCalledWith(
+      // AND  expect the ModelsCardList to be visible
+      const modelsCardList = screen.getByTestId(MODELS_CARD_LIST_DATA_TEST_ID.MODELS_CARD_LIST);
+      expect(modelsCardList).toBeInTheDocument();
+      // AND the ModelsCardList should receive the correct default props.
+      expect(ModelsCardList).toHaveBeenCalledWith(
         {
           models: [],
           isLoading: true,
@@ -535,8 +534,8 @@ describe("ModelDirectory", () => {
           preventDuplicate: true,
         });
       });
-      // AND the ModelsTable props to remain the same
-      expect(ModelsTable).toHaveBeenCalledWith(
+      // AND the ModelsCardList props to remain the same
+      expect(ModelsCardList).toHaveBeenCalledWith(
         {
           models: [],
           isLoading: true,
@@ -546,13 +545,13 @@ describe("ModelDirectory", () => {
         },
         {}
       );
-      // AND the ModelsTable should not be re-rendered
-      expect(ModelsTable).toHaveBeenCalledTimes(1);
+      // AND the ModelsCardList should not be re-rendered
+      expect(ModelsCardList).toHaveBeenCalledTimes(1);
       // AND finally expect no warning to have occurred
       expect(console.warn).not.toHaveBeenCalled();
     });
 
-    test("should show the table with the previous data and the error message when data fetching fails after it has succeed once", async () => {
+    test("should show the card list with the previous data and the error message when data fetching fails after it has succeed once", async () => {
       // GIVEN the model info service will succeed and return some data then fails with some error at the second call
       jest.useFakeTimers();
       const givenMockData = ["foo"] as any;
@@ -575,11 +574,11 @@ describe("ModelDirectory", () => {
       // THEN expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();
-      // AND expect the ModelsTable to be visible
-      const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
-      expect(modelsTable).toBeInTheDocument();
-      // AND the ModelsTable should receive the correct default props
-      expect(ModelsTable).toHaveBeenNthCalledWith(
+      // AND expect the ModelsCardList to be visible
+      const modelsCardList = screen.getByTestId(MODELS_CARD_LIST_DATA_TEST_ID.MODELS_CARD_LIST);
+      expect(modelsCardList).toBeInTheDocument();
+      // AND the ModelsCardList should receive the correct default props
+      expect(ModelsCardList).toHaveBeenNthCalledWith(
         1,
         {
           models: [],
@@ -596,8 +595,8 @@ describe("ModelDirectory", () => {
       });
 
       await waitFor(() => {
-        // THEN expect the ModelsTable to have been called with the correct props
-        expect(ModelsTable).toHaveBeenNthCalledWith(
+        // THEN expect the ModelsCardList to have been called with the correct props
+        expect(ModelsCardList).toHaveBeenNthCalledWith(
           2,
           {
             models: givenMockData,
@@ -626,8 +625,8 @@ describe("ModelDirectory", () => {
           preventDuplicate: true,
         });
       });
-      // AND the ModelsTable to have been called with the previous props
-      expect(ModelsTable).toHaveBeenLastCalledWith(
+      // AND the ModelsCardList to have been called with the previous props
+      expect(ModelsCardList).toHaveBeenLastCalledWith(
         {
           models: givenMockData,
           isLoading: false,
@@ -920,8 +919,8 @@ describe("ModelDirectory", () => {
 
         // THEN expect the fetchAllModelsPeriodically to not have been called
         expect(ModelInfoService.prototype.fetchAllModelsPeriodically).not.toHaveBeenCalled();
-        // AND the table is rendered with the isLoading state
-        expect(ModelsTable).toHaveBeenNthCalledWith(
+        // AND the card list is rendered with the isLoading state
+        expect(ModelsCardList).toHaveBeenNthCalledWith(
           1,
           {
             models: [],
@@ -943,10 +942,10 @@ describe("ModelDirectory", () => {
           jest.advanceTimersToNextTimer(); // so that the promise from the fetchAllModelsPeriodically resolves
         });
 
-        // THEN the table is not rendered in the isLoading state
+        // THEN the card list is not rendered in the isLoading state
         //  The model is rendered three times, because offline/online notification causes it to re-render
         //  so simply checking the last call here would do the job
-        expect(ModelsTable).toHaveBeenLastCalledWith(
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
           {
             models: [],
             isLoading: false,
@@ -1072,11 +1071,11 @@ describe("ModelDirectory", () => {
         givenImportData.isOriginalESCOModel
       );
 
-      // AND expect the ModelsTable to have been called with the new model
-      const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
-      expect(modelsTable).toBeInTheDocument();
+      // AND expect the ModelsCardList to have been called with the new model
+      const modelsCardList = screen.getByTestId(MODELS_CARD_LIST_DATA_TEST_ID.MODELS_CARD_LIST);
+      expect(modelsCardList).toBeInTheDocument();
       await waitFor(() => {
-        expect(ModelsTable).toHaveBeenCalledWith(
+        expect(ModelsCardList).toHaveBeenCalledWith(
           {
             models: expect.arrayContaining([givenNewModel]),
             isLoading: expect.any(Boolean),
@@ -1245,7 +1244,7 @@ describe("ModelDirectory", () => {
     test.each([
       [" has no existing models", []],
       [" has N existing models", getArrayOfRandomModelsMaxLength(3)],
-    ])("should add the new model to the table that %s", async (desc, givenExistingModels) => {
+    ])("should add the new model to the card list that %s", async (desc, givenExistingModels) => {
       // GIVEN the ModelDirectory is rendered with some existing models
       jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
         onSuccess(givenExistingModels);
@@ -1278,12 +1277,12 @@ describe("ModelDirectory", () => {
         });
       });
 
-      // THEN expect the ModelsTable to have been called with the existing and the new model
-      const modelsTable = screen.getByTestId(MODELS_TABLE_DATA_TEST_ID.MODELS_TABLE_ID);
-      expect(modelsTable).toBeInTheDocument();
+      // THEN expect the ModelsCardList to have been called with the existing and the new model
+      const modelsCardList = screen.getByTestId(MODELS_CARD_LIST_DATA_TEST_ID.MODELS_CARD_LIST);
+      expect(modelsCardList).toBeInTheDocument();
       await waitFor(() => {
         // here we cannot assert toHaveBeenLastCalledWith as we do not know the exact lifecycle of the fetchAllModelsPeriodically callback
-        expect(ModelsTable).toHaveBeenCalledWith(
+        expect(ModelsCardList).toHaveBeenCalledWith(
           {
             models: [givenNewModel, ...givenExistingModels],
             isLoading: false,
@@ -1346,7 +1345,7 @@ describe("ModelDirectory", () => {
     });
   });
 
-  describe("ModelTable action tests: handleNotifyOnExport", () => {
+  describe("ModelDirectory action tests: handleNotifyOnExport", () => {
     test("should handle export successfully", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
@@ -1361,7 +1360,7 @@ describe("ModelDirectory", () => {
 
       // WHEN the user clicks the export button
       act(() => {
-        const mock = (ModelsTable as jest.Mock).mock;
+        const mock = (ModelsCardList as jest.Mock).mock;
         mock.lastCall[0].notifyOnExport(givenExportedModel.id);
       });
 
@@ -1402,7 +1401,7 @@ describe("ModelDirectory", () => {
 
       // WHEN the user clicks the export button
       act(() => {
-        const mock = (ModelsTable as jest.Mock).mock;
+        const mock = (ModelsCardList as jest.Mock).mock;
         mock.lastCall[0].notifyOnExport(givenExportedModel.id);
       });
 
@@ -1452,7 +1451,7 @@ describe("ModelDirectory", () => {
 
       // WHEN the user clicks the export button
       act(() => {
-        const mock = (ModelsTable as jest.Mock).mock;
+        const mock = (ModelsCardList as jest.Mock).mock;
         mock.lastCall[0].notifyOnExport(givenExportedModel.id);
       });
 
@@ -1473,7 +1472,7 @@ describe("ModelDirectory", () => {
     });
   });
 
-  describe("ModelTable action tests handleNotifyOnShowModelDetails", () => {
+  describe("ModelDirectory action tests: handleNotifyOnShowModelDetails", () => {
     test("should show modelPropertiesDrawer successfully and then hide it", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
@@ -1486,7 +1485,7 @@ describe("ModelDirectory", () => {
       // WHEN the user clicks the show details button of some model
       const givenSelectedModel = givenModels[1];
       act(() => {
-        const mock = (ModelsTable as jest.Mock).mock;
+        const mock = (ModelsCardList as jest.Mock).mock;
         mock.lastCall[0].notifyOnShowModelDetails(givenSelectedModel.id);
       });
 
@@ -1530,7 +1529,7 @@ describe("ModelDirectory", () => {
       // WHEN the user clicks the show details button of some model
       const givenSelectedModel = "non-existing-id";
       act(() => {
-        const mock = (ModelsTable as jest.Mock).mock;
+        const mock = (ModelsCardList as jest.Mock).mock;
         mock.lastCall[0].notifyOnShowModelDetails(givenSelectedModel);
       });
 

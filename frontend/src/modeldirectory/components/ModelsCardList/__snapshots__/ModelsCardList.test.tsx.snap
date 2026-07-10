@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelsCardList should render one card per locale with the correct props 1`] = `
+<div
+  class="MuiBox-root css-1azhr2n"
+  data-testid="models-card-list-d2c56aa9-8c26-42a0-83f0-905e0d63c821"
+>
+  <div
+    data-testid="mock-ModelCard"
+  />
+  <div
+    data-testid="mock-ModelCard"
+  />
+</div>
+`;

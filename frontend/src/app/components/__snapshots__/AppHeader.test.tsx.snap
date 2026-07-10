@@ -42,7 +42,7 @@ exports[`AppHeader AppHeader render tests renders correctly when the user is log
       class="MuiBox-root css-1g0z69"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1z050en-MuiTypography-root"
       >
         JohnDoe
       </p>
@@ -118,7 +118,7 @@ exports[`AppHeader AppHeader render tests renders correctly with unauthenticated
       class="MuiBox-root css-1g0z69"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-1z050en-MuiTypography-root"
       />
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-1s9eyn2-MuiButtonBase-root-MuiIconButton-root"

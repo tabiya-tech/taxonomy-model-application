@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import ModelPropertiesContent from "./ModelPropertiesContent";
-import { getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getOneFakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
 
 const meta: Meta<typeof ModelPropertiesContent> = {
   title: "ModelDirectory/ModelProperties/ModelPropertiesContent",

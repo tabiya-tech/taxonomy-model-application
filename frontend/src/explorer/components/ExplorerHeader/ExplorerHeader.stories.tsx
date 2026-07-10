@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import ExplorerHeader from "./ExplorerHeader";
-import { getArrayOfFakeModels } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 
 const fakeModels = getArrayOfFakeModels(3);
 fakeModels[0] = { ...fakeModels[0], name: "Taxonomy for South Africa", version: "v1.0.1-rc.1" };

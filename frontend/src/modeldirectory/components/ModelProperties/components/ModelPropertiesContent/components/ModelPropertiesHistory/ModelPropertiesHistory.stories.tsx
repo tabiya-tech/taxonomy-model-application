@@ -1,4 +1,4 @@
-import { getOneFakeModel } from "src/modeldirectory/components/ModelsTable/_test_utilities/mockModelData";
+import { getOneFakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
 import { Meta, StoryObj } from "@storybook/react";
 import ModelPropertiesHistory from "./ModelPropertiesHistory";
 import { getFakeUUIDHistoryDetailsArray } from "./UUIDHistoryTimeline/_test_utilities/mockData";
