@@ -7,6 +7,8 @@ import {setupRedocBucket, setupSwaggerBucket} from "./openapiBuckets";
 import {setupDownloadBucket, setupDownloadBucketWritePolicy} from "./downloadBucket";
 import {setupAsyncExportApi} from "./asyncExport";
 import {setupAuthorizer} from "./authorizer";
+import {setupEmbeddingsFn} from "./embeddings";
+import {setupEmbeddingsQueue} from "./embeddingsQueue";
 
 export const environment = pulumi.getStack();
 export const domainName = process.env.DOMAIN_NAME!;
@@ -25,6 +27,13 @@ const authDatabaseURI = process.env.AUTH_DATABASE_URI;
 if(!authDatabaseURI) throw new Error("environment variable AUTH_DATABASE_URI is required")
 
 const sentryBackendDSN = process.env.SENTRY_BACKEND_DSN ?? "";
+
+// Gemini configuration (used by both the core REST backend and the embedding lambda to generate vectors).
+const geminiApiKey = process.env.GEMINI_API_KEY;
+if(!geminiApiKey) throw new Error("environment variable GEMINI_API_KEY is required")
+
+const geminiEmbeddingModel = process.env.GEMINI_EMBEDDING_MODEL;
+if(!geminiEmbeddingModel) throw new Error("environment variable GEMINI_EMBEDDING_MODEL is required")
 
 const userPoolId = process.env.USER_POOL_ID;
 if(!userPoolId)
@@ -93,6 +102,27 @@ const {asyncImportLambdaRole, asyncImportLambdaFunction} = setupAsyncImportApi(e
 });
 
 /**
+ * Setup Embeddings lambda and queue
+ *
+ * The embedding lambda generates vectors in the background. It is triggered by the embeddings SQS
+ * queue via an event source mapping (see setupEmbeddingsQueue), which also wires the dead-letter queue.
+ */
+const {embeddingsLambdaRole, embeddingsLambdaFunction} = setupEmbeddingsFn(environment, {
+  mongodb_uri: mongoDbUri,
+  resourcesBaseUrl,
+  gemini_api_key: geminiApiKey,
+  gemini_embedding_model: geminiEmbeddingModel,
+  sentry_backend_dsn: sentryBackendDSN,
+});
+
+const {embeddingsQueue} = setupEmbeddingsQueue({
+  embeddingsLambdaRole,
+  embeddingsLambdaFunction,
+});
+
+export const embeddingsQueueUrl = embeddingsQueue.url;
+
+/**
  * Setup Authorizer Lambda
  */
 const {authorizerLambdaFunction} = setupAuthorizer(environment, {
@@ -117,6 +147,11 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   async_lambda_function_region: currentRegion,
   authorizer_lambda_function_invoke_arn: authorizerLambdaFunction.invokeArn,
   authorizer_lambda_function_name: authorizerLambdaFunction.name,
+  embeddings_queue_url: embeddingsQueue.url,
+  embeddings_queue_arn: embeddingsQueue.arn,
+  embeddings_queue_region: currentRegion,
+  gemini_api_key: geminiApiKey,
+  gemini_embedding_model: geminiEmbeddingModel,
   sentry_backend_dsn: sentryBackendDSN,
 });
 
