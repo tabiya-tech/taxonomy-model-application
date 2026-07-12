@@ -27,4 +27,5 @@ export const Routes = {
   SKILL_OCCUPATIONS_ROUTE: "/models/:modelId/skills/:id/occupations",
   SKILL_RELATED_ROUTE: "/models/:modelId/skills/:id/related",
   SKILL_HISTORY_ROUTE: "/models/:modelId/skills/:id/history",
+  MODEL_EMBEDDING_PROCESSES_ROUTE: "/models/:modelId/embedding-processes",
 };

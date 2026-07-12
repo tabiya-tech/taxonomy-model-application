@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, Handler } from "aws-lambda";
 import { handler as InfoHandler } from "applicationInfo";
 import { handler as ModelHandler } from "modelInfo";
+import { handler as ModelEmbeddingProcessesHandler } from "modelInfo/embeddingProcesses";
 import { handler as ImportHandler } from "import";
 import { handler as OccupationGroupHandler } from "esco/occupationGroup/index";
 import { handler as OccupationHandler } from "esco/occupations";
@@ -65,6 +66,8 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
     return ImportHandler(event);
   } else if (path === Routes.EXPORT_ROUTE) {
     return ExportHandler(event);
+  } else if (pathToRegexp(Routes.MODEL_EMBEDDING_PROCESSES_ROUTE).regexp.test(path)) {
+    return ModelEmbeddingProcessesHandler(event);
   } else if (
     pathToRegexp([
       Routes.OCCUPATION_GROUPS_ROUTE,

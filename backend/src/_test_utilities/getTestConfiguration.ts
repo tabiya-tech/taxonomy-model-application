@@ -13,5 +13,9 @@ export function getTestConfiguration(dbname: string): IConfiguration {
     asyncImportLambdaFunctionArn: "arn:aws:lambda:foo:bar:baz:import",
     asyncExportLambdaFunctionArn: "arn:aws:lambda:foo:bar:baz:export",
     asyncLambdaFunctionRegion: "foo",
+    geminiApiKey: "test-gemini-api-key",
+    geminiEmbeddingModel: "text-embedding-004",
+    embeddingsQueueUrl: "https://sqs.foo.amazonaws.com/123456789012/test-embeddings-queue",
+    embeddingsQueueRegion: "foo",
   };
 }
