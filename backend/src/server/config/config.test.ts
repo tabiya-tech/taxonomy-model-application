@@ -47,6 +47,10 @@ describe("Test read Configuration()", () => {
     process.env.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN = getRandomString(10);
     process.env.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN = getRandomString(10);
     process.env.ASYNC_LAMBDA_FUNCTION_REGION = getRandomString(10);
+    process.env.GEMINI_API_KEY = getRandomString(10);
+    process.env.GEMINI_EMBEDDING_MODEL = getRandomString(10);
+    process.env.EMBEDDINGS_QUEUE_URL = getRandomString(10);
+    process.env.EMBEDDINGS_QUEUE_REGION = getRandomString(10);
 
     // WHEN reading the configuration from the environment
     const actualConfig = readEnvironmentConfiguration();
@@ -63,6 +67,10 @@ describe("Test read Configuration()", () => {
       asyncImportLambdaFunctionArn: process.env.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN,
       asyncExportLambdaFunctionArn: process.env.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN,
       asyncLambdaFunctionRegion: process.env.ASYNC_LAMBDA_FUNCTION_REGION,
+      geminiApiKey: process.env.GEMINI_API_KEY,
+      geminiEmbeddingModel: process.env.GEMINI_EMBEDDING_MODEL,
+      embeddingsQueueUrl: process.env.EMBEDDINGS_QUEUE_URL,
+      embeddingsQueueRegion: process.env.EMBEDDINGS_QUEUE_REGION,
     });
   });
 
@@ -77,6 +85,10 @@ describe("Test read Configuration()", () => {
     delete process.env.DOWNLOAD_BUCKET_REGION;
     delete process.env.ASYNC_LAMBDA_FUNCTION_ARN;
     delete process.env.ASYNC_LAMBDA_FUNCTION_REGION;
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.GEMINI_EMBEDDING_MODEL;
+    delete process.env.EMBEDDINGS_QUEUE_URL;
+    delete process.env.EMBEDDINGS_QUEUE_REGION;
 
     // WHEN reading the configuration from the environment
     const config = readEnvironmentConfiguration();
@@ -93,6 +105,10 @@ describe("Test read Configuration()", () => {
       asyncImportLambdaFunctionArn: "",
       asyncExportLambdaFunctionArn: "",
       asyncLambdaFunctionRegion: "",
+      geminiApiKey: "",
+      geminiEmbeddingModel: "",
+      embeddingsQueueUrl: "",
+      embeddingsQueueRegion: "",
     });
   });
 });
@@ -189,5 +205,9 @@ function getMockConfig(): IConfiguration {
     asyncImportLambdaFunctionArn: getTestString(10),
     asyncExportLambdaFunctionArn: getTestString(10),
     asyncLambdaFunctionRegion: getTestString(10),
+    geminiApiKey: getTestString(10),
+    geminiEmbeddingModel: getTestString(10),
+    embeddingsQueueRegion: getTestString(10),
+    embeddingsQueueUrl: getTestString(10),
   };
 }

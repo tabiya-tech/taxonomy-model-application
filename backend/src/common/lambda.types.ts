@@ -6,4 +6,5 @@ export enum Lambdas {
   API = "API",
   IMPORT = "IMPORT",
   EXPORT = "EXPORT",
+  EMBEDDING = "EMBEDDING",
 }

@@ -11,6 +11,10 @@ export const ENV_VAR_NAMES = {
   ASYNC_IMPORT_LAMBDA_FUNCTION_ARN: "ASYNC_IMPORT_LAMBDA_FUNCTION_ARN",
   ASYNC_EXPORT_LAMBDA_FUNCTION_ARN: "ASYNC_EXPORT_LAMBDA_FUNCTION_ARN",
   ASYNC_LAMBDA_FUNCTION_REGION: "ASYNC_LAMBDA_FUNCTION_REGION",
+  GEMINI_API_KEY: "GEMINI_API_KEY",
+  GEMINI_EMBEDDING_MODEL: "GEMINI_EMBEDDING_MODEL",
+  EMBEDDINGS_QUEUE_URL: "EMBEDDINGS_QUEUE_URL",
+  EMBEDDINGS_QUEUE_REGION: "EMBEDDINGS_QUEUE_REGION",
 };
 
 export interface IConfiguration {
@@ -24,6 +28,10 @@ export interface IConfiguration {
   asyncImportLambdaFunctionArn: string;
   asyncExportLambdaFunctionArn: string;
   asyncLambdaFunctionRegion: string;
+  geminiApiKey: string;
+  geminiEmbeddingModel: string;
+  embeddingsQueueUrl: string;
+  embeddingsQueueRegion: string;
 }
 export function readEnvironmentConfiguration(): IConfiguration {
   return {
@@ -37,6 +45,10 @@ export function readEnvironmentConfiguration(): IConfiguration {
     asyncImportLambdaFunctionArn: process.env[ENV_VAR_NAMES.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN] ?? "",
     asyncExportLambdaFunctionArn: process.env[ENV_VAR_NAMES.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN] ?? "",
     asyncLambdaFunctionRegion: process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_REGION] ?? "",
+    geminiApiKey: process.env[ENV_VAR_NAMES.GEMINI_API_KEY] ?? "",
+    geminiEmbeddingModel: process.env[ENV_VAR_NAMES.GEMINI_EMBEDDING_MODEL] ?? "",
+    embeddingsQueueUrl: process.env[ENV_VAR_NAMES.EMBEDDINGS_QUEUE_URL] ?? "",
+    embeddingsQueueRegion: process.env[ENV_VAR_NAMES.EMBEDDINGS_QUEUE_REGION] ?? "",
   };
 }
 
@@ -87,4 +99,20 @@ export function getAsyncLambdaFunctionRegion() {
 
 export function getDomainName() {
   return _configuration?.domainName ?? "";
+}
+
+export function getGeminiApiKey() {
+  return _configuration?.geminiApiKey ?? "";
+}
+
+export function getGeminiEmbeddingModel() {
+  return _configuration?.geminiEmbeddingModel ?? "";
+}
+
+export function getEmbeddingsQueueUrl() {
+  return _configuration?.embeddingsQueueUrl ?? "";
+}
+
+export function getEmbeddingsQueueRegion() {
+  return _configuration?.embeddingsQueueRegion ?? "";
 }
