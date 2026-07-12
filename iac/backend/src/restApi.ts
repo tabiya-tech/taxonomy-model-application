@@ -14,7 +14,7 @@ const LAMBDA_MEMORY_IN_MB = 512;
 
 const LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS = 10;
 
-export function setupBackendRESTApi(environment: string, config: {
+interface SetupBackendRESTAPIConfig {
   mongodb_uri: string,
   auth_database_uri: string,
   resourcesBaseUrl: string,
@@ -27,8 +27,21 @@ export function setupBackendRESTApi(environment: string, config: {
   async_lambda_function_region: Output<string>,
   authorizer_lambda_function_invoke_arn: Output<string>
   authorizer_lambda_function_name: Output<string>,
+  embeddings_queue_url: Output<string>,
+  embeddings_queue_arn: Output<string>,
+  embeddings_queue_region: Output<string>,
+  gemini_api_key: string,
+  gemini_embedding_model: string,
   sentry_backend_dsn: string
-}): { restApi: RestApi, stage: Stage, restApiLambdaRole: aws.iam.Role } {
+}
+
+interface SetupBackendRESTAPIOutput {
+  restApi: RestApi,
+  stage: Stage,
+  restApiLambdaRole: aws.iam.Role
+}
+
+export function setupBackendRESTApi(environment: string, config: SetupBackendRESTAPIConfig): SetupBackendRESTAPIOutput {
   /**
    * Lambda for api
    */
@@ -104,6 +117,30 @@ export function setupBackendRESTApi(environment: string, config: {
     role: lambdaRole.name,
   });
 
+  // Send message to the embedding queue policy
+  // The REST API is the producer that pushes entities onto the embedding queue.
+  const embeddingsQueueSendMessagePolicy = new aws.iam.Policy("model-api-function-embeddings-queue-send-policy", {
+    policy: config.embeddings_queue_arn.apply((queueArn) => JSON.stringify({
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Action: [
+            "sqs:SendMessage",
+            "sqs:SendMessageBatch",
+            "sqs:GetQueueAttributes",
+          ],
+          Effect: "Allow",
+          Resource: queueArn,
+        }
+      ]
+    }))
+  });
+
+  new aws.iam.RolePolicyAttachment("model-api-function-role-embeddings-queue-send-policy-attachment", {
+    policyArn: embeddingsQueueSendMessagePolicy.arn,
+    role: lambdaRole.name,
+  });
+
   // Build the source code archive
   let fileArchive = new asset.FileArchive(buildFolderPath);
 
@@ -129,6 +166,10 @@ export function setupBackendRESTApi(environment: string, config: {
         ASYNC_IMPORT_LAMBDA_FUNCTION_ARN: config.async_import_lambda_function_arn,
         ASYNC_EXPORT_LAMBDA_FUNCTION_ARN: config.async_export_lambda_function_arn,
         ASYNC_LAMBDA_FUNCTION_REGION: config.async_lambda_function_region,
+        EMBEDDINGS_QUEUE_URL: config.embeddings_queue_url,
+        EMBEDDINGS_QUEUE_REGION: config.embeddings_queue_region,
+        GEMINI_API_KEY: config.gemini_api_key,
+        GEMINI_EMBEDDING_MODEL: config.gemini_embedding_model,
         SENTRY_BACKEND_DSN: config.sentry_backend_dsn,
         TARGET_ENVIRONMENT: environment,
       }
