@@ -211,6 +211,10 @@ ajvInstance.addSchema(
   SkillAPISpecs.Skill.RelatedSkills.POST.Schemas.Request.Payload,
   SkillAPISpecs.Skill.RelatedSkills.POST.Schemas.Request.Payload.$id
 );
+ajvInstance.addSchema(
+  ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload,
+  ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload.$id
+);
 
 /**
  * Turn the errors from ajv and turn into a string that consumers can read.

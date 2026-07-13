@@ -66,7 +66,7 @@ export const handleRouteEvent = async (event: APIGatewayProxyEvent) => {
     return ImportHandler(event);
   } else if (path === Routes.EXPORT_ROUTE) {
     return ExportHandler(event);
-  } else if (pathToRegexp(Routes.MODEL_EMBEDDING_PROCESSES_ROUTE).regexp.test(path)) {
+  } else if (pathToRegexp([Routes.MODEL_EMBEDDING_PROCESSES_ROUTE]).regexp.test(path)) {
     return ModelEmbeddingProcessesHandler(event);
   } else if (
     pathToRegexp([

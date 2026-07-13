@@ -91,6 +91,10 @@ describe("Validate JSON against the APIError Schema", () => {
         ...Object.values(SkillsAPI.GET.Errors.Status400.ErrorCodes),
         ...Object.values(SkillsAPI.GET.Errors.Status404.ErrorCodes),
         ...Object.values(SkillsAPI.GET.Errors.Status500.ErrorCodes),
+        ...Object.values(ModelInfoAPI.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status400.ErrorCodes),
+        ...Object.values(ModelInfoAPI.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status404.ErrorCodes),
+        ...Object.values(ModelInfoAPI.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status409.ErrorCodes),
+        ...Object.values(ModelInfoAPI.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status500.ErrorCodes),
       ];
 
       test.each([

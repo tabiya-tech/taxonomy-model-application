@@ -41,6 +41,8 @@ delete ModelInfo.Schemas.POST.Response.Payload.$id;
 delete ModelInfo.Schemas.POST.Request.Payload.$id;
 delete ModelInfo.Schemas.GET.Response.Payload.$id;
 delete ModelInfo.Schemas.Reference.$id;
+delete ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload.$id;
+delete ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Response.Payload.$id;
 delete Occupation.Schemas.Reference.$id;
 delete OccupationGroup.Schemas.Reference.$id;
 delete Skill.Schemas.Reference.$id;
@@ -408,11 +410,32 @@ function getOpenAPISpecification(
             404,
             Object.values(Skill.GET.Errors.Status404.RelatedSkills.ErrorCodes)
           ),
+          // EmbeddingProcess-specific error schemas
+          POSTEmbeddingProcess400ErrorSchema: APIError.Schemas.getPayload(
+            "POST",
+            "EmbeddingProcess",
+            400,
+            Object.values(ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status400.ErrorCodes)
+          ),
+          POSTEmbeddingProcess404ErrorSchema: APIError.Schemas.getPayload(
+            "POST",
+            "EmbeddingProcess",
+            404,
+            Object.values(ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status404.ErrorCodes)
+          ),
+          POSTEmbeddingProcess409ErrorSchema: APIError.Schemas.getPayload(
+            "POST",
+            "EmbeddingProcess",
+            409,
+            Object.values(ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status409.ErrorCodes)
+          ),
           PresignedSchema: Presigned.Schemas.GET.Response.Payload,
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
           ModelInfoResponseSchemaGET: ModelInfo.Schemas.GET.Response.Payload,
           ModelInfoReferenceSchema: ModelInfo.Schemas.Reference,
+          EmbeddingsRequestSchemaPOST: ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload,
+          EmbeddingsResponseSchemaPOST: ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Response.Payload,
           OccupationReferenceSchema: Occupation.Schemas.Reference,
           OccupationGroupReferenceSchema: OccupationGroup.Schemas.Reference,
           SkillReferenceSchema: Skill.Schemas.Reference,
