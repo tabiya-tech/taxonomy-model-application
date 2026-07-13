@@ -40,7 +40,9 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
           borderTopRightRadius: (theme) => theme.rounding(theme.tabiyaRounding.md),
           borderTopLeftRadius: (theme) => theme.rounding(theme.tabiyaRounding.md),
           margin: (theme) => theme.spacing(theme.tabiyaRounding.none), // setting the margin to other than 0, may cause the page to scroll in case margins are added
-          paddingX: (theme) => theme.tabiyaSpacing.lg,
+          paddingLeft: (theme) => theme.tabiyaSpacing.xl,
+          paddingTop: (theme) => theme.tabiyaSpacing.md,
+          paddingBottom: (theme) => theme.tabiyaSpacing.md,
           backgroundColor: (theme) => theme.palette.containerBackground.light, //,"red",
         }}
         data-testid={DATA_TEST_ID.CONTENT_LAYOUT}
@@ -60,6 +62,8 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
               display: "flex",
               flexDirection: "column",
               alignItems: "start",
+              overflowY: "auto",
+              paddingRight: (theme) => theme.tabiyaSpacing.xl,
               backgroundColor: "none", //"blue", //
             }}
           >
@@ -68,8 +72,8 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
               sx={{
                 width: "100%",
                 margin: (theme) => theme.tabiyaSpacing.none,
-                padding: (theme) => theme.tabiyaSpacing.none,
-                paddingY: (theme) => theme.tabiyaSpacing.xl,
+                paddingTop: (theme) => theme.tabiyaSpacing.md,
+                paddingBottom: (theme) => theme.tabiyaSpacing.xl,
                 backgroundColor: "none", //"green",//
               }}
             >
@@ -80,11 +84,9 @@ const ContentLayout = (props: Readonly<ContentLayoutProps>) => {
               tabIndex={0}
               sx={{
                 width: "100%",
-                height: "100%",
                 margin: (theme) => theme.tabiyaSpacing.none,
                 padding: (theme) => theme.tabiyaSpacing.none,
                 flex: "1",
-                overflowY: "auto",
                 backgroundColor: "none", //"magenta"
               }}
               data-testid={DATA_TEST_ID.CONTENT_LAYOUT_MAIN}

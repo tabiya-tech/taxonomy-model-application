@@ -6,17 +6,17 @@ exports[`ModelDirectory ModelDirectory Render ModelDirectory initial render test
   style="width: 100%; height: 100%;"
 >
   <div
-    class="MuiGrid-root MuiGrid-container css-1bb2q56-MuiGrid-root"
+    class="MuiGrid-root MuiGrid-container css-1oryus-MuiGrid-root"
     data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
   >
     <div
       style="width: 100%; height: 100%; opacity: 0.2;"
     >
       <div
-        class="MuiBox-root css-135vfhz"
+        class="MuiBox-root css-5oylek"
       >
         <div
-          class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item css-3n7c8z-MuiGrid-root"
         >
           <div
             data-testid="model-directory-header-8482f1cc-0786-423f-821e-34b6b712d78u"
@@ -25,7 +25,7 @@ exports[`ModelDirectory ModelDirectory Render ModelDirectory initial render test
           </div>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-item css-nqjhly-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item css-dtpx7v-MuiGrid-root"
           data-testid="content-layout-main-14c01398-e7fc-4b09-8dcb-3195acdf120a"
           tabindex="0"
         >
@@ -52,17 +52,17 @@ exports[`ModelDirectory ModelDirectory Render should re-render the card list whe
   style="width: 100%; height: 100%;"
 >
   <div
-    class="MuiGrid-root MuiGrid-container css-1bb2q56-MuiGrid-root"
+    class="MuiGrid-root MuiGrid-container css-1oryus-MuiGrid-root"
     data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
   >
     <div
       style="width: 100%; height: 100%; opacity: 0.2;"
     >
       <div
-        class="MuiBox-root css-135vfhz"
+        class="MuiBox-root css-5oylek"
       >
         <div
-          class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item css-3n7c8z-MuiGrid-root"
         >
           <div
             data-testid="model-directory-header-8482f1cc-0786-423f-821e-34b6b712d78u"
@@ -71,7 +71,7 @@ exports[`ModelDirectory ModelDirectory Render should re-render the card list whe
           </div>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-item css-nqjhly-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item css-dtpx7v-MuiGrid-root"
           data-testid="content-layout-main-14c01398-e7fc-4b09-8dcb-3195acdf120a"
           tabindex="0"
         >

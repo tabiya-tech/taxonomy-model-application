@@ -2,7 +2,7 @@
 import "src/_test_utilities/consoleMock";
 
 import ContentLayout, { DATA_TEST_ID } from "./ContentLayout";
-import { render, screen, waitFor, fireEvent } from "src/_test_utilities/test-utils";
+import { render, screen, waitFor } from "src/_test_utilities/test-utils";
 
 describe("ContentLayout", () => {
   beforeEach(() => {
@@ -75,13 +75,9 @@ describe("ContentLayout", () => {
     const mainComponent = screen.getByTestId(DATA_TEST_ID.CONTENT_LAYOUT_MAIN);
     expect(mainComponent).toBeInTheDocument();
 
-    // AND the content to scrollable
-    expect(mainComponent).toHaveStyle("overflow-y: auto;");
-
-    // AND the user can scroll to see the full content
-    fireEvent.scroll(mainComponent, { deltaY: mainComponent.scrollHeight });
-
-    // AND the last sentence should be in the view port
+    // AND the entire content is rendered — the whole card (header + main) scrolls together inside
+    // the white background, so the last sentence is present in the document
+    expect(mainComponent).toHaveTextContent(lastSentence);
     expect(mainComponent).toBeVisible();
 
     // AND to match the snapshot

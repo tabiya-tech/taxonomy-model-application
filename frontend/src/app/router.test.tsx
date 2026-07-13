@@ -3,6 +3,7 @@ import { RouterProvider, createMemoryRouter, generatePath } from "react-router-d
 import routesConfig from "./routerConfig";
 import { routerPaths } from "src/app/routerPaths";
 import { DATA_TEST_ID as INFO_DATA_TEST_ID } from "src/info/Info";
+import { DATA_TEST_ID as API_DOCS_PAGE_DATA_TEST_ID } from "src/apiDocs/ApiDocsPage";
 import { DATA_TEST_ID as MODEL_DIRECTORY_DATA_TEST_ID } from "src/modeldirectory/ModelDirectory";
 import { DATA_TEST_ID as NOT_FOUND_DATA_TEST_ID } from "src/errorPage/NotFound";
 import { DATA_TEST_ID as MODEL_SELECTION_PAGE_DATA_TEST_ID } from "src/explorer/ModelSelectionPage";
@@ -75,12 +76,20 @@ describe("Tests for router config", () => {
     expect(screen.getByTestId(LANDING_PAGE_DATA_TEST_ID.LANDING_PAGE_ROOT)).toBeInTheDocument();
   });
 
-  it("should render the settings", async () => {
-    // WHEN the SETTINGS is chosen
-    renderWithRouter(routerPaths.SETTINGS);
+  it("should render the info page", async () => {
+    // WHEN the INFO path is chosen
+    renderWithRouter(routerPaths.INFO);
 
     // THEN expect the info page to be available
     expect(screen.getByTestId(INFO_DATA_TEST_ID.INFO_ROOT)).toBeInTheDocument();
+  });
+
+  it("should render the API docs page", async () => {
+    // WHEN the API_DOCS path is chosen
+    renderWithRouter(routerPaths.API_DOCS);
+
+    // THEN expect the API docs page to be available
+    expect(screen.getByTestId(API_DOCS_PAGE_DATA_TEST_ID.API_DOCS_PAGE_ROOT)).toBeInTheDocument();
   });
 
   it("should render the Model Directory", async () => {

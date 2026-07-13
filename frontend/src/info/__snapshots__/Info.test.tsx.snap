@@ -6,17 +6,17 @@ exports[`Testing Info component it should show frontend and backend info success
   style="width: 100%; height: 100%;"
 >
   <div
-    class="MuiGrid-root MuiGrid-container css-1bb2q56-MuiGrid-root"
+    class="MuiGrid-root MuiGrid-container css-1oryus-MuiGrid-root"
     data-testid="content-layout-root-14c01398-e7fc-4b09-8dcb-3195acdf120a"
   >
     <div
       style="width: 100%; height: 100%; opacity: 0.2;"
     >
       <div
-        class="MuiBox-root css-135vfhz"
+        class="MuiBox-root css-5oylek"
       >
         <div
-          class="MuiGrid-root MuiGrid-item css-1pymvqh-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item css-3n7c8z-MuiGrid-root"
         >
           <h2
             class="MuiTypography-root MuiTypography-h2 css-2jbldj-MuiTypography-root"
@@ -25,7 +25,7 @@ exports[`Testing Info component it should show frontend and backend info success
           </h2>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-item css-nqjhly-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item css-dtpx7v-MuiGrid-root"
           data-testid="content-layout-main-14c01398-e7fc-4b09-8dcb-3195acdf120a"
           tabindex="0"
         >
