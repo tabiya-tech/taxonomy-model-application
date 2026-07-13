@@ -117,6 +117,11 @@ export interface ISkillGroupQueryParams {
   childrenType?: SkillGroupEnums.Relations.Children.ObjectTypes;
 }
 
+export interface ISkillGroupPOSTParentsRequest {
+  parentId: string;
+  parentType: SkillGroupEnums.Relations.Parents.ObjectTypes;
+}
+
 export interface ISkillGroupParentsRequestQuery {
   limit?: number;
   cursor?: string;
