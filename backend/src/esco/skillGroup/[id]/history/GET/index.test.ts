@@ -43,6 +43,7 @@ describe("SkillGroupHistoryController", () => {
         validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
         findChildren: jest.fn(),
         getHistory: jest.fn().mockResolvedValue([]),
+        setParent: jest.fn(),
       } as ISkillGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);

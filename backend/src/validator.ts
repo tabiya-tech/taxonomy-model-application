@@ -162,6 +162,14 @@ ajvInstance.addSchema(
   SkillGroupAPISpecs.SkillGroup.Children.GET.Schemas.Response.Children.Payload.$id
 );
 ajvInstance.addSchema(
+  SkillGroupAPISpecs.SkillGroup.Parent.POST.Schemas.Request.Payload,
+  SkillGroupAPISpecs.SkillGroup.Parent.POST.Schemas.Request.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillGroupAPISpecs.SkillGroup.Parent.POST.Schemas.Response.Payload,
+  SkillGroupAPISpecs.SkillGroup.Parent.POST.Schemas.Response.Payload.$id
+);
+ajvInstance.addSchema(
   SkillAPISpecs.GET.Schemas.Request.Param.Payload,
   SkillAPISpecs.GET.Schemas.Request.Param.Payload.$id
 );

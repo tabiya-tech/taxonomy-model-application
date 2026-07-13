@@ -78,7 +78,7 @@ export class ServiceRegistry {
       repositoryRegistry.OccupationGroup,
       repositoryRegistry.occupationHierarchy
     );
-    this.skillGroup = new SkillGroupService(repositoryRegistry.skillGroup);
+    this.skillGroup = new SkillGroupService(repositoryRegistry.skillGroup, repositoryRegistry.skillHierarchy);
     this.skill = new SkillService(repositoryRegistry.skill, repositoryRegistry.modelInfo);
     this.occupationHierarchy = new OccupationHierarchyService(
       repositoryRegistry.occupation,

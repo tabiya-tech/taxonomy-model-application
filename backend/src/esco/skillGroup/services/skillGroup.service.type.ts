@@ -22,6 +22,23 @@ export interface ISkillGroupHistoryEntry {
   model: IModelInfoReference;
 }
 
+export class SkillGroupModelValidationError extends Error {
+  constructor(public code: ModelForSkillGroupValidationErrorCode) {
+    super();
+  }
+}
+
+export enum SetSkillGroupParentErrorCode {
+  CHILD_NOT_FOUND,
+  PARENT_NOT_FOUND,
+}
+
+export class SetSkillGroupParentError extends Error {
+  constructor(public code: SetSkillGroupParentErrorCode) {
+    super();
+  }
+}
+
 export interface ISkillGroupService {
   findById(id: string): Promise<ISkillGroup | null>;
 
@@ -48,6 +65,24 @@ export interface ISkillGroupService {
     limit: number,
     cursor?: string
   ): Promise<{ items: ISkillGroupChild[]; nextCursor: { _id: string; createdAt: Date } | null }>;
+
+  /**
+   * Sets the parent for a skill group by creating a hierarchy entry.
+   * Throws SkillGroupModelValidationError if model is invalid.
+   * Throws SetSkillGroupParentError if child or parent is not found.
+   *
+   * @param params.childId - The ID of the child skill group.
+   * @param params.parentId - The ID of the parent skill group.
+   * @param params.parentType - The type of the parent skill group.
+   * @param params.modelId - The model ID.
+   * @return {Promise<ISkillGroup>} - A Promise that resolves to the parent skill group.
+   */
+  setParent(params: {
+    childId: string;
+    parentId: string;
+    parentType: ObjectTypes.SkillGroup;
+    modelId: string;
+  }): Promise<ISkillGroup>;
 
   /**
    * Resolves the history of the models a SkillGroup appeared in, based on its UUIDHistory.

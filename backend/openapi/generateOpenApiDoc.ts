@@ -91,6 +91,8 @@ delete SkillGroup.SkillGroup.Schemas.Request.Param.Payload.$id;
 delete SkillGroup.SkillGroup.Parent.GET.Schemas.Request.Query.Payload.$id;
 delete SkillGroup.SkillGroup.Parent.GET.Schemas.Response.Payload.$id;
 delete SkillGroup.SkillGroup.Parent.GET.Schemas.Response.Parents.Payload.$id;
+delete SkillGroup.SkillGroup.Parent.POST.Schemas.Request.Payload.$id;
+delete SkillGroup.SkillGroup.Parent.POST.Schemas.Response.Payload.$id;
 delete SkillGroup.SkillGroup.Children.GET.Schemas.Request.Query.Payload.$id;
 delete SkillGroup.SkillGroup.Children.GET.Schemas.Response.Child.Payload.$id;
 delete SkillGroup.SkillGroup.Children.GET.Schemas.Response.Children.Payload.$id;
@@ -444,12 +446,14 @@ function getOpenAPISpecification(
           OccupationResponseSchemaGETChildren: Occupation.Occupation.Children.GET.Schemas.Response.Payload,
           OccupationChildrenRequestQueryParamSchemaGET:
             Occupation.Occupation.Children.GET.Schemas.Request.Query.Payload,
-           OccupationResponseSchemaGETSkills: Occupation.Occupation.Skills.GET.Schemas.Response.Payload,
-           OccupationSkillsRequestSchemaPOST: Occupation.Occupation.Skills.POST.Schemas.Request.Payload,
-           OccupationSkillsRequestQueryParamSchemaGET: Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload,
+          OccupationResponseSchemaGETSkills: Occupation.Occupation.Skills.GET.Schemas.Response.Payload,
+          OccupationSkillsRequestSchemaPOST: Occupation.Occupation.Skills.POST.Schemas.Request.Payload,
+          OccupationSkillsRequestQueryParamSchemaGET: Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload,
           OccupationResponseSchemaGETHistory: Occupation.Occupation.History.GET.Schemas.Response.Payload,
           SkillGroupRequestSchemaPOST: SkillGroup.POST.Schemas.Request.Payload,
           SkillGroupResponseSchemaPOST: SkillGroup.POST.Schemas.Response.Payload,
+          SkillGroupParentRequestSchemaPOST: SkillGroup.SkillGroup.Parent.POST.Schemas.Request.Payload,
+          SkillGroupParentResponseSchemaPOST: SkillGroup.SkillGroup.Parent.POST.Schemas.Response.Payload,
           SkillGroupResponseSchemaGETById: SkillGroup.SkillGroup.GET.Schemas.Response.Payload,
           SkillGroupParentsResponseSchemaGET: SkillGroup.SkillGroup.Parent.GET.Schemas.Response.Parents.Payload,
           SkillGroupParentsRequestQueryParamSchemaGET: SkillGroup.SkillGroup.Parent.GET.Schemas.Request.Query.Payload,

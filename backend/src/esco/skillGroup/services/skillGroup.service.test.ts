@@ -1,5 +1,11 @@
 import { SkillGroupService } from "./skillGroup.service";
-import { ISkillGroupService, ISkillGroupPaginatedFilter } from "./skillGroup.service.type";
+import {
+  ISkillGroupService,
+  ISkillGroupPaginatedFilter,
+  SkillGroupModelValidationError,
+  SetSkillGroupParentError,
+  SetSkillGroupParentErrorCode,
+} from "./skillGroup.service.type";
 import {
   ModelForSkillGroupValidationErrorCode,
   ISkillGroup,
@@ -7,6 +13,7 @@ import {
   ISkillGroupReference,
 } from "../_shared/skillGroup.types";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
+import { ISkillHierarchyRepository } from "esco/skillHierarchy/skillHierarchyRepository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
@@ -24,6 +31,7 @@ const mockGetRepositoryRegistry = getRepositoryRegistry as jest.MockedFunction<t
 describe("Test the SkillGroupService", () => {
   let service: ISkillGroupService;
   let mockRepository: jest.Mocked<ISkillGroupRepository>;
+  let mockSkillHierarchyRepository: jest.Mocked<ISkillHierarchyRepository>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -39,7 +47,15 @@ describe("Test the SkillGroupService", () => {
       findHistoryReferencesByUUIDs: jest.fn(),
     } as unknown as jest.Mocked<ISkillGroupRepository>;
 
-    service = new SkillGroupService(mockRepository);
+    mockSkillHierarchyRepository = {
+      hierarchyModel: {} as unknown as mongoose.Model<unknown>,
+      skillModel: {} as unknown as mongoose.Model<unknown>,
+      skillGroupModel: {} as unknown as mongoose.Model<unknown>,
+      createMany: jest.fn(),
+      findAll: jest.fn(),
+    } as unknown as jest.Mocked<ISkillHierarchyRepository>;
+
+    service = new SkillGroupService(mockRepository, mockSkillHierarchyRepository);
   });
   afterAll(() => {
     jest.restoreAllMocks();
@@ -665,6 +681,202 @@ describe("Test the SkillGroupService", () => {
         11,
         getMockStringId(5)
       );
+    });
+  });
+
+  describe("setParent", () => {
+    function givenSkillGroup(id: string, modelId: string): ISkillGroup {
+      return {
+        id,
+        modelId,
+        code: getTestSkillGroupCode(100),
+        UUID: getRandomString(10),
+        preferredLabel: getRandomString(10),
+        altLabels: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        parents: [],
+        UUIDHistory: [],
+        children: [],
+        originUri: "",
+        description: "",
+        scopeNote: "",
+        importId: "",
+      };
+    }
+
+    function mockModelValidation(modelId: string, errorCode: ModelForSkillGroupValidationErrorCode | null) {
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest
+            .fn()
+            .mockResolvedValue(
+              errorCode === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID
+                ? null
+                : errorCode === ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED
+                ? { id: modelId, released: true }
+                : { id: modelId, released: false }
+            ),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+    }
+
+    test("should create hierarchy entry and return parent when child and parent exist", async () => {
+      // GIVEN a model that is valid
+      const givenModelId = getMockStringId(1);
+      const givenChildId = getMockStringId(2);
+      const givenParentId = getMockStringId(3);
+      mockModelValidation(givenModelId, null);
+
+      // AND the child and parent skill groups exist
+      const child = givenSkillGroup(givenChildId, givenModelId);
+      const parent = givenSkillGroup(givenParentId, givenModelId);
+      mockRepository.findById.mockResolvedValueOnce(child);
+      mockRepository.findById.mockResolvedValueOnce(parent);
+
+      // WHEN setting the parent
+      const actual = await service.setParent({
+        childId: givenChildId,
+        parentId: givenParentId,
+        parentType: ObjectTypes.SkillGroup,
+        modelId: givenModelId,
+      });
+
+      // THEN the hierarchy entry is created
+      expect(mockSkillHierarchyRepository.createMany).toHaveBeenCalledWith(givenModelId, [
+        {
+          childId: givenChildId,
+          childType: ObjectTypes.SkillGroup,
+          parentId: givenParentId,
+          parentType: ObjectTypes.SkillGroup,
+        },
+      ]);
+      // AND the parent is returned
+      expect(actual).toBe(parent);
+    });
+
+    test("should throw SkillGroupModelValidationError when model is not found", async () => {
+      // GIVEN a model that does not exist
+      const givenModelId = getMockStringId(1);
+      mockModelValidation(givenModelId, ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+
+      // WHEN calling setParent
+      const promise = service.setParent({
+        childId: getMockStringId(2),
+        parentId: getMockStringId(3),
+        parentType: ObjectTypes.SkillGroup,
+        modelId: givenModelId,
+      });
+
+      // THEN it throws the error
+      await expect(promise).rejects.toThrow(SkillGroupModelValidationError);
+    });
+
+    test("should throw SkillGroupModelValidationError when model is released", async () => {
+      // GIVEN a released model
+      const givenModelId = getMockStringId(1);
+      mockModelValidation(givenModelId, ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED);
+
+      // WHEN calling setParent
+      const promise = service.setParent({
+        childId: getMockStringId(2),
+        parentId: getMockStringId(3),
+        parentType: ObjectTypes.SkillGroup,
+        modelId: givenModelId,
+      });
+
+      // THEN it throws the error
+      await expect(promise).rejects.toThrow(SkillGroupModelValidationError);
+    });
+
+    test("should throw SetSkillGroupParentError when child is not found", async () => {
+      // GIVEN a valid model
+      const givenModelId = getMockStringId(1);
+      mockModelValidation(givenModelId, null);
+
+      // AND the child does not exist
+      mockRepository.findById.mockResolvedValue(null);
+
+      // WHEN calling setParent
+      const promise = service.setParent({
+        childId: getMockStringId(2),
+        parentId: getMockStringId(3),
+        parentType: ObjectTypes.SkillGroup,
+        modelId: givenModelId,
+      });
+
+      // THEN it throws CHILD_NOT_FOUND
+      await expect(promise).rejects.toThrow(SetSkillGroupParentError);
+      await expect(promise).rejects.toMatchObject({ code: SetSkillGroupParentErrorCode.CHILD_NOT_FOUND });
+    });
+
+    test("should throw SetSkillGroupParentError when child belongs to a different model", async () => {
+      // GIVEN a valid model
+      const givenModelId = getMockStringId(1);
+      mockModelValidation(givenModelId, null);
+
+      // AND the child belongs to a different model
+      const child = givenSkillGroup(getMockStringId(2), getMockStringId(99));
+      mockRepository.findById.mockResolvedValueOnce(child);
+
+      // WHEN calling setParent
+      const promise = service.setParent({
+        childId: child.id,
+        parentId: getMockStringId(3),
+        parentType: ObjectTypes.SkillGroup,
+        modelId: givenModelId,
+      });
+
+      // THEN it throws CHILD_NOT_FOUND
+      await expect(promise).rejects.toThrow(SetSkillGroupParentError);
+      await expect(promise).rejects.toMatchObject({ code: SetSkillGroupParentErrorCode.CHILD_NOT_FOUND });
+    });
+
+    test("should throw SetSkillGroupParentError when parent is not found", async () => {
+      // GIVEN a valid model
+      const givenModelId = getMockStringId(1);
+      mockModelValidation(givenModelId, null);
+
+      // AND the child exists but the parent does not
+      const child = givenSkillGroup(getMockStringId(2), givenModelId);
+      mockRepository.findById.mockResolvedValueOnce(child);
+      mockRepository.findById.mockResolvedValueOnce(null);
+
+      // WHEN calling setParent
+      const promise = service.setParent({
+        childId: child.id,
+        parentId: getMockStringId(3),
+        parentType: ObjectTypes.SkillGroup,
+        modelId: givenModelId,
+      });
+
+      // THEN it throws PARENT_NOT_FOUND
+      await expect(promise).rejects.toThrow(SetSkillGroupParentError);
+      await expect(promise).rejects.toMatchObject({ code: SetSkillGroupParentErrorCode.PARENT_NOT_FOUND });
+    });
+
+    test("should throw SetSkillGroupParentError when parent belongs to a different model", async () => {
+      // GIVEN a valid model
+      const givenModelId = getMockStringId(1);
+      mockModelValidation(givenModelId, null);
+
+      // AND the child exists but the parent belongs to a different model
+      const child = givenSkillGroup(getMockStringId(2), givenModelId);
+      const parent = givenSkillGroup(getMockStringId(3), getMockStringId(99));
+      mockRepository.findById.mockResolvedValueOnce(child);
+      mockRepository.findById.mockResolvedValueOnce(parent);
+
+      // WHEN calling setParent
+      const promise = service.setParent({
+        childId: child.id,
+        parentId: parent.id,
+        parentType: ObjectTypes.SkillGroup,
+        modelId: givenModelId,
+      });
+
+      // THEN it throws PARENT_NOT_FOUND
+      await expect(promise).rejects.toThrow(SetSkillGroupParentError);
+      await expect(promise).rejects.toMatchObject({ code: SetSkillGroupParentErrorCode.PARENT_NOT_FOUND });
     });
   });
 
