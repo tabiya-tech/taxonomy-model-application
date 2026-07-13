@@ -6,6 +6,12 @@ import { render, screen, within } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 
+// Default action handlers shared across the render calls below.
+const givenActionHandlers = () => ({
+  onBackToDirectory: jest.fn(),
+  onOpenApiDocs: jest.fn(),
+});
+
 describe("ExplorerHeader", () => {
   beforeEach(() => {
     (console.error as jest.Mock).mockClear();
@@ -18,7 +24,15 @@ describe("ExplorerHeader", () => {
       const givenIsLoading = true;
 
       // WHEN the component is rendered
-      render(<ExplorerHeader isLoading={givenIsLoading} models={[]} selectedModel={null} onModelChange={jest.fn()} />);
+      render(
+        <ExplorerHeader
+          isLoading={givenIsLoading}
+          models={[]}
+          selectedModel={null}
+          onModelChange={jest.fn()}
+          {...givenActionHandlers()}
+        />
+      );
 
       // THEN expect no errors or warnings
       expect(console.error).not.toHaveBeenCalled();
@@ -47,6 +61,7 @@ describe("ExplorerHeader", () => {
           models={[]}
           selectedModel={givenSelectedModel}
           onModelChange={jest.fn()}
+          {...givenActionHandlers()}
         />
       );
 
@@ -80,6 +95,7 @@ describe("ExplorerHeader", () => {
           models={givenModels}
           selectedModel={givenSelectedModel}
           onModelChange={jest.fn()}
+          {...givenActionHandlers()}
         />
       );
 
@@ -113,6 +129,7 @@ describe("ExplorerHeader", () => {
           models={givenModels}
           selectedModel={givenSelectedModel}
           onModelChange={givenOnModelChange}
+          {...givenActionHandlers()}
         />
       );
 
@@ -127,6 +144,76 @@ describe("ExplorerHeader", () => {
 
       // THEN onModelChange is called with the second model's id
       expect(givenOnModelChange).toHaveBeenCalledWith(givenModels[1].id);
+    });
+
+    test.each([
+      ["back to directory", DATA_TEST_ID.BACK_LINK, "onBackToDirectory"],
+      ["API docs", DATA_TEST_ID.API_BUTTON, "onOpenApiDocs"],
+    ] as const)("should call %s handler when its control is clicked", async (_desc, testId, handlerKey) => {
+      // GIVEN a selected model and action handlers
+      const givenModels = getArrayOfFakeModels(1);
+      const givenHandlers = givenActionHandlers();
+
+      // WHEN the component is rendered
+      render(
+        <ExplorerHeader
+          isLoading={false}
+          models={givenModels}
+          selectedModel={givenModels[0]}
+          onModelChange={jest.fn()}
+          {...givenHandlers}
+        />
+      );
+      // AND the user clicks the control
+      await userEvent.click(screen.getByTestId(testId));
+
+      // THEN the matching handler is called
+      expect(givenHandlers[handlerKey]).toHaveBeenCalledTimes(1);
+    });
+
+    test("should render the CSV button as a download link when an export is available", () => {
+      // GIVEN a selected model and an available CSV export URL
+      const givenModels = getArrayOfFakeModels(1);
+      const givenCsvUrl = "https://example.com/exports/taxonomy-v1.csv";
+
+      // WHEN the component is rendered with the download URL
+      render(
+        <ExplorerHeader
+          isLoading={false}
+          models={givenModels}
+          selectedModel={givenModels[0]}
+          onModelChange={jest.fn()}
+          csvDownloadUrl={givenCsvUrl}
+          {...givenActionHandlers()}
+        />
+      );
+
+      // THEN the CSV button links to the export and downloads it, and is enabled
+      const csvButton = screen.getByTestId(DATA_TEST_ID.CSV_BUTTON);
+      expect(csvButton).toHaveAttribute("href", givenCsvUrl);
+      expect(csvButton).toHaveAttribute("download", "taxonomy-v1.csv");
+      expect(csvButton).not.toBeDisabled();
+    });
+
+    test("should disable the CSV button when no export is available", () => {
+      // GIVEN a selected model without a CSV export URL
+      const givenModels = getArrayOfFakeModels(1);
+
+      // WHEN the component is rendered without a download URL
+      render(
+        <ExplorerHeader
+          isLoading={false}
+          models={givenModels}
+          selectedModel={givenModels[0]}
+          onModelChange={jest.fn()}
+          {...givenActionHandlers()}
+        />
+      );
+
+      // THEN the CSV button is disabled and has no href
+      const csvButton = screen.getByTestId(DATA_TEST_ID.CSV_BUTTON);
+      expect(csvButton).toBeDisabled();
+      expect(csvButton).not.toHaveAttribute("href");
     });
   });
 });

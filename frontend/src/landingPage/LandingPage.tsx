@@ -101,7 +101,7 @@ const LandingPage = () => {
             gap: theme.fixedSpacing(theme.tabiyaSpacing.md),
             backgroundColor: (theme) => theme.palette.containerBackground.light,
             borderRadius: (theme) => theme.rounding(theme.tabiyaRounding.lg),
-            padding: theme.fixedSpacing(8),
+            padding: { xs: theme.fixedSpacing(4), md: theme.fixedSpacing(8) },
           }}
         >
           <Typography

@@ -8,7 +8,7 @@ exports[`ModelCard should render the collapsed card with the model summary 1`] =
   <div
     aria-controls="model-card-details-00000000-0000-0000-0000-000000005001"
     aria-expanded="false"
-    class="MuiButtonBase-root MuiAccordionSummary-root css-1qo7mnc-MuiButtonBase-root-MuiAccordionSummary-root"
+    class="MuiButtonBase-root MuiAccordionSummary-root css-10edkqn-MuiButtonBase-root-MuiAccordionSummary-root"
     data-testid="model-card-summary-2fb5e5e4-8f4b-486c-b419-a68f207b1bcd"
     id="model-card-summary-00000000-0000-0000-0000-000000005001"
     role="button"

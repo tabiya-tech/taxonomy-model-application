@@ -30,6 +30,14 @@ const givenExpandedGroupItem: ExplorerTreeItem = {
   children: [givenLeafItem],
 };
 
+const givenUnseenGroupItem: ExplorerTreeItem = {
+  id: "grp-I3",
+  code: "I3",
+  title: "Unpaid domestic services for household members",
+  objectType: "localgroup",
+  hasChildren: true,
+};
+
 const defaultProps = {
   activeTab: "occupations" as const,
   onTabChange: jest.fn(),
@@ -61,6 +69,44 @@ describe("ExplorerTreePanel", () => {
     // AND the skeleton is shown, and no list or empty state
     expect(screen.getByTestId(DATA_TEST_ID.EXPLORER_TREE_PANEL_SKELETON)).toBeInTheDocument();
     expect(screen.queryByTestId(DATA_TEST_ID.EXPLORER_TREE_PANEL_LIST)).not.toBeInTheDocument();
+  });
+
+  test("should group occupation roots under the seen and unseen economy headers", () => {
+    // GIVEN occupation roots from both the seen (iscogroup) and unseen (localgroup) economies
+    render(
+      <ExplorerTreePanel
+        {...defaultProps}
+        activeTab="occupations"
+        items={[givenUnexpandedGroupItem, givenUnseenGroupItem]}
+      />
+    );
+
+    // THEN expect no errors or warnings (no invalid DOM nesting)
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND both economy group headers are shown
+    const groups = screen.getAllByTestId(DATA_TEST_ID.EXPLORER_TREE_PANEL_GROUP);
+    expect(groups).toHaveLength(2);
+    expect(screen.getByText(/Seen economy · ESCO/i)).toBeInTheDocument();
+    expect(screen.getByText(/Unseen economy · ICATUS/i)).toBeInTheDocument();
+    // AND both items are still rendered
+    expect(screen.getByText(/Managers/)).toBeInTheDocument();
+    expect(screen.getByText(/Unpaid domestic services/)).toBeInTheDocument();
+  });
+
+  test("should not render economy group headers on the skills tab", () => {
+    // GIVEN skill roots on the skills tab
+    render(
+      <ExplorerTreePanel
+        {...defaultProps}
+        activeTab="skills"
+        items={[{ id: "S1", code: "S1", title: "Communication", objectType: "skillgroup", hasChildren: true }]}
+      />
+    );
+
+    // THEN expect no economy group headers to be shown (skills are a flat list)
+    expect(screen.queryByTestId(DATA_TEST_ID.EXPLORER_TREE_PANEL_GROUP)).not.toBeInTheDocument();
+    expect(screen.getByText(/Communication/)).toBeInTheDocument();
   });
 
   test.each([

@@ -109,10 +109,10 @@ const ModelSelectionPage = () => {
       <ContentLayout
         headerComponent={
           <Box>
-            <Typography variant="h4" color="text.primary">
+            <Typography variant="h2" color="text.primary">
               Explore a taxonomy
             </Typography>
-            <Typography variant="body1" color="text.secondary" mt={theme.fixedSpacing(theme.tabiyaSpacing.xs)}>
+            <Typography variant="body1" color="text.secondary" mt={theme.fixedSpacing(theme.tabiyaSpacing.sm)}>
               Select a taxonomy below to browse its occupations and skills.
             </Typography>
           </Box>

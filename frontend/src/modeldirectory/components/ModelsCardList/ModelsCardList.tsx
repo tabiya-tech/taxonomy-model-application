@@ -92,7 +92,7 @@ const ModelsCardList = (props: Readonly<ModelsCardListProps>) => {
       display="flex"
       flexDirection="column"
       width="100%"
-      gap={(theme) => theme.tabiyaSpacing.md}
+      gap={(theme) => theme.fixedSpacing(theme.tabiyaSpacing.md)}
       paddingY={(theme) => theme.tabiyaSpacing.xs}
       data-testid={DATA_TEST_ID.MODELS_CARD_LIST}
     >

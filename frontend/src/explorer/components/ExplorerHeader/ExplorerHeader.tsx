@@ -1,6 +1,29 @@
 import React from "react";
-import { Box, ListSubheader, MenuItem, Select, SelectChangeEvent, Skeleton, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Link,
+  ListSubheader,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Skeleton,
+  Theme,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CodeIcon from "@mui/icons-material/Code";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+
+const BUTTON_SX = {
+  paddingY: (theme: Theme) => theme.fixedSpacing(theme.tabiyaSpacing.xs),
+  paddingX: (theme: Theme) => theme.fixedSpacing(theme.tabiyaSpacing.md),
+  fontSize: (theme: Theme) => theme.typography.caption.fontSize,
+  borderRadius: (theme: Theme) => theme.tabiyaRounding.xl,
+  minWidth: "5rem",
+};
 
 const uniqueId = "b1c2d3e4-f5a6-7890-bcde-f01234567890";
 
@@ -10,6 +33,15 @@ export const DATA_TEST_ID = {
   MODEL_NAME: `explorer-header-model-name-${uniqueId}`,
   MODEL_SELECT: `explorer-header-model-select-${uniqueId}`,
   NO_MODELS_TEXT: `explorer-header-no-models-text-${uniqueId}`,
+  BACK_LINK: `explorer-header-back-link-${uniqueId}`,
+  API_BUTTON: `explorer-header-api-button-${uniqueId}`,
+  CSV_BUTTON: `explorer-header-csv-button-${uniqueId}`,
+};
+
+export const TEXT = {
+  BACK_TO_DIRECTORY: "All taxonomies",
+  API: "API",
+  CSV: "CSV",
 };
 
 export interface ExplorerHeaderProps {
@@ -17,9 +49,43 @@ export interface ExplorerHeaderProps {
   selectedModel: ModelInfoTypes.ModelInfo | null;
   isLoading: boolean;
   onModelChange: (modelId: string) => void;
+  onBackToDirectory: () => void;
+  onOpenApiDocs: () => void;
+  csvDownloadUrl?: string;
 }
 
-const ExplorerHeader = ({ models, selectedModel, isLoading, onModelChange }: ExplorerHeaderProps) => {
+const filenameFromUrl = (url: string): string => url.substring(url.lastIndexOf("/") + 1);
+
+const BackToDirectoryLink = ({ onClick }: { onClick: () => void }) => (
+  <Link
+    component="button"
+    type="button"
+    onClick={onClick}
+    underline="hover"
+    variant="body2"
+    data-testid={DATA_TEST_ID.BACK_LINK}
+    sx={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 0.5,
+      color: (theme) => theme.palette.text.secondary,
+      whiteSpace: "nowrap",
+    }}
+  >
+    <ArrowBackIcon sx={{ fontSize: "1rem" }} />
+    {TEXT.BACK_TO_DIRECTORY}
+  </Link>
+);
+
+const ExplorerHeader = ({
+  models,
+  selectedModel,
+  isLoading,
+  onModelChange,
+  onBackToDirectory,
+  onOpenApiDocs,
+  csvDownloadUrl,
+}: ExplorerHeaderProps) => {
   const theme = useTheme();
 
   if (isLoading) {
@@ -34,9 +100,12 @@ const ExplorerHeader = ({ models, selectedModel, isLoading, onModelChange }: Exp
   if (!selectedModel) {
     const message = models.length === 0 ? "No Models available" : "Model not found";
     return (
-      <Typography variant="h2" color="text.secondary" data-testid={DATA_TEST_ID.NO_MODELS_TEXT}>
-        {message}
-      </Typography>
+      <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.sm} data-testid={DATA_TEST_ID.CONTAINER}>
+        <BackToDirectoryLink onClick={onBackToDirectory} />
+        <Typography variant="h2" color="text.secondary" data-testid={DATA_TEST_ID.NO_MODELS_TEXT}>
+          {message}
+        </Typography>
+      </Box>
     );
   }
 
@@ -44,14 +113,16 @@ const ExplorerHeader = ({ models, selectedModel, isLoading, onModelChange }: Exp
     <Box
       display="flex"
       alignItems="center"
-      gap={theme.tabiyaSpacing.md}
+      justifyContent="space-between"
       flexWrap="wrap"
+      gap={theme.tabiyaSpacing.md}
       data-testid={DATA_TEST_ID.CONTAINER}
     >
-      <Typography variant="h2" data-testid={DATA_TEST_ID.MODEL_NAME} sx={{ maxWidth: 520, wordBreak: "break-word" }}>
-        {selectedModel.name}
-      </Typography>
-      <Box display="flex" alignItems="center" gap={1}>
+      <Box display="flex" alignItems="center" flexWrap="wrap" gap={theme.tabiyaSpacing.md}>
+        <BackToDirectoryLink onClick={onBackToDirectory} />
+        <Typography variant="h3" data-testid={DATA_TEST_ID.MODEL_NAME} sx={{ maxWidth: 580, wordBreak: "break-word" }}>
+          {selectedModel.name}
+        </Typography>
         <Select
           value={selectedModel.id}
           onChange={(e: SelectChangeEvent) => onModelChange(e.target.value)}
@@ -107,12 +178,8 @@ const ExplorerHeader = ({ models, selectedModel, isLoading, onModelChange }: Exp
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "stretch",
-                "&.Mui-selected": {
-                  bgcolor: "grey.100",
-                },
-                "&.Mui-selected:hover": {
-                  bgcolor: "grey.200",
-                },
+                "&.Mui-selected": { bgcolor: "grey.100" },
+                "&.Mui-selected:hover": { bgcolor: "grey.200" },
               }}
             >
               <Box display="flex" justifyContent="space-between" alignItems="flex-start" width="100%">
@@ -132,6 +199,30 @@ const ExplorerHeader = ({ models, selectedModel, isLoading, onModelChange }: Exp
             </MenuItem>
           ))}
         </Select>
+      </Box>
+
+      <Box display="flex" alignItems="center" gap={theme.tabiyaSpacing.sm}>
+        <PrimaryButton
+          variant="outlined"
+          startIcon={<CodeIcon />}
+          onClick={onOpenApiDocs}
+          data-testid={DATA_TEST_ID.API_BUTTON}
+          sx={BUTTON_SX}
+        >
+          {TEXT.API}
+        </PrimaryButton>
+        <PrimaryButton
+          variant="outlined"
+          startIcon={<FileDownloadIcon />}
+          href={csvDownloadUrl}
+          {...(csvDownloadUrl ? { download: filenameFromUrl(csvDownloadUrl) } : {})}
+          disabled={!csvDownloadUrl}
+          title={csvDownloadUrl ? "Download the taxonomy as CSV" : "No CSV export is available for this taxonomy yet"}
+          data-testid={DATA_TEST_ID.CSV_BUTTON}
+          sx={BUTTON_SX}
+        >
+          {TEXT.CSV}
+        </PrimaryButton>
       </Box>
     </Box>
   );

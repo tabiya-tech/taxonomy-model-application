@@ -17,7 +17,7 @@ exports[`Testing LandingPage component should render the landing page successful
     class="MuiBox-root css-w13cjv"
   >
     <div
-      class="MuiBox-root css-1nn57ec"
+      class="MuiBox-root css-m262i"
       data-testid="landing-page-hero-header-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
     >
       <span
