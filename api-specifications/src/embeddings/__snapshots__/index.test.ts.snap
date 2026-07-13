@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the embeddings module The embeddings module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "EEmbeddingModelProvider": {
+      "GEMINI": "gemini",
+    },
+    "EmbeddingServiceIds": [
+      "77bb8ff3-a6b0-460b-bcaa-00631a907852",
+    ],
+    "EmbeddingServices": [
+      {
+        "enabled": false,
+        "id": "77bb8ff3-a6b0-460b-bcaa-00631a907852",
+        "modelName": "models/gemini-embedding-2",
+        "modelProvider": "gemini",
+        "numberOfDimensions": 768,
+      },
+    ],
+    "MAX_EMBEDDING_MODEL_ID_LENGTH": 36,
+    "MAX_NUMBER_OF_DIMENSIONS": 100000,
+    "MIN_NUMBER_OF_DIMENSIONS": 1,
+    "MODEL_NAME_MAX_LENGTH": 256,
+  },
+  "Schemas": {
+    "EmbeddingModel": {
+      "$id": "/components/schemas/EmbeddingModelSchema",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "description": "Whether the embedding model is enabled and can be used to trigger an embedding process.",
+          "type": "boolean",
+        },
+        "id": {
+          "description": "The UUID of the embedding model.",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string",
+        },
+        "modelName": {
+          "description": "The provider specific name of the embedding model.",
+          "maxLength": 256,
+          "pattern": "\\S",
+          "type": "string",
+        },
+        "modelProvider": {
+          "description": "The provider of the embedding model.",
+          "enum": [
+            "gemini",
+          ],
+          "type": "string",
+        },
+        "numberOfDimensions": {
+          "description": "The number of dimensions of the vectors produced by the embedding model.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer",
+        },
+      },
+      "required": [
+        "id",
+        "modelProvider",
+        "modelName",
+        "numberOfDimensions",
+        "enabled",
+      ],
+      "type": "object",
+    },
+  },
+}
+`;

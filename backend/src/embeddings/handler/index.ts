@@ -5,6 +5,7 @@ import * as Sentry from "@sentry/aws-serverless";
 import { Lambdas } from "common/lambda.types";
 import { IGenerateEmbeddingTask } from "embeddings/service/types";
 import { EmbeddingService } from "embeddings/service/service";
+import { validateEmbeddingQueueJob } from "embeddings/specs/queueJob.schema";
 
 initializeSentry(Lambdas.EMBEDDING);
 
@@ -42,6 +43,19 @@ async function handleRecord(embeddingService: EmbeddingService, record: SQSRecor
   } catch (e: unknown) {
     // A malformed message will never succeed on retry, so log and skip it rather than throwing.
     console.error(new Error(`Embeddings lambda: skipping unparseable SQS record ${record.messageId}`, { cause: e }));
+    return;
+  }
+
+  // Validate the task against the queue job schema. An invalid job will never succeed on retry,
+  // so log and skip it rather than throwing.
+  if (!validateEmbeddingQueueJob(task)) {
+    console.error(
+      new Error(
+        `Embeddings lambda: skipping SQS record ${
+          record.messageId
+        } that does not conform to the queue job schema: ${JSON.stringify(validateEmbeddingQueueJob.errors)}`
+      )
+    );
     return;
   }
 

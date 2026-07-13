@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the Embeddings Constants the embedding model 'models/gemini-embedding-2' should match the snapshot 1`] = `
+{
+  "enabled": false,
+  "id": "77bb8ff3-a6b0-460b-bcaa-00631a907852",
+  "modelName": "models/gemini-embedding-2",
+  "modelProvider": "gemini",
+  "numberOfDimensions": 768,
+}
+`;

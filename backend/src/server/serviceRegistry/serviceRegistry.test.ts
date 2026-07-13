@@ -1,6 +1,8 @@
 // Suppress chatty console during the tests
 import "_test_utilities/consoleMock";
 
+import { SQSClient } from "@aws-sdk/client-sqs";
+import { getEmbeddingsQueueRegion } from "server/config/config";
 import { getServiceRegistry, ServiceRegistry } from "./serviceRegistry";
 import { SkillService } from "esco/skill/services/skill.service";
 import { OccupationService } from "esco/occupations/services/occupation.service";
@@ -10,8 +12,22 @@ import { OccupationHierarchyService } from "esco/occupationHierarchy/occupationH
 import { OccupationToSkillRelationService } from "esco/occupationToSkillRelation/occupationToSkillRelation.service";
 import { SkillHierarchyService } from "esco/skillHierarchy/skillHierarchy.service";
 import { SkillToSkillRelationService } from "esco/skillToSkillRelation/skillToSkillRelation.service";
+import { EmbeddingProcessService } from "embeddings/embeddingProcess/embeddingProcess.service";
+
+jest.mock("@aws-sdk/client-sqs", () => ({
+  SQSClient: jest.fn(),
+}));
+
+jest.mock("server/config/config", () => ({
+  ...jest.requireActual("server/config/config"),
+  getEmbeddingsQueueRegion: jest.fn(),
+}));
 
 describe("test the ServiceRegistry", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   test("should return a singleton ServiceRegistry", () => {
     // WHEN trying to get the ServiceRegistry
     const serviceRegistry = getServiceRegistry();
@@ -25,9 +41,16 @@ describe("test the ServiceRegistry", () => {
   });
 
   test("should initialize and set services successfully", async () => {
+    // GIVEN the embeddings queue region is configured
+    const givenEmbeddingsQueueRegion = "eu-west-1";
+    (getEmbeddingsQueueRegion as jest.Mock).mockReturnValue(givenEmbeddingsQueueRegion);
+
     // WHEN trying to initialize the ServiceRegistry
     const serviceRegistry = new ServiceRegistry();
     await serviceRegistry.initialize();
+
+    // THEN the SQSClient should be constructed with the configured region
+    expect(SQSClient).toHaveBeenCalledWith({ region: givenEmbeddingsQueueRegion });
 
     // THEN the services should be initialized
     expect(serviceRegistry.occupation).toBeDefined();
@@ -46,5 +69,7 @@ describe("test the ServiceRegistry", () => {
     expect(serviceRegistry.skillHierarchy).toBeInstanceOf(SkillHierarchyService);
     expect(serviceRegistry.skillToSkillRelation).toBeDefined();
     expect(serviceRegistry.skillToSkillRelation).toBeInstanceOf(SkillToSkillRelationService);
+    expect(serviceRegistry.embeddingProcess).toBeDefined();
+    expect(serviceRegistry.embeddingProcess).toBeInstanceOf(EmbeddingProcessService);
   });
 });

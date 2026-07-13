@@ -11,6 +11,7 @@ import * as skillToSkillRelationModel from "esco/skillToSkillRelation/skillToSki
 import * as occupationToSkillRelationModel from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import * as importStateModel from "import/ImportProcessState/importProcessStateModel";
 import * as exportProcessStateModel from "export/exportProcessState/exportProcessStateModel";
+import * as embeddingProcessStateModel from "embeddings/embeddingProcessState/embeddingProcessStateModel";
 
 import {
   IOccupationGroupRepository,
@@ -40,6 +41,10 @@ import {
   ExportProcessStateRepository,
   IExportProcessStateRepository,
 } from "export/exportProcessState/exportProcessStateRepository";
+import {
+  EmbeddingProcessStateRepository,
+  IEmbeddingProcessStateRepository,
+} from "embeddings/embeddingProcessState/embeddingProcessStateRepository";
 
 export class RepositoryRegistry {
   // eslint-disable-next-line
@@ -133,6 +138,14 @@ export class RepositoryRegistry {
     this._repositories.set("IExportProcessStateRepository", repository);
   }
 
+  public get embeddingProcessState(): IEmbeddingProcessStateRepository {
+    return this._repositories.get("IEmbeddingProcessStateRepository");
+  }
+
+  public set embeddingProcessState(repository: IEmbeddingProcessStateRepository) {
+    this._repositories.set("IEmbeddingProcessStateRepository", repository);
+  }
+
   async initialize(connection: Connection | undefined) {
     if (!connection) throw new Error("Connection is undefined");
 
@@ -173,6 +186,9 @@ export class RepositoryRegistry {
     this.exportProcessState = new ExportProcessStateRepository(
       exportProcessStateModel.initializeSchemaAndModel(connection)
     );
+    this.embeddingProcessState = new EmbeddingProcessStateRepository(
+      embeddingProcessStateModel.initializeSchemaAndModel(connection)
+    );
 
     // Set up the indexes
     // This is done here because the autoIndex is turned off in production
@@ -191,6 +207,7 @@ export class RepositoryRegistry {
     await this.occupationToSkillRelation.relationModel.createIndexes();
     await this.importProcessState.Model.createIndexes();
     await this.exportProcessState.Model.createIndexes();
+    await this.embeddingProcessState.Model.createIndexes();
   }
 }
 
