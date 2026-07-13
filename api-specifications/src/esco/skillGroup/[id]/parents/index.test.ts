@@ -1,4 +1,4 @@
-describe("Test the skillGroup GET parent module", () => {
+describe("Test the skillGroup parent module", () => {
   test("The skillGroup GET parent module can be required via the index", async () => {
     // GIVEN the module
     // WHEN the module is required via the index
@@ -16,6 +16,17 @@ describe("Test the skillGroup GET parent module", () => {
     // AND check if enums are defined
     const Enums = skillGroupGETParentModule.default.GET.Enums;
     expect(Enums.Relations.Parents.ObjectTypes).toBeDefined();
+  });
+
+  test("The skillGroup POST parent module can be required via the index", async () => {
+    // GIVEN the module
+    // WHEN the module is required via the index
+    expect(async () => await import("./")).not.toThrow(); // We check that it doesn't throw an error instead of simply letting it fail on import because we want an easier error message
+    const skillGroupPOSTParentModule = await import("./");
+
+    // THEN check if Schemas is defined in it
+    expect(skillGroupPOSTParentModule.default.POST.Schemas.Request.Payload).toBeDefined();
+    expect(skillGroupPOSTParentModule.default.POST.Schemas.Response.Payload).toBeDefined();
   });
   test("The export module matches the snapshot", () => {
     // GIVEN the module
