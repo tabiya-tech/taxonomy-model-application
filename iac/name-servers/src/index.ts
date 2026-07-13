@@ -21,7 +21,7 @@ pulumi.all([subDNS]).apply(([subDNS]) => {
   pulumi.log.info(`subDNS: ${JSON.stringify(subDNS)}`);
 });
 
-const parentHostedZone = aws.route53.getZone({ name: baseDomainName, privateZone: false });
+const parentHostedZone = aws.route53.getZone({ name: `taxonomy.${baseDomainName}`, privateZone: false });
 
 export const subdomainRecord = new aws.route53.Record(`${environment}-subdomain-record`, {
   allowOverwrite: true,
@@ -29,6 +29,6 @@ export const subdomainRecord = new aws.route53.Record(`${environment}-subdomain-
   type: "NS",
   ttl: 300,
   records: subDNS.nameServers,
-  zoneId: parentHostedZone.then(zr => zr.zoneId) // Zone ID for tabiya.tech
+  zoneId: parentHostedZone.then(zr => zr.zoneId),
 
 }, { protect: false });
