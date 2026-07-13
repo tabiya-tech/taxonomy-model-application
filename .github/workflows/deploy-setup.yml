@@ -132,7 +132,6 @@ jobs:
           stack-name: tabiya-tech/taxonomy-model-application-nameserver/${{ inputs.target-environment }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          BASE_DOMAIN_NAME: ${{ env.baseDomainName }}
 
   certificate:
     runs-on: ubuntu-latest
