@@ -40,6 +40,8 @@ delete ModelInfo.Schemas.Reference.$id;
 delete ModelInfo.Schemas.POST.Response.Payload.$id;
 delete ModelInfo.Schemas.POST.Request.Payload.$id;
 delete ModelInfo.Schemas.GET.Response.Payload.$id;
+delete ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload.$id;
+delete ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Response.Payload.$id;
 delete Locale.Schemas.Payload.$id;
 delete Presigned.Schemas.GET.Response.Payload.$id;
 delete Import.Schemas.POST.Request.Payload.$id;
@@ -435,11 +437,32 @@ function getOpenAPISpecification(
             404,
             Object.values(Skill.GET.Errors.Status404.RelatedSkills.ErrorCodes)
           ),
+          // EmbeddingProcess-specific error schemas
+          POSTEmbeddingProcess400ErrorSchema: APIError.Schemas.getPayload(
+            "POST",
+            "EmbeddingProcess",
+            400,
+            Object.values(ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status400.ErrorCodes)
+          ),
+          POSTEmbeddingProcess404ErrorSchema: APIError.Schemas.getPayload(
+            "POST",
+            "EmbeddingProcess",
+            404,
+            Object.values(ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status404.ErrorCodes)
+          ),
+          POSTEmbeddingProcess409ErrorSchema: APIError.Schemas.getPayload(
+            "POST",
+            "EmbeddingProcess",
+            409,
+            Object.values(ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status409.ErrorCodes)
+          ),
           PresignedSchema: Presigned.Schemas.GET.Response.Payload,
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
           ModelInfoResponseSchemaGET: ModelInfo.Schemas.GET.Response.Payload,
           ModelInfoReferenceSchema: ModelInfo.Schemas.Reference,
+          EmbeddingsRequestSchemaPOST: ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload,
+          EmbeddingsResponseSchemaPOST: ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Response.Payload,
           LocaleSchema: Locale.Schemas.Payload,
           ImportSchema: Import.Schemas.POST.Request.Payload,
           ExportSchema: Export.Schemas.POST.Request.Payload,

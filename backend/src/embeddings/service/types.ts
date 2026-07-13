@@ -16,5 +16,5 @@ export interface IGenerateEmbeddingTask {
   modelId: string;
   entityId: string;
   entityType: EmbeddableEntityType;
-  fields: EmbeddableField;
+  fields: EmbeddableField[];
 }

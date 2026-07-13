@@ -1,3 +1,5 @@
+import { SQSClient } from "@aws-sdk/client-sqs";
+
 import { IOccupationGroupService } from "esco/occupationGroup/services/occupationGroup.service.type";
 import { getRepositoryRegistry } from "../repositoryRegistry/repositoryRegistry";
 import { OccupationService } from "esco/occupations/services/occupation.service";
@@ -15,6 +17,10 @@ import { ISkillHierarchyService } from "esco/skillHierarchy/skillHierarchy.servi
 import { SkillHierarchyService } from "esco/skillHierarchy/skillHierarchy.service";
 import { ISkillToSkillRelationService } from "esco/skillToSkillRelation/skillToSkillRelation.service.types";
 import { SkillToSkillRelationService } from "esco/skillToSkillRelation/skillToSkillRelation.service";
+import { IEmbeddingProcessService } from "embeddings/embeddingProcess/embeddingProcess.service.types";
+import { EmbeddingProcessService } from "embeddings/embeddingProcess/embeddingProcess.service";
+import { EmbeddingClient } from "embeddings/service/client";
+import { getEmbeddingsQueueRegion } from "server/config/config";
 
 export class ServiceRegistry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,6 +50,9 @@ export class ServiceRegistry {
   public get skillToSkillRelation(): ISkillToSkillRelationService {
     return this._services.get("SkillToSkillRelationService");
   }
+  public get embeddingProcess(): IEmbeddingProcessService {
+    return this._services.get("EmbeddingProcessService");
+  }
 
   public set occupation(service: IOccupationService) {
     this._services.set("OccupationService", service);
@@ -70,8 +79,12 @@ export class ServiceRegistry {
   public set skillToSkillRelation(service: ISkillToSkillRelationService) {
     this._services.set("SkillToSkillRelationService", service);
   }
+  public set embeddingProcess(service: IEmbeddingProcessService) {
+    this._services.set("EmbeddingProcessService", service);
+  }
 
   async initialize() {
+    const awsSQSClient = new SQSClient({ region: getEmbeddingsQueueRegion() });
     const repositoryRegistry = getRepositoryRegistry();
     this.occupation = new OccupationService(repositoryRegistry.occupation, repositoryRegistry.modelInfo);
     this.occupationGroup = new OccupationGroupService(
@@ -98,6 +111,16 @@ export class ServiceRegistry {
     this.skillToSkillRelation = new SkillToSkillRelationService(
       repositoryRegistry.skill,
       repositoryRegistry.skillToSkillRelation
+    );
+    const embeddingClient = new EmbeddingClient(awsSQSClient);
+    this.embeddingProcess = new EmbeddingProcessService(
+      repositoryRegistry.modelInfo,
+      repositoryRegistry.embeddingProcessState,
+      repositoryRegistry.skill,
+      repositoryRegistry.skillGroup,
+      repositoryRegistry.occupation,
+      repositoryRegistry.OccupationGroup,
+      embeddingClient
     );
   }
 }

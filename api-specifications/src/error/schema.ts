@@ -87,6 +87,10 @@ export const ErrorSchema: SchemaObject = {
           ...Object.values(SkillGroupAPI.SkillGroup.Children.GET.Enums.Response.Status400.ErrorCodes),
           ...Object.values(SkillGroupAPI.SkillGroup.Children.GET.Enums.Response.Status404.ErrorCodes),
           ...Object.values(SkillGroupAPI.SkillGroup.Children.GET.Enums.Response.Status500.ErrorCodes),
+          ...Object.values(ModelInfoAPI.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status400.ErrorCodes),
+          ...Object.values(ModelInfoAPI.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status404.ErrorCodes),
+          ...Object.values(ModelInfoAPI.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status409.ErrorCodes),
+          ...Object.values(ModelInfoAPI.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status500.ErrorCodes),
         ])
       ),
       pattern: RegExp_Str_NotEmptyString,

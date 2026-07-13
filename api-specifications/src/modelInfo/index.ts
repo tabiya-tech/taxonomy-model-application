@@ -9,6 +9,7 @@ import SchemaPOSTRequest from "./schema.POST.request";
 import SchemaPOSTResponse from "./schema.POST.response";
 import SchemaModelInfoReference from "./schema.reference";
 import ModelInfoEnums from "./enums";
+import ModelInfoInstanceAPISpecs from "./[id]";
 
 /**
   * This file should be imported in the following way
@@ -40,6 +41,9 @@ namespace ModelInfoAPISpecs {
   export import Constants = ModelInfoConstants;
   export import Types = ModelInfoTypes;
   export import Schemas = ModelInfoSchemas;
+
+  // Instance-level operations (via [id] concept)
+  export import ModelInfo = ModelInfoInstanceAPISpecs;
 }
 
 export default ModelInfoAPISpecs;
