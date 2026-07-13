@@ -46,13 +46,13 @@ describe("AppSidebar render tests", () => {
         </HashRouter>
       ),
       roles: ALL_USERS,
-      testIds: [DATA_TEST_ID.CONTAINER, DATA_TEST_ID.DIRECTORY_ICON, DATA_TEST_ID.SETTINGS_ICON],
+      testIds: [DATA_TEST_ID.CONTAINER, DATA_TEST_ID.DIRECTORY_ICON, DATA_TEST_ID.EXPLORE_ICON],
     })
   );
 
   const allIconsCases = [
     ["Directory", DATA_TEST_ID.DIRECTORY_LINK, DATA_TEST_ID.DIRECTORY_ICON, ITEMS_LABEL_TEXT.DIRECTORY],
-    ["Settings", DATA_TEST_ID.SETTINGS_LINK, DATA_TEST_ID.SETTINGS_ICON, ITEMS_LABEL_TEXT.SETTINGS],
+    ["Explore", DATA_TEST_ID.EXPLORE_LINK, DATA_TEST_ID.EXPLORE_ICON, ITEMS_LABEL_TEXT.EXPLORE],
   ];
 
   it.each(allIconsCases)(
@@ -88,7 +88,7 @@ describe("AppSidebar render tests", () => {
 describe("AppSidebar action tests", () => {
   const allRouterCases = [
     ["Directory", DATA_TEST_ID.DIRECTORY_LINK, routerPaths.MODEL_DIRECTORY],
-    ["Settings", DATA_TEST_ID.SETTINGS_LINK, routerPaths.SETTINGS],
+    ["Explore", DATA_TEST_ID.EXPLORE_LINK, routerPaths.EXPLORER],
   ];
   allRouterCases.forEach(([linkName, linkTestId, expectedPath]) => {
     testNavigateToPath(<AppSidebar />, linkName, linkTestId, expectedPath);

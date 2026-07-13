@@ -71,4 +71,15 @@ describe("Testing LandingPage component", () => {
     // THEN expect the user to be navigated to the model directory
     expect(mockNavigate).toHaveBeenCalledWith(routerPaths.MODEL_DIRECTORY);
   });
+
+  test("should navigate to the API docs when 'Read the API docs' is clicked", async () => {
+    // GIVEN the landing page is rendered
+    render(<LandingPage />);
+
+    // WHEN the user clicks on the "Read the API docs" banner link
+    await userEvent.click(screen.getByTestId(DATA_TEST_ID.LANDING_PAGE_API_BANNER_LINK));
+
+    // THEN expect the user to be navigated to the API docs
+    expect(mockNavigate).toHaveBeenCalledWith(routerPaths.API_DOCS);
+  });
 });

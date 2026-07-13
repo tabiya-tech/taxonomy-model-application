@@ -3,7 +3,7 @@ import "src/_test_utilities/consoleMock";
 
 import AppHeader, { DATA_TEST_ID, MENU_ITEM_ID, MENU_ITEM_TEXT } from "./AppHeader";
 import { render, screen } from "src/_test_utilities/test-utils";
-import { HashRouter } from "react-router-dom";
+import { HashRouter, MemoryRouter } from "react-router-dom";
 import { routerPaths } from "src/app/routerPaths";
 
 import { testNavigateToPath } from "src/_test_utilities/routeNavigation";
@@ -154,6 +154,31 @@ describe("AppHeader", () => {
 
   describe("AppHeader action tests", () => {
     testNavigateToPath(<AppHeader />, "Logo", DATA_TEST_ID.APP_HEADER_LOGO_LINK, routerPaths.ROOT);
+    testNavigateToPath(<AppHeader />, "API docs", DATA_TEST_ID.APP_HEADER_API_DOCS_LINK, routerPaths.API_DOCS);
+
+    test("shows the API docs link in bold when on the API docs route", () => {
+      // GIVEN the AppHeader is rendered while the current route is the API docs page
+      render(
+        <MemoryRouter initialEntries={[routerPaths.API_DOCS]}>
+          <AppHeader />
+        </MemoryRouter>
+      );
+
+      // THEN expect the API docs link to be bold
+      expect(screen.getByTestId(DATA_TEST_ID.APP_HEADER_API_DOCS_LINK)).toHaveStyle("font-weight: 700");
+    });
+
+    test("shows the API docs link in normal weight when not on the API docs route", () => {
+      // GIVEN the AppHeader is rendered while the current route is some other page
+      render(
+        <MemoryRouter initialEntries={[routerPaths.ROOT]}>
+          <AppHeader />
+        </MemoryRouter>
+      );
+
+      // THEN expect the API docs link not to be bold
+      expect(screen.getByTestId(DATA_TEST_ID.APP_HEADER_API_DOCS_LINK)).toHaveStyle("font-weight: 500");
+    });
 
     test("shows the auth menu when the auth button is clicked", async () => {
       // GIVEN that the AppHeader component is rendered with access to the router

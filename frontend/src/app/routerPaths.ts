@@ -1,6 +1,7 @@
 export const routerPaths = {
   ROOT: "/",
-  SETTINGS: "/settings",
+  INFO: "/info",
+  API_DOCS: "/api-docs",
   MODEL_DIRECTORY: "/modeldirectory",
   EXPLORER: "/explorer",
   EXPLORER_OCCUPATIONS: "/explorer/:modelId/occupations",

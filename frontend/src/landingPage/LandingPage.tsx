@@ -54,6 +54,10 @@ const LandingPage = () => {
     navigate(routerPaths.MODEL_DIRECTORY);
   };
 
+  const handleReadApiDocs = () => {
+    navigate(routerPaths.API_DOCS);
+  };
+
   return (
     <Box
       data-testid={DATA_TEST_ID.LANDING_PAGE_ROOT}
@@ -142,6 +146,8 @@ const LandingPage = () => {
 
           <Link
             href="https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy"
+            target="_blank"
+            rel="noopener noreferrer"
             variant="body2"
             data-testid={DATA_TEST_ID.LANDING_PAGE_CONCEIVED_LINK}
             sx={{ color: (theme) => theme.palette.secondary.main, fontWeight: 600 }}
@@ -244,7 +250,9 @@ const LandingPage = () => {
               </Typography>
             </Box>
             <Link
-              href="#"
+              component="button"
+              type="button"
+              onClick={handleReadApiDocs}
               variant="body2"
               data-testid={DATA_TEST_ID.LANDING_PAGE_API_BANNER_LINK}
               sx={{ color: (theme) => theme.palette.secondary.main, fontWeight: 600, whiteSpace: "nowrap" }}

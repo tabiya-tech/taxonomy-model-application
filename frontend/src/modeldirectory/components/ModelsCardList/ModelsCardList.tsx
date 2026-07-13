@@ -27,8 +27,6 @@ export const TEXT = {
   EMPTY_MESSAGE: "There are no taxonomies to show.",
 };
 
-const LOADING_CARDS_COUNT = 4;
-
 /**
  * Model managers can see every model,
  * all other users can only see models that can be downloaded as CSV.
@@ -61,7 +59,7 @@ const ModelsCardList = (props: Readonly<ModelsCardListProps>) => {
 
   let content: React.ReactNode;
   if (props.isLoading) {
-    content = Array.from({ length: LOADING_CARDS_COUNT }, (_, index) => (
+    content = Array.from({ length: 3 }, (_, index) => (
       <Skeleton
         key={index}
         variant="rounded"
@@ -95,7 +93,7 @@ const ModelsCardList = (props: Readonly<ModelsCardListProps>) => {
       flexDirection="column"
       width="100%"
       gap={(theme) => theme.tabiyaSpacing.md}
-      paddingY={(theme) => theme.tabiyaSpacing.sm}
+      paddingY={(theme) => theme.tabiyaSpacing.xs}
       data-testid={DATA_TEST_ID.MODELS_CARD_LIST}
     >
       {content}

@@ -34,7 +34,7 @@ exports[`AppHeader AppHeader render tests renders correctly when the user is log
     <a
       class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineNone css-1vi947c-MuiTypography-root-MuiLink-root"
       data-testid="app-header-api-docs-link-65b0785e-14d9-43a3-b260-869983312406"
-      href="#"
+      href="#/api-docs"
     >
       API docs
     </a>
@@ -110,7 +110,7 @@ exports[`AppHeader AppHeader render tests renders correctly with unauthenticated
     <a
       class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineNone css-1vi947c-MuiTypography-root-MuiLink-root"
       data-testid="app-header-api-docs-link-65b0785e-14d9-43a3-b260-869983312406"
-      href="#"
+      href="#/api-docs"
     >
       API docs
     </a>

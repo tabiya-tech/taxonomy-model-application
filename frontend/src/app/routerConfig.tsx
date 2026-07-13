@@ -4,6 +4,7 @@ import NotFound from "src/errorPage/NotFound";
 import ModelSelectionPage from "src/explorer/ModelSelectionPage";
 import ExplorerPage from "src/explorer/ExplorerPage";
 import LandingPage from "src/landingPage/LandingPage";
+import ApiDocsPage from "src/apiDocs/ApiDocsPage";
 
 import { routerPaths } from "src/app/routerPaths";
 
@@ -14,9 +15,14 @@ export const routerConfig = [
     errorElement: <div>Sorry, something went wrong</div>,
   },
   {
-    path: routerPaths.SETTINGS,
+    path: routerPaths.INFO,
     element: <Info />,
-    errorElement: <div>Sorry, application settings could be shown</div>,
+    errorElement: <div>Sorry, the info page could not be shown</div>,
+  },
+  {
+    path: routerPaths.API_DOCS,
+    element: <ApiDocsPage />,
+    errorElement: <div>Sorry, the API docs could not be shown</div>,
   },
   {
     path: routerPaths.MODEL_DIRECTORY,

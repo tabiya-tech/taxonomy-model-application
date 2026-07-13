@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import Box from "@mui/material/Box";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
-import SettingsIcon from "@mui/icons-material/Settings";
+// import SettingsIcon from "@mui/icons-material/Settings";
 import VerticalSplitOutlinedIcon from "@mui/icons-material/VerticalSplitOutlined";
 import { styled, Typography, useTheme } from "@mui/material";
 import { routerPaths } from "src/app/routerPaths";
@@ -13,14 +13,14 @@ export const DATA_TEST_ID = {
   DIRECTORY_ICON: `app-sidebar-directory-icon-${uniqueId}`,
   EXPLORE_LINK: `app-sidebar-explore-link-${uniqueId}`,
   EXPLORE_ICON: `app-sidebar-explore-icon-${uniqueId}`,
-  SETTINGS_LINK: `app-sidebar-settings-link-${uniqueId}`,
-  SETTINGS_ICON: `app-sidebar-settings-icon-${uniqueId}`,
+  // SETTINGS_LINK: `app-sidebar-settings-link-${uniqueId}`,
+  // SETTINGS_ICON: `app-sidebar-settings-icon-${uniqueId}`,
 };
 
 export const ITEMS_LABEL_TEXT = {
   DIRECTORY: "Directory",
   EXPLORE: "Explore",
-  SETTINGS: "Settings",
+  // SETTINGS: "Settings",
 };
 
 const appSidebarItems = [
@@ -36,12 +36,14 @@ const appSidebarItems = [
     pathName: routerPaths.EXPLORER,
     dataTestId: DATA_TEST_ID.EXPLORE_LINK,
   },
-  {
-    icon: <SettingsIcon data-testid={DATA_TEST_ID.SETTINGS_ICON} />,
-    label: ITEMS_LABEL_TEXT.SETTINGS,
-    pathName: routerPaths.SETTINGS,
-    dataTestId: DATA_TEST_ID.SETTINGS_LINK,
-  },
+  // Settings is intentionally not shown in the sidebar. The info page it linked to is still
+  // reachable by typing the /info URL directly.
+  // {
+  //   icon: <SettingsIcon data-testid={DATA_TEST_ID.SETTINGS_ICON} />,
+  //   label: ITEMS_LABEL_TEXT.SETTINGS,
+  //   pathName: routerPaths.INFO,
+  //   dataTestId: DATA_TEST_ID.SETTINGS_LINK,
+  // },
 ];
 
 const CustomNavLink = styled(NavLink)`

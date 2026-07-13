@@ -1,5 +1,5 @@
 import { Box, Link, Typography } from "@mui/material";
-import { NavLink } from "react-router-dom";
+import { NavLink, useMatch } from "react-router-dom";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import { routerPaths } from "src/app/routerPaths";
 import React, { useContext, useEffect, useState } from "react";
@@ -32,6 +32,7 @@ const AppHeader = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const { login, logout, user } = useContext(AuthContext);
   const [contextMenuItems, setContextMenuItems] = useState<MenuItemConfig[]>([]);
+  const isApiDocsActive = Boolean(useMatch(routerPaths.API_DOCS));
 
   useEffect(() => {
     const loginLogoutItem = user
@@ -75,11 +76,12 @@ const AppHeader = () => {
           Documentation
         </Link>
         <Link
-          href="#"
+          component={NavLink}
+          to={routerPaths.API_DOCS}
           underline="none"
           variant="body1"
           data-testid={DATA_TEST_ID.APP_HEADER_API_DOCS_LINK}
-          sx={{ color: (theme) => theme.palette.text.primary, fontWeight: 500 }}
+          sx={{ color: (theme) => theme.palette.text.primary, fontWeight: isApiDocsActive ? "bold" : 500 }}
         >
           API docs
         </Link>
