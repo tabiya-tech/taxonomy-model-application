@@ -12,6 +12,7 @@ import { ExplorerTreeItem } from "src/explorer/components/ExplorerTreePanel/Expl
 import { ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
 import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 import { routerPaths } from "src/app/routerPaths";
+import { DATA_TEST_ID as EXPLORER_HEADER_DATA_TEST_ID } from "src/explorer/components/ExplorerHeader/ExplorerHeader";
 
 const givenModels = getArrayOfFakeModels(1);
 givenModels[0] = { ...givenModels[0], name: "Taxonomy for South Africa" };
@@ -161,5 +162,28 @@ describe("ExplorerPage", () => {
     // THEN expect the selected model's name to be shown in the header
     expect(await screen.findByText(givenModels[0].name)).toBeInTheDocument();
     expect(getAllModelsSpy).toHaveBeenCalled();
+  });
+
+  test.each([
+    ["All taxonomies", EXPLORER_HEADER_DATA_TEST_ID.BACK_LINK, routerPaths.MODEL_DIRECTORY, "directory-page"],
+    ["API docs", EXPLORER_HEADER_DATA_TEST_ID.API_BUTTON, routerPaths.API_DOCS, "api-docs-page"],
+  ])("should navigate away when the header's %s control is used", async (_desc, testId, targetPath, targetTestId) => {
+    // GIVEN the explorer page is rendered alongside the target route
+    render(
+      <MemoryRouter initialEntries={[`/explorer/${givenModelId}/occupations`]}>
+        <Routes>
+          <Route path={routerPaths.EXPLORER_OCCUPATIONS} element={<ExplorerPage initialTab="occupations" />} />
+          <Route path={targetPath} element={<div data-testid={targetTestId} />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    // AND the header has rendered
+    await screen.findByText(givenModels[0].name);
+
+    // WHEN the user activates the header control
+    await userEvent.click(screen.getByTestId(testId));
+
+    // THEN expect to have navigated to the target route
+    expect(await screen.findByTestId(targetTestId)).toBeInTheDocument();
   });
 });

@@ -110,9 +110,9 @@ const ModelCard = (props: Readonly<ModelCardProps>) => {
         sx={(theme) => ({
           flexDirection: "row-reverse",
           gap: theme.fixedSpacing(theme.tabiyaSpacing.sm),
-          paddingY: theme.fixedSpacing(theme.tabiyaSpacing.xl),
-          paddingLeft: theme.fixedSpacing(theme.tabiyaSpacing.md),
-          paddingRight: theme.fixedSpacing(theme.tabiyaSpacing.lg),
+          paddingY: theme.tabiyaSpacing.xl,
+          paddingLeft: theme.tabiyaSpacing.md,
+          paddingRight: theme.tabiyaSpacing.lg,
           alignItems: "flex-start",
           "& .MuiAccordionSummary-expandIconWrapper": {
             transform: "rotate(-90deg)",

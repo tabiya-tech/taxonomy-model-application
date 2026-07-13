@@ -1,7 +1,12 @@
 import { useState } from "react";
 import Box from "@mui/material/Box";
-import { Typography, Divider, Skeleton, Tabs, Tab, Chip } from "@mui/material";
-import { ExplorerRelatedOccupation, ExplorerRelatedSkill, ObjectType } from "src/explorer/explorer.types";
+import { Typography, Divider, Skeleton, Tabs, Tab, Chip, useTheme } from "@mui/material";
+import {
+  ExplorerContainedItem,
+  ExplorerRelatedOccupation,
+  ExplorerRelatedSkill,
+  ObjectType,
+} from "src/explorer/explorer.types";
 
 const uniqueId = "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a";
 export const DATA_TEST_ID = {
@@ -10,6 +15,9 @@ export const DATA_TEST_ID = {
   EXPLORER_DETAIL_PANEL_CODE: `explorer-detail-panel-code-${uniqueId}`,
   EXPLORER_DETAIL_PANEL_TITLE: `explorer-detail-panel-title-${uniqueId}`,
   EXPLORER_DETAIL_PANEL_SKELETON: `explorer-detail-panel-skeleton-${uniqueId}`,
+  EXPLORER_DETAIL_PANEL_CONTAINS: `explorer-detail-panel-contains-${uniqueId}`,
+  EXPLORER_DETAIL_PANEL_BADGE: `explorer-detail-panel-badge-${uniqueId}`,
+  EXPLORER_DETAIL_PANEL_ALT_LABELS: `explorer-detail-panel-alt-labels-${uniqueId}`,
 };
 
 export type ExplorerDetailItem = {
@@ -25,6 +33,7 @@ export type ExplorerDetailItem = {
   regulatedProfessionNote?: string;
   skillType?: string;
   reuseLevel?: string;
+  contains?: ExplorerContainedItem[];
   requiresSkills?: ExplorerRelatedSkill[];
   requiredByOccupations?: ExplorerRelatedOccupation[];
 };
@@ -35,19 +44,54 @@ type ExplorerDetailPanelProps = {
 };
 
 const GROUP_OBJECT_TYPES = new Set([ObjectType.ISCOGroup, ObjectType.LocalGroup, ObjectType.SkillGroup]);
-const OCCUPATION_OBJECT_TYPES = new Set([ObjectType.ESCOOccupation, ObjectType.LocalOccupation]);
 
-const humanize = (value: string): string =>
-  value.length === 0 ? value : value.charAt(0).toUpperCase() + value.slice(1).replace(/[-/]/g, " ");
+const isGroup = (objectType?: ObjectType): boolean => Boolean(objectType && GROUP_OBJECT_TYPES.has(objectType));
+
+const isOccupation = (objectType?: ObjectType): boolean =>
+  objectType === ObjectType.ESCOOccupation || objectType === ObjectType.LocalOccupation;
+
+// The colored "flag" shown under the title, indicating the entity's category.
+const getBadge = (item: ExplorerDetailItem): { label: string; bgcolor: string; color: string } | null => {
+  const objectType = item.objectType;
+  if (!objectType) return null;
+  if (GROUP_OBJECT_TYPES.has(objectType)) return { label: "Group", bgcolor: "#E6F4EA", color: "#2E7D32" };
+  if (objectType === ObjectType.ESCOOccupation) return { label: "Seen Economy", bgcolor: "#E7F0FB", color: "#265EA7" };
+  if (objectType === ObjectType.LocalOccupation)
+    return { label: "Unseen Economy", bgcolor: "#FBEEDD", color: "#B26A00" };
+  if (objectType === ObjectType.Skill) {
+    const label = item.skillType ? item.skillType.charAt(0).toUpperCase() + item.skillType.slice(1) : "Skill";
+    return { label, bgcolor: "#F3E8FB", color: "#7B1FA2" };
+  }
+  return null;
+};
+
+// The label of the second (links) tab depends on the entity: occupations link to skills and vice-versa.
+const linksTabLabel = (objectType?: ObjectType): string => {
+  if (isOccupation(objectType)) return "Skills linked";
+  if (objectType === ObjectType.Skill) return "Occupations linked";
+  return "Links";
+};
+
+const typeLabel = (objectType?: ObjectType): string => {
+  switch (objectType) {
+    case ObjectType.ISCOGroup:
+    case ObjectType.LocalGroup:
+      return "Occupation group";
+    case ObjectType.SkillGroup:
+      return "Skill group";
+    case ObjectType.ESCOOccupation:
+      return "ESCO occupation";
+    case ObjectType.LocalOccupation:
+      return "Local occupation";
+    case ObjectType.Skill:
+      return "Skill";
+    default:
+      return "—";
+  }
+};
 
 const DetailSkeleton = () => (
-  <Box
-    display="flex"
-    flexDirection="column"
-    height="100%"
-    overflow="hidden"
-    data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_SKELETON}
-  >
+  <Box display="flex" flexDirection="column" data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_SKELETON}>
     <Box display="flex" alignItems="flex-start" gap={2} px={3} py={2.5} flexShrink={0}>
       <Skeleton variant="text" width={80} height={44} />
       <Skeleton variant="text" width={300} height={44} />
@@ -69,10 +113,117 @@ const DetailSkeleton = () => (
 );
 
 const RelatedItemRow = ({ item }: Readonly<{ item: ExplorerRelatedSkill | ExplorerRelatedOccupation }>) => (
-  <Box bgcolor="grey.100" borderRadius={1} px={2} py={1.5} mb={1}>
+  <Box
+    bgcolor="grey.100"
+    borderRadius={1}
+    px={(theme) => theme.fixedSpacing(1.5)}
+    py={(theme) => theme.fixedSpacing(1.2)}
+    mb={(theme) => theme.fixedSpacing(1.5)}
+    display="flex"
+    justifyContent="space-between"
+    alignItems="center"
+    gap={2}
+  >
     <Typography variant="body2">{item.preferredLabel}</Typography>
+    {item.code && (
+      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "IBM Plex Mono", flexShrink: 0 }}>
+        {item.code}
+      </Typography>
+    )}
   </Box>
 );
+
+const LinkSectionHeader = ({ label, count }: Readonly<{ label: string; count: number }>) => (
+  <Typography
+    variant="caption"
+    sx={{
+      display: "block",
+      mb: 1,
+      fontFamily: "IBM Plex Mono",
+      fontWeight: 700,
+      textTransform: "uppercase",
+      color: "primary.main",
+    }}
+  >
+    {label} · {count}
+  </Typography>
+);
+
+const DefinitionTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
+  const theme = useTheme();
+  const contains = item.contains ?? [];
+  const altLabels = (item.altLabels ?? []).filter(
+    (label) => label.trim().toLowerCase() !== item.title.trim().toLowerCase()
+  );
+  return (
+    <>
+      <Typography variant="body1" fontWeight="bold" mb={1}>
+        Description
+      </Typography>
+      <Typography variant="body1">{item.definition || "No definition available"}</Typography>
+      {altLabels.length > 0 && (
+        <Box data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_ALT_LABELS}>
+          <Typography variant="body1" fontWeight="bold" mt={3} mb={1}>
+            Also known as
+          </Typography>
+          <Box display="flex" flexWrap="wrap" gap={1}>
+            {altLabels.map((label) => (
+              <Chip
+                key={label}
+                label={label}
+                size="small"
+                sx={{
+                  bgcolor: "grey.100",
+                  fontSize: theme.typography.body2.fontSize,
+                  px: theme.fixedSpacing(theme.tabiyaSpacing.sm),
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+      )}
+      {isGroup(item.objectType) && (
+        <Box data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_CONTAINS}>
+          <Typography variant="body1" fontWeight="bold" mt={3} mb={1}>
+            Contains · {contains.length}
+          </Typography>
+          {contains.length === 0 ? (
+            <Typography variant="body1" color="text.secondary">
+              Empty group.
+            </Typography>
+          ) : (
+            <Box display="flex" flexDirection="column" gap={theme.fixedSpacing(1.5)}>
+              {contains.map((child) => (
+                <Box
+                  key={child.id}
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  gap={2}
+                  bgcolor="grey.100"
+                  borderRadius={1}
+                  px={theme.fixedSpacing(1.5)}
+                  py={theme.fixedSpacing(1.2)}
+                >
+                  <Typography variant="body2">{child.title}</Typography>
+                  {child.code && (
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontFamily: "IBM Plex Mono", flexShrink: 0 }}
+                    >
+                      {child.code}
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      )}
+    </>
+  );
+};
 
 const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
   const essential = item.requiresSkills?.filter((s) => s.relationType === "essential") ?? [];
@@ -81,7 +232,7 @@ const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
 
   if (essential.length === 0 && optional.length === 0 && requiredBy.length === 0) {
     return (
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body1" color="text.secondary">
         No links available for this item.
       </Typography>
     );
@@ -91,14 +242,7 @@ const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
     <>
       {essential.length > 0 && (
         <Box mb={3}>
-          <Box display="flex" justifyContent="space-between" mb={1}>
-            <Typography variant="caption" fontWeight="bold" color="text.secondary">
-              ESSENTIAL SKILLS
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {essential.length} skills
-            </Typography>
-          </Box>
+          <LinkSectionHeader label="Essential skills" count={essential.length} />
           {essential.map((skill) => (
             <RelatedItemRow key={skill.id} item={skill} />
           ))}
@@ -106,14 +250,7 @@ const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
       )}
       {optional.length > 0 && (
         <Box mb={3}>
-          <Box display="flex" justifyContent="space-between" mb={1}>
-            <Typography variant="caption" fontWeight="bold" color="text.secondary">
-              OPTIONAL SKILLS
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {optional.length} skills
-            </Typography>
-          </Box>
+          <LinkSectionHeader label="Optional skills" count={optional.length} />
           {optional.map((skill) => (
             <RelatedItemRow key={skill.id} item={skill} />
           ))}
@@ -121,14 +258,7 @@ const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
       )}
       {requiredBy.length > 0 && (
         <Box mb={3}>
-          <Box display="flex" justifyContent="space-between" mb={1}>
-            <Typography variant="caption" fontWeight="bold" color="text.secondary">
-              REQUIRED BY OCCUPATIONS
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {requiredBy.length} occupations
-            </Typography>
-          </Box>
+          <LinkSectionHeader label="Occupations requiring this skill" count={requiredBy.length} />
           {requiredBy.map((occupation) => (
             <RelatedItemRow key={occupation.id} item={occupation} />
           ))}
@@ -138,40 +268,16 @@ const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
   );
 };
 
-const buildDetailRows = (item: ExplorerDetailItem): { label: string; value: string }[] => {
-  const rows: { label: string; value: string }[] = [];
-  const objectType = item.objectType;
-
-  if (objectType && OCCUPATION_OBJECT_TYPES.has(objectType)) {
-    rows.push({
-      label: "Occupation type",
-      value: objectType === ObjectType.ESCOOccupation ? "ESCO occupation" : "Local occupation",
-    });
-    if (item.occupationGroupCode) rows.push({ label: "ISCO group", value: item.occupationGroupCode });
-    if (item.code) rows.push({ label: "ESCO code", value: item.code });
-    rows.push({ label: "Regulated profession", value: item.regulatedProfessionNote ? "Yes" : "No" });
-  } else if (objectType && GROUP_OBJECT_TYPES.has(objectType)) {
-    const groupTypeLabel =
-      objectType === ObjectType.SkillGroup
-        ? "Skill group"
-        : objectType === ObjectType.ISCOGroup
-        ? "ISCO group"
-        : "Local group";
-    rows.push({ label: "Group type", value: groupTypeLabel });
-    if (item.code) rows.push({ label: "Code", value: item.code });
-  } else if (objectType === ObjectType.Skill) {
-    if (item.skillType) rows.push({ label: "Skill type", value: humanize(item.skillType) });
-    if (item.reuseLevel) rows.push({ label: "Reuse level", value: humanize(item.reuseLevel) });
-  }
-
-  rows.push({ label: "Alternative labels", value: String(item.altLabels?.length ?? 0) });
-  if (item.UUID) rows.push({ label: "UUID", value: item.UUID });
-
-  return rows;
-};
-
 const DetailsTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
-  const rows = buildDetailRows(item);
+  const rows: { label: string; value: string }[] = [
+    { label: "Type", value: typeLabel(item.objectType) },
+    { label: "Code", value: item.code || "—" },
+  ];
+  if (isGroup(item.objectType)) {
+    rows.push({ label: "Children", value: String(item.contains?.length ?? 0) });
+  }
+  rows.push({ label: "Alternative labels", value: String(item.altLabels?.length ?? 0) });
+
   return (
     <Box display="grid" gridTemplateColumns={{ xs: "1fr", sm: "1fr 1fr" }} columnGap={4} rowGap={2}>
       {rows.map((row) => (
@@ -179,15 +285,15 @@ const DetailsTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => 
           key={row.label}
           display="flex"
           justifyContent="space-between"
-          gap={2}
+          gap={(theme) => theme.fixedSpacing(2)}
           borderBottom={1}
           borderColor="divider"
-          pb={1}
+          pb={(theme) => theme.fixedSpacing(1)}
         >
-          <Typography variant="body2" color="text.secondary" flexShrink={0}>
+          <Typography variant="body1" color="text.secondary" flexShrink={0}>
             {row.label}
           </Typography>
-          <Typography variant="body2" fontWeight="bold" textAlign="right" sx={{ wordBreak: "break-all" }}>
+          <Typography variant="body1" fontWeight="bold" textAlign="right" sx={{ wordBreak: "break-all" }}>
             {row.value}
           </Typography>
         </Box>
@@ -196,7 +302,12 @@ const DetailsTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => 
   );
 };
 
-const TAB_LABELS = ["Definition", "Links", "Details", "History"];
+// History is not implemented on the frontend yet — the tab shows a placeholder for now.
+const HistoryTabContent = () => (
+  <Typography variant="body1" color="text.secondary">
+    No history available.
+  </Typography>
+);
 
 const ExplorerDetailPanel = ({ item, isLoading = false }: Readonly<ExplorerDetailPanelProps>) => {
   const [activeTab, setActiveTab] = useState(0);
@@ -211,7 +322,7 @@ const ExplorerDetailPanel = ({ item, isLoading = false }: Readonly<ExplorerDetai
         display="flex"
         alignItems="center"
         justifyContent="center"
-        height="100%"
+        minHeight={240}
         data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_EMPTY}
       >
         <Typography variant="body1" color="text.secondary">
@@ -221,20 +332,16 @@ const ExplorerDetailPanel = ({ item, isLoading = false }: Readonly<ExplorerDetai
     );
   }
 
+  const badge = getBadge(item);
+  const tabLabels = ["Definition", linksTabLabel(item.objectType), "Details", "History"];
+
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      height="100%"
-      overflow="hidden"
-      data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL}
-    >
-      <Box display="flex" alignItems="flex-start" gap={2} px={3} py={2.5} flexShrink={0}>
+    <Box display="flex" flexDirection="column" data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL}>
+      <Box display="flex" alignItems="flex-start" gap={2} px={3} pt={2.5} pb={badge ? 1 : 2.5} flexShrink={0}>
         <Typography
           variant="h5"
           color="grey.500"
           fontWeight={400}
-          sx={{ flexShrink: 0, lineHeight: 1.4 }}
           data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_CODE}
         >
           {item.code}
@@ -248,10 +355,32 @@ const ExplorerDetailPanel = ({ item, isLoading = false }: Readonly<ExplorerDetai
           {item.title}
         </Typography>
       </Box>
+      {badge && (
+        <Box px={3} pb={2} flexShrink={0}>
+          <Chip
+            label={badge.label}
+            size="small"
+            data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_BADGE}
+            sx={{
+              bgcolor: badge.bgcolor,
+              color: badge.color,
+              fontWeight: 600,
+              height: 20,
+              fontSize: "0.68rem",
+              borderRadius: 2,
+              border: "1px solid",
+              "& .MuiChip-label": { px: 1 },
+            }}
+          />
+        </Box>
+      )}
       <Divider />
       <Tabs
         value={activeTab}
         onChange={(_, v) => setActiveTab(v)}
+        variant="scrollable"
+        scrollButtons="auto"
+        allowScrollButtonsMobile
         TabIndicatorProps={{
           sx: {
             backgroundColor: "success.dark",
@@ -274,38 +403,15 @@ const ExplorerDetailPanel = ({ item, isLoading = false }: Readonly<ExplorerDetai
           },
         }}
       >
-        {TAB_LABELS.map((label) => (
+        {tabLabels.map((label) => (
           <Tab key={label} label={label} />
         ))}
       </Tabs>
-      <Box flex={1} overflow="auto" px={3} py={2}>
-        {activeTab === 0 && (
-          <>
-            <Typography variant="body2" fontWeight="bold" mb={1}>
-              Description
-            </Typography>
-            <Typography variant="body2">{item.definition || "No definition available"}</Typography>
-            {item.altLabels && item.altLabels.length > 0 && (
-              <>
-                <Typography variant="body2" fontWeight="bold" mt={3} mb={1}>
-                  Also known as
-                </Typography>
-                <Box display="flex" flexWrap="wrap" gap={1}>
-                  {item.altLabels.map((label) => (
-                    <Chip key={label} label={label} size="small" sx={{ bgcolor: "grey.100" }} />
-                  ))}
-                </Box>
-              </>
-            )}
-          </>
-        )}
+      <Box flex={1} p={3}>
+        {activeTab === 0 && <DefinitionTabContent item={item} />}
         {activeTab === 1 && <LinksTabContent item={item} />}
         {activeTab === 2 && <DetailsTabContent item={item} />}
-        {activeTab === 3 && (
-          <Typography variant="body2" color="text.secondary">
-            History is not yet available.
-          </Typography>
-        )}
+        {activeTab === 3 && <HistoryTabContent />}
       </Box>
     </Box>
   );

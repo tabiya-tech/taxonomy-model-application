@@ -9,6 +9,7 @@ import {
   ListItemButton,
   ListItemText,
   ListItemIcon,
+  ListSubheader,
   Collapse,
   Skeleton,
   Typography,
@@ -29,8 +30,16 @@ export const DATA_TEST_ID = {
   EXPLORER_TREE_PANEL_SEARCH: `explorer-tree-panel-search-${uniqueId}`,
   EXPLORER_TREE_PANEL_LIST: `explorer-tree-panel-list-${uniqueId}`,
   EXPLORER_TREE_PANEL_ITEM: `explorer-tree-panel-item-${uniqueId}`,
+  EXPLORER_TREE_PANEL_GROUP: `explorer-tree-panel-group-${uniqueId}`,
   EXPLORER_TREE_PANEL_SKELETON: `explorer-tree-panel-skeleton-${uniqueId}`,
 };
+
+// Occupation roots split into the seen economy (ESCO / ISCO groups) and the unseen
+// economy (ICATUS / local groups). Skills are shown as a flat list (no grouping).
+const OCCUPATION_GROUPS: { label: string; objectType: string }[] = [
+  { label: "Seen economy · ESCO", objectType: "iscogroup" },
+  { label: "Unseen economy · ICATUS", objectType: "localgroup" },
+];
 
 export type ExplorerTreeItem = {
   id: string;
@@ -99,6 +108,15 @@ const TreeNode = ({ item, selectedItemId, onSelectItem, onExpandItem, depth }: R
     }
   };
 
+  let expandToggleIcon;
+  if (!hasChildren) {
+    expandToggleIcon = <CircleIcon sx={{ fontSize: 7, ml: 1, color: "text.disabled" }} />;
+  } else if (expanded) {
+    expandToggleIcon = <ExpandMoreIcon fontSize="small" color="action" />;
+  } else {
+    expandToggleIcon = <ChevronRightIcon fontSize="small" color="action" />;
+  }
+
   return (
     <ListItem disablePadding sx={{ display: "block" }}>
       <ListItemButton
@@ -108,32 +126,24 @@ const TreeNode = ({ item, selectedItemId, onSelectItem, onExpandItem, depth }: R
         sx={{
           pl: 2 + depth * 2,
           "&.Mui-selected": {
-            bgcolor: "grey.100",
+            bgcolor: (theme) => theme.palette.containerBackground.main,
             "& .MuiListItemText-primary": {
               fontWeight: 700,
               color: "primary.main",
             },
           },
           "&.Mui-selected:hover": {
-            bgcolor: "grey.200",
+            bgcolor: (theme) => theme.palette.containerBackground.dark,
           },
         }}
         data-testid={DATA_TEST_ID.EXPLORER_TREE_PANEL_ITEM}
       >
         <ListItemIcon sx={{ minWidth: 28 }} onClick={hasChildren ? handleExpandClick : undefined}>
-          {hasChildren ? (
-            expanded ? (
-              <ExpandMoreIcon fontSize="small" color="action" />
-            ) : (
-              <ChevronRightIcon fontSize="small" color="action" />
-            )
-          ) : (
-            <CircleIcon sx={{ fontSize: 7, ml: 1, color: "text.disabled" }} />
-          )}
+          {expandToggleIcon}
         </ListItemIcon>
         <ListItemText
           primary={item.code ? `${item.code} · ${item.title}` : item.title}
-          primaryTypographyProps={{ variant: "body2", noWrap: true }}
+          primaryTypographyProps={{ variant: "body1", noWrap: true }}
         />
       </ListItemButton>
       {hasChildren && (
@@ -201,28 +211,28 @@ const ExplorerTreePanel = ({
           data-testid={DATA_TEST_ID.EXPLORER_TREE_PANEL_TABS}
           sx={{
             backgroundColor: "grey.100",
-            borderRadius: "12px",
-            p: "4px",
+            borderRadius: theme.tabiyaRounding.sm,
+            p: theme.tabiyaSpacing.xs,
+            gap: theme.tabiyaSpacing.sm,
             "& .MuiToggleButtonGroup-grouped": {
               border: "none !important",
               borderRadius: "8px !important",
               textTransform: "none",
               fontWeight: 500,
-              fontSize: "0.875rem",
+              fontSize: theme.typography.body1.fontSize,
               color: "text.secondary",
-              py: 0.75,
             },
             "& .MuiToggleButtonGroup-grouped.Mui-selected": {
-              backgroundColor: "#ffffff !important",
+              backgroundColor: "#ffffff",
               color: "text.primary",
               fontWeight: 600,
               boxShadow: "0px 1px 3px rgba(0,0,0,0.12)",
             },
             "& .MuiToggleButtonGroup-grouped.Mui-selected:hover": {
-              backgroundColor: "#ffffff !important",
+              backgroundColor: "#ffffff",
             },
             "& .MuiToggleButtonGroup-grouped:hover:not(.Mui-selected)": {
-              backgroundColor: "grey.200 !important",
+              backgroundColor: "grey.200",
             },
           }}
         >
@@ -258,37 +268,90 @@ const ExplorerTreePanel = ({
         />
       </Box>
       <Box flex={1} overflow="auto">
-        {isLoading ? (
+        {isLoading && (
           <Box px={2} py={1} data-testid={DATA_TEST_ID.EXPLORER_TREE_PANEL_SKELETON}>
-            {SKELETON_ROWS.map((row, index) => (
-              <Box key={index} display="flex" alignItems="center" py={0.75} pl={row.indent * 3}>
+            {SKELETON_ROWS.map((row) => (
+              <Box key={`${row.width}-${row.indent}`} display="flex" alignItems="center" py={0.75} pl={row.indent * 3}>
                 <Skeleton variant="circular" width={10} height={10} sx={{ mr: 1.5, flexShrink: 0 }} />
                 <Skeleton variant="text" width={row.width} height={20} />
               </Box>
             ))}
           </Box>
-        ) : items.length === 0 ? (
+        )}
+        {!isLoading && items.length === 0 && (
           <Box px={2} py={2}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body1" color="text.secondary">
               {activeTab === "occupations" ? "No occupations found" : "No skills found"}
             </Typography>
           </Box>
-        ) : (
+        )}
+        {!isLoading && items.length > 0 && (
           <List
             disablePadding
             sx={{ borderTop: 1, borderColor: "divider" }}
             data-testid={DATA_TEST_ID.EXPLORER_TREE_PANEL_LIST}
           >
-            {items.map((item) => (
-              <TreeNode
-                key={item.id}
-                item={item}
-                selectedItemId={selectedItemId}
-                onSelectItem={onSelectItem}
-                onExpandItem={onExpandItem}
-                depth={0}
-              />
-            ))}
+            {activeTab === "occupations" ? (
+              <>
+                {OCCUPATION_GROUPS.map((group) => {
+                  const groupItems = items.filter((item) => item.objectType === group.objectType);
+                  if (groupItems.length === 0) return null;
+                  return (
+                    <React.Fragment key={group.label}>
+                      <ListSubheader
+                        disableSticky
+                        data-testid={DATA_TEST_ID.EXPLORER_TREE_PANEL_GROUP}
+                        sx={{
+                          fontFamily: "IBM Plex Mono",
+                          textTransform: "uppercase",
+                          fontWeight: 700,
+                          fontSize: theme.typography.body1.fontSize,
+                          color: (theme) => theme.palette.grey[600],
+                          bgcolor: (theme) => theme.palette.grey[100],
+                          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+                        }}
+                      >
+                        {group.label}
+                      </ListSubheader>
+                      {groupItems.map((item) => (
+                        <TreeNode
+                          key={item.id}
+                          item={item}
+                          selectedItemId={selectedItemId}
+                          onSelectItem={onSelectItem}
+                          onExpandItem={onExpandItem}
+                          depth={0}
+                        />
+                      ))}
+                    </React.Fragment>
+                  );
+                })}
+                {/* Any items that aren't one of the known economy groups (e.g. leaves) render ungrouped. */}
+                {items
+                  .filter((item) => !OCCUPATION_GROUPS.some((group) => group.objectType === item.objectType))
+                  .map((item) => (
+                    <TreeNode
+                      key={item.id}
+                      item={item}
+                      selectedItemId={selectedItemId}
+                      onSelectItem={onSelectItem}
+                      onExpandItem={onExpandItem}
+                      depth={0}
+                    />
+                  ))}
+              </>
+            ) : (
+              items.map((item) => (
+                <TreeNode
+                  key={item.id}
+                  item={item}
+                  selectedItemId={selectedItemId}
+                  onSelectItem={onSelectItem}
+                  onExpandItem={onExpandItem}
+                  depth={0}
+                />
+              ))
+            )}
           </List>
         )}
       </Box>

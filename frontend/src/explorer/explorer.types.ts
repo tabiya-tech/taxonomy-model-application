@@ -10,13 +10,21 @@ export enum ObjectType {
 export type ExplorerRelatedSkill = {
   id: string;
   preferredLabel: string;
+  code?: string;
   relationType?: string | null;
 };
 
 export type ExplorerRelatedOccupation = {
   id: string;
   preferredLabel: string;
+  code?: string;
   relationType?: string | null;
+};
+
+export type ExplorerContainedItem = {
+  id: string;
+  code: string;
+  title: string;
 };
 
 export type ExplorerItemDetail = {
@@ -31,6 +39,7 @@ export type ExplorerItemDetail = {
   regulatedProfessionNote?: string;
   skillType?: string;
   reuseLevel?: string;
+  contains?: ExplorerContainedItem[];
   requiresSkills?: ExplorerRelatedSkill[];
   requiredByOccupations?: ExplorerRelatedOccupation[];
 };

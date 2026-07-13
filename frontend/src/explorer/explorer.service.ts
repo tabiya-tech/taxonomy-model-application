@@ -160,6 +160,11 @@ export default class ExplorerService {
       regulatedProfessionNote: node.regulatedProfessionNote,
       skillType: node.skillType,
       reuseLevel: node.reuseLevel,
+      contains: node.children?.map((child) => ({
+        id: child.id,
+        code: child.code ?? "",
+        title: child.preferredLabel,
+      })),
       requiresSkills: node.requiresSkills,
       requiredByOccupations: node.requiredByOccupations,
     };

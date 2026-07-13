@@ -5,10 +5,11 @@ import { useTheme } from "@mui/material";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ExplorerService from "src/explorer/explorer.service";
-import { ExplorerItemDetail } from "src/explorer/explorer.types";
+import { ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
 import { getApiUrl } from "src/envService";
 import { ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
+import { getLatestSuccessfulExport } from "src/modeldirectory/components/ModelsCardList/components/VersionRow/VersionRow";
 import ContentLayout from "src/theme/ContentLayout/ContentLayout";
 import { routerPaths } from "src/app/routerPaths";
 import ExplorerHeader from "src/explorer/components/ExplorerHeader/ExplorerHeader";
@@ -88,17 +89,24 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
       setTreeItems([]);
       return;
     }
-    setIsTreeLoading(true);
-    setTreeItems([]);
-    explorerService
-      .getRootItems(modelId, initialTab)
-      .then(setTreeItems)
-      .catch((e) => {
+    const loadRootItems = async () => {
+      setIsTreeLoading(true);
+      setTreeItems([]);
+      try {
+        const items = await explorerService.getRootItems(modelId, initialTab);
+        setTreeItems([
+          ...items.filter((item) => item.objectType !== ObjectType.LocalGroup),
+          ...items.filter((item) => item.objectType === ObjectType.LocalGroup),
+        ]);
+      } catch (e) {
         if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
         else console.error(e);
         setTreeItems([]);
-      })
-      .finally(() => setIsTreeLoading(false));
+      } finally {
+        setIsTreeLoading(false);
+      }
+    };
+    void loadRootItems();
   }, [modelId, initialTab]);
 
   const handleExpandItem = (item: ExplorerTreeItem) => {
@@ -123,7 +131,13 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   // showing stale data from a previous selection before the new fetch completes.
   const matchingDetail = detail?.id === selectedTreeItem?.id ? detail : null;
   const detailItem: ExplorerDetailItem | null = selectedTreeItem
-    ? { ...matchingDetail, id: selectedTreeItem.id, code: selectedTreeItem.code, title: selectedTreeItem.title }
+    ? {
+        ...matchingDetail,
+        id: selectedTreeItem.id,
+        code: selectedTreeItem.code,
+        title: selectedTreeItem.title,
+        objectType: selectedTreeItem.objectType as ObjectType,
+      }
     : null;
 
   const treeItemsRef = useRef(treeItems);
@@ -146,6 +160,9 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
       })
       .finally(() => setIsDetailLoading(false));
   }, [modelId, selectedItemId, isTreeLoading]);
+
+  // The CSV button links directly to the model's most recent successful export (if any).
+  const csvDownloadUrl = selectedModel ? getLatestSuccessfulExport(selectedModel)?.downloadUrl : undefined;
 
   const handleModelChange = (newModelId: string) => {
     navigate(
@@ -180,20 +197,33 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
             selectedModel={selectedModel}
             isLoading={isLoadingModels}
             onModelChange={handleModelChange}
+            onBackToDirectory={() => navigate(routerPaths.MODEL_DIRECTORY)}
+            onOpenApiDocs={() => navigate(routerPaths.API_DOCS)}
+            csvDownloadUrl={csvDownloadUrl}
           />
         }
         mainComponent={
-          <Box height="100%" width="100%" sx={{ overflowX: "auto", overflowY: "hidden" }}>
-            <Box display="flex" flexDirection="row" height="100%" minWidth={700} gap={2}>
+          <Box sx={{ position: "relative", height: "100%", width: "100%" }}>
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  md: "minmax(280px, 420px) minmax(0, 1fr)",
+                  xl: "minmax(360px, 500px) minmax(0, 1fr)",
+                },
+                gridTemplateRows: { xs: "minmax(0, 1.2fr) minmax(0, 0.8fr)", md: "minmax(0, 1fr)" },
+                gap: theme.fixedSpacing(theme.tabiyaSpacing.md),
+              }}
+            >
               <Box
-                flexShrink={0}
-                width="35%"
-                height="100%"
-                overflow="auto"
                 bgcolor="common.white"
                 borderRadius={theme.tabiyaRounding.sm}
                 border={1}
                 borderColor="grey.200"
+                sx={{ minHeight: 0, overflow: "auto" }}
               >
                 <ExplorerTreePanel
                   activeTab={initialTab}
@@ -208,13 +238,11 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
                 />
               </Box>
               <Box
-                flex={1}
-                height="100%"
-                overflow="auto"
                 bgcolor="common.white"
                 borderRadius={theme.tabiyaRounding.sm}
                 border={1}
                 borderColor="grey.200"
+                sx={{ minHeight: 0, overflow: "auto" }}
               >
                 <ExplorerDetailPanel item={detailItem} isLoading={isDetailLoading} />
               </Box>
