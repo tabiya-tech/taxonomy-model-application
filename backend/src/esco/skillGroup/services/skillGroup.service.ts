@@ -1,12 +1,23 @@
-import { ISkillGroupHistoryEntry, ISkillGroupService } from "./skillGroup.service.type";
+import {
+  ISkillGroupHistoryEntry,
+  ISkillGroupService,
+  SkillGroupModelValidationError,
+  SetSkillGroupParentError,
+  SetSkillGroupParentErrorCode,
+} from "./skillGroup.service.type";
 import { ModelForSkillGroupValidationErrorCode, ISkillGroup, ISkillGroupChild } from "../_shared/skillGroup.types";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
+import { ISkillHierarchyRepository } from "esco/skillHierarchy/skillHierarchyRepository";
+import { ObjectTypes } from "esco/common/objectTypes";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ISkillGroupPaginatedFilter } from "./skillGroup.service.type";
 import { toModelReference } from "modelInfo/modelInfoReference";
 
 export class SkillGroupService implements ISkillGroupService {
-  constructor(private readonly skillGroupRepository: ISkillGroupRepository) {}
+  constructor(
+    private readonly skillGroupRepository: ISkillGroupRepository,
+    private readonly skillHierarchyRepository: ISkillHierarchyRepository
+  ) {}
 
   async findById(id: string): Promise<ISkillGroup | null> {
     return this.skillGroupRepository.findById(id);
@@ -97,6 +108,39 @@ export class SkillGroupService implements ISkillGroupService {
     }
 
     return { items: pageItems, nextCursor };
+  }
+
+  async setParent(params: {
+    childId: string;
+    parentId: string;
+    parentType: ObjectTypes.SkillGroup;
+    modelId: string;
+  }): Promise<ISkillGroup> {
+    const errorCode = await this.validateModelForSkillGroup(params.modelId);
+    if (errorCode != null) {
+      throw new SkillGroupModelValidationError(errorCode);
+    }
+
+    const child = await this.skillGroupRepository.findById(params.childId);
+    if (!child || child.modelId !== params.modelId) {
+      throw new SetSkillGroupParentError(SetSkillGroupParentErrorCode.CHILD_NOT_FOUND);
+    }
+
+    const parent = await this.skillGroupRepository.findById(params.parentId);
+    if (!parent || parent.modelId !== params.modelId) {
+      throw new SetSkillGroupParentError(SetSkillGroupParentErrorCode.PARENT_NOT_FOUND);
+    }
+
+    await this.skillHierarchyRepository.createMany(params.modelId, [
+      {
+        childId: params.childId,
+        childType: ObjectTypes.SkillGroup,
+        parentId: params.parentId,
+        parentType: params.parentType,
+      },
+    ]);
+
+    return parent;
   }
 
   async getHistory(skillGroupId: string): Promise<ISkillGroupHistoryEntry[] | null> {
