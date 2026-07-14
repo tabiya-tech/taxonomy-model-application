@@ -1580,6 +1580,170 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         },
       },
     },
+    "History": {
+      "Constants": {
+        "ALT_LABELS_MAX_ITEMS": 100,
+        "ALT_LABEL_MAX_LENGTH": 256,
+        "CODE_MAX_LENGTH": 256,
+        "CODE_PATTERN_MAX_LENGTH": 100,
+        "DEFAULT_LIMIT": 10,
+        "DEFINITION_MAX_LENGTH": 4000,
+        "DESCRIPTION_MAX_LENGTH": 6000,
+        "MAX_CURSOR_LENGTH": 1024,
+        "MAX_LIMIT": 100,
+        "MAX_PAYLOAD_LENGTH": 1000,
+        "OCCUPATION_GROUP_CODE_MAX_LENGTH": 256,
+        "ORIGIN_URI_MAX_LENGTH": 4096,
+        "PATH_URI_MAX_LENGTH": 4096,
+        "PREFERRED_LABEL_MAX_LENGTH": 256,
+        "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
+        "SCOPE_NOTE_MAX_LENGTH": 4000,
+        "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
+        "SIGNALLING_VALUE_MAX": 100,
+        "SIGNALLING_VALUE_MIN": 0,
+        "TABIYA_PATH_URI_MAX_LENGTH": 4096,
+        "UUID_HISTORY_MAX_ITEMS": 10000,
+        "UUID_HISTORY_MAX_LENGTH": 50,
+      },
+      "Enums": {
+        "OccupationToSkillRelationType": {
+          "ESSENTIAL": "essential",
+          "NONE": "",
+          "OPTIONAL": "optional",
+        },
+        "OccupationType": {
+          "ESCOOccupation": "escooccupation",
+          "LocalOccupation": "localoccupation",
+        },
+        "Relations": {
+          "Children": {
+            "ObjectTypes": {
+              "ESCOOccupation": "escooccupation",
+              "ISCOGroup": "iscogroup",
+              "LocalGroup": "localgroup",
+              "LocalOccupation": "localoccupation",
+            },
+          },
+          "Parent": {
+            "ObjectTypes": {
+              "ESCOOccupation": "escooccupation",
+              "ISCOGroup": "iscogroup",
+              "LocalGroup": "localgroup",
+              "LocalOccupation": "localoccupation",
+            },
+          },
+          "RequiredSkills": {
+            "ObjectTypes": {
+              "Skill": "skill",
+            },
+          },
+        },
+      },
+      "GET": {
+        "Errors": {
+          "Status400": {
+            "ErrorCodes": {
+              "INVALID_OCCUPATION_ID": "INVALID_OCCUPATION_ID",
+            },
+          },
+          "Status404": {
+            "ErrorCodes": {
+              "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+              "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
+            },
+          },
+          "Status500": {
+            "ErrorCodes": {
+              "DB_FAILED_TO_RETRIEVE_OCCUPATION_HISTORY": "DB_FAILED_TO_RETRIEVE_OCCUPATION_HISTORY",
+            },
+          },
+        },
+        "Schemas": {
+          "Response": {
+            "Payload": {
+              "$id": "/components/schemas/OccupationResponseSchemaGETHistory",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "UUID": {
+                    "description": "The UUID of the occupation.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                    "type": "string",
+                  },
+                  "code": {
+                    "description": "The code of the occupation.",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "id": {
+                    "description": "The id of the occupation.",
+                    "pattern": "^[0-9a-f]{24}$",
+                    "type": "string",
+                  },
+                  "isLocalized": {
+                    "description": "Indicates if the occupation has localized variants. Must be false for LocalOccupation.",
+                    "type": "boolean",
+                  },
+                  "model": {
+                    "$ref": "/components/schemas/ModelInfoReferenceSchema",
+                  },
+                  "occupationGroupCode": {
+                    "description": "The code of the parent occupation group.",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "occupationType": {
+                    "description": "The occupation classification type (e.g., ESCOOccupation or LocalOccupation).",
+                    "enum": [
+                      "escooccupation",
+                      "localoccupation",
+                    ],
+                    "type": "string",
+                  },
+                  "preferredLabel": {
+                    "description": "The preferred label of the occupation.",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "id",
+                  "UUID",
+                  "preferredLabel",
+                  "occupationGroupCode",
+                  "code",
+                  "occupationType",
+                  "isLocalized",
+                  "model",
+                ],
+                "type": "object",
+              },
+              "type": "array",
+            },
+          },
+        },
+      },
+      "Patterns": {
+        "RegExp": {
+          "ESCO_LOCAL_OCCUPATION_CODE": /\\^\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\*\\(\\?:_\\\\d\\+\\)\\+\\$/,
+          "ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE": /\\^\\(\\?:\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\*\\(\\?:_\\\\d\\+\\)\\+\\|\\[a-zA-Z\\\\d\\]\\+\\(\\?:_\\\\d\\+\\)\\+\\)\\$/,
+          "ESCO_OCCUPATION_CODE": /\\^\\\\d\\{4\\}\\(\\?:\\\\\\.\\\\d\\+\\)\\+\\$/,
+          "ISCO_GROUP_CODE": /\\^\\\\d\\{1,4\\}\\$/,
+          "LOCAL_GROUP_CODE": /\\^\\(\\?:\\\\d\\{1,4\\}\\)\\?\\[a-zA-Z\\]\\+\\[a-zA-Z\\\\d\\]\\*\\$/,
+          "LOCAL_OCCUPATION_CODE": /\\(\\^\\[a-zA-Z\\\\d\\]\\+\\)\\(\\?:_\\\\d\\+\\)\\+\\$/,
+        },
+        "Str": {
+          "ESCO_LOCAL_OCCUPATION_CODE": "^\\d{4}(?:\\.\\d+)*(?:_\\d+)+$",
+          "ESCO_LOCAL_OR_LOCAL_OCCUPATION_CODE": "^(?:\\d{4}(?:\\.\\d+)*(?:_\\d+)+|[a-zA-Z\\d]+(?:_\\d+)+)$",
+          "ESCO_OCCUPATION_CODE": "^\\d{4}(?:\\.\\d+)+$",
+          "ISCO_GROUP_CODE": "^\\d{1,4}$",
+          "LOCAL_GROUP_CODE": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
+          "LOCAL_OCCUPATION_CODE": "(^[a-zA-Z\\d]+)(?:_\\d+)+$",
+        },
+      },
+      "Types": {},
+    },
     "PATCH": {
       "Constants": {
         "MAX_JSON_OVERHEAD": 10000,
@@ -7247,6 +7411,62 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
       "ISCO_GROUP_CODE": "^\\d{1,4}$",
       "LOCAL_GROUP_CODE": "^(?:\\d{1,4})?[a-zA-Z]+[a-zA-Z\\d]*$",
       "LOCAL_OCCUPATION_CODE": "(^[a-zA-Z\\d]+)(?:_\\d+)+$",
+    },
+  },
+  "Schemas": {
+    "Reference": {
+      "$id": "/components/schemas/OccupationReferenceSchema",
+      "additionalProperties": false,
+      "properties": {
+        "UUID": {
+          "description": "The UUID of the occupation.",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string",
+        },
+        "code": {
+          "description": "The code of the occupation.",
+          "maxLength": 256,
+          "type": "string",
+        },
+        "id": {
+          "description": "The id of the occupation.",
+          "pattern": "^[0-9a-f]{24}$",
+          "type": "string",
+        },
+        "isLocalized": {
+          "description": "Indicates if the occupation has localized variants. Must be false for LocalOccupation.",
+          "type": "boolean",
+        },
+        "occupationGroupCode": {
+          "description": "The code of the parent occupation group.",
+          "maxLength": 256,
+          "type": "string",
+        },
+        "occupationType": {
+          "description": "The occupation classification type (e.g., ESCOOccupation or LocalOccupation).",
+          "enum": [
+            "escooccupation",
+            "localoccupation",
+          ],
+          "type": "string",
+        },
+        "preferredLabel": {
+          "description": "The preferred label of the occupation.",
+          "maxLength": 256,
+          "pattern": "\\S",
+          "type": "string",
+        },
+      },
+      "required": [
+        "id",
+        "UUID",
+        "preferredLabel",
+        "occupationGroupCode",
+        "code",
+        "occupationType",
+        "isLocalized",
+      ],
+      "type": "object",
     },
   },
   "Types": {},
