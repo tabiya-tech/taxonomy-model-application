@@ -143,7 +143,6 @@ export class OccupationService implements IOccupationService {
     };
   }
 
-<<<<<<< HEAD
   async getHistory(occupationId: string): Promise<IOccupationHistoryEntry[] | null> {
     const occupation = await this.occupationRepository.findById(occupationId);
     if (!occupation) {

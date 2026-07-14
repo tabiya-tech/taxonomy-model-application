@@ -6,6 +6,7 @@ exports[`Test the Occupation History Instance Detail module The export module ma
     "ALT_LABELS_MAX_ITEMS": 100,
     "ALT_LABEL_MAX_LENGTH": 256,
     "CODE_MAX_LENGTH": 256,
+    "CODE_PATTERN_MAX_LENGTH": 100,
     "DEFAULT_LIMIT": 10,
     "DEFINITION_MAX_LENGTH": 4000,
     "DESCRIPTION_MAX_LENGTH": 6000,

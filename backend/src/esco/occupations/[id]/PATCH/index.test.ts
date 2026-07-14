@@ -39,6 +39,7 @@ describe("Test for occupation PATCH handler", () => {
         getParent: jest.fn().mockResolvedValue(null),
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService,
       initialize: jest.fn(),
     } as unknown as ServiceRegistry;
@@ -87,6 +88,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenOccupation: IOccupation = getIOccupationMockData();
       const givenOccupationServiceMock = {
         patch: jest.fn().mockResolvedValue(givenOccupation),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
@@ -122,6 +124,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenOccupation: IOccupation = getIOccupationMockData();
       const givenOccupationServiceMock = {
         patch: jest.fn().mockResolvedValue(givenOccupation),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
@@ -146,6 +149,7 @@ describe("Test for occupation PATCH handler", () => {
       // AND the service returns null (occupation not found)
       const givenOccupationServiceMock = {
         patch: jest.fn().mockResolvedValue(null),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
@@ -178,6 +182,7 @@ describe("Test for occupation PATCH handler", () => {
           .mockRejectedValue(
             new OccupationModelValidationError(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID)
           ),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
@@ -208,6 +213,7 @@ describe("Test for occupation PATCH handler", () => {
           .mockRejectedValue(
             new OccupationModelValidationError(ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED)
           ),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 

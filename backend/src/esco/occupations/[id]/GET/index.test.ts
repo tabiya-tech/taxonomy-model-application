@@ -39,6 +39,7 @@ describe("Test for occupation Detail GET handler", () => {
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         update: jest.fn(),
         patch: jest.fn(),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService,
       initialize: jest.fn(),
     } as unknown as ServiceRegistry;
@@ -68,6 +69,7 @@ describe("Test for occupation Detail GET handler", () => {
       const givenOccupationServiceMock = {
         findById: jest.fn().mockResolvedValue(givenOccupation),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
@@ -94,6 +96,7 @@ describe("Test for occupation Detail GET handler", () => {
       const givenOccupationServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
@@ -117,6 +120,7 @@ describe("Test for occupation Detail GET handler", () => {
         validateModelForOccupation: jest
           .fn()
           .mockResolvedValue(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
@@ -140,6 +144,7 @@ describe("Test for occupation Detail GET handler", () => {
         validateModelForOccupation: jest
           .fn()
           .mockResolvedValue(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
@@ -163,6 +168,7 @@ describe("Test for occupation Detail GET handler", () => {
       const givenOccupationServiceMock = {
         findById: jest.fn().mockRejectedValue(new Error("foo")),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
@@ -182,6 +188,7 @@ describe("Test for occupation Detail GET handler", () => {
       const givenOccupationServiceMock = {
         findById: jest.fn().mockRejectedValue("some string error"),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 

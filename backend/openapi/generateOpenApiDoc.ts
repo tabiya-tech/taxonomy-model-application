@@ -23,11 +23,20 @@ ModelInfo.Schemas.POST.Request.Payload.properties.locale.$ref =
   "#" + ModelInfo.Schemas.POST.Request.Payload.properties.locale.$ref;
 ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref =
   "#" + ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref;
+OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
+  "#" + OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
+Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
+  "#" + Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
+SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
+  "#" + SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
+Skill.Skill.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
+  "#" + Skill.Skill.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
 
 /**
  * Remove the $id from the schemas as Swagger does not like them.
  * It does not resolve $ref from within the components sections e.g. it will not resolve "$ref": "#/components/schemas/Schema" from ModelInfoResponseSchema
  */
+delete ModelInfo.Schemas.Reference.$id;
 delete ModelInfo.Schemas.POST.Response.Payload.$id;
 delete ModelInfo.Schemas.POST.Request.Payload.$id;
 delete ModelInfo.Schemas.GET.Response.Payload.$id;
@@ -47,9 +56,11 @@ delete OccupationGroup.GET.Schemas.Request.Param.Payload.$id;
 delete OccupationGroup.GET.Schemas.Request.Query.Payload.$id;
 delete OccupationGroup.OccupationGroup.Schemas.Request.Param.Payload.$id;
 delete OccupationGroup.OccupationGroup.GET.Schemas.Response.Payload.$id;
-delete OccupationGroup.OccupationGroup.GET.Schemas.Response.Payload.$id;
 delete OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Child.Payload.$id;
 delete OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Children.Payload.$id;
+delete OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.$id;
+delete OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload.$id;
+delete OccupationGroup.OccupationGroup.Parent.POST.Schemas.Response.Payload.$id;
 delete Occupation.POST.Schemas.Request.Payload.$id;
 delete Occupation.POST.Schemas.Response.Payload.$id;
 delete Occupation.GET.Schemas.Response.Payload.$id;
@@ -58,6 +69,7 @@ delete Occupation.GET.Schemas.Request.Query.Payload.$id;
 delete Occupation.Occupation.GET.Schemas.Request.Param.Payload.$id;
 delete Occupation.Occupation.Parent.GET.Schemas.Response.Payload.$id;
 delete Occupation.Occupation.Parent.POST.Schemas.Request.Payload.$id;
+delete Occupation.Occupation.Parent.POST.Schemas.Response.Payload.$id;
 delete Occupation.Occupation.Children.GET.Schemas.Response.Payload.$id;
 delete Occupation.Occupation.Children.GET.Schemas.Request.Query.Payload.$id;
 delete Occupation.Occupation.Skills.GET.Schemas.Response.Payload.$id;
@@ -67,6 +79,7 @@ delete Occupation.Occupation.PUT.Schemas.Request.Payload.$id;
 delete Occupation.Occupation.PUT.Schemas.Response.Payload.$id;
 delete Occupation.Occupation.PATCH.Schemas.Request.Payload.$id;
 delete Occupation.Occupation.PATCH.Schemas.Response.Payload.$id;
+delete Occupation.Occupation.History.GET.Schemas.Response.Payload.$id;
 delete SkillGroup.POST.Schemas.Request.Param.Payload.$id;
 delete SkillGroup.POST.Schemas.Request.Payload.$id;
 delete SkillGroup.POST.Schemas.Response.Payload.$id;
@@ -83,6 +96,7 @@ delete SkillGroup.SkillGroup.Parent.POST.Schemas.Response.Payload.$id;
 delete SkillGroup.SkillGroup.Children.GET.Schemas.Request.Query.Payload.$id;
 delete SkillGroup.SkillGroup.Children.GET.Schemas.Response.Child.Payload.$id;
 delete SkillGroup.SkillGroup.Children.GET.Schemas.Response.Children.Payload.$id;
+delete SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload.$id;
 delete Skill.POST.Schemas.Request.Payload.$id;
 delete Skill.POST.Schemas.Request.Param.Payload.$id;
 delete Skill.POST.Schemas.Response.Payload.$id;
@@ -105,6 +119,7 @@ delete Skill.Skill.RelatedSkills.GET.Schemas.Response.Payload.$id;
 delete Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id;
 delete Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload.$id;
 delete Skill.Skill.RelatedSkills.POST.Schemas.Response.Payload.$id;
+delete Skill.Skill.History.GET.Schemas.Response.Payload.$id;
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -424,6 +439,7 @@ function getOpenAPISpecification(
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
           ModelInfoResponseSchemaGET: ModelInfo.Schemas.GET.Response.Payload,
+          ModelInfoReferenceSchema: ModelInfo.Schemas.Reference,
           LocaleSchema: Locale.Schemas.Payload,
           ImportSchema: Import.Schemas.POST.Request.Payload,
           ExportSchema: Export.Schemas.POST.Request.Payload,
@@ -438,6 +454,7 @@ function getOpenAPISpecification(
           OccupationGroupRequestQueryParamSchemaGET: OccupationGroup.GET.Schemas.Request.Query.Payload,
           OccupationGroupResponseSchemaGET: OccupationGroup.GET.Schemas.Response.Payload,
           OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.OccupationGroup.Schemas.Request.Param.Payload,
+          OccupationGroupParentRequestSchemaPOST: OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload,
           OccupationRequestSchemaPOST: Occupation.POST.Schemas.Request.Payload,
           OccupationResponseSchemaPOST: Occupation.POST.Schemas.Response.Payload,
           OccupationRequestParamSchemaGET: Occupation.GET.Schemas.Request.Param.Payload,
@@ -446,13 +463,13 @@ function getOpenAPISpecification(
           OccupationResponseSchemaGET: Occupation.GET.Schemas.Response.Payload,
           OccupationResponseSchemaGETParent: Occupation.Occupation.Parent.GET.Schemas.Response.Payload,
           OccupationParentRequestSchemaPOST: Occupation.Occupation.Parent.POST.Schemas.Request.Payload,
+          OccupationParentResponseSchemaPOST: Occupation.Occupation.Parent.POST.Schemas.Response.Payload,
           OccupationResponseSchemaGETChildren: Occupation.Occupation.Children.GET.Schemas.Response.Payload,
           OccupationChildrenRequestQueryParamSchemaGET:
             Occupation.Occupation.Children.GET.Schemas.Request.Query.Payload,
           OccupationResponseSchemaGETSkills: Occupation.Occupation.Skills.GET.Schemas.Response.Payload,
           OccupationSkillsRequestSchemaPOST: Occupation.Occupation.Skills.POST.Schemas.Request.Payload,
           OccupationSkillsRequestQueryParamSchemaGET: Occupation.Occupation.Skills.GET.Schemas.Request.Query.Payload,
-          OccupationResponseSchemaGETHistory: Occupation.Occupation.History.GET.Schemas.Response.Payload,
           OccupationRequestSchemaPUT: Occupation.Occupation.PUT.Schemas.Request.Payload,
           OccupationResponseSchemaPUT: Occupation.Occupation.PUT.Schemas.Response.Payload,
           OccupationRequestSchemaPATCH: Occupation.Occupation.PATCH.Schemas.Request.Payload,
@@ -493,6 +510,10 @@ function getOpenAPISpecification(
           SkillRelatedRequestSchemaPOST: Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload,
           SkillRelatedResponseSchemaPOST: Skill.Skill.RelatedSkills.POST.Schemas.Response.Payload,
           SkillRelatedRequestQueryParamSchemaGET: Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload,
+          OccupationGroupResponseSchemaGETHistory: OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload,
+          OccupationResponseSchemaGETHistory: Occupation.Occupation.History.GET.Schemas.Response.Payload,
+          SkillGroupResponseSchemaGETHistory: SkillGroup.SkillGroup.History.GET.Schemas.Response.Payload,
+          SkillResponseSchemaGETHistory: Skill.Skill.History.GET.Schemas.Response.Payload,
         },
         securitySchemes: {
           jwt_auth: {
