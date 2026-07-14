@@ -78,3 +78,5 @@ jobs:
           USER_POOL_ID: ${{ inputs.user-pool-id }}
           USER_POOL_CLIENT_ID: ${{ inputs.user-pool-client-id }}
           SENTRY_BACKEND_DSN: ${{ inputs.sentry-backend-dsn }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_EMBEDDING_MODEL: ${{ vars.GEMINI_EMBEDDING_MODEL }}
