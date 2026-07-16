@@ -6,6 +6,7 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { IModelInfo } from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
+import EmbeddingsAPISpecs from "api-specifications/embeddings";
 
 export function getIModelInfoMockData(n: number = 1): IModelInfo {
   return {
@@ -45,6 +46,19 @@ export function getIModelInfoMockData(n: number = 1): IModelInfo {
         },
         downloadUrl: "https://foo.bar/" + n,
         timestamp: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ],
+    embeddingProcessState: [
+      {
+        id: getMockStringId(300000 + n),
+        status: ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.PENDING,
+        embeddingServiceId: EmbeddingsAPISpecs.Constants.EmbeddingServiceIds[0],
+        totalDocuments: 10,
+        errorCounts: 0,
+        warningCounts: 0,
+        completedDocuments: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

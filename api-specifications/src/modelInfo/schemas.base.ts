@@ -3,6 +3,7 @@ import ModelInfoConstants from "./constants";
 import Locale from "../locale";
 import { baseImportProcessStateProperties } from "../importProcessState/schema.GET.response";
 import { baseExportProcessStateProperties } from "../exportProcessState/schema.GET.response";
+import { baseEmbeddingProcessStateProperties } from "./[id]/embeddingProcessStates/POST/schema.response";
 import { _modelInfoReferenceProperties } from "./schema.reference";
 
 /**
@@ -105,6 +106,27 @@ export const _baseResponseSchema = {
       }, // deep copy the base importProcessState properties
       required: ["id", "status", "result"],
     },
+    embeddingProcessState: {
+      description: "The embedding process states of the model.",
+      type: "array",
+      minItems: 0,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: { ...JSON.parse(JSON.stringify(baseEmbeddingProcessStateProperties)) }, // deep copy the base embeddingProcessState properties
+        required: [
+          "id",
+          "status",
+          "embeddingServiceId",
+          "totalDocuments",
+          "errorCounts",
+          "warningCounts",
+          "completedDocuments",
+          "createdAt",
+          "updatedAt",
+        ],
+      },
+    },
     createdAt: { type: "string", format: "date-time" },
     updatedAt: { type: "string", format: "date-time" },
     ...JSON.parse(JSON.stringify(_baseProperties)), // deep copy the base properties
@@ -136,6 +158,7 @@ export const _baseResponseSchema = {
     "version",
     "exportProcessState",
     "importProcessState",
+    "embeddingProcessState",
     "createdAt",
     "updatedAt",
     "modelHistory",

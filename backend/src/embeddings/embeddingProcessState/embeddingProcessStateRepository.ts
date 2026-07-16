@@ -3,6 +3,7 @@ import ModelInfoApiSpecs from "api-specifications/modelInfo";
 import {
   IEmbeddingProcessState,
   IEmbeddingProcessStateDoc,
+  IIncrementEmbeddingProcessStateCountsSpec,
   INewEmbeddingProcessStateSpec,
   IUpdateEmbeddingProcessStateSpec,
 } from "./embeddingProcessState.types";
@@ -28,6 +29,17 @@ export interface IEmbeddingProcessStateRepository {
    * Rejects with an error if the EmbeddingProcessState entry cannot be updated.
    */
   update(id: string, updateSpecs: IUpdateEmbeddingProcessStateSpec): Promise<IEmbeddingProcessState>;
+
+  /**
+   * Atomically increments the progress counters of the EmbeddingProcessState entry with the given ID.
+   * Increments are atomic ($inc), so that concurrent lambda invocations do not lose updates.
+   *
+   * @param {string} id - The unique ID of the EmbeddingProcessState entry.
+   * @param {IIncrementEmbeddingProcessStateCountsSpec} increments - The counters to increment and by how much.
+   * @return {Promise<IEmbeddingProcessState>} - A Promise that resolves to the updated EmbeddingProcessState entry.
+   * Rejects with an error if the entry does not exist or the operation fails.
+   */
+  incrementCounts(id: string, increments: IIncrementEmbeddingProcessStateCountsSpec): Promise<IEmbeddingProcessState>;
 
   /**
    * Finds an EmbeddingProcessState entry by its ID.
@@ -106,6 +118,33 @@ export class EmbeddingProcessStateRepository implements IEmbeddingProcessStateRe
       return doc.toObject();
     } catch (e: unknown) {
       const err = new Error("EmbeddingProcessStateRepository.update: update failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async incrementCounts(
+    id: string,
+    increments: IIncrementEmbeddingProcessStateCountsSpec
+  ): Promise<IEmbeddingProcessState> {
+    try {
+      const inc: Record<string, number> = {};
+      if (increments.completedDocuments !== undefined) {
+        inc.completedDocuments = increments.completedDocuments;
+      }
+      if (increments.errorCounts !== undefined) {
+        inc.errorCounts = increments.errorCounts;
+      }
+      if (increments.warningCounts !== undefined) {
+        inc.warningCounts = increments.warningCounts;
+      }
+      const doc = await this.Model.findByIdAndUpdate(id, { $inc: inc }, { new: true }).exec();
+      if (doc === null) {
+        throw new Error("IncrementCounts failed to find embedding process with id: " + id);
+      }
+      return doc.toObject();
+    } catch (e: unknown) {
+      const err = new Error("EmbeddingProcessStateRepository.incrementCounts: incrementCounts failed", { cause: e });
       console.error(err);
       throw err;
     }

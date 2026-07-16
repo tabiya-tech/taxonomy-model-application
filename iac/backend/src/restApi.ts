@@ -24,6 +24,7 @@ interface SetupBackendRESTAPIConfig {
   download_bucket_region: Output<string>,
   async_import_lambda_function_arn: Output<string>,
   async_export_lambda_function_arn: Output<string>,
+  async_publish_embeddings_task_lambda_function_arn: Output<string>,
   async_lambda_function_region: Output<string>,
   authorizer_lambda_function_invoke_arn: Output<string>
   authorizer_lambda_function_name: Output<string>,
@@ -107,6 +108,25 @@ export function setupBackendRESTApi(environment: string, config: SetupBackendRES
   });
 
 
+  // Invoke async publish embeddings task lambda function policy.
+  // The REST API creates the embedding process state and then invokes this lambda to publish the entities
+  // to the embeddings queue in the background.
+  const asyncPublishEmbeddingsTaskLambdaInvokePolicy = new aws.iam.Policy(
+    "model-api-function-async-publish-embeddings-task-lambda-invoke-policy",
+    {
+      policy: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Action: "lambda:InvokeFunction",
+            Effect: "Allow",
+            Resource: config.async_publish_embeddings_task_lambda_function_arn,
+          }
+        ]
+      }
+    }
+  );
+
   new aws.iam.RolePolicyAttachment("model-api-function-role-import-lambda-invoke-policy-attachment", {
     policyArn: asyncImportLambdaInvokePolicy.arn,
     role: lambdaRole.name,
@@ -114,6 +134,11 @@ export function setupBackendRESTApi(environment: string, config: SetupBackendRES
 
   new aws.iam.RolePolicyAttachment("model-api-function-role-export-lambda-invoke-policy-attachment", {
     policyArn: asyncExportLambdaInvokePolicy.arn,
+    role: lambdaRole.name,
+  });
+
+  new aws.iam.RolePolicyAttachment("model-api-function-role-publish-embeddings-task-lambda-invoke-policy-attachment", {
+    policyArn: asyncPublishEmbeddingsTaskLambdaInvokePolicy.arn,
     role: lambdaRole.name,
   });
 
@@ -165,6 +190,7 @@ export function setupBackendRESTApi(environment: string, config: SetupBackendRES
         DOWNLOAD_BUCKET_REGION: config.download_bucket_region,
         ASYNC_IMPORT_LAMBDA_FUNCTION_ARN: config.async_import_lambda_function_arn,
         ASYNC_EXPORT_LAMBDA_FUNCTION_ARN: config.async_export_lambda_function_arn,
+        ASYNC_PUBLISH_EMBEDDINGS_TASK_LAMBDA_FUNCTION_ARN: config.async_publish_embeddings_task_lambda_function_arn,
         ASYNC_LAMBDA_FUNCTION_REGION: config.async_lambda_function_region,
         EMBEDDINGS_QUEUE_URL: config.embeddings_queue_url,
         EMBEDDINGS_QUEUE_REGION: config.embeddings_queue_region,

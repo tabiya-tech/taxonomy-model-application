@@ -468,6 +468,8 @@ describe("OccupationGroupListController", () => {
       findParent: jest.fn().mockResolvedValue(null),
       findChildren: jest.fn().mockResolvedValue([]),
       setParent: jest.fn().mockResolvedValue(undefined),
+      setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+      setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
     };
     jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
     const limit = 2;

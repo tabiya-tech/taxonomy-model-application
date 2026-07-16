@@ -15,6 +15,7 @@ const ModelInfoRepository = jest.spyOn(getRepositoryRegistry(), "modelInfo", "ge
 const getMockModelInfo = (i: number): IModelInfo => {
   return {
     exportProcessState: [],
+    embeddingProcessState: [],
     importProcessState: {
       id: "",
       result: { errored: false, parsingErrors: false, parsingWarnings: false },

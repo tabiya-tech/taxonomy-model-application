@@ -19,7 +19,9 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { INewImportProcessStateSpec } from "import/ImportProcessState/importProcessState.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
+import EmbeddingsAPISpecs from "api-specifications/embeddings";
 import { INewExportProcessStateSpec } from "export/exportProcessState/exportProcessState.types";
+import { INewEmbeddingProcessStateSpec } from "embeddings/embeddingProcessState/embeddingProcessState.types";
 import { IModelInfo } from "./modelInfo.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 
@@ -59,6 +61,20 @@ async function createExportProcessStatesForModel(modelInfo: IModelInfo) {
     timestamp: new Date(),
   };
   await getRepositoryRegistry().exportProcessState.create(newExportProcessStateSpecs);
+}
+
+async function createEmbeddingProcessStatesForModel(modelInfo: IModelInfo) {
+  // create an embedding process for the model
+  const newEmbeddingProcessStateSpecs: INewEmbeddingProcessStateSpec = {
+    modelId: modelInfo.id,
+    status: ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.PENDING,
+    embeddingServiceId: EmbeddingsAPISpecs.Constants.EmbeddingServiceIds[0],
+    totalDocuments: 10,
+    errorCounts: 0,
+    warningCounts: 0,
+    completedDocuments: 0,
+  };
+  await getRepositoryRegistry().embeddingProcessState.create(newEmbeddingProcessStateSpecs);
 }
 
 async function createImportProcessStatesForModel(modelInfo: IModelInfo) {
@@ -207,7 +223,7 @@ describe("Test for model handler with a DB", () => {
     expect(validateGETResponse.errors).toBeNull();
   });
 
-  test("GET should respond with OK status code and the response passes the JSON Schema validation when there are export and import processes states", async () => {
+  test("GET should respond with OK status code and the response passes the JSON Schema validation when there are export, import and embedding processes states", async () => {
     // GIVEN a valid request (method & header)
     const givenEvent = {
       httpMethod: HTTP_VERBS.GET,
@@ -219,10 +235,11 @@ describe("Test for model handler with a DB", () => {
     const models = await createModelsInDB(3);
     expect(models.length).toBeGreaterThan(0); // guard to ensure that we actually have models in the DB
 
-    // AND each model has an import and an export process state
+    // AND each model has an import, an export and an embedding process state
     for (const model of models) {
       await createImportProcessStatesForModel(model);
       await createExportProcessStatesForModel(model);
+      await createEmbeddingProcessStatesForModel(model);
     }
 
     // WHEN the handler is invoked with the given event
@@ -252,11 +269,12 @@ describe("Test for model handler with a DB", () => {
     const models = await createModelsInDB(3);
     expect(models.length).toBeGreaterThan(0); // guard to ensure that we actually have models in the DB
 
-    // AND each model has an import and an export process state
+    // AND each model has an import, an export and an embedding process state
     await Promise.all(
       models.map(async (model) => {
         await createImportProcessStatesForModel(model);
         await createExportProcessStatesForModel(model);
+        await createEmbeddingProcessStatesForModel(model);
       })
     );
 
@@ -288,11 +306,12 @@ describe("Test for model handler with a DB", () => {
     // AND several modelInfo objects are in the DB
     const models = await createModelsInDB(10);
 
-    // AND each model has an import and an export process state
+    // AND each model has an import, an export and an embedding process state
     await Promise.all(
       models.map(async (model) => {
         await createImportProcessStatesForModel(model);
         await createExportProcessStatesForModel(model);
+        await createEmbeddingProcessStatesForModel(model);
       })
     );
 

@@ -45,6 +45,18 @@ import {
   EmbeddingProcessStateRepository,
   IEmbeddingProcessStateRepository,
 } from "embeddings/embeddingProcessState/embeddingProcessStateRepository";
+import * as entityEmbeddingModel from "embeddings/entityEmbeddings/entityEmbeddingModel";
+import {
+  EntityEmbeddingRepository,
+  IEntityEmbeddingRepository,
+} from "embeddings/entityEmbeddings/entityEmbeddingRepository";
+import {
+  EntityEmbeddingIdPath,
+  IOccupationEmbeddingDoc,
+  IOccupationGroupEmbeddingDoc,
+  ISkillEmbeddingDoc,
+  ISkillGroupEmbeddingDoc,
+} from "embeddings/entityEmbeddings/entityEmbedding.types";
 
 export class RepositoryRegistry {
   // eslint-disable-next-line
@@ -146,6 +158,38 @@ export class RepositoryRegistry {
     this._repositories.set("IEmbeddingProcessStateRepository", repository);
   }
 
+  public get skillEmbedding(): IEntityEmbeddingRepository<ISkillEmbeddingDoc> {
+    return this._repositories.get("ISkillEmbeddingRepository");
+  }
+
+  public set skillEmbedding(repository: IEntityEmbeddingRepository<ISkillEmbeddingDoc>) {
+    this._repositories.set("ISkillEmbeddingRepository", repository);
+  }
+
+  public get skillGroupEmbedding(): IEntityEmbeddingRepository<ISkillGroupEmbeddingDoc> {
+    return this._repositories.get("ISkillGroupEmbeddingRepository");
+  }
+
+  public set skillGroupEmbedding(repository: IEntityEmbeddingRepository<ISkillGroupEmbeddingDoc>) {
+    this._repositories.set("ISkillGroupEmbeddingRepository", repository);
+  }
+
+  public get occupationEmbedding(): IEntityEmbeddingRepository<IOccupationEmbeddingDoc> {
+    return this._repositories.get("IOccupationEmbeddingRepository");
+  }
+
+  public set occupationEmbedding(repository: IEntityEmbeddingRepository<IOccupationEmbeddingDoc>) {
+    this._repositories.set("IOccupationEmbeddingRepository", repository);
+  }
+
+  public get occupationGroupEmbedding(): IEntityEmbeddingRepository<IOccupationGroupEmbeddingDoc> {
+    return this._repositories.get("IOccupationGroupEmbeddingRepository");
+  }
+
+  public set occupationGroupEmbedding(repository: IEntityEmbeddingRepository<IOccupationGroupEmbeddingDoc>) {
+    this._repositories.set("IOccupationGroupEmbeddingRepository", repository);
+  }
+
   async initialize(connection: Connection | undefined) {
     if (!connection) throw new Error("Connection is undefined");
 
@@ -189,13 +233,29 @@ export class RepositoryRegistry {
     this.embeddingProcessState = new EmbeddingProcessStateRepository(
       embeddingProcessStateModel.initializeSchemaAndModel(connection)
     );
+    this.skillEmbedding = new EntityEmbeddingRepository(
+      entityEmbeddingModel.initializeSkillEmbeddingSchemaAndModel(connection),
+      EntityEmbeddingIdPath.skillId
+    );
+    this.skillGroupEmbedding = new EntityEmbeddingRepository(
+      entityEmbeddingModel.initializeSkillGroupEmbeddingSchemaAndModel(connection),
+      EntityEmbeddingIdPath.skillGroupId
+    );
+    this.occupationEmbedding = new EntityEmbeddingRepository(
+      entityEmbeddingModel.initializeOccupationEmbeddingSchemaAndModel(connection),
+      EntityEmbeddingIdPath.occupationId
+    );
+    this.occupationGroupEmbedding = new EntityEmbeddingRepository(
+      entityEmbeddingModel.initializeOccupationGroupEmbeddingSchemaAndModel(connection),
+      EntityEmbeddingIdPath.occupationGroupId
+    );
 
     // Set up the indexes
     // This is done here because the autoIndex is turned off in production
     // In a production environment,
     // the indexes must be created manually before the application is started for the first time,
     // and it the future this code should be moved in to deployment scripts.
-    // If indexes are not created then, queries will become inefficient, unique constrains will not be enforced.
+    // If indexes are not created, then, queries will become inefficient; unique constrains will not be enforced.
     await this.modelInfo.Model.createIndexes();
     await this.OccupationGroup.Model.createIndexes();
     await this.skillGroup.Model.createIndexes();
@@ -208,6 +268,10 @@ export class RepositoryRegistry {
     await this.importProcessState.Model.createIndexes();
     await this.exportProcessState.Model.createIndexes();
     await this.embeddingProcessState.Model.createIndexes();
+    await this.skillEmbedding.Model.createIndexes();
+    await this.skillGroupEmbedding.Model.createIndexes();
+    await this.occupationEmbedding.Model.createIndexes();
+    await this.occupationGroupEmbedding.Model.createIndexes();
   }
 }
 

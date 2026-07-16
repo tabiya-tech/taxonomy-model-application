@@ -9,6 +9,7 @@ import {
   IConfiguration,
   getAsyncExportLambdaFunctionArn,
   getAsyncImportLambdaFunctionArn,
+  getAsyncPublishEmbeddingsTaskLambdaFunctionArn,
   getAsyncLambdaFunctionRegion,
   getDownloadBucketRegion,
   getDownloadBucketName,
@@ -46,6 +47,7 @@ describe("Test read Configuration()", () => {
     process.env.DOWNLOAD_BUCKET_REGION = getRandomString(10);
     process.env.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN = getRandomString(10);
     process.env.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN = getRandomString(10);
+    process.env.ASYNC_PUBLISH_EMBEDDINGS_TASK_LAMBDA_FUNCTION_ARN = getRandomString(10);
     process.env.ASYNC_LAMBDA_FUNCTION_REGION = getRandomString(10);
     process.env.GEMINI_API_KEY = getRandomString(10);
     process.env.GEMINI_EMBEDDING_MODEL = getRandomString(10);
@@ -66,6 +68,7 @@ describe("Test read Configuration()", () => {
       downloadBucketRegion: process.env.DOWNLOAD_BUCKET_REGION,
       asyncImportLambdaFunctionArn: process.env.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN,
       asyncExportLambdaFunctionArn: process.env.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN,
+      asyncPublishEmbeddingsTaskLambdaFunctionArn: process.env.ASYNC_PUBLISH_EMBEDDINGS_TASK_LAMBDA_FUNCTION_ARN,
       asyncLambdaFunctionRegion: process.env.ASYNC_LAMBDA_FUNCTION_REGION,
       geminiApiKey: process.env.GEMINI_API_KEY,
       geminiEmbeddingModel: process.env.GEMINI_EMBEDDING_MODEL,
@@ -84,6 +87,7 @@ describe("Test read Configuration()", () => {
     delete process.env.DOWNLOAD_BUCKET_NAME;
     delete process.env.DOWNLOAD_BUCKET_REGION;
     delete process.env.ASYNC_LAMBDA_FUNCTION_ARN;
+    delete process.env.ASYNC_PUBLISH_EMBEDDINGS_TASK_LAMBDA_FUNCTION_ARN;
     delete process.env.ASYNC_LAMBDA_FUNCTION_REGION;
     delete process.env.GEMINI_API_KEY;
     delete process.env.GEMINI_EMBEDDING_MODEL;
@@ -104,6 +108,7 @@ describe("Test read Configuration()", () => {
       downloadBucketName: "",
       asyncImportLambdaFunctionArn: "",
       asyncExportLambdaFunctionArn: "",
+      asyncPublishEmbeddingsTaskLambdaFunctionArn: "",
       asyncLambdaFunctionRegion: "",
       geminiApiKey: "",
       geminiEmbeddingModel: "",
@@ -185,6 +190,14 @@ describe("Test current configuration", () => {
   stdConfigurationValuesTest(
     setConfiguration,
     getMockConfig,
+    "getAsyncPublishEmbeddingsTaskLambdaFunctionArn",
+    getAsyncPublishEmbeddingsTaskLambdaFunctionArn,
+    "asyncPublishEmbeddingsTaskLambdaFunctionArn"
+  );
+
+  stdConfigurationValuesTest(
+    setConfiguration,
+    getMockConfig,
     "getAsyncLambdaFunctionRegion",
     getAsyncLambdaFunctionRegion,
     "asyncLambdaFunctionRegion"
@@ -204,6 +217,7 @@ function getMockConfig(): IConfiguration {
     downloadBucketName: getTestString(10),
     asyncImportLambdaFunctionArn: getTestString(10),
     asyncExportLambdaFunctionArn: getTestString(10),
+    asyncPublishEmbeddingsTaskLambdaFunctionArn: getTestString(10),
     asyncLambdaFunctionRegion: getTestString(10),
     geminiApiKey: getTestString(10),
     geminiEmbeddingModel: getTestString(10),

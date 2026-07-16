@@ -6,6 +6,7 @@ import {
   OccupationGroupCodeProperty,
   UUIDHistoryProperty,
   PreferredLabelProperty,
+  EmbeddingStatusProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationGroupDoc } from "../_shared/OccupationGroup.types";
@@ -45,6 +46,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         required: false,
         maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
       },
+      embeddingStatus: EmbeddingStatusProperty,
     },
     {
       timestamps: true,

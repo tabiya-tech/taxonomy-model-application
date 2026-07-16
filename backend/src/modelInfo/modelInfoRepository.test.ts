@@ -18,6 +18,11 @@ import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
 import ExportProcessStateApiSpecs from "api-specifications/exportProcessState";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
 import { IExportProcessState, INewExportProcessStateSpec } from "export/exportProcessState/exportProcessState.types";
+import EmbeddingsAPISpecs from "api-specifications/embeddings";
+import {
+  IEmbeddingProcessState,
+  INewEmbeddingProcessStateSpec,
+} from "embeddings/embeddingProcessState/embeddingProcessState.types";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -55,6 +60,18 @@ function getNewExportProcessStateSpec(modelId: string): INewExportProcessStateSp
     },
     downloadUrl: "https://example.com/" + randomUUID(),
     timestamp: new Date(),
+  };
+}
+
+function getNewEmbeddingProcessStateSpec(modelId: string): INewEmbeddingProcessStateSpec {
+  return {
+    modelId: modelId,
+    status: ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.IN_PROGRESS,
+    embeddingServiceId: EmbeddingsAPISpecs.Constants.EmbeddingServiceIds[0],
+    totalDocuments: 10,
+    errorCounts: 0,
+    warningCounts: 0,
+    completedDocuments: 5,
   };
 }
 
@@ -128,6 +145,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
           },
         },
         exportProcessState: [],
+        embeddingProcessState: [],
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
       };
@@ -162,6 +180,7 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
           },
         },
         exportProcessState: [],
+        embeddingProcessState: [],
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
       };
@@ -231,6 +250,17 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       }
     );
 
+    testEmbeddingProcessStatePopulation(
+      async () => {
+        const givenExistingModel = await repository.create(getNewModelInfoSpec());
+        return [givenExistingModel];
+      },
+      async (givenModels: IModelInfo[]) => {
+        const actualModel = (await repository.getModelById(givenModels[0].id)) as IModelInfo;
+        return [actualModel];
+      }
+    );
+
     test("Should return null if the model does not exist", async () => {
       // GIVEN a model in the database does not exist, i.e. the id is not in the database because it was deleted
       const givenExistingModel = await repository.create(getNewModelInfoSpec());
@@ -264,6 +294,17 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     });
 
     testExportProcessStatePopulation(
+      async () => {
+        const givenExistingModel = await repository.create(getNewModelInfoSpec());
+        return [givenExistingModel];
+      },
+      async (givenModels: IModelInfo[]) => {
+        const actualModel = (await repository.getModelByUUID(givenModels[0].UUID)) as IModelInfo;
+        return [actualModel];
+      }
+    );
+
+    testEmbeddingProcessStatePopulation(
       async () => {
         const givenExistingModel = await repository.create(getNewModelInfoSpec());
         return [givenExistingModel];
@@ -312,6 +353,19 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     });
 
     testExportProcessStatePopulation(
+      async () => {
+        const givenExistingModels = [];
+        for (let i = 0; i < 3; i++) {
+          givenExistingModels.push(await repository.create(getNewModelInfoSpec()));
+        }
+        return givenExistingModels;
+      },
+      async () => {
+        return await repository.getModels();
+      }
+    );
+
+    testEmbeddingProcessStatePopulation(
       async () => {
         const givenExistingModels = [];
         for (let i = 0; i < 3; i++) {
@@ -436,6 +490,19 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       }
     );
 
+    testEmbeddingProcessStatePopulation(
+      async () => {
+        const givenExistingModels = [];
+        for (let i = 0; i < 3; i++) {
+          givenExistingModels.push(await repository.create(getNewModelInfoSpec()));
+        }
+        return givenExistingModels;
+      },
+      async (givenModels: IModelInfo[]) => {
+        return await repository.getModelsByIds(givenModels.map((model) => model.id));
+      }
+    );
+
     test("should return an empty array when none of the provided ids exist", async () => {
       // GIVEN a model exists in the database
       await repository.create(getNewModelInfoSpec());
@@ -473,6 +540,54 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       return repository.modelInfo.getModelsByIds([getMockStringId(1)]);
     });
   });
+
+  function testEmbeddingProcessStatePopulation(
+    setupFn: () => Promise<IModelInfo[]>,
+    getActualModelsFn: (givenModels: IModelInfo[]) => Promise<IModelInfo[]>
+  ) {
+    return test("should populate the embeddingProcessState", async () => {
+      // GIVEN n model info exists in the database
+      const givenExistingModels = await setupFn();
+      // AND some embeddingProcessState entries related to the model exist in the database
+
+      const givenEmbeddingProcessStates: IEmbeddingProcessState[] = [];
+      for (const givenExistingModel of givenExistingModels) {
+        const givenEmbeddingProcessStateSpec1 = getNewEmbeddingProcessStateSpec(givenExistingModel.id);
+        const givenEmbeddingProcessStateSpec2 = getNewEmbeddingProcessStateSpec(givenExistingModel.id);
+        const embeddingProcessStates = await Promise.all([
+          repositoryRegistry.embeddingProcessState.create(givenEmbeddingProcessStateSpec1),
+          repositoryRegistry.embeddingProcessState.create(givenEmbeddingProcessStateSpec2),
+        ]);
+        givenEmbeddingProcessStates.push(...embeddingProcessStates);
+      }
+
+      // WHEN retrieving the actual model
+      const actualModels = await getActualModelsFn(givenExistingModels);
+
+      for (const actualModel of actualModels) {
+        // THEN expect the model to be found
+        expect(actualModel).toBeDefined();
+        // AND expect the embeddingProcessState to be populated
+        const actualEmbeddingProcessStates = givenEmbeddingProcessStates.filter(
+          (embeddingProcessState) => embeddingProcessState.modelId === actualModel.id
+        );
+        expect(actualEmbeddingProcessStates.length).toEqual(2);
+        actualEmbeddingProcessStates.forEach((givenEmbeddingProcessState) => {
+          expect(actualModel.embeddingProcessState).toContainEqual({
+            id: givenEmbeddingProcessState.id,
+            status: givenEmbeddingProcessState.status,
+            embeddingServiceId: givenEmbeddingProcessState.embeddingServiceId,
+            totalDocuments: givenEmbeddingProcessState.totalDocuments,
+            errorCounts: givenEmbeddingProcessState.errorCounts,
+            warningCounts: givenEmbeddingProcessState.warningCounts,
+            completedDocuments: givenEmbeddingProcessState.completedDocuments,
+            createdAt: expect.any(Date),
+            updatedAt: expect.any(Date),
+          });
+        });
+      }
+    });
+  }
 
   function testExportProcessStatePopulation(
     setupFn: () => Promise<IModelInfo[]>,

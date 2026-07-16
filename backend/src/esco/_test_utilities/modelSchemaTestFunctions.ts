@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { randomUUID } from "crypto";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { getRandomString, getTestString, WHITESPACE } from "_test_utilities/getMockRandomData";
 import {
@@ -12,7 +13,7 @@ import {
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { randomUUID } from "crypto";
+import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 
 export function testImportId<T>(getModel: () => mongoose.Model<T>) {
   return describe("Test validation of 'importId'", () => {
@@ -516,3 +517,29 @@ export const testEnumField = <T>(getModel: () => mongoose.Model<T>, fieldName: s
     );
   });
 };
+
+export function testEmbeddingStatusField<T>(getModel: () => mongoose.Model<T>) {
+  const givenEmbeddingServiceId = "77bb8ff3-a6b0-460b-bcaa-00631a907852";
+  return describe("Test validation of 'embeddingStatus'", () => {
+    test.each([
+      [CaseType.Failure, "not a valid status", "foo", `\`foo\` is not a valid enum value for path \`{0}\`.`],
+      ...Object.values(EntityEmbeddingStatus).map((status): [CaseType, string, string, undefined] => [
+        CaseType.Success,
+        status,
+        status,
+        undefined,
+      ]),
+    ])(
+      `(%s) Validate 'embeddingStatus' when the status of an embedding service is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: ["embeddingStatus", givenEmbeddingServiceId],
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+        });
+      }
+    );
+  });
+}

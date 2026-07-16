@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
+import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 
 /**
  * Describes how an OccupationGroup is saved in the database.
@@ -16,12 +17,15 @@ export interface IOccupationGroupDoc extends ImportIdentifiable {
   importId: string;
   groupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
   description: string;
+  embeddingStatus?: Map<string, EntityEmbeddingStatus>;
 }
 
 /**
  * Describes how an OccupationGroup is returned from the API.
+ * The embeddingStatus is internal bookkeeping of the embedding process and is not returned from the API.
  */
-export interface IOccupationGroup extends Omit<IOccupationGroupDoc, "id" | "modelId" | "UUIDHistory"> {
+export interface IOccupationGroup
+  extends Omit<IOccupationGroupDoc, "id" | "modelId" | "UUIDHistory" | "embeddingStatus"> {
   id: string;
   UUID: string;
   parent: IOccupationGroupReference | null;

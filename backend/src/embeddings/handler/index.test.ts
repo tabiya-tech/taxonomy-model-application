@@ -9,9 +9,9 @@ jest.mock("server/init", () => ({
 }));
 
 // Mock the EmbeddingService so we can observe the processing of the tasks
-const mockProcessTask = jest.fn();
+const mockProcessTasks = jest.fn();
 jest.mock("embeddings/service/service", () => ({
-  EmbeddingService: jest.fn().mockImplementation(() => ({ processTask: mockProcessTask })),
+  EmbeddingService: jest.fn().mockImplementation(() => ({ processTasks: mockProcessTasks })),
 }));
 
 // ##############
@@ -40,7 +40,7 @@ describe("Test the embeddings lambda handler", () => {
     jest.clearAllMocks();
   });
 
-  test("should process each valid task in the event", async () => {
+  test("should process all the valid tasks of the event as a single batch", async () => {
     // GIVEN an event with two valid embedding tasks
     const givenTask1 = getValidTask(2);
     const givenTask2 = getValidTask(3);
@@ -49,10 +49,9 @@ describe("Test the embeddings lambda handler", () => {
     // WHEN the handler is invoked with the given event
     await handler(givenEvent, {} as never, {} as never);
 
-    // THEN expect each task to be processed
-    expect(mockProcessTask).toHaveBeenCalledTimes(2);
-    expect(mockProcessTask).toHaveBeenCalledWith(givenTask1);
-    expect(mockProcessTask).toHaveBeenCalledWith(givenTask2);
+    // THEN expect all the tasks to be processed together in a single batch
+    expect(mockProcessTasks).toHaveBeenCalledTimes(1);
+    expect(mockProcessTasks).toHaveBeenCalledWith([givenTask1, givenTask2]);
   });
 
   test("should skip an unparseable record without throwing", async () => {
@@ -66,8 +65,8 @@ describe("Test the embeddings lambda handler", () => {
     // THEN expect it to resolve without throwing
     await expect(actualPromise).resolves.toBeUndefined();
     // AND expect only the valid task to be processed
-    expect(mockProcessTask).toHaveBeenCalledTimes(1);
-    expect(mockProcessTask).toHaveBeenCalledWith(givenValidTask);
+    expect(mockProcessTasks).toHaveBeenCalledTimes(1);
+    expect(mockProcessTasks).toHaveBeenCalledWith([givenValidTask]);
   });
 
   test("should skip a record that does not conform to the queue job schema", async () => {
@@ -82,8 +81,8 @@ describe("Test the embeddings lambda handler", () => {
     // THEN expect it to resolve without throwing
     await expect(actualPromise).resolves.toBeUndefined();
     // AND expect only the valid task to be processed
-    expect(mockProcessTask).toHaveBeenCalledTimes(1);
-    expect(mockProcessTask).toHaveBeenCalledWith(givenValidTask);
+    expect(mockProcessTasks).toHaveBeenCalledTimes(1);
+    expect(mockProcessTasks).toHaveBeenCalledWith([givenValidTask]);
   });
 
   test("should handle an event with no records", async () => {
@@ -96,6 +95,19 @@ describe("Test the embeddings lambda handler", () => {
     // THEN expect it to resolve without throwing
     await expect(actualPromise).resolves.toBeUndefined();
     // AND expect no task to be processed
-    expect(mockProcessTask).not.toHaveBeenCalled();
+    expect(mockProcessTasks).not.toHaveBeenCalled();
+  });
+
+  test("should not process an empty batch when no record is valid", async () => {
+    // GIVEN an event whose only record is unparseable
+    const givenEvent = getSQSEvent(["{ not json"]);
+
+    // WHEN the handler is invoked with the given event
+    const actualPromise = handler(givenEvent, {} as never, {} as never);
+
+    // THEN expect it to resolve without throwing
+    await expect(actualPromise).resolves.toBeUndefined();
+    // AND expect no batch to be processed
+    expect(mockProcessTasks).not.toHaveBeenCalled();
   });
 });

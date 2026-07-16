@@ -33,6 +33,11 @@ export function transform(
       createdAt: data.importProcessState.createdAt ? data.importProcessState.createdAt.toISOString() : undefined,
       updatedAt: data.importProcessState.updatedAt ? data.importProcessState.updatedAt.toISOString() : undefined,
     },
+    embeddingProcessState: data.embeddingProcessState.map((embeddingProcessState) => ({
+      ...embeddingProcessState,
+      createdAt: embeddingProcessState.createdAt.toISOString(),
+      updatedAt: embeddingProcessState.updatedAt.toISOString(),
+    })),
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString(),
   };

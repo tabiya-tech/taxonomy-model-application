@@ -11,6 +11,7 @@ import {
   ScopeNoteProperty,
   UUIDHistoryProperty,
   OccupationGroupCodeProperty,
+  EmbeddingStatusProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { IOccupationDoc } from "../_shared/occupation.types";
@@ -78,6 +79,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
           },
         },
       },
+      embeddingStatus: EmbeddingStatusProperty,
     },
     {
       timestamps: true,

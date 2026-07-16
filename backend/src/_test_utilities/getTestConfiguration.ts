@@ -12,6 +12,7 @@ export function getTestConfiguration(dbname: string): IConfiguration {
     downloadBucketName: "test-download-bucket",
     asyncImportLambdaFunctionArn: "arn:aws:lambda:foo:bar:baz:import",
     asyncExportLambdaFunctionArn: "arn:aws:lambda:foo:bar:baz:export",
+    asyncPublishEmbeddingsTaskLambdaFunctionArn: "arn:aws:lambda:foo:bar:baz:publish-embeddings-task",
     asyncLambdaFunctionRegion: "foo",
     geminiApiKey: "test-gemini-api-key",
     geminiEmbeddingModel: "text-embedding-004",

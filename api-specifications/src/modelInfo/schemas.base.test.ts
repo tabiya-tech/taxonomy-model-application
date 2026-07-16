@@ -22,13 +22,15 @@ import {
   getStdStringTestCases,
 } from "_test_utilities/stdSchemaTestCases";
 import { _baseResponseSchema } from "./schemas.base";
-import { getTestString } from "_test_utilities/specialCharacters";
+import { getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 import LocaleAPISpecs from "locale";
 import ImportProcessState from "importProcessState";
 import { ExportProcessState } from "exportProcessState/enums";
 import ExportProcessStateAPISpecs from "exportProcessState";
+import EmbeddingsAPISpecs from "embeddings";
+import EmbeddingProcessStatesAPISpecs from "./[id]/embeddingProcessStates";
 import ModelInfoConstants from "./constants";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 
@@ -73,6 +75,17 @@ describe("Test objects against the ModelInfo _baseResponseSchema", () => {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+  const givenEmbeddingProcessState = {
+    id: getMockId(3),
+    status: EmbeddingProcessStatesAPISpecs.Enums.Status.PENDING,
+    embeddingServiceId: EmbeddingsAPISpecs.Constants.EmbeddingServiceIds[0],
+    totalDocuments: 10,
+    errorCounts: 0,
+    warningCounts: 0,
+    completedDocuments: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
   const givenModelHistory = {
     id: getMockId(1),
     UUID: randomUUID(),
@@ -100,6 +113,7 @@ describe("Test objects against the ModelInfo _baseResponseSchema", () => {
     version: getTestString(ModelInfoConstants.VERSION_MAX_LENGTH),
     exportProcessState: [givenExportProcessState],
     importProcessState: givenImportProcessState,
+    embeddingProcessState: [givenEmbeddingProcessState],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -511,6 +525,179 @@ describe("Test objects against the ModelInfo _baseResponseSchema", () => {
           (caseType, _description, givenValue, failureMessages) => {
             const givenObject = {
               exportProcessState: [
+                {
+                  [propertyName]: givenValue,
+                },
+              ],
+            };
+            assertCaseForProperty(propertyPath, givenObject, givenSchema, caseType, failureMessages, [
+              LocaleAPISpecs.Schemas.Payload,
+            ]);
+          }
+        );
+      });
+    });
+
+    describe("Test validation of 'embeddingProcessState'", () => {
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'embeddingProcessState'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/embeddingProcessState", "type", "must be array")],
+        [CaseType.Failure, "a string", "foo", constructSchemaError("/embeddingProcessState", "type", "must be array")],
+        [
+          CaseType.Failure,
+          "an array of strings",
+          ["foo", "bar"],
+          [
+            constructSchemaError("/embeddingProcessState/0", "type", "must be object"),
+            constructSchemaError("/embeddingProcessState/1", "type", "must be object"),
+          ],
+        ],
+        [CaseType.Success, "an empty array", [], undefined],
+        [CaseType.Success, "a valid embeddingProcessState object array", [givenEmbeddingProcessState], undefined],
+      ])(
+        "(%s) Validate 'embeddingProcessState' when it is %s",
+        (caseType, _description, givenValue, failureMessages) => {
+          const givenObject = {
+            embeddingProcessState: givenValue,
+          };
+          assertCaseForProperty("embeddingProcessState", givenObject, givenSchema, caseType, failureMessages, [
+            LocaleAPISpecs.Schemas.Payload,
+          ]);
+        }
+      );
+    });
+
+    describe("Test validation of embeddingProcessState fields", () => {
+      describe("Test validation of 'embeddingProcessState/id'", () => {
+        test.each([...getStdObjectIdTestCases("/embeddingProcessState/0/id")])(
+          `(%s) Validate id when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            const givenObject = {
+              embeddingProcessState: [
+                {
+                  id: givenValue,
+                },
+              ],
+            };
+            assertCaseForProperty("/embeddingProcessState/0/id", givenObject, givenSchema, caseType, failureMessages, [
+              LocaleAPISpecs.Schemas.Payload,
+            ]);
+          }
+        );
+      });
+
+      describe("Test validation of 'embeddingProcessState/status'", () => {
+        test.each(
+          getStdEnumTestCases(
+            "/embeddingProcessState/0/status",
+            Object.values(EmbeddingProcessStatesAPISpecs.Enums.Status)
+          )
+        )(
+          "(%s) Validate 'embeddingProcessState.status' when it is %s",
+          (caseType, _description, givenValue, failureMessages) => {
+            const givenObject = {
+              embeddingProcessState: [
+                {
+                  status: givenValue,
+                },
+              ],
+            };
+            assertCaseForProperty(
+              "/embeddingProcessState/0/status",
+              givenObject,
+              givenSchema,
+              caseType,
+              failureMessages,
+              [LocaleAPISpecs.Schemas.Payload]
+            );
+          }
+        );
+      });
+
+      describe("Test validation of 'embeddingProcessState/embeddingServiceId'", () => {
+        test.each(
+          getStdEnumTestCases(
+            "/embeddingProcessState/0/embeddingServiceId",
+            EmbeddingsAPISpecs.Constants.EmbeddingServiceIds
+          )
+        )(
+          "(%s) Validate 'embeddingProcessState.embeddingServiceId' when it is %s",
+          (caseType, _description, givenValue, failureMessages) => {
+            const givenObject = {
+              embeddingProcessState: [
+                {
+                  embeddingServiceId: givenValue,
+                },
+              ],
+            };
+            assertCaseForProperty(
+              "/embeddingProcessState/0/embeddingServiceId",
+              givenObject,
+              givenSchema,
+              caseType,
+              failureMessages,
+              [LocaleAPISpecs.Schemas.Payload]
+            );
+          }
+        );
+      });
+
+      describe.each([["totalDocuments"], ["errorCounts"], ["warningCounts"], ["completedDocuments"]])(
+        "Test validation of 'embeddingProcessState/%s'",
+        (propertyName) => {
+          const propertyPath = `/embeddingProcessState/0/${propertyName}`;
+          test.each([
+            [
+              CaseType.Failure,
+              "undefined",
+              undefined,
+              constructSchemaError(
+                "/embeddingProcessState/0",
+                "required",
+                `must have required property '${propertyName}'`
+              ),
+            ],
+            [CaseType.Failure, "null", null, constructSchemaError(propertyPath, "type", "must be integer")],
+            [CaseType.Failure, "a string", "foo", constructSchemaError(propertyPath, "type", "must be integer")],
+            [
+              CaseType.Failure,
+              "only whitespace characters",
+              WHITESPACE,
+              constructSchemaError(propertyPath, "type", "must be integer"),
+            ],
+            [CaseType.Failure, "a float", 1.5, constructSchemaError(propertyPath, "type", "must be integer")],
+            [CaseType.Failure, "a negative number", -1, constructSchemaError(propertyPath, "minimum", "must be >= 0")],
+            [CaseType.Success, "zero", 0, undefined],
+            [CaseType.Success, "a positive integer", 42, undefined],
+          ])(`(%s) Validate '${propertyName}' when it is %s`, (caseType, _description, givenValue, failureMessages) => {
+            const givenObject = {
+              embeddingProcessState: [
+                {
+                  [propertyName]: givenValue,
+                },
+              ],
+            };
+            assertCaseForProperty(propertyPath, givenObject, givenSchema, caseType, failureMessages, [
+              LocaleAPISpecs.Schemas.Payload,
+            ]);
+          });
+        }
+      );
+
+      describe.each([
+        ["/embeddingProcessState/0/createdAt", "createdAt"],
+        ["/embeddingProcessState/0/updatedAt", "updatedAt"],
+      ])(`Test validation of '%s'`, (propertyPath, propertyName) => {
+        test.each(getStdTimestampFieldTestCases(propertyPath))(
+          `(%s) Validate ${propertyName} when it is %s`,
+          (caseType, _description, givenValue, failureMessages) => {
+            const givenObject = {
+              embeddingProcessState: [
                 {
                   [propertyName]: givenValue,
                 },

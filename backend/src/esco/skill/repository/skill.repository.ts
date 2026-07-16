@@ -31,6 +31,15 @@ import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransfo
 import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
 import { populateEmptySkillToSkillRelation } from "esco/skillToSkillRelation/populateFunctions";
 import { populateEmptyRequiredByOccupations } from "esco/occupationToSkillRelation/populateFunctions";
+import {
+  IEmbeddableEntityRepository,
+  ISetEntityEmbeddingStatusSpec,
+  ISetModelEntitiesEmbeddingStatusSpec,
+} from "embeddings/entityEmbeddings/entityEmbedding.types";
+import {
+  setEntityEmbeddingStatus,
+  setModelEntitiesEmbeddingStatus,
+} from "embeddings/entityEmbeddings/entityEmbeddingStatus";
 
 /**
  * A single UUID from a skill's UUIDHistory resolved to the skill's reference (as it was in that model) and the
@@ -43,7 +52,7 @@ export interface ISkillModelHistoryReference {
   reference: ISkillReference | null;
 }
 
-export interface ISkillRepository {
+export interface ISkillRepository extends IEmbeddableEntityRepository {
   readonly Model: mongoose.Model<ISkillDoc>;
 
   /**
@@ -176,6 +185,14 @@ export class SkillRepository implements ISkillRepository {
 
   constructor(model: mongoose.Model<ISkillDoc>) {
     this.Model = model;
+  }
+
+  async setEntityEmbeddingStatus(spec: ISetEntityEmbeddingStatusSpec): Promise<void> {
+    return setEntityEmbeddingStatus(this.Model, spec);
+  }
+
+  async setModelEntitiesEmbeddingStatus(spec: ISetModelEntitiesEmbeddingStatusSpec): Promise<void> {
+    return setModelEntitiesEmbeddingStatus(this.Model, spec);
   }
 
   private newSpecToModel(newSpec: INewSkillSpec): mongoose.HydratedDocument<ISkillDoc> {

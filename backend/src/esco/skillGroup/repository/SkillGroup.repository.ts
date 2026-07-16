@@ -21,6 +21,15 @@ import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctio
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { SkillHierarchyModelPaths } from "esco/skillHierarchy/skillHierarchyModel";
+import {
+  IEmbeddableEntityRepository,
+  ISetEntityEmbeddingStatusSpec,
+  ISetModelEntitiesEmbeddingStatusSpec,
+} from "embeddings/entityEmbeddings/entityEmbedding.types";
+import {
+  setEntityEmbeddingStatus,
+  setModelEntitiesEmbeddingStatus,
+} from "embeddings/entityEmbeddings/entityEmbeddingStatus";
 
 interface FindPaginatedFilter {
   childrenIds?: string;
@@ -39,7 +48,7 @@ export interface ISkillGroupModelHistoryReference {
   reference: ISkillGroupReference | null;
 }
 
-export interface ISkillGroupRepository {
+export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
   readonly Model: mongoose.Model<ISkillGroupDoc>;
   readonly hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>;
   create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup>;
@@ -92,6 +101,14 @@ export class SkillGroupRepository implements ISkillGroupRepository {
   constructor(model: mongoose.Model<ISkillGroupDoc>, hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>) {
     this.Model = model;
     this.hierarchyModel = hierarchyModel;
+  }
+
+  async setEntityEmbeddingStatus(spec: ISetEntityEmbeddingStatusSpec): Promise<void> {
+    return setEntityEmbeddingStatus(this.Model, spec);
+  }
+
+  async setModelEntitiesEmbeddingStatus(spec: ISetModelEntitiesEmbeddingStatusSpec): Promise<void> {
+    return setModelEntitiesEmbeddingStatus(this.Model, spec);
   }
 
   private newSpecToModel(newSpec: INewSkillGroupSpec): mongoose.HydratedDocument<ISkillGroupDoc> {

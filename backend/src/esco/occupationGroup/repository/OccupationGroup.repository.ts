@@ -20,6 +20,15 @@ import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
+import {
+  IEmbeddableEntityRepository,
+  ISetEntityEmbeddingStatusSpec,
+  ISetModelEntitiesEmbeddingStatusSpec,
+} from "embeddings/entityEmbeddings/entityEmbedding.types";
+import {
+  setEntityEmbeddingStatus,
+  setModelEntitiesEmbeddingStatus,
+} from "embeddings/entityEmbeddings/entityEmbeddingStatus";
 
 interface FindPaginatedFilter {
   root?: boolean;
@@ -36,7 +45,7 @@ export interface IOccupationGroupModelHistoryReference {
   reference: IOccupationGroupReference | null;
 }
 
-export interface IOccupationGroupRepository {
+export interface IOccupationGroupRepository extends IEmbeddableEntityRepository {
   readonly Model: mongoose.Model<IOccupationGroupDoc>;
   readonly hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>;
 
@@ -141,6 +150,14 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
   constructor(model: mongoose.Model<IOccupationGroupDoc>, hierarchyModel: mongoose.Model<IOccupationHierarchyPairDoc>) {
     this.Model = model;
     this.hierarchyModel = hierarchyModel;
+  }
+
+  async setEntityEmbeddingStatus(spec: ISetEntityEmbeddingStatusSpec): Promise<void> {
+    return setEntityEmbeddingStatus(this.Model, spec);
+  }
+
+  async setModelEntitiesEmbeddingStatus(spec: ISetModelEntitiesEmbeddingStatusSpec): Promise<void> {
+    return setModelEntitiesEmbeddingStatus(this.Model, spec);
   }
 
   private newSpecToModel(newSpec: INewOccupationGroupSpec): mongoose.HydratedDocument<IOccupationGroupDoc> {

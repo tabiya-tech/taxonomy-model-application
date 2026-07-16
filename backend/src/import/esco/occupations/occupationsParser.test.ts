@@ -75,6 +75,8 @@ describe("test parseOccupations from", () => {
       // AND an Occupation repository
       const mockRepository: IOccupationRepository = {
         Model: undefined as never,
+        setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+        setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         create: jest.fn().mockResolvedValue({}),
         createMany: jest.fn().mockImplementation((specs: INewOccupationSpec[]): Promise<IOccupation[]> => {
           return Promise.resolve(

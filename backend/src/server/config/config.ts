@@ -10,6 +10,7 @@ export const ENV_VAR_NAMES = {
   DOWNLOAD_BUCKET_NAME: "DOWNLOAD_BUCKET_NAME",
   ASYNC_IMPORT_LAMBDA_FUNCTION_ARN: "ASYNC_IMPORT_LAMBDA_FUNCTION_ARN",
   ASYNC_EXPORT_LAMBDA_FUNCTION_ARN: "ASYNC_EXPORT_LAMBDA_FUNCTION_ARN",
+  ASYNC_PUBLISH_EMBEDDINGS_TASK_LAMBDA_FUNCTION_ARN: "ASYNC_PUBLISH_EMBEDDINGS_TASK_LAMBDA_FUNCTION_ARN",
   ASYNC_LAMBDA_FUNCTION_REGION: "ASYNC_LAMBDA_FUNCTION_REGION",
   GEMINI_API_KEY: "GEMINI_API_KEY",
   GEMINI_EMBEDDING_MODEL: "GEMINI_EMBEDDING_MODEL",
@@ -27,6 +28,7 @@ export interface IConfiguration {
   downloadBucketRegion: string;
   asyncImportLambdaFunctionArn: string;
   asyncExportLambdaFunctionArn: string;
+  asyncPublishEmbeddingsTaskLambdaFunctionArn: string;
   asyncLambdaFunctionRegion: string;
   geminiApiKey: string;
   geminiEmbeddingModel: string;
@@ -44,6 +46,8 @@ export function readEnvironmentConfiguration(): IConfiguration {
     downloadBucketName: process.env[ENV_VAR_NAMES.DOWNLOAD_BUCKET_NAME] ?? "",
     asyncImportLambdaFunctionArn: process.env[ENV_VAR_NAMES.ASYNC_IMPORT_LAMBDA_FUNCTION_ARN] ?? "",
     asyncExportLambdaFunctionArn: process.env[ENV_VAR_NAMES.ASYNC_EXPORT_LAMBDA_FUNCTION_ARN] ?? "",
+    asyncPublishEmbeddingsTaskLambdaFunctionArn:
+      process.env[ENV_VAR_NAMES.ASYNC_PUBLISH_EMBEDDINGS_TASK_LAMBDA_FUNCTION_ARN] ?? "",
     asyncLambdaFunctionRegion: process.env[ENV_VAR_NAMES.ASYNC_LAMBDA_FUNCTION_REGION] ?? "",
     geminiApiKey: process.env[ENV_VAR_NAMES.GEMINI_API_KEY] ?? "",
     geminiEmbeddingModel: process.env[ENV_VAR_NAMES.GEMINI_EMBEDDING_MODEL] ?? "",
@@ -91,6 +95,10 @@ export function getAsyncImportLambdaFunctionArn() {
 
 export function getAsyncExportLambdaFunctionArn() {
   return _configuration?.asyncExportLambdaFunctionArn ?? "";
+}
+
+export function getAsyncPublishEmbeddingsTaskLambdaFunctionArn() {
+  return _configuration?.asyncPublishEmbeddingsTaskLambdaFunctionArn ?? "";
 }
 
 export function getAsyncLambdaFunctionRegion() {

@@ -30,6 +30,15 @@ import { populateEmptySkillToSkillRelation } from "esco/skillToSkillRelation/pop
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationReference } from "../_shared/occupationReference.types";
 import { getOccupationDocReference, OccupationDocument } from "../_shared/occupation.reference";
+import {
+  IEmbeddableEntityRepository,
+  ISetEntityEmbeddingStatusSpec,
+  ISetModelEntitiesEmbeddingStatusSpec,
+} from "embeddings/entityEmbeddings/entityEmbedding.types";
+import {
+  setEntityEmbeddingStatus,
+  setModelEntitiesEmbeddingStatus,
+} from "embeddings/entityEmbeddings/entityEmbeddingStatus";
 
 /**
  * A single UUID from an entity's UUIDHistory resolved to the entity's reference (as it was in that model) and
@@ -46,7 +55,7 @@ export type SearchFilter = {
   occupationType?: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
 };
 
-export interface IOccupationRepository {
+export interface IOccupationRepository extends IEmbeddableEntityRepository {
   readonly Model: mongoose.Model<IOccupationDoc>;
 
   /**
@@ -189,6 +198,14 @@ export class OccupationRepository implements IOccupationRepository {
 
   constructor(model: mongoose.Model<IOccupationDoc>) {
     this.Model = model;
+  }
+
+  async setEntityEmbeddingStatus(spec: ISetEntityEmbeddingStatusSpec): Promise<void> {
+    return setEntityEmbeddingStatus(this.Model, spec);
+  }
+
+  async setModelEntitiesEmbeddingStatus(spec: ISetModelEntitiesEmbeddingStatusSpec): Promise<void> {
+    return setModelEntitiesEmbeddingStatus(this.Model, spec);
   }
 
   private newSpecToModel(newSpec: INewOccupationSpec): mongoose.HydratedDocument<IOccupationDoc> {

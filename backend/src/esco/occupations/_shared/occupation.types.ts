@@ -1,5 +1,6 @@
 import { ImportIdentifiable, ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import mongoose from "mongoose";
+import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import { IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ISkill, ISkillReference } from "esco/skill/_shared/skill.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
@@ -45,12 +46,14 @@ export interface IOccupationDoc extends ImportIdentifiable {
   occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   isLocalized: boolean;
   importId: string;
+  embeddingStatus?: Map<string, EntityEmbeddingStatus>;
 }
 
 /**
  * Describes how occupations are return from the API
+ * The embeddingStatus is internal bookkeeping of the embedding process and is not returned from the API.
  */
-export interface IOccupation extends Omit<IOccupationDoc, "modelId"> {
+export interface IOccupation extends Omit<IOccupationDoc, "modelId" | "embeddingStatus"> {
   id: string;
   modelId: string;
   parent: IOccupationGroupReference | IOccupationReference | null;

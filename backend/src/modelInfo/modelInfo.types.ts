@@ -1,5 +1,6 @@
 import ImportProcessStateApiSpecs from "api-specifications/importProcessState/";
 import ExportProcessStateApiSpecs from "api-specifications/exportProcessState/";
+import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import mongoose from "mongoose";
 
 /**
@@ -58,6 +59,17 @@ export interface IModelInfo extends Omit<IModelInfoDoc, "importProcessState" | "
     createdAt?: Date;
     updatedAt?: Date;
   };
+  embeddingProcessState: {
+    id: string;
+    status: ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status;
+    embeddingServiceId: string;
+    totalDocuments: number;
+    errorCounts: number;
+    warningCounts: number;
+    completedDocuments: number;
+    createdAt: Date;
+    updatedAt: Date;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
