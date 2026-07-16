@@ -522,6 +522,8 @@ describe("SkillGroupListController", () => {
       findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),
+      setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+      setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
     };
     jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
     const limit = 2;

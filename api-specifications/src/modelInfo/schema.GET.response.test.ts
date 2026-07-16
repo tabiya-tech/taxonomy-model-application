@@ -30,6 +30,8 @@ import LocaleAPISpecs from "locale";
 import ImportProcessState from "importProcessState";
 import { ExportProcessState } from "exportProcessState/enums";
 import ExportProcessStateAPISpecs from "exportProcessState";
+import EmbeddingsAPISpecs from "embeddings";
+import EmbeddingProcessStatesAPISpecs from "./[id]/embeddingProcessStates";
 import ModelInfoConstants from "./constants";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 
@@ -70,6 +72,18 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
     updatedAt: new Date().toISOString(),
   };
 
+  const givenEmbeddingProcessState = {
+    id: getMockId(3),
+    status: EmbeddingProcessStatesAPISpecs.Enums.Status.PENDING,
+    embeddingServiceId: EmbeddingsAPISpecs.Constants.EmbeddingServiceIds[0],
+    totalDocuments: 10,
+    errorCounts: 0,
+    warningCounts: 0,
+    completedDocuments: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
   const givenmodelHistory = {
     id: getMockId(1),
     UUID: randomUUID(),
@@ -97,6 +111,7 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),
     exportProcessState: [givenExportProcessState],
     importProcessState: givenImportProcessState,
+    embeddingProcessState: [givenEmbeddingProcessState],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

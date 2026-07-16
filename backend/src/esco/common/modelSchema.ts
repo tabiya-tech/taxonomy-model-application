@@ -3,6 +3,7 @@ import { isSpecified } from "server/isUnspecified";
 import { stringRequired } from "server/stringRequired";
 import { RegExp_UUIDv4 } from "server/regex";
 import { ObjectTypes } from "./objectTypes";
+import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 
 // check for unique values in an array
 export function hasUniqueValues<T>(value: T[]) {
@@ -186,6 +187,16 @@ export const OccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> =
       }
     },
   },
+};
+
+// Embedding Status
+// is A map of embeddingServiceId -> status of the embeddings generation of the entity for that embedding service.
+// The path is absent (instead of an empty map) until an embedding process touches the entity for the first time.
+export const EmbeddingStatusProperty: mongoose.SchemaDefinitionProperty<Map<string, EntityEmbeddingStatus>> = {
+  type: Map,
+  of: { type: String, enum: Object.values(EntityEmbeddingStatus) },
+  required: false,
+  default: undefined,
 };
 
 // Import ID

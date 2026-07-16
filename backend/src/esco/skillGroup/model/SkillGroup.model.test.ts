@@ -19,6 +19,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ISkillGroupDoc } from "../_shared/skillGroup.types";
 import {
   testAltLabelsField,
+  testEmbeddingStatusField,
   testOptionalImportId,
   testObjectIdField,
   testOriginUri,
@@ -135,6 +136,8 @@ describe("Test the definition of the skillGroup Model", () => {
     testPreferredLabel<ISkillGroupDoc>(() => skillGroupModel);
 
     testAltLabelsField<ISkillGroupDoc>(() => skillGroupModel);
+
+    testEmbeddingStatusField<ISkillGroupDoc>(() => skillGroupModel);
 
     describe("Test validation of 'scopeNote'", () => {
       test.each([

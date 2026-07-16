@@ -28,6 +28,7 @@ import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupC
 import { IOccupationDoc } from "../_shared/occupation.types";
 import {
   testAltLabelsField,
+  testEmbeddingStatusField,
   testDescription,
   testObjectIdField,
   testObjectType,
@@ -476,6 +477,8 @@ describe("Test the definition of the Occupation Model", () => {
     testPreferredLabel<IOccupationDoc>(() => OccupationModel);
 
     testAltLabelsField<IOccupationDoc>(() => OccupationModel);
+
+    testEmbeddingStatusField<IOccupationDoc>(() => OccupationModel);
 
     describe("Test validation of 'scopeNote'", () => {
       test.each([

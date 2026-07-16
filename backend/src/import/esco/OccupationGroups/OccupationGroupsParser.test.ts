@@ -66,6 +66,8 @@ describe("test parseOccupationGroups from", () => {
       const givenMockRepository: IOccupationGroupRepository = {
         Model: undefined as never,
         hierarchyModel: undefined as never,
+        setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+        setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         create: jest.fn().mockResolvedValue({}),
         createMany: jest.fn().mockImplementation((specs: INewOccupationGroupSpec[]): Promise<IOccupationGroup[]> => {
           return Promise.resolve(

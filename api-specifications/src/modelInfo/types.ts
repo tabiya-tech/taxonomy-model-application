@@ -1,6 +1,7 @@
 import Locale from "../locale";
 import ImportProcessState from "../importProcessState";
 import ExportProcessState from "../exportProcessState";
+import EmbeddingProcessStatesEnums from "./[id]/embeddingProcessStates/enums";
 // A lightweight reference to a model. This is the stripped-down shape used wherever we only need to identify/show
 // a model (e.g. an entity's model history, or a model's own modelHistory) rather than the full model info.
 interface _IModelInfoReference {
@@ -50,6 +51,17 @@ interface IModelInfoResponse {
     createdAt?: string;
     updatedAt?: string;
   };
+  embeddingProcessState: {
+    id: string;
+    status: EmbeddingProcessStatesEnums.Status;
+    embeddingServiceId: string;
+    totalDocuments: number;
+    errorCounts: number;
+    warningCounts: number;
+    completedDocuments: number;
+    createdAt: string;
+    updatedAt: string;
+  }[];
   createdAt: string;
   updatedAt: string;
 }

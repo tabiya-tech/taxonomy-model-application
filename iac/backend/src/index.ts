@@ -9,6 +9,7 @@ import {setupAsyncExportApi} from "./asyncExport";
 import {setupAuthorizer} from "./authorizer";
 import {setupEmbeddingsFn} from "./embeddings";
 import {setupEmbeddingsQueue} from "./embeddingsQueue";
+import {setupAsyncPublishEmbeddingsTaskFn} from "./asyncPublishEmbeddingsTask";
 
 export const environment = pulumi.getStack();
 export const domainName = process.env.DOMAIN_NAME!;
@@ -103,9 +104,6 @@ const {asyncImportLambdaRole, asyncImportLambdaFunction} = setupAsyncImportApi(e
 
 /**
  * Setup Embeddings lambda and queue
- *
- * The embedding lambda generates vectors in the background. It is triggered by the embeddings SQS
- * queue via an event source mapping (see setupEmbeddingsQueue), which also wires the dead-letter queue.
  */
 const {embeddingsLambdaRole, embeddingsLambdaFunction} = setupEmbeddingsFn(environment, {
   mongodb_uri: mongoDbUri,
@@ -121,6 +119,18 @@ const {embeddingsQueue} = setupEmbeddingsQueue({
 });
 
 export const embeddingsQueueUrl = embeddingsQueue.url;
+
+/**
+ * Set up the async-publish-embeddings-task lambda.
+ */
+const {asyncPublishEmbeddingsTaskLambdaFunction} = setupAsyncPublishEmbeddingsTaskFn(environment, {
+  mongodb_uri: mongoDbUri,
+  resourcesBaseUrl,
+  embeddings_queue_url: embeddingsQueue.url,
+  embeddings_queue_region: currentRegion,
+  embeddings_queue_arn: embeddingsQueue.arn,
+  sentry_backend_dsn: sentryBackendDSN,
+});
 
 /**
  * Setup Authorizer Lambda
@@ -144,6 +154,7 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   download_bucket_region: currentRegion,
   async_import_lambda_function_arn: asyncImportLambdaFunction.arn,
   async_export_lambda_function_arn: asyncExportLambdaFunction.arn,
+  async_publish_embeddings_task_lambda_function_arn: asyncPublishEmbeddingsTaskLambdaFunction.arn,
   async_lambda_function_region: currentRegion,
   authorizer_lambda_function_invoke_arn: authorizerLambdaFunction.invokeArn,
   authorizer_lambda_function_name: authorizerLambdaFunction.name,

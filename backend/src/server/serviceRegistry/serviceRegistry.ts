@@ -20,6 +20,7 @@ import { SkillToSkillRelationService } from "esco/skillToSkillRelation/skillToSk
 import { IEmbeddingProcessService } from "embeddings/embeddingProcess/embeddingProcess.service.types";
 import { EmbeddingProcessService } from "embeddings/embeddingProcess/embeddingProcess.service";
 import { EmbeddingClient } from "embeddings/service/client";
+import { AsyncPublishEmbeddingsTaskInvoker } from "embeddings/asyncPublishEmbeddingsTask/asyncPublishEmbeddingsTaskInvoker";
 import { getEmbeddingsQueueRegion } from "server/config/config";
 
 export class ServiceRegistry {
@@ -113,6 +114,7 @@ export class ServiceRegistry {
       repositoryRegistry.skillToSkillRelation
     );
     const embeddingClient = new EmbeddingClient(awsSQSClient);
+    const asyncPublishEmbeddingsTaskInvoker = new AsyncPublishEmbeddingsTaskInvoker();
     this.embeddingProcess = new EmbeddingProcessService(
       repositoryRegistry.modelInfo,
       repositoryRegistry.embeddingProcessState,
@@ -120,7 +122,8 @@ export class ServiceRegistry {
       repositoryRegistry.skillGroup,
       repositoryRegistry.occupation,
       repositoryRegistry.OccupationGroup,
-      embeddingClient
+      embeddingClient,
+      asyncPublishEmbeddingsTaskInvoker
     );
   }
 }

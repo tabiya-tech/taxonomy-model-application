@@ -1,6 +1,7 @@
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import mongoose from "mongoose";
 import { ISkillReference } from "esco/skill/_shared/skill.types";
+import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 
 /**
  * Describes how a skill group is saved in the database.
@@ -15,12 +16,14 @@ export interface ISkillGroupDoc extends ImportIdentifiable {
   altLabels: string[];
   description: string;
   scopeNote: string;
+  embeddingStatus?: Map<string, EntityEmbeddingStatus>;
 }
 
 /**
  * Describes how a skill group is returned from the API.
+ * The embeddingStatus is internal bookkeeping of the embedding process and is not returned from the API.
  */
-export interface ISkillGroup extends Omit<ISkillGroupDoc, "id" | "modelId" | "UUIDHistory"> {
+export interface ISkillGroup extends Omit<ISkillGroupDoc, "id" | "modelId" | "UUIDHistory" | "embeddingStatus"> {
   id: string;
   UUID: string;
   modelId: string;

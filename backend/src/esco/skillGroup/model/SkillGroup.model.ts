@@ -7,6 +7,7 @@ import {
   UUIDHistoryProperty,
   PreferredLabelProperty,
   ScopeNoteProperty,
+  EmbeddingStatusProperty,
 } from "esco/common/modelSchema";
 import { ISkillGroupDoc } from "../_shared/skillGroup.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
@@ -47,6 +48,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         required: false,
         maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
       },
+      embeddingStatus: EmbeddingStatusProperty,
     },
     {
       timestamps: true,

@@ -51,6 +51,12 @@ describe("test the transformation of the IIModelInfo -> IModelInfoResponse", () 
         createdAt: givenObject.importProcessState.createdAt!.toISOString(),
         updatedAt: givenObject.importProcessState.updatedAt!.toISOString(),
       },
+      // AND the embeddingProcessState as an array with the same properties
+      embeddingProcessState: givenObject.embeddingProcessState.map((embeddingProcessState) => ({
+        ...embeddingProcessState,
+        createdAt: embeddingProcessState.createdAt.toISOString(),
+        updatedAt: embeddingProcessState.updatedAt.toISOString(),
+      })),
       // AND the path and tabiya path as based on the given base path
       path: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.id}`,
       tabiyaPath: `${givenBasePath}${Routes.MODELS_ROUTE}/${givenObject.UUID}`,

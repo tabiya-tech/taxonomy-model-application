@@ -33,3 +33,10 @@ export type INewEmbeddingProcessStateSpec = Omit<IEmbeddingProcessState, "id" | 
  * Describes how an embedding process state is updated.
  */
 export type IUpdateEmbeddingProcessStateSpec = Partial<Omit<IEmbeddingProcessStateDoc, "modelId">>;
+
+/**
+ * Describes how the progress counters of an embedding process state are incremented.
+ */
+export type IIncrementEmbeddingProcessStateCountsSpec = Partial<
+  Pick<IEmbeddingProcessStateDoc, "completedDocuments" | "errorCounts" | "warningCounts">
+>;

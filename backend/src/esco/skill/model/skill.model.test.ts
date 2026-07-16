@@ -19,6 +19,7 @@ import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { ISkillDoc, ReuseLevel, SkillType } from "../_shared/skill.types";
 import {
   testAltLabelsField,
+  testEmbeddingStatusField,
   testDescription,
   testImportId,
   testObjectIdField,
@@ -118,6 +119,8 @@ describe("Test the definition of the skill Model", () => {
     testPreferredLabel<ISkillDoc>(() => skillModel);
 
     testAltLabelsField<ISkillDoc>(() => skillModel);
+
+    testEmbeddingStatusField<ISkillDoc>(() => skillModel);
 
     describe("Test validation of 'scopeNote'", () => {
       test.each([

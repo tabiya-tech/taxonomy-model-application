@@ -79,6 +79,8 @@ function setupSkillRepositoryMock(findAllImpl: () => Readable) {
     findOccupationsForSkill: jest.fn(),
     findRelatedSkills: jest.fn(),
     findHistoryReferencesByUUIDs: jest.fn(),
+    setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+    setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
   };
   SkillRepository.mockReturnValue(mockSkillRepository);
 }

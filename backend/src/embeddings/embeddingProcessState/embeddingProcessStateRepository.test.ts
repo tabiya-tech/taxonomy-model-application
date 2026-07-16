@@ -151,6 +151,73 @@ describe("Test EmbeddingProcessState Repository with an in-memory mongodb", () =
     });
   });
 
+  describe("Test incrementCounts() EmbeddingProcessState", () => {
+    test("should atomically increment the given counters of an EmbeddingProcessState", async () => {
+      // GIVEN an EmbeddingProcessState in the database with some counters
+      const givenNewEmbeddingProcessStateSpec = {
+        ...getNewEmbeddingProcessStateSpec(),
+        totalDocuments: 10,
+        completedDocuments: 3,
+        errorCounts: 1,
+        warningCounts: 2,
+      };
+      const createdEmbeddingProcessState = await repository.create(givenNewEmbeddingProcessStateSpec);
+      // AND increments for every counter
+      const givenIncrements = { completedDocuments: 2, errorCounts: 1, warningCounts: 3 };
+
+      // WHEN incrementing the counters of the EmbeddingProcessState
+      const actualUpdatedEmbeddingProcessState = await repository.incrementCounts(
+        createdEmbeddingProcessState.id,
+        givenIncrements
+      );
+
+      // THEN expect the returned EmbeddingProcessState to have the incremented counters
+      expect(actualUpdatedEmbeddingProcessState).toEqual({
+        ...expectedFromGivenSpec(givenNewEmbeddingProcessStateSpec),
+        completedDocuments: givenNewEmbeddingProcessStateSpec.completedDocuments + givenIncrements.completedDocuments,
+        errorCounts: givenNewEmbeddingProcessStateSpec.errorCounts + givenIncrements.errorCounts,
+        warningCounts: givenNewEmbeddingProcessStateSpec.warningCounts + givenIncrements.warningCounts,
+      });
+    });
+
+    test("should only increment the given counters and leave the others unchanged", async () => {
+      // GIVEN an EmbeddingProcessState in the database
+      const givenNewEmbeddingProcessStateSpec = getNewEmbeddingProcessStateSpec();
+      const createdEmbeddingProcessState = await repository.create(givenNewEmbeddingProcessStateSpec);
+
+      // WHEN incrementing only the completed documents
+      const actualUpdatedEmbeddingProcessState = await repository.incrementCounts(createdEmbeddingProcessState.id, {
+        completedDocuments: 1,
+      });
+
+      // THEN expect only the completed documents to have been incremented
+      expect(actualUpdatedEmbeddingProcessState).toEqual({
+        ...expectedFromGivenSpec(givenNewEmbeddingProcessStateSpec),
+        completedDocuments: givenNewEmbeddingProcessStateSpec.completedDocuments + 1,
+      });
+    });
+
+    test("should reject with an error when incrementing the counters of an EmbeddingProcessState that does not exist", async () => {
+      // GIVEN an id of an EmbeddingProcessState that does not exist
+      const givenId = getMockStringId(1);
+
+      // WHEN incrementing the counters of the EmbeddingProcessState with that id
+      const actualPromise = repository.incrementCounts(givenId, { completedDocuments: 1 });
+
+      // THEN expect to reject with an error
+      await expect(actualPromise).rejects.toThrow(
+        expect.toMatchErrorWithCause(
+          "EmbeddingProcessStateRepository.incrementCounts: incrementCounts failed",
+          `IncrementCounts failed to find embedding process with id: ${givenId}`
+        )
+      );
+    });
+
+    TestDBConnectionFailureNoSetup((repositoryRegistry) => {
+      return repositoryRegistry.embeddingProcessState.incrementCounts(getMockStringId(1), { completedDocuments: 1 });
+    });
+  });
+
   describe("Test findById() EmbeddingProcessState", () => {
     test("should successfully find an EmbeddingProcessState by id", async () => {
       // GIVEN an EmbeddingProcessState in the database

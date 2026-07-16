@@ -4,6 +4,7 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
+import EmbeddingsAPISpecs from "api-specifications/embeddings";
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -43,9 +44,14 @@ export namespace GET {
       ExportProcessStateAPISpecs.Enums.Status
     ).reverse(); // Assuming it's an enum with string values PENDING, RUNNING, COMPLETED
 
+    const allEmbeddingStatuses = Object.values(
+      ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status
+    ).reverse(); // Assuming it's an enum with string values PENDING, IN_PROGRESS, COMPLETED
+
     return Array.from({ length: count }, (_, i) => {
       const randomizedImportStatus = allImportStatuses[i % allImportStatuses.length];
       const randomizedExportStatus = allExportStatuses[i % allExportStatuses.length];
+      const randomizedEmbeddingStatus = allEmbeddingStatuses[i % allEmbeddingStatuses.length];
       return {
         id: getMockId(i),
         UUID: uuidv4(),
@@ -100,6 +106,22 @@ export namespace GET {
           createdAt: new Date(new Date().getTime() - 60000).toISOString(), // make createdAt 1 minute ago and different from updatedAt
           updatedAt: new Date().toISOString(),
         },
+        embeddingProcessState: [
+          {
+            id: getMockId(20000 + i),
+            status: randomizedEmbeddingStatus,
+            embeddingServiceId:
+              EmbeddingsAPISpecs.Constants.EmbeddingServiceIds[
+                i % EmbeddingsAPISpecs.Constants.EmbeddingServiceIds.length
+              ],
+            totalDocuments: faker.number.int({ min: 0, max: 1000 }),
+            errorCounts: faker.number.int({ min: 0, max: 10 }),
+            warningCounts: faker.number.int({ min: 0, max: 10 }),
+            completedDocuments: faker.number.int({ min: 0, max: 1000 }),
+            createdAt: new Date(new Date().getTime() - 60000).toISOString(), // make createdAt 1 minute ago and different from updatedAt
+            updatedAt: new Date().toISOString(),
+          },
+        ],
         createdAt: new Date(Date.now() - i * 1000 * 60 * 60 * 24).toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -119,6 +141,8 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
   const randomizedImportStatus = allImportStatuses[_id % allImportStatuses.length];
   const allExportStatuses = Object.values(ExportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
   const randomizeExportStatus = allExportStatuses[_id % allExportStatuses.length];
+  const allEmbeddingStatuses = Object.values(ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status); // Assuming it's an enum with string values
+  const randomizedEmbeddingStatus = allEmbeddingStatuses[_id % allEmbeddingStatuses.length];
 
   return {
     id: getMockId(_id),
@@ -171,6 +195,22 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
       createdAt: _id % 2 === 0 ? new Date(new Date().getTime() - 60000).toISOString() : undefined, // make createdAt 1 minute ago and different from updatedAt
       updatedAt: _id % 2 === 0 ? new Date().toISOString() : undefined,
     },
+    embeddingProcessState: [
+      {
+        id: getMockId(20000 + _id),
+        status: randomizedEmbeddingStatus,
+        embeddingServiceId:
+          EmbeddingsAPISpecs.Constants.EmbeddingServiceIds[
+            _id % EmbeddingsAPISpecs.Constants.EmbeddingServiceIds.length
+          ],
+        totalDocuments: faker.number.int({ min: 0, max: 1000 }),
+        errorCounts: faker.number.int({ min: 0, max: 10 }),
+        warningCounts: faker.number.int({ min: 0, max: 10 }),
+        completedDocuments: faker.number.int({ min: 0, max: 1000 }),
+        createdAt: new Date(new Date().getTime() - 60000).toISOString(), // make createdAt 1 minute ago and different from updatedAt
+        updatedAt: new Date().toISOString(),
+      },
+    ],
     createdAt: new Date(new Date().getTime() - 60000).toISOString(), // make createdAt 1 minute ago and different from updatedAt
     updatedAt: new Date().toISOString(),
   };

@@ -1,15 +1,15 @@
 // Suppress chatty console during the tests
 import "_test_utilities/consoleMock";
 
-// Mock only the AWS SQS client so that no message is ever pushed to a real queue.
-// The rest of the module (SendMessageBatchCommand, etc.) stays real so that the actual commands can be asserted.
-const mockSQSClientSend = jest.fn().mockResolvedValue({});
-jest.mock("@aws-sdk/client-sqs", () => {
-  const actual = jest.requireActual("@aws-sdk/client-sqs");
+// Mock only the AWS Lambda client so that no real lambda is ever invoked.
+// The rest of the module (InvokeCommand, etc.) stays real so that the actual command can be asserted.
+const mockLambdaClientSend = jest.fn().mockResolvedValue({});
+jest.mock("@aws-sdk/client-lambda", () => {
+  const actual = jest.requireActual("@aws-sdk/client-lambda");
   return {
     ...actual,
-    SQSClient: jest.fn().mockImplementation(() => ({
-      send: mockSQSClientSend,
+    LambdaClient: jest.fn().mockImplementation(() => ({
+      send: mockLambdaClientSend,
     })),
   };
 });
@@ -18,7 +18,7 @@ import Ajv, { ValidateFunction } from "ajv";
 import addFormats from "ajv-formats";
 import { randomUUID } from "crypto";
 import { Connection } from "mongoose";
-import { SendMessageBatchCommand } from "@aws-sdk/client-sqs";
+import { InvokeCommand } from "@aws-sdk/client-lambda";
 
 import LocaleAPISpecs from "api-specifications/locale";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
@@ -28,7 +28,7 @@ import { handler as embeddingProcessesHandler } from "modelInfo/embeddingProcess
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
-import { getEmbeddingsQueueUrl } from "server/config/config";
+import { getAsyncPublishEmbeddingsTaskLambdaFunctionArn } from "server/config/config";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getTestString } from "_test_utilities/getMockRandomData";
@@ -43,39 +43,10 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ModelName as ModelInfoModelName } from "modelInfo/modelInfoModel";
 import { ModelName as EmbeddingProcessStateModelName } from "embeddings/embeddingProcessState/embeddingProcessStateModel";
 import { IModelInfo } from "modelInfo/modelInfo.types";
-import { EmbeddableEntityType, EmbeddableField, IGenerateEmbeddingTask } from "embeddings/service/types";
-import { SQS_MAX_BATCH_SIZE } from "embeddings/service/client";
-import { validateEmbeddingQueueJob } from "embeddings/specs/queueJob.schema";
+import { IPublishEmbeddingsTaskEvent } from "embeddings/asyncPublishEmbeddingsTask/asyncPublishEmbeddingsTask.types";
 
 const givenEntityCountPerType = 100;
 const givenEmbeddingServiceId = EmbeddingsAPISpecs.Constants.EmbeddingServiceIds[0];
-
-/**
- * The fields that the embedding process is expected to embed for each entity type.
- */
-const expectedFieldsByEntityType: Record<EmbeddableEntityType, EmbeddableField[]> = {
-  [EmbeddableEntityType.Skill]: [
-    EmbeddableField.preferredLabel,
-    EmbeddableField.description,
-    EmbeddableField.altLabels,
-  ],
-  [EmbeddableEntityType.SkillGroup]: [
-    EmbeddableField.preferredLabel,
-    EmbeddableField.description,
-    EmbeddableField.altLabels,
-    EmbeddableField.scopeNote,
-  ],
-  [EmbeddableEntityType.Occupation]: [
-    EmbeddableField.preferredLabel,
-    EmbeddableField.description,
-    EmbeddableField.altLabels,
-  ],
-  [EmbeddableEntityType.OccupationGroup]: [
-    EmbeddableField.preferredLabel,
-    EmbeddableField.description,
-    EmbeddableField.altLabels,
-  ],
-};
 
 async function createModelInDB(released: boolean): Promise<IModelInfo> {
   const modelInfoRepository = getRepositoryRegistry().modelInfo;
@@ -164,7 +135,7 @@ describe("Test for the POST model embedding processes handler with a DB", () => 
   });
 
   beforeEach(async () => {
-    mockSQSClientSend.mockClear();
+    mockLambdaClientSend.mockClear();
     if (dbConnection) {
       // delete all documents in the DB
       await Promise.all(
@@ -180,10 +151,10 @@ describe("Test for the POST model embedding processes handler with a DB", () => 
     }
   });
 
-  test("POST should respond with the ACCEPTED status code and push valid SQS message batches covering every entity of the model", async () => {
+  test("POST should respond with ACCEPTED, persist a PENDING process state and invoke the async publish lambda", async () => {
     // GIVEN a released model in the DB
     const givenModel = await createModelInDB(true);
-    // AND the model has 10 skills, 10 skill groups, 10 occupations and 10 occupation groups in the DB
+    // AND the model has entities of every type in the DB
     const givenEntities = await createEntitiesInDB(givenModel.id);
     // guard to ensure that all the entities were actually created in the DB
     expect(givenEntities.skills).toHaveLength(givenEntityCountPerType);
@@ -203,69 +174,37 @@ describe("Test for the POST model embedding processes handler with a DB", () => 
     const actualPayload = JSON.parse(actualResponse.body);
     validatePOSTResponse(actualPayload);
     expect(validatePOSTResponse.errors).toBeNull();
-    // AND the response to refer to an IN_PROGRESS embedding process for the given model that counts all the entities
-    const expectedTotalDocuments = 4 * givenEntityCountPerType;
+    // AND the response to refer to a PENDING embedding process for the given model (the entities are published
+    //     to the queue in the background, so the request returns immediately with an empty document count)
     expect(actualPayload).toMatchObject({
       modelId: givenModel.id,
-      status: ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.IN_PROGRESS,
+      status: ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.PENDING,
       embeddingServiceId: givenEmbeddingServiceId,
-      totalDocuments: expectedTotalDocuments,
+      totalDocuments: 0,
     });
 
-    // AND expect the SQS client to have been called with SendMessageBatchCommands of at most the maximum SQS batch size,
-    //     one chunk per entity type since each entity type is flushed to the queue separately
-    const expectedBatchCount = 4 * Math.ceil(givenEntityCountPerType / SQS_MAX_BATCH_SIZE);
-    expect(mockSQSClientSend).toHaveBeenCalledTimes(expectedBatchCount);
-    const actualCommands = mockSQSClientSend.mock.calls.map(([command]) => command);
-    for (const actualCommand of actualCommands) {
-      expect(actualCommand).toBeInstanceOf(SendMessageBatchCommand);
-      expect(actualCommand.input.QueueUrl).toEqual(getEmbeddingsQueueUrl());
-      expect(actualCommand.input.Entries.length).toBeLessThanOrEqual(SQS_MAX_BATCH_SIZE);
-    }
-    // AND every message body of every batch to be a valid embedding queue job
-    const actualTasks: IGenerateEmbeddingTask[] = actualCommands.flatMap((command) =>
-      command.input.Entries.map((entry: { MessageBody: string }) => JSON.parse(entry.MessageBody))
+    // AND the async publish lambda to have been invoked exactly once, asynchronously, with the created process
+    expect(mockLambdaClientSend).toHaveBeenCalledTimes(1);
+    const actualCommand = mockLambdaClientSend.mock.calls[0][0];
+    expect(actualCommand).toBeInstanceOf(InvokeCommand);
+    expect(actualCommand.input.FunctionName).toEqual(getAsyncPublishEmbeddingsTaskLambdaFunctionArn());
+    expect(actualCommand.input.InvocationType).toEqual("Event");
+    const actualInvokeEvent: IPublishEmbeddingsTaskEvent = JSON.parse(
+      new TextDecoder().decode(actualCommand.input.Payload)
     );
-    for (const actualTask of actualTasks) {
-      expect(validateEmbeddingQueueJob(actualTask)).toBe(true);
-    }
-    // AND the queued jobs to reference exactly the entities in the DB with the expected fields for each entity type
-    const expectedTasks: IGenerateEmbeddingTask[] = [
-      ...givenEntities.skills.map((skill) => ({
-        modelId: givenModel.id,
-        entityId: skill.id,
-        entityType: EmbeddableEntityType.Skill,
-        fields: expectedFieldsByEntityType[EmbeddableEntityType.Skill],
-      })),
-      ...givenEntities.skillGroups.map((skillGroup) => ({
-        modelId: givenModel.id,
-        entityId: skillGroup.id,
-        entityType: EmbeddableEntityType.SkillGroup,
-        fields: expectedFieldsByEntityType[EmbeddableEntityType.SkillGroup],
-      })),
-      ...givenEntities.occupations.map((occupation) => ({
-        modelId: givenModel.id,
-        entityId: occupation.id,
-        entityType: EmbeddableEntityType.Occupation,
-        fields: expectedFieldsByEntityType[EmbeddableEntityType.Occupation],
-      })),
-      ...givenEntities.occupationGroups.map((occupationGroup) => ({
-        modelId: givenModel.id,
-        entityId: occupationGroup.id,
-        entityType: EmbeddableEntityType.OccupationGroup,
-        fields: expectedFieldsByEntityType[EmbeddableEntityType.OccupationGroup],
-      })),
-    ];
-    expect(actualTasks).toHaveLength(expectedTasks.length);
-    expect(actualTasks).toEqual(expect.arrayContaining(expectedTasks));
+    expect(actualInvokeEvent).toEqual({
+      processId: actualPayload.id,
+      modelId: givenModel.id,
+      embeddingServiceId: givenEmbeddingServiceId,
+    });
 
-    // AND the embedding process state to have been persisted in the DB
+    // AND the embedding process state to have been persisted in the DB in the PENDING status
     const actualProcessState = await getRepositoryRegistry().embeddingProcessState.findById(actualPayload.id);
     expect(actualProcessState).toMatchObject({
       modelId: givenModel.id,
-      status: ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.IN_PROGRESS,
+      status: ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.PENDING,
       embeddingServiceId: givenEmbeddingServiceId,
-      totalDocuments: expectedTotalDocuments,
+      totalDocuments: 0,
     });
   });
 
@@ -281,11 +220,11 @@ describe("Test for the POST model embedding processes handler with a DB", () => 
 
     // THEN expect the handler to respond with the FORBIDDEN status code
     expect(actualResponse.statusCode).toEqual(StatusCodes.FORBIDDEN);
-    // AND expect no message to have been pushed to the SQS queue
-    expect(mockSQSClientSend).not.toHaveBeenCalled();
+    // AND expect the async publish lambda to not have been invoked
+    expect(mockLambdaClientSend).not.toHaveBeenCalled();
   });
 
-  test("POST should respond with the BAD_REQUEST status code and not push any SQS message when the model is not released", async () => {
+  test("POST should respond with the BAD_REQUEST status code and not invoke the lambda when the model is not released", async () => {
     // GIVEN a model in the DB that is not released
     const givenModel = await createModelInDB(false);
     // AND a valid request from a model manager to trigger the embedding process of the model
@@ -300,7 +239,7 @@ describe("Test for the POST model embedding processes handler with a DB", () => 
     expect(JSON.parse(actualResponse.body).errorCode).toEqual(
       ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status400.ErrorCodes.MODEL_NOT_RELEASED
     );
-    // AND expect no message to have been pushed to the SQS queue
-    expect(mockSQSClientSend).not.toHaveBeenCalled();
+    // AND expect the async publish lambda to not have been invoked
+    expect(mockLambdaClientSend).not.toHaveBeenCalled();
   });
 });

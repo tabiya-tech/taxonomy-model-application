@@ -10,11 +10,16 @@ import {
   ExportProcessStateModelPaths,
   ModelName as ExportProcessStateModelName,
 } from "export/exportProcessState/exportProcessStateModel";
+import {
+  EmbeddingProcessStateModelPaths,
+  ModelName as EmbeddingProcessStateModelName,
+} from "embeddings/embeddingProcessState/embeddingProcessStateModel";
 import { UUIDHistoryProperty } from "esco/common/modelSchema";
 
 export const ModelName = "ModelInfo";
 export const ModelInfoModelPaths = {
   exportProcessState: "exportProcessState",
+  embeddingProcessState: "embeddingProcessState",
 };
 
 export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mongoose.Model<IModelInfoDoc> {
@@ -107,6 +112,13 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     ref: ExportProcessStateModelName,
     localField: "_id",
     foreignField: ExportProcessStateModelPaths.modelId,
+    justOne: false,
+  });
+
+  modelInfoSchema.virtual(ModelInfoModelPaths.embeddingProcessState, {
+    ref: EmbeddingProcessStateModelName,
+    localField: "_id",
+    foreignField: EmbeddingProcessStateModelPaths.modelId,
     justOne: false,
   });
 

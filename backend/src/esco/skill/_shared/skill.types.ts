@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
+import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import { ISkillGroupReference } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -43,12 +44,14 @@ export interface ISkillDoc extends ImportIdentifiable {
   skillType: SkillType;
   reuseLevel: ReuseLevel;
   isLocalized: boolean;
+  embeddingStatus?: Map<string, EntityEmbeddingStatus>;
 }
 
 /**
  * Describes how a skill is returned from the API.
+ * The embeddingStatus is internal bookkeeping of the embedding process and is not returned from the API.
  */
-export interface ISkill extends Omit<ISkillDoc, "modelId"> {
+export interface ISkill extends Omit<ISkillDoc, "modelId" | "embeddingStatus"> {
   id: string;
   modelId: string;
   parents: (ISkillReference | ISkillGroupReference)[];

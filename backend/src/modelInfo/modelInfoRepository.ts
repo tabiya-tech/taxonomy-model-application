@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { IModelInfo, IModelInfoDoc, IModelInfoReference, INewModelInfoSpec } from "./modelInfo.types";
 import { populateImportProcessStateOptions } from "./populateImportProcessStateOptions";
 import { populateExportProcessStateOptions } from "./populateExportProcessStateOptions";
+import { populateEmbeddingProcessStateOptions } from "./populateEmbeddingProcessStateOptions";
 
 export interface IModelRepository {
   readonly Model: mongoose.Model<IModelInfoDoc>;
@@ -85,7 +86,11 @@ export class ModelRepository implements IModelRepository {
       });
       newModelInfo.UUIDHistory.unshift(newUUID);
       await newModelInfo.save();
-      await newModelInfo.populate([populateImportProcessStateOptions, populateExportProcessStateOptions]);
+      await newModelInfo.populate([
+        populateImportProcessStateOptions,
+        populateExportProcessStateOptions,
+        populateEmbeddingProcessStateOptions,
+      ]);
       return newModelInfo.toObject();
     } catch (e: unknown) {
       const err = new Error("ModelInfoRepository.create: create failed", { cause: e });
@@ -97,7 +102,11 @@ export class ModelRepository implements IModelRepository {
   async getModelById(modelId: string): Promise<IModelInfo | null> {
     try {
       const modelInfo = await this.Model.findById(modelId)
-        .populate([populateImportProcessStateOptions, populateExportProcessStateOptions])
+        .populate([
+          populateImportProcessStateOptions,
+          populateExportProcessStateOptions,
+          populateEmbeddingProcessStateOptions,
+        ])
         .exec();
       return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
@@ -114,7 +123,11 @@ export class ModelRepository implements IModelRepository {
         UUID: { $eq: modelUUID },
       };
       const modelInfo = await this.Model.findOne(filter)
-        .populate([populateImportProcessStateOptions, populateExportProcessStateOptions])
+        .populate([
+          populateImportProcessStateOptions,
+          populateExportProcessStateOptions,
+          populateEmbeddingProcessStateOptions,
+        ])
         .exec();
       return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
@@ -127,7 +140,11 @@ export class ModelRepository implements IModelRepository {
   async getModels(): Promise<IModelInfo[]> {
     try {
       const modelInfos = await this.Model.find({})
-        .populate([populateImportProcessStateOptions, populateExportProcessStateOptions])
+        .populate([
+          populateImportProcessStateOptions,
+          populateExportProcessStateOptions,
+          populateEmbeddingProcessStateOptions,
+        ])
         .exec();
       return modelInfos.map((modelInfo) => modelInfo.toObject());
     } catch (e: unknown) {
@@ -191,7 +208,11 @@ export class ModelRepository implements IModelRepository {
       // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
       // operator object this is not rewritten by the connection's sanitizeFilter=true. Same idiom as getHistory().
       const modelInfos = await this.Model.find({ _id: objectIds })
-        .populate([populateImportProcessStateOptions, populateExportProcessStateOptions])
+        .populate([
+          populateImportProcessStateOptions,
+          populateExportProcessStateOptions,
+          populateEmbeddingProcessStateOptions,
+        ])
         .exec();
       return modelInfos.map((modelInfo) => modelInfo.toObject());
     } catch (e: unknown) {

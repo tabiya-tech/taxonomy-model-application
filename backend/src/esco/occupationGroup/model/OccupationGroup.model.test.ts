@@ -14,6 +14,7 @@ import { getMockRandomISCOGroupCode, getMockRandomLocalGroupCode } from "_test_u
 import { IOccupationGroupDoc } from "../_shared/OccupationGroup.types";
 import {
   testAltLabelsField,
+  testEmbeddingStatusField,
   testDescription,
   testOptionalImportId,
   testObjectIdField,
@@ -233,6 +234,8 @@ describe("Test the definition of the OccupationGroup Model", () => {
     testPreferredLabel<IOccupationGroupDoc>(() => OccupationGroupModel);
 
     testAltLabelsField<IOccupationGroupDoc>(() => OccupationGroupModel);
+
+    testEmbeddingStatusField<IOccupationGroupDoc>(() => OccupationGroupModel);
 
     testOptionalImportId<IOccupationGroupDoc>(() => OccupationGroupModel);
 
