@@ -27,6 +27,10 @@ import { handler as getParentsHandler } from "./[id]/parents/GET/index";
 import { handler as postParentsHandler } from "./[id]/parents/POST/index";
 import { handler as getChildrenHandler } from "./[id]/children/GET/index";
 import { handler as getHistoryHandler } from "./[id]/history/GET/index";
+jest.mock("./[id]/parents/POST/index", () => ({
+  handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "POST_PARENT" }),
+}));
+import { handler as postParentsHandler } from "./[id]/parents/POST/index";
 describe("SkillGroups Router", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -84,5 +88,16 @@ describe("SkillGroups Router", () => {
     const response = await handler(event);
     expect(getHandler).toHaveBeenCalledWith(event);
     expect(response.body).toBe("GET");
+  });
+  test("should route POST parents to postParentsHandler", async () => {
+    const event = { httpMethod: HTTP_VERBS.POST, path: "/models/1/skillGroups/2/parents" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(postParentsHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("POST_PARENT");
+  });
+  test("should handle missing path in POST request", async () => {
+    const event = { httpMethod: HTTP_VERBS.POST } as unknown as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(response).toEqual(STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED);
   });
 });

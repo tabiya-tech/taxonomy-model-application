@@ -2316,6 +2316,92 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     });
   });
 
+  describe("Test update()", () => {
+    test("should handle errors during update", async () => {
+      const givenError = new Error("findOne failure");
+      jest.spyOn(repository.Model, "findOne").mockImplementationOnce(() => {
+        throw givenError;
+      });
+      await expect(repository.update(getMockStringId(1), getMockStringId(2), {} as never)).rejects.toThrowError(
+        new Error("SkillRepository.update: update failed.", { cause: givenError })
+      );
+    });
+
+    test("should return null when id is not a valid ObjectId", async () => {
+      const actual = await repository.update("invalid-id", getMockStringId(1), {} as never);
+      expect(actual).toBeNull();
+    });
+
+    test("should return null when skill is not found", async () => {
+      const actual = await repository.update(getMockStringId(999), getMockStringId(1), {} as never);
+      expect(actual).toBeNull();
+    });
+
+    test("should update an existing skill and return the updated object", async () => {
+      // GIVEN a skill exists in the database
+      const givenModelId = getMockStringId(1);
+      const givenSkill = await repository.create(getSimpleNewSkillSpec(givenModelId, "update_target"));
+
+      // WHEN updating the skill with a new preferredLabel
+      const actual = await repository.update(givenSkill.id, givenModelId, {
+        preferredLabel: "Updated Label",
+        originUri: givenSkill.originUri,
+        altLabels: givenSkill.altLabels,
+        definition: givenSkill.definition,
+        description: givenSkill.description,
+        scopeNote: givenSkill.scopeNote,
+        skillType: givenSkill.skillType,
+        reuseLevel: givenSkill.reuseLevel,
+        modelId: givenModelId,
+        UUIDHistory: givenSkill.UUIDHistory,
+        isLocalized: givenSkill.isLocalized,
+      });
+
+      // THEN expect the updated skill to be returned
+      expect(actual).not.toBeNull();
+      expect(actual!.preferredLabel).toEqual("Updated Label");
+      expect(actual!.id).toEqual(givenSkill.id);
+    });
+  });
+
+  describe("Test patch()", () => {
+    test("should handle errors during patch", async () => {
+      const givenError = new Error("findOne failure");
+      jest.spyOn(repository.Model, "findOne").mockImplementationOnce(() => {
+        throw givenError;
+      });
+      await expect(repository.patch(getMockStringId(1), getMockStringId(2), {} as never)).rejects.toThrowError(
+        new Error("SkillRepository.patch: patch failed.", { cause: givenError })
+      );
+    });
+
+    test("should return null when id is not a valid ObjectId", async () => {
+      const actual = await repository.patch("invalid-id", getMockStringId(1), {});
+      expect(actual).toBeNull();
+    });
+
+    test("should return null when skill is not found", async () => {
+      const actual = await repository.patch(getMockStringId(999), getMockStringId(1), {});
+      expect(actual).toBeNull();
+    });
+
+    test("should patch an existing skill and return the updated object", async () => {
+      // GIVEN a skill exists in the database
+      const givenModelId = getMockStringId(1);
+      const givenSkill = await repository.create(getSimpleNewSkillSpec(givenModelId, "patch_target"));
+
+      // WHEN patching the skill with only a new preferredLabel
+      const actual = await repository.patch(givenSkill.id, givenModelId, {
+        preferredLabel: "Patched Label",
+      });
+
+      // THEN expect the patched skill to be returned
+      expect(actual).not.toBeNull();
+      expect(actual!.preferredLabel).toEqual("Patched Label");
+      expect(actual!.id).toEqual(givenSkill.id);
+    });
+  });
+
   describe("Test findHistoryReferencesByUUIDs()", () => {
     test("should resolve each UUID to its skill reference + modelId, preserving input order and null-filling misses", async () => {
       // GIVEN two skills in different models

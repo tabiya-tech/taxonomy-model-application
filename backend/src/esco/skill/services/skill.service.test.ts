@@ -65,6 +65,8 @@ describe("Test the SkillService", () => {
       findOccupationsForSkill: jest.fn(),
       findRelatedSkills: jest.fn(),
       findHistoryReferencesByUUIDs: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as unknown as jest.Mocked<ISkillRepository>;
 
     mockModelRepository = {
@@ -194,6 +196,68 @@ describe("Test the SkillService", () => {
 
       await expect(service.create(givenSpec)).rejects.toThrow(SkillModelValidationError);
       expect(mockRepository.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("update", () => {
+    test("should throw SkillModelValidationError if model validation fails during update", async () => {
+      mockModelRepository.getModelById.mockResolvedValue(null);
+      await expect(service.update(getMockStringId(1), getMockStringId(2), {} as never)).rejects.toThrow(
+        SkillModelValidationError
+      );
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
+
+    test("should call repository.update when model validation passes", async () => {
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec = {
+        preferredLabel: "Updated",
+        originUri: "https://example.com",
+        altLabels: [],
+        definition: "",
+        description: "",
+        scopeNote: "",
+        skillType: "skill/competence" as SkillType,
+        reuseLevel: "cross-sector" as ReuseLevel,
+        modelId: givenModelId,
+        UUIDHistory: [],
+        isLocalized: false,
+      };
+      const expectedSkill: ISkill = getISkillMockData(1, givenModelId);
+      mockModelRepository.getModelById.mockResolvedValue({ released: false } as IModelInfo);
+      mockRepository.update.mockResolvedValue(expectedSkill);
+
+      const actual = await service.update(givenId, givenModelId, givenSpec);
+
+      expect(mockModelRepository.getModelById).toHaveBeenCalledWith(givenModelId);
+      expect(mockRepository.update).toHaveBeenCalledWith(givenId, givenModelId, givenSpec);
+      expect(actual).toEqual(expectedSkill);
+    });
+  });
+
+  describe("patch", () => {
+    test("should throw SkillModelValidationError if model validation fails during patch", async () => {
+      mockModelRepository.getModelById.mockResolvedValue(null);
+      await expect(service.patch(getMockStringId(1), getMockStringId(2), {} as never)).rejects.toThrow(
+        SkillModelValidationError
+      );
+      expect(mockRepository.patch).not.toHaveBeenCalled();
+    });
+
+    test("should call repository.patch when model validation passes", async () => {
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec = { preferredLabel: "Patched" };
+      const expectedSkill: ISkill = getISkillMockData(1, givenModelId);
+      mockModelRepository.getModelById.mockResolvedValue({ released: false } as IModelInfo);
+      mockRepository.patch.mockResolvedValue(expectedSkill);
+
+      const actual = await service.patch(givenId, givenModelId, givenSpec);
+
+      expect(mockModelRepository.getModelById).toHaveBeenCalledWith(givenModelId);
+      expect(mockRepository.patch).toHaveBeenCalledWith(givenId, givenModelId, givenSpec);
+      expect(actual).toEqual(expectedSkill);
     });
   });
 
@@ -1071,6 +1135,39 @@ describe("Test the SkillService", () => {
 
       // THEN the entry is skipped
       expect(actual).toEqual([]);
+    });
+
+    test("should return an empty array when UUIDHistory is undefined (covers ?? [] fallback)", async () => {
+      // GIVEN a skill with undefined UUIDHistory
+      mockRepository.findById.mockResolvedValue({ UUIDHistory: undefined } as unknown as ISkill);
+
+      // WHEN calling getHistory
+      const actual = await service.getHistory(getMockStringId(1));
+
+      // THEN expect an empty array and no further lookups
+      expect(actual).toEqual([]);
+      expect(mockRepository.findHistoryReferencesByUUIDs).not.toHaveBeenCalled();
+      expect(mockModelRepository.getModelsByIds).not.toHaveBeenCalled();
+    });
+
+    test("should return an empty array when all UUIDs resolve to null modelIds (covers empty modelIds fallback)", async () => {
+      // GIVEN a skill with UUIDs in history, but none resolve to a modelId
+      const givenUuid1 = randomUUID();
+      const givenUuid2 = randomUUID();
+      mockRepository.findById.mockResolvedValue({
+        UUIDHistory: [givenUuid1, givenUuid2],
+      } as unknown as ISkill);
+      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([
+        { UUID: givenUuid1, modelId: null, reference: null },
+        { UUID: givenUuid2, modelId: null, reference: null },
+      ]);
+
+      // WHEN calling getHistory
+      const actual = await service.getHistory(getMockStringId(1));
+
+      // THEN expect an empty array and no model fetch (modelIds list was empty)
+      expect(actual).toEqual([]);
+      expect(mockModelRepository.getModelsByIds).not.toHaveBeenCalled();
     });
   });
 });

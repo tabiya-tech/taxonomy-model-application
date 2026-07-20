@@ -8,6 +8,8 @@ import { testMethodsNotAllowed } from "_test_utilities/stdRESTHandlerTests";
 import * as postModule from "./POST/index";
 import * as getModule from "./GET/index";
 import * as getByIdModule from "./[id]/GET/index";
+import * as putByIdModule from "./[id]/PUT/index";
+import * as patchByIdModule from "./[id]/PATCH/index";
 import * as getParentsModule from "./[id]/parents/GET/index";
 import * as postParentsModule from "./[id]/parents/POST/index";
 import * as getChildrenModule from "./[id]/children/GET/index";
@@ -172,6 +174,34 @@ describe("Test for skill router handler", () => {
     const givenEvent = {
       httpMethod: HTTP_VERBS.GET,
       path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/history`,
+    };
+    await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("handler should route PUT /skills/{id} to putByIdHandler when path matches skill route", async () => {
+    const spy = jest.spyOn(putByIdModule, "handler").mockResolvedValue({
+      statusCode: StatusCodes.OK,
+      body: "",
+    } as APIGatewayProxyResult);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PUT,
+      path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}`,
+    };
+    await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("handler should route PATCH /skills/{id} to patchByIdHandler when path matches skill route", async () => {
+    const spy = jest.spyOn(patchByIdModule, "handler").mockResolvedValue({
+      statusCode: StatusCodes.OK,
+      body: "",
+    } as APIGatewayProxyResult);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PATCH,
+      path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}`,
     };
     await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
     expect(spy).toHaveBeenCalled();

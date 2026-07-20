@@ -6,6 +6,8 @@ import { pathToRegexp } from "path-to-regexp";
 import { handler as getHandler } from "./GET";
 import { handler as postHandler } from "./POST";
 import { handler as getByIdHandler } from "./[id]/GET";
+import { handler as putByIdHandler } from "./[id]/PUT";
+import { handler as patchByIdHandler } from "./[id]/PATCH";
 import { handler as getParentsHandler } from "./[id]/parents/GET";
 import { handler as postParentsHandler } from "./[id]/parents/POST";
 import { handler as getChildrenHandler } from "./[id]/children/GET";
@@ -44,6 +46,16 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
     } else {
       const individualMatch = pathToRegexp(Routes.SKILL_ROUTE).regexp.exec(pathToMatch);
       return individualMatch ? getByIdHandler(event) : getHandler(event);
+    }
+  } else if (event?.httpMethod === HTTP_VERBS.PUT) {
+    const pathToMatch = event.path || "";
+    if (pathToRegexp(Routes.SKILL_ROUTE).regexp.exec(pathToMatch)) {
+      return putByIdHandler(event);
+    }
+  } else if (event?.httpMethod === HTTP_VERBS.PATCH) {
+    const pathToMatch = event.path || "";
+    if (pathToRegexp(Routes.SKILL_ROUTE).regexp.exec(pathToMatch)) {
+      return patchByIdHandler(event);
     }
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;

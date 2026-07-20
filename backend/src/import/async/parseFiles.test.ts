@@ -496,6 +496,8 @@ describe("Test the main async handler", () => {
         findOccupationsForSkill: jest.fn(),
         findRelatedSkills: jest.fn(),
         findHistoryReferencesByUUIDs: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
         setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
       };

@@ -3,7 +3,11 @@ import {
   ISkillReference,
   ModelForSkillValidationErrorCode,
   INewSkillSpecWithoutImportId,
+  IUpdateSkillSpec,
+  IPartialUpdateSkillSpec,
 } from "../_shared/skill.types";
+
+export { ModelForSkillValidationErrorCode };
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
@@ -143,6 +147,27 @@ export interface ISkillService {
     items: SkillToSkillReferenceWithRelationType<ISkill>[];
     nextCursor: { _id: string; createdAt: Date } | null;
   }>;
+
+  /**
+   * Fully replaces the mutable fields of a Skill (PUT semantics).
+   * Validates that the model exists and is not released before updating.
+   *
+   * @param {string} id - The ID of the Skill to update.
+   * @param {string} modelId - The model ID the Skill belongs to.
+   * @param {IUpdateSkillSpec} spec - The full set of new field values.
+   * @return {Promise<ISkill | null>} - The updated skill, or null if not found.
+   */
+  update(id: string, modelId: string, spec: IUpdateSkillSpec): Promise<ISkill | null>;
+
+  /**
+   * Partially updates a Skill (PATCH semantics).
+   *
+   * @param {string} id - The ID of the Skill to update.
+   * @param {string} modelId - The model ID the Skill belongs to.
+   * @param {IPartialUpdateSkillSpec} spec - Only the fields to update.
+   * @return {Promise<ISkill | null>} - The updated skill, or null if not found.
+   */
+  patch(id: string, modelId: string, spec: IPartialUpdateSkillSpec): Promise<ISkill | null>;
 
   /**
    * Resolves the history of the models a Skill appeared in, based on its UUIDHistory.
