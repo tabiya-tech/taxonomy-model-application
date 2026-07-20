@@ -18,6 +18,7 @@
     "postinstall:darwin:linux": "(cd .. && ./link-api-specifications.sh && ./link-tabiya-prettier-config.sh)",
     "postinstall": "run-script-os",
     "create:vector-index": "ts-node -r tsconfig-paths/register ./scripts/createVectorSearchIndex.ts",
+    "search": "ts-node -r tsconfig-paths/register ./scripts/search.ts",
     "generate:openapi": "ts-node ./openapi/generateOpenApiDoc.ts",
     "generate:swagger": "swagger-cli validate ./build/openapi/tabiya-api.json && cp -r ./openapi/swagger-ui-5.3.1-dist ./build/openapi/swagger && cp ./build/openapi/tabiya-api.json ./build/openapi/swagger/",
     "generate:redoc": "redocly lint build/openapi/tabiya-api.json && redocly build-docs ./build/openapi/tabiya-api.json --output ./build/openapi/redoc/index.html",

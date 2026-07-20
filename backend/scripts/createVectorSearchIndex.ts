@@ -59,7 +59,7 @@ export async function createSkillsVectorSearchIndex(
   connection: mongoose.Connection,
   collectionConfig: CollectionConfig
 ): Promise<void> {
-  const numDimensions = 3072;
+  const numDimensions = 768;
   const definition = {
     fields: [
       { type: "vector", path: EMBEDDING_VECTOR_PATH, numDimensions, similarity: "cosine" },

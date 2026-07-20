@@ -300,6 +300,58 @@ describe("Test EmbeddingProcessState Repository with an in-memory mongodb", () =
     });
   });
 
+  describe("Test findCompletedByModelId() EmbeddingProcessState", () => {
+    test("should find a completed EmbeddingProcessState for the model", async () => {
+      // GIVEN a completed EmbeddingProcessState in the database for a model
+      const givenModelId = getMockStringId(30);
+      const createdEmbeddingProcessState = await repository.create({
+        ...getNewEmbeddingProcessStateSpec(),
+        modelId: givenModelId,
+        status: ModelInfoApiSpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.COMPLETED,
+      });
+
+      // WHEN finding a completed EmbeddingProcessState by the model id
+      const actualFoundEmbeddingProcessState = await repository.findCompletedByModelId(givenModelId);
+
+      // THEN expect the found EmbeddingProcessState to match the created one
+      expect(actualFoundEmbeddingProcessState).toEqual(createdEmbeddingProcessState);
+    });
+
+    test.each([
+      [ModelInfoApiSpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.PENDING],
+      [ModelInfoApiSpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.IN_PROGRESS],
+    ])("should return null when the only EmbeddingProcessState for the model is '%s'", async (givenStatus) => {
+      // GIVEN an unfinished EmbeddingProcessState in the database for a model
+      const givenModelId = getMockStringId(31);
+      await repository.create({
+        ...getNewEmbeddingProcessStateSpec(),
+        modelId: givenModelId,
+        status: givenStatus,
+      });
+
+      // WHEN finding a completed EmbeddingProcessState by the model id
+      const actualFoundEmbeddingProcessState = await repository.findCompletedByModelId(givenModelId);
+
+      // THEN expect the found EmbeddingProcessState to be null
+      expect(actualFoundEmbeddingProcessState).toBeNull();
+    });
+
+    test("should return null when there is no EmbeddingProcessState for the model", async () => {
+      // GIVEN no EmbeddingProcessState in the database for the model
+      const givenModelId = getMockStringId(32);
+
+      // WHEN finding a completed EmbeddingProcessState by the model id
+      const actualFoundEmbeddingProcessState = await repository.findCompletedByModelId(givenModelId);
+
+      // THEN expect the found EmbeddingProcessState to be null
+      expect(actualFoundEmbeddingProcessState).toBeNull();
+    });
+
+    TestDBConnectionFailureNoSetup((repositoryRegistry) => {
+      return repositoryRegistry.embeddingProcessState.findCompletedByModelId(getMockStringId(1));
+    });
+  });
+
   describe("Test deleteById() EmbeddingProcessState", () => {
     test("should successfully delete an EmbeddingProcessState by id", async () => {
       // GIVEN an EmbeddingProcessState in the database

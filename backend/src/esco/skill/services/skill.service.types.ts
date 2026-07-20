@@ -9,6 +9,7 @@ import { IOccupationReference } from "esco/occupations/_shared/occupationReferen
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { IModelInfoReference } from "modelInfo/modelInfo.types";
+import { EmbeddableField } from "embeddings/service/types";
 
 export class SkillModelValidationError extends Error {
   constructor(public code: ModelForSkillValidationErrorCode) {
@@ -43,20 +44,32 @@ export interface ISkillService {
   findById(id: string): Promise<ISkill | null>;
 
   /**
-   * Finds Skills with pagination.
+   * Finds Skills with pagination, optionally filtered by a free-text search value.
+   *
+   * Without a searchValue this is a plain keyset listing ordered by createdAt then _id. With a searchValue the
+   * Skills are searched on the given searchFields: vector (embeddings) similarity ranked by relevance when the
+   * model is released and its embeddings have been generated, and a case-insensitive regex match otherwise.
+   * The returned nextCursor is already encoded (its shape depends on the strategy) and should be passed back
+   * verbatim as the `cursor` argument to fetch the next page.
    *
    * @param {string} modelId - The modelId of the Skills.
-   * @param {{ id: string; createdAt: Date } | undefined} cursor - The cursor for pagination.
+   * @param {string | undefined} cursor - The opaque pagination cursor from a previous page, if any.
    * @param {number} limit - The maximum number of Skills to return.
-   * @param {boolean} desc - Whether to sort in descending order (default: true).
-   * @return {Promise<{ items: ISkill[]; nextCursor: { _id: string; createdAt: Date } | null }>} - A Promise that resolves to paginated Skills.
+   * @param {string} [searchValue] - The free-text value to search for; when omitted a plain list is returned.
+   * @param {EmbeddableField[]} [searchFields] - The fields to search the value on (default: [preferredLabel]).
+   * @param {boolean} [desc] - Whether to sort the plain list in descending order (default: true).
+   * @return {Promise<{ items: ISkill[]; nextCursor: string | null }>} - A Promise that resolves to the page of
+   * Skills (ordered by relevance for vector search) and the encoded cursor of the next page, if any.
    */
   findPaginated(
     modelId: string,
-    cursor: { id: string; createdAt: Date } | undefined,
+    cursor: string | undefined,
     limit: number,
+    searchValue?: string,
+    searchFields?: EmbeddableField[],
     desc?: boolean
-  ): Promise<{ items: ISkill[]; nextCursor: { _id: string; createdAt: Date } | null }>;
+  ): Promise<{ items: ISkill[]; nextCursor: string | null }>;
+
   /**
    * Validates that a model exists and is not released for skill creation
    * @param {string} modelId - The model ID to validate

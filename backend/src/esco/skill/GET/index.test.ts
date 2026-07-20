@@ -108,4 +108,59 @@ describe("SkillGetController", () => {
     const actualResponse = await getHandler(event as unknown as APIGatewayProxyEvent);
     expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
   });
+
+  test("should pass the search value and fields to findPaginated and return 200 when a query is provided", async () => {
+    // GIVEN a service whose findPaginated returns a page of skills and a next cursor
+    const givenSkills: ISkill[] = [getISkillMockData(1, givenModelId)];
+    const givenNextCursor = "encoded-cursor";
+    const givenFindPaginated = jest.fn().mockResolvedValue({ items: givenSkills, nextCursor: givenNextCursor });
+    const givenSkillServiceMock = {
+      findPaginated: givenFindPaginated,
+      validateModelForSkill: jest.fn().mockResolvedValue(null),
+    } as unknown as ISkillService;
+    mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+    // AND an event with a search query and searchFields
+    const givenCursor = Buffer.from(JSON.stringify({ offset: 0 })).toString("base64");
+    const event = {
+      httpMethod: HTTP_VERBS.GET,
+      path: `/models/${givenModelId}/skills`,
+      pathParameters: { modelId: givenModelId },
+      queryStringParameters: { query: "python", searchFields: "preferredLabel,description", cursor: givenCursor },
+    };
+
+    // WHEN the handler is invoked
+    const actualResponse = await getHandler(event as unknown as APIGatewayProxyEvent);
+
+    // THEN expect findPaginated to have been called with the cursor, search value and fields, and a 200 returned
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(givenFindPaginated).toHaveBeenCalledWith(givenModelId, givenCursor, expect.any(Number), "python", [
+      "preferredLabel",
+      "description",
+    ]);
+    expect(JSON.parse(actualResponse.body).nextCursor).toBe(givenNextCursor);
+  });
+
+  test("should return 500 if findPaginated throws while searching", async () => {
+    // GIVEN a service whose findPaginated rejects
+    const givenSkillServiceMock = {
+      findPaginated: jest.fn().mockRejectedValue(new Error("search error")),
+      validateModelForSkill: jest.fn().mockResolvedValue(null),
+    } as unknown as ISkillService;
+    mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+    // AND an event with a search query
+    const event = {
+      httpMethod: HTTP_VERBS.GET,
+      path: `/models/${givenModelId}/skills`,
+      pathParameters: { modelId: givenModelId },
+      queryStringParameters: { query: "python" },
+    };
+
+    // WHEN the handler is invoked
+    const actualResponse = await getHandler(event as unknown as APIGatewayProxyEvent);
+
+    // THEN expect a 500 response
+    expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+  });
 });

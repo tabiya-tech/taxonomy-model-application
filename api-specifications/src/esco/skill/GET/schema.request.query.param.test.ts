@@ -81,7 +81,6 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Request.Query.Param
         ["query only", { query: "python developer" }],
         ["query with a single searchField", { query: "python", searchFields: "preferredLabel" }],
         ["query with multiple searchFields", { query: "python", searchFields: "preferredLabel,description,altLabels" }],
-        ["an empty query", { query: "" }],
         ["a query of the maximum length", { query: getTestString(SkillConstants.SEARCH_VALUE_MAX_LENGTH) }],
         ["no search parameters at all", { limit: SkillConstants.DEFAULT_LIMIT }],
       ])("(Success) Validate the search parameters when they are %s", (_description, givenQueryParams) => {
@@ -93,6 +92,7 @@ describe("Test objects against the SkillAPISpecs.Schemas.GET.Request.Query.Param
 
       test.each([
         ["query is longer than the maximum", { query: getTestString(SkillConstants.SEARCH_VALUE_MAX_LENGTH + 1) }],
+        ["query is empty", { query: "" }],
         ["query is null", { query: null }],
         ["searchFields is set without a query", { searchFields: "preferredLabel" }],
         ["searchFields contains an unknown field", { query: "python", searchFields: "unknownField" }],

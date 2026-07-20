@@ -9,7 +9,6 @@ import { parseGETQuery } from "./query";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
 import { ModelForSkillValidationErrorCode } from "../_shared/skill.types";
-import { encodeCursor } from "../../occupations/_shared/pagination/encodeCursor";
 import { extractAndValidateModelIdParam } from "../_shared/params";
 import { getResourcesBaseUrl } from "server/config/config";
 
@@ -42,6 +41,23 @@ export class SkillGetController {
    *        name: cursor
    *        schema:
    *          $ref: '#/components/schemas/SkillRequestQueryParamSchemaGET/properties/cursor'
+   *      - in: query
+   *        name: query
+   *        required: false
+   *        description: >
+   *          A free-text value to search the skills by. When set, the endpoint returns the skills matching the
+   *          value on the requested searchFields, ranked by relevance. Released models are searched with vector
+   *          embeddings; unreleased models with a case-insensitive regex.
+   *        schema:
+   *          $ref: '#/components/schemas/SkillRequestQueryParamSchemaGET/properties/query'
+   *      - in: query
+   *        name: searchFields
+   *        required: false
+   *        description: >
+   *          A comma-separated list of the skill fields to search on (e.g. 'preferredLabel,description').
+   *          Only meaningful together with query. Defaults to 'preferredLabel'.
+   *        schema:
+   *          $ref: '#/components/schemas/SkillRequestQueryParamSchemaGET/properties/searchFields'
    *    responses:
    *      '200':
    *        description: Successfully retrieved the paginated skills.
@@ -94,27 +110,30 @@ export class SkillGetController {
         );
       }
 
-      const paginationParams = parseGETQuery(event);
-      if ("statusCode" in paginationParams) {
-        return paginationParams;
+      const queryParams = parseGETQuery(event);
+      if ("statusCode" in queryParams) {
+        return queryParams;
       }
 
-      let decodedCursorObj: { id: string; createdAt: Date } | undefined = undefined;
-      if (event.queryStringParameters?.cursor) {
-        const { decodeCursor } = await import("../../occupations/_shared/pagination/decodeCursor");
-        decodedCursorObj = decodeCursor(event.queryStringParameters.cursor);
-      }
-
-      const currentPageSkills = await service.findPaginated(params.modelId, decodedCursorObj, paginationParams.limit);
-
-      let nextCursor: string | null = null;
-      if (currentPageSkills?.nextCursor?._id) {
-        nextCursor = encodeCursor(currentPageSkills.nextCursor._id, currentPageSkills.nextCursor.createdAt);
-      }
+      // A single service call handles both plain listing and search (when a searchValue is provided). It takes the
+      // opaque cursor verbatim and returns an already-encoded nextCursor, so the controller stays agnostic to the
+      // pagination strategy (keyset for the plain list / regex search, relevance offset for vector search).
+      const currentPageSkills = await service.findPaginated(
+        params.modelId,
+        event.queryStringParameters?.cursor ?? undefined,
+        queryParams.limit,
+        queryParams.searchValue,
+        queryParams.searchFields
+      );
 
       return responseJSON(
         StatusCodes.OK,
-        buildGETResponse(currentPageSkills.items, getResourcesBaseUrl(), paginationParams.limit, nextCursor)
+        buildGETResponse(
+          currentPageSkills.items,
+          getResourcesBaseUrl(),
+          queryParams.limit,
+          currentPageSkills.nextCursor
+        )
       );
     } catch (error: unknown) {
       return errorResponseGET(

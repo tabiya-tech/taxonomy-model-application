@@ -18,6 +18,8 @@ interface IBatchEmbedContentsResponse {
   embeddings?: { values?: number[] }[];
 }
 
+export const TaskType = "RETRIEVAL_QUERY";
+
 /**
  * GeminiService talks to the Gemini REST API directly via `fetch`
  * (no SDK dependency, so it bundles cleanly with esbuild).
@@ -29,8 +31,9 @@ interface IBatchEmbedContentsResponse {
 export class GeminiService implements IEmbeddingModelService {
   private readonly apiKey: string;
   private readonly model: string;
+  private readonly outputDimensionality: number;
 
-  constructor(apiKey: string, model: string) {
+  constructor(apiKey: string, model: string, outputDimensionality: number) {
     if (!apiKey) {
       throw new Error("GeminiService: GEMINI_API_KEY is not configured");
     }
@@ -41,6 +44,13 @@ export class GeminiService implements IEmbeddingModelService {
         "GeminiService: GEMINI_MODEL_NAME is not configured. Please set it in the environment variables or in the config file."
       );
     this.model = model;
+
+    if (!outputDimensionality || outputDimensionality <= 0)
+      throw new Error(
+        "GeminiService: GEMINI_OUTPUT_DIMENSIONALITY is not configured. Please set it in the environment variables or in the config file."
+      );
+
+    this.outputDimensionality = outputDimensionality;
   }
 
   async generateEmbeddingBatch(texts: string[]): Promise<number[][]> {
@@ -72,6 +82,8 @@ export class GeminiService implements IEmbeddingModelService {
         },
         body: JSON.stringify({
           requests: texts.map((text) => ({
+            outputDimensionality: this.outputDimensionality,
+            taskType: TaskType,
             model: this.model,
             content: { parts: [{ text }] },
           })),

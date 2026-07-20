@@ -93,6 +93,35 @@ export interface IEntityEmbedding {
 export type INewEntityEmbeddingSpec = Omit<IEntityEmbedding, "id" | "createdAt" | "updatedAt">;
 
 /**
+ * The parameters of a vector (embeddings) similarity search over an entity embeddings collection.
+ */
+export interface IVectorSearchParams {
+  /** The name of the Atlas Vector Search index to use (see vectorSearchIndex.constant.ts). */
+  indexName: string;
+  /** The id of the model the searched entities belong to (an index filter field). */
+  modelId: string;
+  /** The id of the embedding service whose vectors should be searched (an index filter field). */
+  embeddingServiceId: string;
+  /** The embedding of the search value, produced by the same embedding service as the stored vectors. */
+  queryVector: number[];
+  /** The source fields to search on; only embeddings of these fields are considered (an index filter field). */
+  searchFields: EmbeddableField[];
+  /** The maximum number of distinct entities to return. */
+  limit: number;
+  /** The number of distinct (higher-ranked) entities to skip, used for pagination. */
+  offset: number;
+}
+
+/**
+ * A single hit of a vector similarity search: the id of the matched entity and its relevance score.
+ * There is at most one hit per entity, holding the entity's best-scoring source field.
+ */
+export interface IVectorSearchHit {
+  entityId: string;
+  score: number;
+}
+
+/**
  * Describes how the embedding status of a single entity is set for an embedding service.
  */
 export interface ISetEntityEmbeddingStatusSpec {

@@ -7,11 +7,23 @@ import { IOccupationReference } from "esco/occupations/_shared/occupationReferen
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { ISkill, INewSkillSpecWithoutImportId, ModelForSkillValidationErrorCode } from "esco/skill/_shared/skill.types";
+import { IEntityEmbeddingRepository } from "embeddings/entityEmbeddings/entityEmbeddingRepository";
+import { ISkillEmbeddingDoc } from "embeddings/entityEmbeddings/entityEmbedding.types";
+import { IEmbeddingProcessStateRepository } from "embeddings/embeddingProcessState/embeddingProcessStateRepository";
+import { EmbeddableField } from "embeddings/service/types";
+import { EmbeddingModelServiceFactory, getEmbeddingModelService } from "embeddings/models/embeddingModelServiceFactory";
+import { SkillsEmbeddingsVectorSearchIndexName } from "embeddings/entityEmbeddings/vectorSearchIndex.constant";
+import { encodeCursor } from "esco/occupations/_shared/pagination/encodeCursor";
+import { decodeCursor } from "esco/occupations/_shared/pagination/decodeCursor";
+import { decodeSearchCursor, encodeSearchCursor } from "../_shared/searchCursor";
 
 export class SkillService implements ISkillService {
   constructor(
     private readonly skillRepository: ISkillRepository,
-    private readonly modelRepository: IModelRepository
+    private readonly modelRepository: IModelRepository,
+    private readonly skillEmbeddingRepository: IEntityEmbeddingRepository<ISkillEmbeddingDoc>,
+    private readonly embeddingProcessStateRepository: IEmbeddingProcessStateRepository,
+    private readonly embeddingModelServiceFactory: EmbeddingModelServiceFactory = getEmbeddingModelService
   ) {}
 
   async create(newSkillSpec: INewSkillSpecWithoutImportId): Promise<ISkill> {
@@ -29,33 +41,129 @@ export class SkillService implements ISkillService {
 
   async findPaginated(
     modelId: string,
-    cursor: { id: string; createdAt: Date } | undefined,
+    cursor: string | undefined,
     limit: number,
+    searchValue?: string,
+    searchFields: EmbeddableField[] = [EmbeddableField.preferredLabel],
     desc: boolean = true
-  ): Promise<{ items: ISkill[]; nextCursor: { _id: string; createdAt: Date } | null }> {
+  ): Promise<{ items: ISkill[]; nextCursor: string | null }> {
+    // When a search value is provided, search instead of plain listing: vector (embeddings) similarity on
+    // released, already-embedded models; a case-insensitive regex otherwise. Both return an already-encoded cursor.
+    if (searchValue !== undefined) {
+      const model = await this.modelRepository.getModelById(modelId);
+      if (model?.released) {
+        const completedProcess = await this.embeddingProcessStateRepository.findCompletedByModelId(modelId);
+        if (completedProcess) {
+          return this.vectorSearchPaginated(
+            modelId,
+            completedProcess.embeddingServiceId,
+            searchValue,
+            searchFields,
+            cursor,
+            limit
+          );
+        }
+        // The model is released but its embeddings have not been generated (completed) yet, so there is nothing to
+        // search with vectors. Fall back to regex so the endpoint still returns useful results.
+      }
+      return this.regexSearchPaginated(modelId, searchValue, searchFields, cursor, limit);
+    }
+
+    // Plain keyset pagination ordered by createdAt then _id.
     const sortOrder = desc ? -1 : 1;
+    const decodedCursor = cursor ? decodeCursor(cursor) : undefined;
 
     // Get items + 1 to check if there's a next page
-    const items = await this.skillRepository.findPaginated(modelId, limit + 1, sortOrder, cursor);
+    const items = await this.skillRepository.findPaginated(modelId, limit + 1, sortOrder, decodedCursor);
 
     // Check if there's a next page
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
 
     // Construct nextCursor from the last item of the current page
-    let nextCursor: { _id: string; createdAt: Date } | null = null;
+    let nextCursor: string | null = null;
     if (hasMore && pageItems.length > 0) {
       const lastItemOnPage = pageItems[pageItems.length - 1];
-      nextCursor = {
-        _id: lastItemOnPage.id,
-        createdAt: lastItemOnPage.createdAt,
-      };
+      nextCursor = encodeCursor(lastItemOnPage.id, lastItemOnPage.createdAt);
     }
 
     return {
       items: pageItems,
       nextCursor,
     };
+  }
+
+  /**
+   * Searches an unreleased (or not-yet-embedded) model's skills with a case-insensitive regex, paginated with the
+   * same keyset cursor as the plain list endpoint (ordered by createdAt then _id).
+   */
+  private async regexSearchPaginated(
+    modelId: string,
+    searchValue: string,
+    searchFields: EmbeddableField[],
+    cursor: string | undefined,
+    limit: number
+  ): Promise<{ items: ISkill[]; nextCursor: string | null }> {
+    // Newest first, consistent with the plain list endpoint's default order.
+    const sortOrder = -1;
+    const decodedCursor = cursor ? decodeCursor(cursor) : undefined;
+
+    const items = await this.skillRepository.findPaginated(modelId, limit + 1, sortOrder, decodedCursor, {
+      value: searchValue,
+      fields: searchFields,
+    });
+
+    const hasMore = items.length > limit;
+    const pageItems = hasMore ? items.slice(0, limit) : items;
+
+    let nextCursor: string | null = null;
+    if (hasMore && pageItems.length > 0) {
+      const lastItemOnPage = pageItems[pageItems.length - 1];
+      nextCursor = encodeCursor(lastItemOnPage.id, lastItemOnPage.createdAt);
+    }
+
+    return { items: pageItems, nextCursor };
+  }
+
+  /**
+   * Searches a released model's skills with vector (embeddings) similarity, ranked by relevance and paginated by
+   * rank offset. The query value is embedded with the same embedding service the model was embedded with.
+   */
+  private async vectorSearchPaginated(
+    modelId: string,
+    embeddingServiceId: string,
+    searchValue: string,
+    searchFields: EmbeddableField[],
+    cursor: string | undefined,
+    limit: number
+  ): Promise<{ items: ISkill[]; nextCursor: string | null }> {
+    const offset = cursor ? decodeSearchCursor(cursor) : 0;
+
+    const embeddingService = this.embeddingModelServiceFactory(embeddingServiceId);
+    const queryVector = await embeddingService.generateEmbedding(searchValue);
+
+    const hits = await this.skillEmbeddingRepository.vectorSearch({
+      indexName: SkillsEmbeddingsVectorSearchIndexName,
+      modelId,
+      embeddingServiceId,
+      queryVector,
+      searchFields,
+      limit: limit + 1,
+      offset,
+    });
+
+    const hasMore = hits.length > limit;
+    const pageHits = hasMore ? hits.slice(0, limit) : hits;
+
+    // Hydrate the ranked ids to full skills and re-apply the relevance order (findByIds does not preserve it).
+    const ids = pageHits.map((hit) => hit.entityId);
+    const skills = await this.skillRepository.findByIds(modelId, ids);
+    const skillById = new Map(skills.map((skill) => [skill.id, skill]));
+    const items = ids.map((id) => skillById.get(id)).filter((skill): skill is ISkill => skill !== undefined);
+
+    const nextCursor = hasMore ? encodeSearchCursor(offset + limit) : null;
+
+    return { items, nextCursor };
   }
 
   async validateModelForSkill(modelId: string): Promise<ModelForSkillValidationErrorCode | null> {
