@@ -48,6 +48,7 @@ describe("SkillGroupDetailController", () => {
         findChildren: jest.fn(),
         getHistory: jest.fn(),
         setParent: jest.fn(),
+        create: jest.fn(),
       } as ISkillGroupService,
     } as unknown as ServiceRegistry;
 

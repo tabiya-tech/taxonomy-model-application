@@ -8,6 +8,7 @@ import {
 } from "./skillGroup.service.type";
 import {
   ModelForSkillGroupValidationErrorCode,
+  INewSkillGroupSpecWithoutImportId,
   ISkillGroup,
   ISkillGroupChild,
   ISkillGroupReference,
@@ -59,6 +60,119 @@ describe("Test the SkillGroupService", () => {
   });
   afterAll(() => {
     jest.restoreAllMocks();
+  });
+
+  describe("create", () => {
+    test("should call repository.create with the given spec when model validation passes", async () => {
+      const givenSpec: INewSkillGroupSpecWithoutImportId = {
+        code: getTestSkillGroupCode(100),
+        preferredLabel: getRandomString(10),
+        modelId: getMockStringId(2),
+        UUIDHistory: [randomUUID()],
+        originUri: "https://example.com",
+        description: getRandomString(20),
+        scopeNote: getRandomString(30),
+        altLabels: [getRandomString(5)],
+      };
+
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenSpec.modelId,
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      const expectedSkillGroup: ISkillGroup = {
+        ...givenSpec,
+        id: getMockStringId(2),
+        UUID: getRandomString(10),
+        parents: [],
+        children: [],
+        importId: "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      mockRepository.create.mockResolvedValue(expectedSkillGroup);
+
+      const actual = await service.create(givenSpec);
+
+      expect(mockRepository.create).toHaveBeenCalledWith(givenSpec);
+      expect(actual).toEqual(expectedSkillGroup);
+    });
+
+    test("should throw if model validation fails when model not found", async () => {
+      const givenSpec: INewSkillGroupSpecWithoutImportId = {
+        code: getTestSkillGroupCode(100),
+        preferredLabel: getRandomString(10),
+        modelId: getMockStringId(2),
+        UUIDHistory: [randomUUID()],
+        originUri: "https://example.com",
+        description: getRandomString(20),
+        scopeNote: getRandomString(30),
+        altLabels: [getRandomString(5)],
+      };
+
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue(null),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      await expect(service.create(givenSpec)).rejects.toThrow(SkillGroupModelValidationError);
+    });
+
+    test("should throw if model validation fails when model is released", async () => {
+      const givenSpec: INewSkillGroupSpecWithoutImportId = {
+        code: getTestSkillGroupCode(100),
+        preferredLabel: getRandomString(10),
+        modelId: getMockStringId(2),
+        UUIDHistory: [randomUUID()],
+        originUri: "https://example.com",
+        description: getRandomString(20),
+        scopeNote: getRandomString(30),
+        altLabels: [getRandomString(5)],
+      };
+
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenSpec.modelId,
+            released: true,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      await expect(service.create(givenSpec)).rejects.toThrow(SkillGroupModelValidationError);
+    });
+
+    test("should throw if repository.create throws", async () => {
+      const givenSpec: INewSkillGroupSpecWithoutImportId = {
+        code: getTestSkillGroupCode(100),
+        preferredLabel: getRandomString(10),
+        modelId: getMockStringId(2),
+        UUIDHistory: [randomUUID()],
+        originUri: "https://example.com",
+        description: getRandomString(20),
+        scopeNote: getRandomString(30),
+        altLabels: [getRandomString(5)],
+      };
+
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenSpec.modelId,
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      const givenError = new Error("Repository error");
+      mockRepository.create.mockRejectedValue(givenError);
+
+      await expect(service.create(givenSpec)).rejects.toThrow(givenError);
+    });
   });
 
   describe("findById", () => {

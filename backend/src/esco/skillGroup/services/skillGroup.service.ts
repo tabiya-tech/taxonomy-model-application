@@ -5,7 +5,12 @@ import {
   SetSkillGroupParentError,
   SetSkillGroupParentErrorCode,
 } from "./skillGroup.service.type";
-import { ModelForSkillGroupValidationErrorCode, ISkillGroup, ISkillGroupChild } from "../_shared/skillGroup.types";
+import {
+  ModelForSkillGroupValidationErrorCode,
+  INewSkillGroupSpecWithoutImportId,
+  ISkillGroup,
+  ISkillGroupChild,
+} from "../_shared/skillGroup.types";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import { ISkillHierarchyRepository } from "esco/skillHierarchy/skillHierarchyRepository";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -18,6 +23,14 @@ export class SkillGroupService implements ISkillGroupService {
     private readonly skillGroupRepository: ISkillGroupRepository,
     private readonly skillHierarchyRepository: ISkillHierarchyRepository
   ) {}
+
+  async create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup> {
+    const errorCode = await this.validateModelForSkillGroup(newSkillGroupSpec.modelId);
+    if (errorCode != null) {
+      throw new SkillGroupModelValidationError(errorCode);
+    }
+    return this.skillGroupRepository.create(newSkillGroupSpec);
+  }
 
   async findById(id: string): Promise<ISkillGroup | null> {
     return this.skillGroupRepository.findById(id);
