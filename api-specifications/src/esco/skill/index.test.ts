@@ -10,6 +10,10 @@ describe("Test the Skill module", () => {
     expect(skillModule.default.POST.Schemas.Response.Payload).toBeDefined();
     expect(skillModule.default.POST.Schemas.Request.Payload).toBeDefined();
     expect(skillModule.default.Skill.GET.Schemas.Request.Param.Payload).toBeDefined();
+    expect(skillModule.default.Skill.PUT.Schemas.Request.Payload).toBeDefined();
+    expect(skillModule.default.Skill.PUT.Schemas.Response.Payload).toBeDefined();
+    expect(skillModule.default.Skill.PATCH.Schemas.Request.Payload).toBeDefined();
+    expect(skillModule.default.Skill.PATCH.Schemas.Response.Payload).toBeDefined();
     expect(skillModule.default.Skill.Parents.GET.Schemas.Response.Payload).toBeDefined();
     expect(skillModule.default.Skill.Children.GET.Schemas.Response.Payload).toBeDefined();
     expect(skillModule.default.Skill.Occupations.GET.Schemas.Response.Payload).toBeDefined();
