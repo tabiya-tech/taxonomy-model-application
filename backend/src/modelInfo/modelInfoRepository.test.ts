@@ -541,6 +541,90 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     });
   });
 
+  describe("Test releaseModel()", () => {
+    test("Should set released to true and store the given releaseNotes", async () => {
+      // GIVEN an unreleased model exists in the database
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+
+      // WHEN releasing the model with releaseNotes
+      const givenReleaseNotes = getTestString(10);
+      const actualReleasedModel = await repository.releaseModel(givenExistingModel.id, givenReleaseNotes);
+
+      // THEN expect the returned model to have released set to true and the given releaseNotes
+      expect(actualReleasedModel).toEqual({
+        ...givenExistingModel,
+        released: true,
+        releaseNotes: givenReleaseNotes,
+        updatedAt: expect.any(Date),
+      });
+
+      // AND expect the change to be persisted
+      const actualPersistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(actualPersistedModel?.released).toBe(true);
+      expect(actualPersistedModel?.releaseNotes).toEqual(givenReleaseNotes);
+    });
+
+    test("Should leave the existing releaseNotes unchanged when releaseNotes is omitted", async () => {
+      // GIVEN an unreleased model exists in the database
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+
+      // WHEN releasing the model without releaseNotes
+      const actualReleasedModel = await repository.releaseModel(givenExistingModel.id);
+
+      // THEN expect released to be true and releaseNotes to be unchanged
+      expect(actualReleasedModel).toEqual({
+        ...givenExistingModel,
+        released: true,
+        updatedAt: expect.any(Date),
+      });
+    });
+
+    test("Should return null if the model does not exist", async () => {
+      // GIVEN a model in the database does not exist
+      // WHEN releasing a model with a non-existent id
+      const actualReleasedModel = await repository.releaseModel(getMockStringId(999));
+
+      // THEN expect a null
+      expect(actualReleasedModel).toBeNull();
+    });
+
+    test("Should return null and leave the model untouched if it is already released", async () => {
+      // GIVEN a model that is already released
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      const givenOriginalReleaseNotes = getTestString(10);
+      await repository.releaseModel(givenExistingModel.id, givenOriginalReleaseNotes);
+
+      // WHEN releasing the model again with different releaseNotes
+      const actualReleasedModel = await repository.releaseModel(givenExistingModel.id, getTestString(10));
+
+      // THEN expect a null, since the update only ever matches a currently-unreleased model
+      expect(actualReleasedModel).toBeNull();
+      // AND expect the original releaseNotes to be untouched by the rejected second call
+      const actualPersistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(actualPersistedModel?.releaseNotes).toEqual(givenOriginalReleaseNotes);
+    });
+
+    test("Should only let one of two concurrent calls succeed for the same model", async () => {
+      // GIVEN an unreleased model exists in the database
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+
+      // WHEN releasing the model twice concurrently with different releaseNotes
+      const [firstResult, secondResult] = await Promise.all([
+        repository.releaseModel(givenExistingModel.id, "notes A"),
+        repository.releaseModel(givenExistingModel.id, "notes B"),
+      ]);
+
+      // THEN expect exactly one of the two calls to have succeeded and the other to have been rejected with null
+      const results = [firstResult, secondResult];
+      expect(results.filter((result) => result !== null)).toHaveLength(1);
+      expect(results.filter((result) => result === null)).toHaveLength(1);
+    });
+
+    TestDBConnectionFailureNoSetup((repository) => {
+      return repository.modelInfo.releaseModel(getMockStringId(1));
+    });
+  });
+
   function testEmbeddingProcessStatePopulation(
     setupFn: () => Promise<IModelInfo[]>,
     getActualModelsFn: (givenModels: IModelInfo[]) => Promise<IModelInfo[]>

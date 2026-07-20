@@ -191,6 +191,7 @@ describe("Test the main async handler", () => {
       getModels: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn().mockResolvedValue([]),
       getModelsByIds: jest.fn(),
+      releaseModel: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
     // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
@@ -391,6 +392,7 @@ describe("Test the main async handler", () => {
         getModels: jest.fn().mockResolvedValue([]),
         getHistory: jest.fn().mockResolvedValue(null),
         getModelsByIds: jest.fn(),
+        releaseModel: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
       // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
@@ -454,6 +456,7 @@ describe("Test the main async handler", () => {
         getModels: jest.fn().mockResolvedValue([]),
         getHistory: jest.fn().mockResolvedValue(null),
         getModelsByIds: jest.fn(),
+        releaseModel: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
       // AND an occupation repository
@@ -531,6 +534,7 @@ describe("Test the main async handler", () => {
         getOccupationGroupByUUID: jest.fn(),
         getHistory: jest.fn(),
         getModelsByIds: jest.fn(),
+        releaseModel: jest.fn(),
         findHistoryReferencesByUUIDs: jest.fn(),
         findParent: jest.fn(),
         findChildren: jest.fn().mockResolvedValue([]),

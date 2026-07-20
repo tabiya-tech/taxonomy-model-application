@@ -51,6 +51,7 @@ function setupModelInfoRepositoryMock(findByIdFn: () => IModelInfo | null) {
     getModelByUUID: jest.fn(),
     getHistory: jest.fn(),
     getModelsByIds: jest.fn(),
+    releaseModel: jest.fn(),
   };
   ModelInfoRepository.mockReturnValue(mockModelInfoRepository);
 }

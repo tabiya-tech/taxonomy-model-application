@@ -60,6 +60,21 @@ export interface IModelRepository {
    * Rejects with an error if the operation fails.
    */
   getModelsByIds(ids: string[]): Promise<IModelInfo[]>;
+
+  /**
+   * Releases a ModelInfo entry: sets released to true and optionally records releaseNotes.
+   * Once released, the ESCO entities under this model become read-only (enforced elsewhere).
+   *
+   * The update is conditional on the model currently being unreleased, so this is safe to call
+   * concurrently: only one caller can win the transition from unreleased to released. Assumes
+   * modelId is already a valid ObjectId - the caller is responsible for that validation.
+   *
+   * @param {string} modelId - The id of the model to release. Must be a valid ObjectId.
+   * @param {string} [releaseNotes] - Optional release notes to store alongside the release. If omitted, the existing releaseNotes are left unchanged.
+   * @return {Promise<IModelInfo|null>} - A Promise that resolves to the updated ModelInfo entry, or null if no unreleased model exists with the given id (either it doesn't exist, or it is already released).
+   * Rejects with an error if the operation fails.
+   */
+  releaseModel(modelId: string, releaseNotes?: string): Promise<IModelInfo | null>;
 }
 
 export class ModelRepository implements IModelRepository {
@@ -217,6 +232,28 @@ export class ModelRepository implements IModelRepository {
       return modelInfos.map((modelInfo) => modelInfo.toObject());
     } catch (e: unknown) {
       const err = new Error("ModelInfoRepository.getModelsByIds: getModelsByIds failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async releaseModel(modelId: string, releaseNotes?: string): Promise<IModelInfo | null> {
+    try {
+      // The released:false filter makes this an atomic "only transition once" update.
+      const modelInfo = await this.Model.findOneAndUpdate(
+        { _id: modelId, released: false },
+        { $set: { released: true, ...(releaseNotes !== undefined ? { releaseNotes } : {}) } },
+        { new: true }
+      )
+        .populate([
+          populateImportProcessStateOptions,
+          populateExportProcessStateOptions,
+          populateEmbeddingProcessStateOptions,
+        ])
+        .exec();
+      return modelInfo != null ? modelInfo.toObject() : null;
+    } catch (e: unknown) {
+      const err = new Error("ModelInfoRepository.releaseModel: releaseModel failed", { cause: e });
       console.error(err);
       throw err;
     }
