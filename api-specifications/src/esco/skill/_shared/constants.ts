@@ -22,6 +22,12 @@ namespace SkillConstants {
   export const MAX_LIMIT = 100;
   export const MAX_CURSOR_LENGTH = 1720;
 
+  // The maximum length of the free-text search value (the `query` query parameter).
+  export const SEARCH_VALUE_MAX_LENGTH = 256;
+
+  // The maximum length of the (comma-separated) `searchFields` query parameter.
+  export const SEARCH_FIELDS_MAX_LENGTH = 256;
+
   // Computed totals for internal use
   const TOTAL_ALT_LABELS_MAX_LENGTH = ALT_LABELS_MAX_ITEMS * ALT_LABEL_MAX_LENGTH;
   const TOTAL_UUID_HISTORY_MAX_LENGTH = UUID_HISTORY_MAX_ITEMS * UUID_HISTORY_MAX_LENGTH;
