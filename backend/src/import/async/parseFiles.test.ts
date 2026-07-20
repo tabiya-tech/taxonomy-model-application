@@ -487,6 +487,7 @@ describe("Test the main async handler", () => {
         findById: jest.fn(),
         findAll: jest.fn(),
         findPaginated: jest.fn(),
+        findByIds: jest.fn(),
         findParents: jest.fn(),
         findChildren: jest.fn(),
         findOccupationsForSkill: jest.fn(),

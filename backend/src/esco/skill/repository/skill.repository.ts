@@ -14,6 +14,7 @@ import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { escapeRegExp } from "esco/common/escapeRegExp";
 import { populateSkillChildrenOptions, populateSkillParentsOptions } from "../_shared/populateSkillHierarchyOptions";
 import {
   populateSkillGroupChildrenOptions,
@@ -93,12 +94,15 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
   findAll(modelId: string): Readable;
 
   /**
-   * Returns paginated Skills with parents, children, requiresSkills, requiredBySkills and requiredByOccupations populated.
+   * Returns paginated Skills with parents, children, requiresSkills, requiredBySkills and requiredByOccupations
+   * populated, ordered by createdAt then _id. When a `search` is provided, only Skills whose requested fields match
+   * the search value (case-insensitive regex) are returned; otherwise all the model's Skills are listed.
    *
    * @param {string} modelId - The modelId of the Skills.
    * @param {number} limit - The maximum number of Skills to return.
    * @param {1 | -1} sortOrder - Sort direction: 1 ascending (oldest first), -1 descending (newest first). Applied to createdAt and _id.
    * @param {{ id: string; createdAt: Date }} [cursor] - The cursor for pagination, containing the ID and createdAt of the last retrieved item.
+   * @param {{ value: string; fields: string[] }} [search] - The search value and the fields to match it on; when omitted the Skills are not filtered.
    * @return {Promise<ISkill[]>} - A Promise that resolves to an array of Skills.
    * Rejects with an error if the operation fails.
    */
@@ -106,8 +110,21 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
     modelId: string,
     limit: number,
     sortOrder: -1 | 1,
-    cursor?: { id: string; createdAt: Date }
+    cursor?: { id: string; createdAt: Date },
+    search?: { value: string; fields: string[] }
   ): Promise<ISkill[]>;
+
+  /**
+   * Finds the Skills of a model with the given ids, with parents, children, requiresSkills, requiredBySkills and
+   * requiredByOccupations populated. The result is NOT ordered by the input ids (the caller re-orders it). Ids
+   * that are not valid or do not belong to the model are ignored. Used to hydrate the results of a vector search.
+   *
+   * @param {string} modelId - The modelId of the Skills.
+   * @param {string[]} ids - The ids of the Skills to fetch.
+   * @return {Promise<ISkill[]>} - A Promise that resolves to the found Skills.
+   * Rejects with an error if the operation fails.
+   */
+  findByIds(modelId: string, ids: string[]): Promise<ISkill[]>;
 
   /**
    * Finds the parent Skills or SkillGroups of a Skill or SkillGroup.
@@ -321,19 +338,37 @@ export class SkillRepository implements ISkillRepository {
     modelId: string,
     limit: number,
     sortOrder: -1 | 1,
-    cursor?: { id: string; createdAt: Date }
+    cursor?: { id: string; createdAt: Date },
+    search?: { value: string; fields: string[] }
   ): Promise<ISkill[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
-      // Build the match stage
-      const matchStage: mongoose.FilterQuery<ISkillDoc> = { modelId: modelIdObj };
+      // Build the match stage. The search match (when present) and the keyset cursor condition are ANDed together,
+      // each expressed as an $or clause.
+      const andConditions: mongoose.FilterQuery<ISkillDoc>[] = [];
 
-      // If a cursor is provided, add it to the match stage to get results after the cursor
+      // When searching, match the value literally (escaped) and case-insensitively on any of the requested fields.
+      // altLabels is an array of strings, which $regex matches element-wise, so array and scalar fields are handled
+      // uniformly.
+      if (search) {
+        const escapedValue = escapeRegExp(search.value);
+        const searchConditions = search.fields.map((field) => ({ [field]: { $regex: escapedValue, $options: "i" } }));
+        andConditions.push({ $or: searchConditions });
+      }
+
+      // If a cursor is provided, add it to the match stage to get results after the cursor.
       if (cursor && mongoose.Types.ObjectId.isValid(cursor.id)) {
         const id = new mongoose.Types.ObjectId(cursor.id);
         const createdAt = cursor.createdAt;
         const operator = sortOrder === -1 ? "$lt" : "$gt";
-        matchStage.$or = [{ createdAt: { [operator]: createdAt } }, { createdAt: createdAt, _id: { [operator]: id } }];
+        andConditions.push({
+          $or: [{ createdAt: { [operator]: createdAt } }, { createdAt: createdAt, _id: { [operator]: id } }],
+        });
+      }
+
+      const matchStage: mongoose.FilterQuery<ISkillDoc> = { modelId: modelIdObj };
+      if (andConditions.length > 0) {
+        matchStage.$and = andConditions;
       }
 
       // Execute the aggregation pipeline
@@ -358,6 +393,35 @@ export class SkillRepository implements ISkillRepository {
       return populated.map((doc) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findPaginated: findPaginated failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findByIds(modelId: string, ids: string[]): Promise<ISkill[]> {
+    try {
+      const validIds = ids
+        .filter((id) => mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+      if (validIds.length === 0) {
+        return [];
+      }
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+
+      const results = await this.Model.aggregate([{ $match: { modelId: modelIdObj, _id: { $in: validIds } } }]).exec();
+
+      const hydrated = results.map((r) => this.Model.hydrate(r));
+      const populated = await this.Model.populate(hydrated, [
+        populateSkillParentsOptions,
+        populateSkillChildrenOptions,
+        populateSkillRequiresSkillsOptions,
+        populateSkillRequiredBySkillsOptions,
+        populateSkillRequiredByOccupationOptions,
+      ]);
+
+      return populated.map((doc) => doc.toObject());
+    } catch (e: unknown) {
+      const err = new Error("SkillRepository.findByIds: findByIds failed", { cause: e });
       console.error(err);
       throw err;
     }

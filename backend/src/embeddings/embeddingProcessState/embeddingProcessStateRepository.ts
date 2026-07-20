@@ -60,6 +60,18 @@ export interface IEmbeddingProcessStateRepository {
   findPendingByModelId(modelId: string): Promise<IEmbeddingProcessState | null>;
 
   /**
+   * Finds the most recent completed EmbeddingProcessState entry for the given model.
+   * Used to resolve which embedding service a released model's entities were embedded with, so that the
+   * search can generate the query embedding with the same service.
+   *
+   * @param {string} modelId - The unique ID of the model.
+   * @return {Promise<IEmbeddingProcessState|null>} - A Promise that resolves to the most recent completed
+   * EmbeddingProcessState entry or null if there is none.
+   * Rejects with an error if the operation fails.
+   */
+  findCompletedByModelId(modelId: string): Promise<IEmbeddingProcessState | null>;
+
+  /**
    * Deletes the EmbeddingProcessState entry with the given ID.
    *
    * @param {string} id - The unique ID of the EmbeddingProcessState entry.
@@ -175,6 +187,25 @@ export class EmbeddingProcessStateRepository implements IEmbeddingProcessStateRe
       return embeddingProcessState !== null ? embeddingProcessState.toObject() : null;
     } catch (e: unknown) {
       const err = new Error("EmbeddingProcessStateRepository.findPendingByModelId: findPendingByModelId failed", {
+        cause: e,
+      });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findCompletedByModelId(modelId: string): Promise<IEmbeddingProcessState | null> {
+    try {
+      const embeddingProcessState = await this.Model.findOne({
+        modelId: { $eq: modelId },
+        status: { $eq: ModelInfoApiSpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.COMPLETED },
+      })
+        // Prefer the most recently completed process, in case the model was re-embedded more than once.
+        .sort({ createdAt: -1 })
+        .exec();
+      return embeddingProcessState !== null ? embeddingProcessState.toObject() : null;
+    } catch (e: unknown) {
+      const err = new Error("EmbeddingProcessStateRepository.findCompletedByModelId: findCompletedByModelId failed", {
         cause: e,
       });
       console.error(err);

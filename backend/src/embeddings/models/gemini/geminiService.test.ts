@@ -1,7 +1,7 @@
 // silence chatty console
 import "_test_utilities/consoleMock";
 
-import { GeminiService, GEMINI_API_BASE_URL, GEMINI_MAX_BATCH_SIZE } from "./geminiService";
+import { GeminiService, GEMINI_API_BASE_URL, GEMINI_MAX_BATCH_SIZE, TaskType } from "./geminiService";
 
 function getMockFetchResponse(payload: object, status: number = 200) {
   return {
@@ -15,6 +15,7 @@ function getMockFetchResponse(payload: object, status: number = 200) {
 describe("Test the GeminiService", () => {
   const givenApiKey = "some-api-key";
   const givenModel = "models/gemini-embedding-2";
+  const givenOutputDimensionality = 768;
   let fetchSpy: jest.SpyInstance;
 
   beforeEach(() => {
@@ -30,20 +31,36 @@ describe("Test the GeminiService", () => {
     // GIVEN no api key
     // WHEN constructing a GeminiService
     // THEN expect it to throw
-    expect(() => new GeminiService("", givenModel)).toThrow("GeminiService: GEMINI_API_KEY is not configured");
+    expect(() => new GeminiService("", givenModel, givenOutputDimensionality)).toThrow(
+      "GeminiService: GEMINI_API_KEY is not configured"
+    );
   });
 
   test("should throw when the model is not configured", () => {
     // GIVEN an api key but no model
     // WHEN constructing a GeminiService
     // THEN expect it to throw
-    expect(() => new GeminiService(givenApiKey, "")).toThrow("GeminiService: GEMINI_MODEL_NAME is not configured");
+    expect(() => new GeminiService(givenApiKey, "", givenOutputDimensionality)).toThrow(
+      "GeminiService: GEMINI_MODEL_NAME is not configured"
+    );
   });
 
-  test("should construct successfully with an api key and a model", () => {
-    // GIVEN an api key and a model
+  test.each([
+    ["zero", 0],
+    ["a negative number", -1],
+  ])("should throw when the output dimensionality is %s", (_description, givenInvalidOutputDimensionality) => {
+    // GIVEN an api key and a model but an invalid output dimensionality
     // WHEN constructing a GeminiService
-    const actualService = new GeminiService(givenApiKey, givenModel);
+    // THEN expect it to throw
+    expect(() => new GeminiService(givenApiKey, givenModel, givenInvalidOutputDimensionality)).toThrow(
+      "GeminiService: GEMINI_OUTPUT_DIMENSIONALITY is not configured"
+    );
+  });
+
+  test("should construct successfully with an api key, a model and an output dimensionality", () => {
+    // GIVEN an api key, a model and an output dimensionality
+    // WHEN constructing a GeminiService
+    const actualService = new GeminiService(givenApiKey, givenModel, givenOutputDimensionality);
 
     // THEN expect the service to be constructed
     expect(actualService).toBeInstanceOf(GeminiService);
@@ -52,7 +69,7 @@ describe("Test the GeminiService", () => {
   describe("Test generateEmbeddingBatch", () => {
     test("should return one embedding per text from a single batchEmbedContents request", async () => {
       // GIVEN a GeminiService
-      const givenService = new GeminiService(givenApiKey, givenModel);
+      const givenService = new GeminiService(givenApiKey, givenModel, givenOutputDimensionality);
       // AND two texts to embed
       const givenTexts = ["foo", "bar"];
       // AND the Gemini API returns one embedding per text
@@ -79,6 +96,8 @@ describe("Test the GeminiService", () => {
         },
         body: JSON.stringify({
           requests: givenTexts.map((text) => ({
+            outputDimensionality: givenOutputDimensionality,
+            taskType: TaskType,
             model: givenModel,
             content: { parts: [{ text }] },
           })),
@@ -88,7 +107,7 @@ describe("Test the GeminiService", () => {
 
     test("should return an empty array without calling the Gemini API when there is no text", async () => {
       // GIVEN a GeminiService
-      const givenService = new GeminiService(givenApiKey, givenModel);
+      const givenService = new GeminiService(givenApiKey, givenModel, givenOutputDimensionality);
 
       // WHEN generating a batch of embeddings for no texts
       const actualEmbeddings = await givenService.generateEmbeddingBatch([]);
@@ -101,7 +120,7 @@ describe("Test the GeminiService", () => {
 
     test("should chunk the texts into multiple requests when there are more texts than the maximum batch size", async () => {
       // GIVEN a GeminiService
-      const givenService = new GeminiService(givenApiKey, givenModel);
+      const givenService = new GeminiService(givenApiKey, givenModel, givenOutputDimensionality);
       // AND more texts than fit in a single batch
       const givenTextCount = GEMINI_MAX_BATCH_SIZE + 2;
       const givenTexts = Array.from({ length: givenTextCount }, (_, index) => `text-${index}`);
@@ -128,7 +147,7 @@ describe("Test the GeminiService", () => {
 
     test("should throw when the request to the Gemini API fails", async () => {
       // GIVEN a GeminiService
-      const givenService = new GeminiService(givenApiKey, givenModel);
+      const givenService = new GeminiService(givenApiKey, givenModel, givenOutputDimensionality);
       // AND the request to the Gemini API will fail (e.g. a network error)
       const givenCause = new Error("network error");
       fetchSpy.mockRejectedValue(givenCause);
@@ -147,7 +166,7 @@ describe("Test the GeminiService", () => {
 
     test("should throw when the Gemini API responds with an error status", async () => {
       // GIVEN a GeminiService
-      const givenService = new GeminiService(givenApiKey, givenModel);
+      const givenService = new GeminiService(givenApiKey, givenModel, givenOutputDimensionality);
       // AND the Gemini API responds with an error status
       fetchSpy.mockResolvedValue(getMockFetchResponse({ error: { message: "quota exceeded" } }, 429) as never);
 
@@ -162,7 +181,7 @@ describe("Test the GeminiService", () => {
 
     test("should throw when the Gemini API returns a different number of embeddings than texts", async () => {
       // GIVEN a GeminiService
-      const givenService = new GeminiService(givenApiKey, givenModel);
+      const givenService = new GeminiService(givenApiKey, givenModel, givenOutputDimensionality);
       // AND the Gemini API returns fewer embeddings than texts
       fetchSpy.mockResolvedValue(getMockFetchResponse({ embeddings: [{ values: [0.1] }] }) as never);
 
@@ -177,7 +196,7 @@ describe("Test the GeminiService", () => {
 
     test("should throw when the Gemini API returns no embeddings at all", async () => {
       // GIVEN a GeminiService
-      const givenService = new GeminiService(givenApiKey, givenModel);
+      const givenService = new GeminiService(givenApiKey, givenModel, givenOutputDimensionality);
       // AND the Gemini API returns a payload without embeddings
       fetchSpy.mockResolvedValue(getMockFetchResponse({}) as never);
 
@@ -192,7 +211,7 @@ describe("Test the GeminiService", () => {
 
     test("should throw when the Gemini API returns an empty embedding", async () => {
       // GIVEN a GeminiService
-      const givenService = new GeminiService(givenApiKey, givenModel);
+      const givenService = new GeminiService(givenApiKey, givenModel, givenOutputDimensionality);
       // AND the Gemini API returns an empty embedding for the second text
       fetchSpy.mockResolvedValue(getMockFetchResponse({ embeddings: [{ values: [0.1] }, { values: [] }] }) as never);
 
@@ -209,7 +228,7 @@ describe("Test the GeminiService", () => {
   describe("Test generateEmbedding", () => {
     test("should return the single embedding of the text", async () => {
       // GIVEN a GeminiService
-      const givenService = new GeminiService(givenApiKey, givenModel);
+      const givenService = new GeminiService(givenApiKey, givenModel, givenOutputDimensionality);
       // AND the Gemini API returns one embedding
       const givenVector = [0.1, 0.2, 0.3];
       fetchSpy.mockResolvedValue(getMockFetchResponse({ embeddings: [{ values: givenVector }] }) as never);

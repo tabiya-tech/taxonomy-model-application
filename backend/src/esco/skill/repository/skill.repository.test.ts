@@ -1532,6 +1532,215 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     });
   });
 
+  describe("Test findPaginated() with a search", () => {
+    test("should match on preferredLabel case-insensitively and only within the model", async () => {
+      // GIVEN two skills in the model and one matching skill in another model
+      const givenModelId = getMockStringId(1);
+      const givenOtherModelId = getMockStringId(2);
+      const matching = await repository.create(getSimpleNewSkillSpec(givenModelId, "JavaScript Developer"));
+      await repository.create(getSimpleNewSkillSpec(givenModelId, "Carpenter"));
+      await repository.create(getSimpleNewSkillSpec(givenOtherModelId, "JavaScript Developer"));
+
+      // WHEN searching for "javascript" on the preferredLabel
+      const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, {
+        value: "javascript",
+        fields: ["preferredLabel"],
+      });
+
+      // THEN expect only the matching skill of the model
+      expect(actual).toHaveLength(1);
+      expect(actual[0].id).toEqual(matching.id);
+    });
+
+    test("should match on the description field when requested", async () => {
+      // GIVEN a skill whose description (not label) contains the search value
+      const givenModelId = getMockStringId(1);
+      const matching = await repository.create({
+        ...getSimpleNewSkillSpec(givenModelId, "Some Label"),
+        description: "building bespoke furniture",
+      });
+      await repository.create(getSimpleNewSkillSpec(givenModelId, "Unrelated"));
+
+      // WHEN searching for "furniture" on the description
+      const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, {
+        value: "furniture",
+        fields: ["description"],
+      });
+
+      // THEN expect the skill whose description matched
+      expect(actual).toHaveLength(1);
+      expect(actual[0].id).toEqual(matching.id);
+    });
+
+    test("should match on the altLabels array elements", async () => {
+      // GIVEN a skill whose altLabels contain the search value
+      const givenModelId = getMockStringId(1);
+      const matching = await repository.create({
+        ...getSimpleNewSkillSpec(givenModelId, "Some Label"),
+        altLabels: ["coding", "programming"],
+      });
+
+      // WHEN searching for "programming" on the altLabels
+      const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, {
+        value: "programming",
+        fields: ["altLabels"],
+      });
+
+      // THEN expect the skill whose altLabels matched
+      expect(actual).toHaveLength(1);
+      expect(actual[0].id).toEqual(matching.id);
+    });
+
+    test("should treat the search value literally (escape regex special characters)", async () => {
+      // GIVEN a skill whose label contains regex special characters
+      const givenModelId = getMockStringId(1);
+      const matching = await repository.create(getSimpleNewSkillSpec(givenModelId, "C++ Programming"));
+
+      // WHEN searching for the literal "C++"
+      const actualLiteral = await repository.findPaginated(givenModelId, 10, -1, undefined, {
+        value: "C++",
+        fields: ["preferredLabel"],
+      });
+      // AND when searching for a value that would only match if "+" were a regex quantifier
+      const actualAsRegex = await repository.findPaginated(givenModelId, 10, -1, undefined, {
+        value: "C.. Programming",
+        fields: ["preferredLabel"],
+      });
+
+      // THEN expect the literal search to match and the regex-style search not to
+      expect(actualLiteral.map((s) => s.id)).toEqual([matching.id]);
+      expect(actualAsRegex).toHaveLength(0);
+    });
+
+    test("should paginate the matches with the keyset cursor", async () => {
+      // GIVEN three matching skills in the model
+      const givenModelId = getMockStringId(1);
+      const created: ISkill[] = [];
+      for (let i = 0; i < 3; i++) {
+        created.push(await repository.create(getSimpleNewSkillSpec(givenModelId, `engineer ${i + 1}`)));
+      }
+
+      // WHEN retrieving the first page (limit 2, desc) then the second page with the cursor
+      const firstPage = await repository.findPaginated(givenModelId, 2, -1, undefined, {
+        value: "engineer",
+        fields: ["preferredLabel"],
+      });
+      const lastOnFirst = firstPage[firstPage.length - 1];
+      const secondPage = await repository.findPaginated(
+        givenModelId,
+        2,
+        -1,
+        { id: lastOnFirst.id, createdAt: lastOnFirst.createdAt },
+        { value: "engineer", fields: ["preferredLabel"] }
+      );
+
+      // THEN expect the pages to cover all three matches without overlap
+      expect(firstPage).toHaveLength(2);
+      expect(secondPage).toHaveLength(1);
+      const allIds = [...firstPage, ...secondPage].map((s) => s.id);
+      expect(new Set(allIds).size).toBe(3);
+    });
+
+    test("should paginate the matches in ascending order with the keyset cursor", async () => {
+      // GIVEN three matching skills in the model
+      const givenModelId = getMockStringId(1);
+      const created: ISkill[] = [];
+      for (let i = 0; i < 3; i++) {
+        created.push(await repository.create(getSimpleNewSkillSpec(givenModelId, `engineer ${i + 1}`)));
+      }
+
+      // WHEN retrieving the first page ascending, then the second page with the cursor
+      const firstPage = await repository.findPaginated(givenModelId, 2, 1, undefined, {
+        value: "engineer",
+        fields: ["preferredLabel"],
+      });
+      const lastOnFirst = firstPage[firstPage.length - 1];
+      const secondPage = await repository.findPaginated(
+        givenModelId,
+        2,
+        1,
+        { id: lastOnFirst.id, createdAt: lastOnFirst.createdAt },
+        { value: "engineer", fields: ["preferredLabel"] }
+      );
+
+      // THEN expect the first page to hold the two oldest matches (ascending) and the pages not to overlap
+      expect(firstPage.map((s) => s.id)).toEqual([created[0].id, created[1].id]);
+      expect(secondPage).toHaveLength(1);
+      expect(secondPage[0].id).toEqual(created[2].id);
+    });
+
+    test("should wrap and rethrow errors from the aggregation", async () => {
+      // GIVEN aggregate throws
+      const givenError = new Error("aggregate failure");
+      jest.spyOn(repository.Model, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN searching THEN expect the wrapped error
+      await expect(
+        repository.findPaginated(getMockStringId(1), 2, -1, undefined, { value: "x", fields: ["preferredLabel"] })
+      ).rejects.toThrowError(new Error("SkillRepository.findPaginated: findPaginated failed", { cause: givenError }));
+      jest.spyOn(repository.Model, "aggregate").mockRestore();
+    });
+  });
+
+  describe("Test findByIds()", () => {
+    test("should return the model's skills with the given ids (ignoring order)", async () => {
+      // GIVEN three skills in the model
+      const givenModelId = getMockStringId(1);
+      const s1 = await repository.create(getSimpleNewSkillSpec(givenModelId, "s1"));
+      const s2 = await repository.create(getSimpleNewSkillSpec(givenModelId, "s2"));
+      await repository.create(getSimpleNewSkillSpec(givenModelId, "s3"));
+
+      // WHEN fetching two of them by id
+      const actual = await repository.findByIds(givenModelId, [s2.id, s1.id]);
+
+      // THEN expect exactly those two skills
+      expect(new Set(actual.map((s) => s.id))).toEqual(new Set([s1.id, s2.id]));
+    });
+
+    test("should return an empty array when given no ids", async () => {
+      // WHEN fetching with an empty id list
+      const actual = await repository.findByIds(getMockStringId(1), []);
+      // THEN expect an empty array
+      expect(actual).toEqual([]);
+    });
+
+    test("should ignore invalid ids and ids from other models", async () => {
+      // GIVEN a skill in the model and one in another model
+      const givenModelId = getMockStringId(1);
+      const inModel = await repository.create(getSimpleNewSkillSpec(givenModelId, "in-model"));
+      const otherModel = await repository.create(getSimpleNewSkillSpec(getMockStringId(2), "other-model"));
+
+      // WHEN fetching by a mix of a valid id, an invalid id and an id from another model
+      const actual = await repository.findByIds(givenModelId, [inModel.id, "not-an-object-id", otherModel.id]);
+
+      // THEN expect only the skill of the model
+      expect(actual.map((s) => s.id)).toEqual([inModel.id]);
+    });
+
+    test("should return an empty array when only invalid ids are given", async () => {
+      // WHEN fetching with only invalid ids
+      const actual = await repository.findByIds(getMockStringId(1), ["nope", "also-nope"]);
+      // THEN expect an empty array (no query is even attempted)
+      expect(actual).toEqual([]);
+    });
+
+    test("should wrap and rethrow errors from the aggregation", async () => {
+      // GIVEN aggregate throws
+      const givenError = new Error("aggregate failure");
+      jest.spyOn(repository.Model, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN fetching by ids THEN expect the wrapped error
+      await expect(repository.findByIds(getMockStringId(1), [getMockStringId(3)])).rejects.toThrowError(
+        new Error("SkillRepository.findByIds: findByIds failed", { cause: givenError })
+      );
+      jest.spyOn(repository.Model, "aggregate").mockRestore();
+    });
+  });
+
   describe("Test findAll()", () => {
     test("should find all Skills in the correct model", async () => {
       // Given some modelId

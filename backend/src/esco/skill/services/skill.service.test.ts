@@ -23,6 +23,16 @@ import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { ISkillReference } from "../_shared/skill.types";
+import { IEntityEmbeddingRepository } from "embeddings/entityEmbeddings/entityEmbeddingRepository";
+import { ISkillEmbeddingDoc } from "embeddings/entityEmbeddings/entityEmbedding.types";
+import { IEmbeddingProcessStateRepository } from "embeddings/embeddingProcessState/embeddingProcessStateRepository";
+import { IEmbeddingProcessState } from "embeddings/embeddingProcessState/embeddingProcessState.types";
+import { EmbeddableField } from "embeddings/service/types";
+import { IEmbeddingModelService } from "embeddings/models/modelsServiceTypes";
+import { decodeCursor } from "esco/occupations/_shared/pagination/decodeCursor";
+import { encodeCursor } from "esco/occupations/_shared/pagination/encodeCursor";
+import { decodeSearchCursor, encodeSearchCursor } from "../_shared/searchCursor";
+import { SkillsEmbeddingsVectorSearchIndexName } from "embeddings/entityEmbeddings/vectorSearchIndex.constant";
 
 interface ITestingSkillService {
   findPaginatedRelation<T>(
@@ -35,6 +45,10 @@ describe("Test the SkillService", () => {
   let service: ISkillService;
   let mockRepository: jest.Mocked<ISkillRepository>;
   let mockModelRepository: jest.Mocked<IModelRepository>;
+  let mockSkillEmbeddingRepository: jest.Mocked<IEntityEmbeddingRepository<ISkillEmbeddingDoc>>;
+  let mockEmbeddingProcessStateRepository: jest.Mocked<IEmbeddingProcessStateRepository>;
+  let mockEmbeddingModelService: jest.Mocked<IEmbeddingModelService>;
+  let mockEmbeddingModelServiceFactory: jest.Mock<IEmbeddingModelService, [string]>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -45,6 +59,7 @@ describe("Test the SkillService", () => {
       findById: jest.fn(),
       findAll: jest.fn(),
       findPaginated: jest.fn(),
+      findByIds: jest.fn(),
       findParents: jest.fn(),
       findChildren: jest.fn(),
       findOccupationsForSkill: jest.fn(),
@@ -58,7 +73,36 @@ describe("Test the SkillService", () => {
       getHistory: jest.fn(),
     } as unknown as jest.Mocked<IModelRepository>;
 
-    service = new SkillService(mockRepository, mockModelRepository);
+    mockSkillEmbeddingRepository = {
+      Model: {} as unknown as mongoose.Model<unknown>,
+      upsert: jest.fn(),
+      findByEntity: jest.fn(),
+      vectorSearch: jest.fn(),
+    } as unknown as jest.Mocked<IEntityEmbeddingRepository<ISkillEmbeddingDoc>>;
+
+    mockEmbeddingProcessStateRepository = {
+      create: jest.fn(),
+      update: jest.fn(),
+      incrementCounts: jest.fn(),
+      findById: jest.fn(),
+      findPendingByModelId: jest.fn(),
+      findCompletedByModelId: jest.fn(),
+      deleteById: jest.fn(),
+    } as unknown as jest.Mocked<IEmbeddingProcessStateRepository>;
+
+    mockEmbeddingModelService = {
+      generateEmbedding: jest.fn(),
+      generateEmbeddingBatch: jest.fn(),
+    } as unknown as jest.Mocked<IEmbeddingModelService>;
+    mockEmbeddingModelServiceFactory = jest.fn().mockReturnValue(mockEmbeddingModelService);
+
+    service = new SkillService(
+      mockRepository,
+      mockModelRepository,
+      mockSkillEmbeddingRepository,
+      mockEmbeddingProcessStateRepository,
+      mockEmbeddingModelServiceFactory
+    );
   });
 
   afterAll(() => {
@@ -220,23 +264,29 @@ describe("Test the SkillService", () => {
         return skill;
       });
       mockRepository.findPaginated.mockResolvedValue(mockItems);
+      // AND an encoded keyset cursor
+      const givenCursor = encodeCursor(getMockStringId(10), new Date("2023-01-01T00:00:00.000Z"));
 
       // WHEN calling service.findPaginated
       const actual = await service.findPaginated(
         givenModelId,
-        { id: getMockStringId(10), createdAt: new Date("2023-01-01T00:00:00.000Z") },
+        givenCursor,
         givenLimit,
+        undefined,
+        undefined,
         givenDesc
       );
 
-      // THEN expect repository.findPaginated to have been called with the given parameters
+      // THEN expect repository.findPaginated to have been called with the decoded cursor
       expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, {
         id: getMockStringId(10),
         createdAt: new Date("2023-01-01T00:00:00.000Z"),
       });
-      // AND expect the returned paginated result
+      // AND expect the returned paginated result with an encoded keyset nextCursor
       expect(actual.items).toHaveLength(10);
-      expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
+      const actualDecodedNextCursor = decodeCursor(actual.nextCursor as string);
+      expect(actualDecodedNextCursor.id).toEqual(mockItems[9].id);
+      expect(actualDecodedNextCursor.createdAt).toEqual(mockItems[9].createdAt);
     });
 
     test("should decode cursor and call repository.findPaginated with decoded cursor sort", async () => {
@@ -254,14 +304,15 @@ describe("Test the SkillService", () => {
       });
 
       mockRepository.findPaginated.mockResolvedValue(mockItems);
+      // AND an encoded keyset cursor
+      const givenCursor = encodeCursor(getMockStringId(10), new Date("2023-01-01T00:00:00.000Z"));
       // WHEN calling service.findPaginated
       const actual = await service.findPaginated(
         givenModelId,
-        {
-          id: getMockStringId(10),
-          createdAt: new Date("2023-01-01T00:00:00.000Z"),
-        },
+        givenCursor,
         givenLimit,
+        undefined,
+        undefined,
         givenDesc
       );
 
@@ -291,7 +342,7 @@ describe("Test the SkillService", () => {
       mockRepository.findPaginated.mockResolvedValue(mockItems);
 
       // WHEN calling service.findPaginated with desc=false
-      const actual = await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc);
+      const actual = await service.findPaginated(givenModelId, undefined, givenLimit, undefined, undefined, givenDesc);
 
       // THEN expect repository.findPaginated to have been called with the ascending sort
       expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, undefined);
@@ -304,15 +355,16 @@ describe("Test the SkillService", () => {
       const givenModelId = getMockStringId(1);
       const givenLimit = 10;
       const givenDesc = false;
-      const givenCursor = { id: getMockStringId(10), createdAt: new Date() };
+      const givenCursorObj = { id: getMockStringId(10), createdAt: new Date("2023-01-01T00:00:00.000Z") };
+      const givenCursor = encodeCursor(givenCursorObj.id, givenCursorObj.createdAt);
 
       mockRepository.findPaginated.mockResolvedValue([]);
 
       // WHEN calling service.findPaginated with desc=false and cursor
-      await service.findPaginated(givenModelId, givenCursor, givenLimit, givenDesc);
+      await service.findPaginated(givenModelId, givenCursor, givenLimit, undefined, undefined, givenDesc);
 
-      // THEN expect repository.findPaginated to have been called with the ascending sort and correct cursor
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, givenCursor);
+      // THEN expect repository.findPaginated to have been called with the ascending sort and decoded cursor
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, givenCursorObj);
     });
 
     test("should return null nextCursor when no more items", async () => {
@@ -349,6 +401,219 @@ describe("Test the SkillService", () => {
 
       // THEN expect it to throw the same error
       await expect(promise).rejects.toThrow(givenError);
+    });
+  });
+
+  describe("constructor", () => {
+    test("should default the embedding model service factory when it is not provided", () => {
+      // WHEN constructing the service without an explicit embedding model service factory
+      // THEN expect it to construct without throwing (the default factory is wired in)
+      expect(
+        () =>
+          new SkillService(
+            mockRepository,
+            mockModelRepository,
+            mockSkillEmbeddingRepository,
+            mockEmbeddingProcessStateRepository
+          )
+      ).not.toThrow();
+    });
+  });
+
+  describe("findPaginated with a search value", () => {
+    const givenSearchValue = "software engineer";
+    const givenSearchFields = [EmbeddableField.preferredLabel, EmbeddableField.description];
+
+    function givenSkills(count: number, modelId: string): ISkill[] {
+      return Array.from({ length: count }, (_, i) => {
+        const skill = getISkillMockData();
+        skill.id = getMockStringId(i + 2);
+        skill.modelId = modelId;
+        skill.createdAt = new Date("2023-01-01T00:00:00.000Z");
+        return skill;
+      });
+    }
+
+    describe("regex search (unreleased model)", () => {
+      test("should regex-search and return a keyset cursor when the model is not released", async () => {
+        // GIVEN an unreleased model
+        const givenModelId = getMockStringId(1);
+        mockModelRepository.getModelById.mockResolvedValue({ released: false } as IModelInfo);
+        // AND the repository returns limit + 1 matches to signal a next page
+        const givenLimit = 2;
+        const actualMatches = givenSkills(givenLimit + 1, givenModelId);
+        mockRepository.findPaginated.mockResolvedValue(actualMatches);
+
+        // WHEN searching without a cursor
+        const actual = await service.findPaginated(
+          givenModelId,
+          undefined,
+          givenLimit,
+          givenSearchValue,
+          givenSearchFields
+        );
+
+        // THEN expect the regex search to have been used (not the vector search)
+        expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, givenLimit + 1, -1, undefined, {
+          value: givenSearchValue,
+          fields: givenSearchFields,
+        });
+        expect(mockSkillEmbeddingRepository.vectorSearch).not.toHaveBeenCalled();
+        // AND expect a page of `limit` items and a keyset (id + createdAt) nextCursor
+        expect(actual.items).toHaveLength(givenLimit);
+        const decoded = decodeCursor(actual.nextCursor as string);
+        expect(decoded.id).toEqual(actual.items[givenLimit - 1].id);
+      });
+
+      test("should return a null cursor when there is no next page", async () => {
+        // GIVEN an unreleased model that returns fewer than limit + 1 matches
+        const givenModelId = getMockStringId(1);
+        mockModelRepository.getModelById.mockResolvedValue({ released: false } as IModelInfo);
+        mockRepository.findPaginated.mockResolvedValue(givenSkills(1, givenModelId));
+
+        // WHEN searching
+        const actual = await service.findPaginated(givenModelId, undefined, 10, givenSearchValue, givenSearchFields);
+
+        // THEN expect no next cursor
+        expect(actual.nextCursor).toBeNull();
+        expect(actual.items).toHaveLength(1);
+      });
+
+      test("should decode the given keyset cursor and pass it to the repository", async () => {
+        // GIVEN an unreleased model and a keyset cursor
+        const givenModelId = getMockStringId(1);
+        mockModelRepository.getModelById.mockResolvedValue({ released: false } as IModelInfo);
+        mockRepository.findPaginated.mockResolvedValue([]);
+        const givenCursor = encodeCursor(getMockStringId(50), new Date("2023-05-05T00:00:00.000Z"));
+
+        // WHEN searching with the cursor
+        await service.findPaginated(givenModelId, givenCursor, 10, givenSearchValue, givenSearchFields);
+
+        // THEN expect the decoded cursor to have been forwarded to the repository
+        expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+          givenModelId,
+          11,
+          -1,
+          { id: getMockStringId(50), createdAt: new Date("2023-05-05T00:00:00.000Z") },
+          { value: givenSearchValue, fields: givenSearchFields }
+        );
+      });
+
+      test("should fall back to regex when the model is released but has no completed embedding process", async () => {
+        // GIVEN a released model without a completed embedding process
+        const givenModelId = getMockStringId(1);
+        mockModelRepository.getModelById.mockResolvedValue({ released: true } as IModelInfo);
+        mockEmbeddingProcessStateRepository.findCompletedByModelId.mockResolvedValue(null);
+        mockRepository.findPaginated.mockResolvedValue(givenSkills(1, givenModelId));
+
+        // WHEN searching
+        const actual = await service.findPaginated(givenModelId, undefined, 10, givenSearchValue, givenSearchFields);
+
+        // THEN expect the regex search to have been used and no vector search attempted
+        expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, undefined, {
+          value: givenSearchValue,
+          fields: givenSearchFields,
+        });
+        expect(mockSkillEmbeddingRepository.vectorSearch).not.toHaveBeenCalled();
+        expect(actual.items).toHaveLength(1);
+      });
+    });
+
+    describe("vector search (released model)", () => {
+      const givenEmbeddingServiceId = "embedding-service-id";
+
+      beforeEach(() => {
+        mockModelRepository.getModelById.mockResolvedValue({ released: true } as IModelInfo);
+        mockEmbeddingProcessStateRepository.findCompletedByModelId.mockResolvedValue({
+          embeddingServiceId: givenEmbeddingServiceId,
+        } as IEmbeddingProcessState);
+        mockEmbeddingModelService.generateEmbedding.mockResolvedValue([0.1, 0.2, 0.3]);
+      });
+
+      test("should vector-search, hydrate the hits in ranked order and return an offset cursor", async () => {
+        // GIVEN a released model whose embeddings exist
+        const givenModelId = getMockStringId(1);
+        const givenLimit = 2;
+        // AND the vector search returns limit + 1 ranked hits (best first)
+        const rankedSkills = givenSkills(givenLimit + 1, givenModelId);
+        mockSkillEmbeddingRepository.vectorSearch.mockResolvedValue(
+          rankedSkills.map((skill, i) => ({ entityId: skill.id, score: 1 - i * 0.1 }))
+        );
+        // AND findByIds returns the hydrated skills in a DIFFERENT (unranked) order
+        mockRepository.findByIds.mockResolvedValue([...rankedSkills].reverse());
+
+        // WHEN searching without a cursor
+        const actual = await service.findPaginated(
+          givenModelId,
+          undefined,
+          givenLimit,
+          givenSearchValue,
+          givenSearchFields
+        );
+
+        // THEN expect the query value to have been embedded with the model's embedding service
+        expect(mockEmbeddingModelServiceFactory).toHaveBeenCalledWith(givenEmbeddingServiceId);
+        expect(mockEmbeddingModelService.generateEmbedding).toHaveBeenCalledWith(givenSearchValue);
+        // AND the vector search to have been scoped to the model, service, fields and paginated by offset 0
+        expect(mockSkillEmbeddingRepository.vectorSearch).toHaveBeenCalledWith({
+          indexName: SkillsEmbeddingsVectorSearchIndexName,
+          modelId: givenModelId,
+          embeddingServiceId: givenEmbeddingServiceId,
+          queryVector: [0.1, 0.2, 0.3],
+          searchFields: givenSearchFields,
+          limit: givenLimit + 1,
+          offset: 0,
+        });
+        // AND the page to hold `limit` items ordered by relevance (the ranked-hit order, not findByIds order)
+        expect(actual.items).toHaveLength(givenLimit);
+        expect(actual.items.map((s) => s.id)).toEqual(rankedSkills.slice(0, givenLimit).map((s) => s.id));
+        // AND the nextCursor to be an offset cursor pointing at the next page
+        expect(decodeSearchCursor(actual.nextCursor as string)).toEqual(givenLimit);
+      });
+
+      test("should apply the offset from the given cursor and advance it", async () => {
+        // GIVEN a released model and an offset cursor (page 2)
+        const givenModelId = getMockStringId(1);
+        const givenLimit = 5;
+        const givenCursor = encodeSearchCursor(5);
+        const rankedSkills = givenSkills(givenLimit + 1, givenModelId);
+        mockSkillEmbeddingRepository.vectorSearch.mockResolvedValue(
+          rankedSkills.map((skill, i) => ({ entityId: skill.id, score: 1 - i * 0.1 }))
+        );
+        mockRepository.findByIds.mockResolvedValue(rankedSkills);
+
+        // WHEN searching with the cursor
+        const actual = await service.findPaginated(
+          givenModelId,
+          givenCursor,
+          givenLimit,
+          givenSearchValue,
+          givenSearchFields
+        );
+
+        // THEN expect the offset to have been forwarded and advanced by `limit`
+        expect(mockSkillEmbeddingRepository.vectorSearch).toHaveBeenCalledWith(
+          expect.objectContaining({ offset: 5, limit: givenLimit + 1 })
+        );
+        expect(decodeSearchCursor(actual.nextCursor as string)).toEqual(10);
+      });
+
+      test("should return a null cursor when the vector search has no next page", async () => {
+        // GIVEN a released model whose vector search returns fewer than limit + 1 hits
+        const givenModelId = getMockStringId(1);
+        const rankedSkills = givenSkills(2, givenModelId);
+        mockSkillEmbeddingRepository.vectorSearch.mockResolvedValue(
+          rankedSkills.map((skill, i) => ({ entityId: skill.id, score: 1 - i * 0.1 }))
+        );
+        mockRepository.findByIds.mockResolvedValue(rankedSkills);
+
+        // WHEN searching
+        const actual = await service.findPaginated(givenModelId, undefined, 10, givenSearchValue, givenSearchFields);
+
+        // THEN expect no next cursor and all items returned
+        expect(actual.nextCursor).toBeNull();
+        expect(actual.items).toHaveLength(2);
+      });
     });
   });
 

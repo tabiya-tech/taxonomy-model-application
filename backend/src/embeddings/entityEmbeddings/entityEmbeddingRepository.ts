@@ -4,7 +4,10 @@ import {
   IEntityEmbedding,
   IEntityEmbeddingDoc,
   INewEntityEmbeddingSpec,
+  IVectorSearchHit,
+  IVectorSearchParams,
 } from "./entityEmbedding.types";
+import { EMBEDDING_VECTOR_PATH } from "./vectorSearchIndex.constant";
 
 export interface IEntityEmbeddingRepository<
   Doc extends IEntityEmbeddingDoc = IEntityEmbeddingDoc,
@@ -36,6 +39,20 @@ export interface IEntityEmbeddingRepository<
    * Rejects with an error if the operation fails.
    */
   findByEntity(modelId: string, entityId: string, embeddingServiceId: string): Promise<Entity[]>;
+
+  /**
+   * Runs a vector (embeddings) similarity search over the collection and returns the matched entities,
+   * ranked by relevance (best first), deduplicated so that each entity appears at most once (with its
+   * best-scoring source field).
+   *
+   * Requires an Atlas Vector Search index (see scripts/createVectorSearchIndex.ts) to exist on the
+   * collection; it therefore only works against a real Atlas deployment.
+   *
+   * @param {IVectorSearchParams} params - The parameters of the search.
+   * @return {Promise<IVectorSearchHit[]>} - A Promise that resolves to the ranked hits.
+   * Rejects with an error if the operation fails.
+   */
+  vectorSearch(params: IVectorSearchParams): Promise<IVectorSearchHit[]>;
 }
 
 export class EntityEmbeddingRepository<
@@ -95,6 +112,52 @@ export class EntityEmbeddingRepository<
       return docs.map((doc) => this.toEntityEmbedding(doc));
     } catch (e: unknown) {
       const err = new Error("EntityEmbeddingRepository.findByEntity: findByEntity failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async vectorSearch(params: IVectorSearchParams): Promise<IVectorSearchHit[]> {
+    try {
+      const numFields = Math.max(params.searchFields.length, 1);
+      // The number of distinct (higher-ranked) entities we ultimately need to have available.
+      const need = params.offset + params.limit;
+      // Each entity has at most one embedding document per source field, so to reach `need` distinct entities
+      // we over-fetch up to need * numFields embedding documents (the searchTopK).
+      const searchTopK = Math.max(need * numFields, 1);
+      // Atlas recommends numCandidates to be well above the requested limit for good recall; keep it bounded.
+      const numCandidates = Math.min(Math.max(searchTopK * 10, 100), 10_000);
+
+      // $vectorSearch is an Atlas Search stage that mongoose 7's PipelineStage type does not yet know about,
+      // hence the cast. It must be the first stage of the pipeline.
+      const pipeline = [
+        {
+          $vectorSearch: {
+            index: params.indexName,
+            path: EMBEDDING_VECTOR_PATH,
+            queryVector: params.queryVector,
+            numCandidates,
+            limit: searchTopK,
+            filter: {
+              modelId: new mongoose.Types.ObjectId(params.modelId),
+              embeddingServiceId: { $eq: params.embeddingServiceId },
+              sourceField: { $in: params.searchFields },
+            },
+          },
+        },
+        { $addFields: { _vectorSearchScore: { $meta: "vectorSearchScore" } } },
+        // An entity can match on several of its source fields; keep one row per entity with its best score.
+        { $group: { _id: `$${this.entityIdPath}`, score: { $max: "$_vectorSearchScore" } } },
+        { $sort: { score: -1, _id: 1 } },
+        { $skip: params.offset },
+        { $limit: params.limit },
+      ] as unknown as mongoose.PipelineStage[];
+
+      const results = await this.Model.aggregate(pipeline).exec();
+
+      return results.map((result) => ({ entityId: `${result._id}`, score: result.score as number }));
+    } catch (e: unknown) {
+      const err = new Error("EntityEmbeddingRepository.vectorSearch: vectorSearch failed", { cause: e });
       console.error(err);
       throw err;
     }

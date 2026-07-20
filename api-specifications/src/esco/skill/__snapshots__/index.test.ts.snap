@@ -342,6 +342,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "query": {
                 "description": "A free-text value to search the skills by. When set, the endpoint returns the skills that match the value on the requested searchFields, ranked by relevance. On released models the search uses vector embeddings; on unreleased models it uses a case-insensitive regex.",
                 "maxLength": 256,
+                "minLength": 1,
                 "type": "string",
               },
               "searchFields": {

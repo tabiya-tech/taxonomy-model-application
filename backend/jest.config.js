@@ -30,6 +30,7 @@ module.exports = {
     "!src/_test_utilities/*",
     "!src/**/_test_utilities/*",
     "!src/**/_test_data_/*",
+    "!scripts/*",
   ],
   coverageReporters: [["lcov", { projectRoot: "../" }], "text"],
   ...mongodbPreset,

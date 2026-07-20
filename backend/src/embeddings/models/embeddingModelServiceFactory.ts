@@ -21,7 +21,7 @@ export const getEmbeddingModelService: EmbeddingModelServiceFactory = (
 
   switch (embeddingService.modelProvider) {
     case EmbeddingsAPISpecs.Constants.EEmbeddingModelProvider.GEMINI:
-      return new GeminiService(getGeminiApiKey(), embeddingService.modelName);
+      return new GeminiService(getGeminiApiKey(), embeddingService.modelName, embeddingService.numberOfDimensions);
     default:
       throw new Error(
         `getEmbeddingModelService: unsupported model provider: ${embeddingService.modelProvider} for embedding service id: ${embeddingServiceId}`

@@ -17,6 +17,15 @@ import { ISkill } from "../_shared/skill.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
+import { getEmbeddingModelService } from "embeddings/models/embeddingModelServiceFactory";
+import { EmbeddableField } from "embeddings/service/types";
+
+// The embedding module is mocked for the vector-search tests below: the in-memory MongoDB used by the integration
+// tests cannot run an Atlas $vectorSearch, and no real embedding provider is available. Mocking the factory lets the
+// released-model search path be exercised against a real DB with a faked query embedding and stubbed ranked hits.
+jest.mock("embeddings/models/embeddingModelServiceFactory", () => ({
+  getEmbeddingModelService: jest.fn(),
+}));
 
 async function createModelInDB() {
   return await getRepositoryRegistry().modelInfo.create({
@@ -206,5 +215,251 @@ describe("Test for skill GET handler with a DB", () => {
     }
 
     expect(collected.slice(0, baselineIds.length)).toEqual(baselineIds);
+  });
+
+  async function createSkillWithLabel(modelId: string, preferredLabel: string): Promise<ISkill> {
+    return await getRepositoryRegistry().skill.create({
+      modelId: modelId,
+      preferredLabel: preferredLabel,
+      description: "",
+      altLabels: [],
+      originUri: `http://some/path/to/api/resources/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      scopeNote: "",
+      definition: "",
+      skillType: SkillAPISpecs.Enums.SkillType.Knowledge,
+      reuseLevel: SkillAPISpecs.Enums.ReuseLevel.CrossSector,
+      isLocalized: true,
+    });
+  }
+
+  describe("search (regex, unreleased model)", () => {
+    test("GET with a query should return only the matching skills and pass schema validation", async () => {
+      // GIVEN an unreleased model with three skills, two of which match the query
+      const givenModelInfo = await createModelInDB();
+      const givenModelId = givenModelInfo.id.toString();
+      const pythonSkill = await createSkillWithLabel(givenModelId, "Python programming");
+      const javaSkill = await createSkillWithLabel(givenModelId, "Java programming");
+      await createSkillWithLabel(givenModelId, "Cooking");
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: { "Content-Type": "application/json" },
+        pathParameters: { modelId: givenModelId },
+        path: `/models/${givenModelId}/skills`,
+        queryStringParameters: { query: "programming", searchFields: "preferredLabel" },
+      };
+
+      // WHEN searching for "programming"
+      // @ts-ignore
+      const actualResponse = await skillHandler(givenEvent);
+
+      // THEN expect a 200 and a schema-valid body containing exactly the two matching skills
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      const actualBody = JSON.parse(actualResponse.body);
+      validateGETResponse(actualBody);
+      expect(validateGETResponse.errors).toBeNull();
+      const actualIds = (actualBody.data as ISkill[]).map((s) => s.id.toString());
+      expect(new Set(actualIds)).toEqual(new Set([pythonSkill.id.toString(), javaSkill.id.toString()]));
+    });
+
+    test("GET with a query should paginate the matches and return a usable cursor", async () => {
+      // GIVEN an unreleased model with three matching skills
+      const givenModelInfo = await createModelInDB();
+      const givenModelId = givenModelInfo.id.toString();
+      for (let i = 0; i < 3; i++) {
+        await createSkillWithLabel(givenModelId, `engineer number ${i}`);
+      }
+
+      // WHEN fetching the first page of size 2
+      const firstEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: { "Content-Type": "application/json" },
+        pathParameters: { modelId: givenModelId },
+        path: `/models/${givenModelId}/skills`,
+        queryStringParameters: { query: "engineer", limit: "2" },
+      };
+      // @ts-ignore
+      const firstResponse = await skillHandler(firstEvent);
+      expect(firstResponse.statusCode).toEqual(StatusCodes.OK);
+      const firstBody = JSON.parse(firstResponse.body);
+      expect(firstBody.data).toHaveLength(2);
+      expect(firstBody.nextCursor).toBeTruthy();
+
+      // AND fetching the next page with the returned cursor
+      const secondEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: { "Content-Type": "application/json" },
+        pathParameters: { modelId: givenModelId },
+        path: `/models/${givenModelId}/skills`,
+        queryStringParameters: { query: "engineer", limit: "2", cursor: firstBody.nextCursor },
+      };
+      // @ts-ignore
+      const secondResponse = await skillHandler(secondEvent);
+      expect(secondResponse.statusCode).toEqual(StatusCodes.OK);
+      const secondBody = JSON.parse(secondResponse.body);
+
+      // THEN expect the two pages to cover all three matches without overlap
+      const firstIds = (firstBody.data as ISkill[]).map((s) => s.id.toString());
+      const secondIds = (secondBody.data as ISkill[]).map((s) => s.id.toString());
+      expect(secondIds).toHaveLength(1);
+      expect(new Set([...firstIds, ...secondIds]).size).toBe(3);
+    });
+
+    test("GET should return BAD_REQUEST when searchFields is given without a query", async () => {
+      // GIVEN a model
+      const givenModelInfo = await createModelInDB();
+      const givenModelId = givenModelInfo.id.toString();
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: { "Content-Type": "application/json" },
+        pathParameters: { modelId: givenModelId },
+        path: `/models/${givenModelId}/skills`,
+        queryStringParameters: { searchFields: "preferredLabel" },
+      };
+
+      // WHEN searching with searchFields but no query
+      // @ts-ignore
+      const actualResponse = await skillHandler(givenEvent);
+
+      // THEN expect a BAD_REQUEST
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    });
+  });
+
+  describe("search (vector, released model)", () => {
+    const givenEmbeddingServiceId = "test-embedding-service-id";
+    let vectorSearchSpy: jest.SpyInstance | undefined;
+
+    beforeEach(async () => {
+      // Start each test from a clean embedding-process-state collection (the shared beforeEach only clears the
+      // skills and models), and fake the query embedding so no real embedding provider is required.
+      await getRepositoryRegistry().embeddingProcessState.Model.deleteMany({});
+      (getEmbeddingModelService as jest.Mock).mockReturnValue({
+        generateEmbedding: jest.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+        generateEmbeddingBatch: jest.fn(),
+      });
+    });
+
+    afterEach(() => {
+      vectorSearchSpy?.mockRestore();
+      vectorSearchSpy = undefined;
+    });
+
+    // Creates a released model whose embeddings are marked complete, holding one skill per given label. The vector
+    // search itself is stubbed by the caller, so the labels only need to be distinct, not semantically related.
+    async function givenReleasedEmbeddedModelWithSkills(
+      labels: string[]
+    ): Promise<{ modelId: string; skills: ISkill[] }> {
+      const givenModelInfo = await createModelInDB();
+      const givenModelId = givenModelInfo.id.toString();
+      // Release the model so the search takes the vector (embeddings) path rather than the regex fallback.
+      await dbConnection!.models.ModelInfo.updateOne({ _id: givenModelInfo.id }, { $set: { released: true } });
+      // A completed embedding process tells the service which embedding service the model was embedded with.
+      await getRepositoryRegistry().embeddingProcessState.create({
+        modelId: givenModelId,
+        status: ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.COMPLETED,
+        embeddingServiceId: givenEmbeddingServiceId,
+        totalDocuments: labels.length,
+        errorCounts: 0,
+        warningCounts: 0,
+        completedDocuments: labels.length,
+      });
+      const skills: ISkill[] = [];
+      for (const label of labels) {
+        skills.push(await createSkillWithLabel(givenModelId, label));
+      }
+      return { modelId: givenModelId, skills };
+    }
+
+    test("GET with a query should vector-search the skills and return them ranked by relevance", async () => {
+      // GIVEN a released, embedded model holding three skills
+      const { modelId, skills } = await givenReleasedEmbeddedModelWithSkills([
+        "first skill",
+        "second skill",
+        "third skill",
+      ]);
+      // AND the vector search ranks them in an order different from their creation order
+      const givenRanked = [skills[2], skills[0], skills[1]];
+      vectorSearchSpy = jest
+        .spyOn(getRepositoryRegistry().skillEmbedding, "vectorSearch")
+        .mockResolvedValue(givenRanked.map((s, i) => ({ entityId: s.id.toString(), score: 1 - i * 0.1 })));
+
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: { "Content-Type": "application/json" },
+        pathParameters: { modelId },
+        path: `/models/${modelId}/skills`,
+        queryStringParameters: { query: "skill", searchFields: "preferredLabel,description" },
+      };
+
+      // WHEN searching for "skill"
+      // @ts-ignore
+      const actualResponse = await skillHandler(givenEvent);
+
+      // THEN expect a 200 with a schema-valid body
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      const actualBody = JSON.parse(actualResponse.body);
+      validateGETResponse(actualBody);
+      expect(validateGETResponse.errors).toBeNull();
+      // AND expect the skills to be returned in the relevance order the vector search ranked them
+      const actualIds = (actualBody.data as ISkill[]).map((s) => s.id.toString());
+      expect(actualIds).toEqual(givenRanked.map((s) => s.id.toString()));
+      // AND expect the query to have been embedded with the model's embedding service and searched on the given fields
+      expect(getEmbeddingModelService).toHaveBeenCalledWith(givenEmbeddingServiceId);
+      expect(vectorSearchSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          modelId,
+          embeddingServiceId: givenEmbeddingServiceId,
+          searchFields: [EmbeddableField.preferredLabel, EmbeddableField.description],
+          offset: 0,
+        })
+      );
+    });
+
+    test("GET with a query should paginate the vector search using a relevance-offset cursor", async () => {
+      // GIVEN a released, embedded model with three matching skills
+      const { modelId, skills } = await givenReleasedEmbeddedModelWithSkills(["a skill", "b skill", "c skill"]);
+      const limit = 2;
+      // AND the first page's vector search returns limit + 1 hits (so there is a next page), the second the remainder
+      vectorSearchSpy = jest
+        .spyOn(getRepositoryRegistry().skillEmbedding, "vectorSearch")
+        .mockResolvedValueOnce(skills.map((s, i) => ({ entityId: s.id.toString(), score: 1 - i * 0.1 })))
+        .mockResolvedValueOnce([{ entityId: skills[2].id.toString(), score: 0.1 }]);
+
+      // WHEN fetching the first page of size 2
+      const firstEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: { "Content-Type": "application/json" },
+        pathParameters: { modelId },
+        path: `/models/${modelId}/skills`,
+        queryStringParameters: { query: "skill", limit: limit.toString() },
+      };
+      // @ts-ignore
+      const firstResponse = await skillHandler(firstEvent);
+      expect(firstResponse.statusCode).toEqual(StatusCodes.OK);
+      const firstBody = JSON.parse(firstResponse.body);
+      // THEN expect the first page to hold `limit` skills and a usable next cursor
+      expect(firstBody.data).toHaveLength(limit);
+      expect(firstBody.nextCursor).toBeTruthy();
+
+      // WHEN fetching the next page with the returned cursor
+      const secondEvent = {
+        httpMethod: HTTP_VERBS.GET,
+        headers: { "Content-Type": "application/json" },
+        pathParameters: { modelId },
+        path: `/models/${modelId}/skills`,
+        queryStringParameters: { query: "skill", limit: limit.toString(), cursor: firstBody.nextCursor },
+      };
+      // @ts-ignore
+      const secondResponse = await skillHandler(secondEvent);
+      expect(secondResponse.statusCode).toEqual(StatusCodes.OK);
+      const secondBody = JSON.parse(secondResponse.body);
+
+      // THEN expect the last skill on its own page and the second vector search to have skipped the first page
+      expect(secondBody.data).toHaveLength(1);
+      expect(vectorSearchSpy).toHaveBeenNthCalledWith(2, expect.objectContaining({ offset: limit }));
+    });
   });
 });

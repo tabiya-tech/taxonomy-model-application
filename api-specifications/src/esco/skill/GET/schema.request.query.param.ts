@@ -22,6 +22,8 @@ const SchemaGETRequestQueryParam: SchemaObject = {
         "the value on the requested searchFields, ranked by relevance. On released models the search uses " +
         "vector embeddings; on unreleased models it uses a case-insensitive regex.",
       type: "string",
+      // An empty value carries no search intent (it would match everything), so require at least one character.
+      minLength: 1,
       maxLength: SkillConstants.SEARCH_VALUE_MAX_LENGTH,
     },
     searchFields: {
