@@ -70,6 +70,7 @@ describe("Test the SkillService", () => {
     mockModelRepository = {
       getModelById: jest.fn(),
       getModelsByIds: jest.fn(),
+      releaseModel: jest.fn(),
       getHistory: jest.fn(),
     } as unknown as jest.Mocked<IModelRepository>;
 

@@ -287,6 +287,7 @@ describe("Test for occupation POST handler", () => {
         getModels: jest.fn(),
         getHistory: jest.fn(),
         getModelsByIds: jest.fn(),
+        releaseModel: jest.fn(),
       } as IModelRepository;
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 

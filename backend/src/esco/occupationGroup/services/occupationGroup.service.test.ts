@@ -733,6 +733,7 @@ describe("Test the OccupationGroupService", () => {
       mockGetRepositoryRegistry.mockReturnValue({
         modelInfo: {
           getModelsByIds: jest.fn().mockResolvedValue([]),
+          releaseModel: jest.fn(),
           getHistory: jest.fn().mockResolvedValue([]),
           ...overrides,
         },
@@ -790,6 +791,7 @@ describe("Test the OccupationGroupService", () => {
       const givenModelB = givenModelWithId(2, givenModelBId);
       mockModelInfoRepository({
         getModelsByIds: jest.fn().mockResolvedValue([givenModelB, givenModelA]),
+        releaseModel: jest.fn(),
       });
 
       // WHEN calling getHistory
@@ -824,6 +826,7 @@ describe("Test the OccupationGroupService", () => {
       const givenModel = givenModelWithId(1, givenModelId);
       mockModelInfoRepository({
         getModelsByIds: jest.fn().mockResolvedValue([givenModel]),
+        releaseModel: jest.fn(),
       });
 
       // WHEN calling getHistory
@@ -844,6 +847,7 @@ describe("Test the OccupationGroupService", () => {
       ]);
       mockModelInfoRepository({
         getModelsByIds: jest.fn().mockResolvedValue([]), // model not found
+        releaseModel: jest.fn(),
       });
 
       // WHEN calling getHistory
