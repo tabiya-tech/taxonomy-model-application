@@ -316,7 +316,7 @@
 
 "@aws-sdk/client-sqs@~3.468.0":
   version "3.468.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sqs/-/client-sqs-3.468.0.tgz#c3636f1d26e9f8641fe39576c9b45851e9ca8d89"
+  resolved "https://registry.npmjs.org/@aws-sdk/client-sqs/-/client-sqs-3.468.0.tgz"
   integrity sha512-1Hubnp2e1yRMLHkAKgR+U3ptqBt7uan64/A88EIFTCzzMHEUmgDsIcpPGVpd14YXqxG2cCeU7qA/Z6uiHGWK0g==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
@@ -818,7 +818,7 @@
 
 "@aws-sdk/middleware-sdk-sqs@3.468.0":
   version "3.468.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-sdk-sqs/-/middleware-sdk-sqs-3.468.0.tgz#7887dcb89553ab643d8806fa44d5529fa3510021"
+  resolved "https://registry.npmjs.org/@aws-sdk/middleware-sdk-sqs/-/middleware-sdk-sqs-3.468.0.tgz"
   integrity sha512-ehDQHKimed1DrdXYG12LPKWzHlG9iXihGEok07nOJR/2RpOuSpAcavc4eeuOVeEHh58Eu8TXvvVAJ906Vtm6YA==
   dependencies:
     "@aws-sdk/types" "3.468.0"
@@ -1569,7 +1569,7 @@
 
 "@esbuild/darwin-arm64@0.17.17":
   version "0.17.17"
-  resolved "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.17.17.tgz"
+  resolved "https://registry.yarnpkg.com/@esbuild/darwin-arm64/-/darwin-arm64-0.17.17.tgz#c5961ef4d3c1cc80dafe905cc145b5a71d2ac196"
   integrity sha512-m/gwyiBwH3jqfUabtq3GH31otL/0sE0l34XKpSIqR7NjQ/XHQ3lpmQHLHbG8AHTGCw8Ao059GvV08MS0bhFIJQ==
 
 "@esbuild/darwin-x64@0.17.17":
@@ -1629,7 +1629,7 @@
 
 "@esbuild/linux-x64@0.17.17":
   version "0.17.17"
-  resolved "https://registry.yarnpkg.com/@esbuild/linux-x64/-/linux-x64-0.17.17.tgz#7bc400568690b688e20a0c94b2faabdd89ae1a79"
+  resolved "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.17.17.tgz"
   integrity sha512-XcSGTQcWFQS2jx3lZtQi7cQmDYLrpLRyz1Ns1DzZCtn898cWfm5Icx/DEWNcTU+T+tyPV89RQtDnI7qL2PObPg==
 
 "@esbuild/netbsd-x64@0.17.17":
@@ -3279,7 +3279,7 @@
 
 "@smithy/util-utf8@^2.3.0":
   version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@smithy/util-utf8/-/util-utf8-2.3.0.tgz#dd96d7640363259924a214313c3cf16e7dd329c5"
+  resolved "https://registry.npmjs.org/@smithy/util-utf8/-/util-utf8-2.3.0.tgz"
   integrity sha512-R8Rdn8Hy72KKcebgLiv8jQcQkXoLMOGGv5uI1/k0l+snqkOzQ1R0ChUBCxWMlBsFMekWjq0wRudIweFs7sKT5A==
   dependencies:
     "@smithy/util-buffer-from" "^2.2.0"
@@ -4813,7 +4813,7 @@ fs.realpath@^1.0.0:
 
 fsevents@^2.3.2, fsevents@~2.3.2:
   version "2.3.3"
-  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
+  resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.3.tgz#cac6407785d03675a2a5e1a5305c697b347d90d6"
   integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
 function-bind@^1.1.1:
@@ -5693,7 +5693,7 @@ json5@^2.2.2, json5@^2.2.3:
 
 jwt-decode@^4.0.0:
   version "4.0.0"
-  resolved "https://registry.yarnpkg.com/jwt-decode/-/jwt-decode-4.0.0.tgz#2270352425fd413785b2faf11f6e755c5151bd4b"
+  resolved "https://registry.npmjs.org/jwt-decode/-/jwt-decode-4.0.0.tgz"
   integrity sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==
 
 kareem@2.5.1:

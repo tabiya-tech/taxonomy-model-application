@@ -59,6 +59,7 @@ describe("SkillGroupListController", () => {
         findChildren: jest.fn(),
         getHistory: jest.fn(),
         setParent: jest.fn(),
+        create: jest.fn(),
       } as ISkillGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
@@ -165,6 +166,7 @@ describe("SkillGroupListController", () => {
       findChildren: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      create: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -428,6 +430,7 @@ describe("SkillGroupListController", () => {
         .mockResolvedValue(ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      create: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -467,6 +470,7 @@ describe("SkillGroupListController", () => {
       findChildren: jest.fn(),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      create: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -565,6 +569,7 @@ describe("SkillGroupListController", () => {
       findChildren: jest.fn().mockResolvedValue(null),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      create: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;

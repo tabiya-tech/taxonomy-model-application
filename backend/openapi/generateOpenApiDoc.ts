@@ -370,6 +370,12 @@ function getOpenAPISpecification(
               ...Object.values(SkillGroup.SkillGroup.Children.GET.Enums.Response.Status404.ErrorCodes),
             ]) as unknown as string[]),
           ]),
+          POSTSkillGroup400ErrorSchema: APIError.Schemas.getPayload(
+            "POST",
+            "SkillGroup",
+            400,
+            Object.values(SkillGroup.POST.Enums.Response.Status400.ErrorCodes)
+          ),
           // Skill-specific error schemas
           POSTSkill400ErrorSchema: APIError.Schemas.getPayload(
             "POST",

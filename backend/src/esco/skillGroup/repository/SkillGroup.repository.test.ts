@@ -1294,6 +1294,36 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // AND expect the child skillGroup to not be included in the response
       expect(actual.map((item) => item.id)).not.toContain(givenChildSkillGroup.id);
     });
+    test("should paginate with ascending sort order and a valid cursor", async () => {
+      // GIVEN multiple skill groups in the same model
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroup1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "a_group"));
+      const givenSkillGroup2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "b_group"));
+      const givenSkillGroup3 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "c_group"));
+
+      // WHEN requesting paginated results with ascending sort and cursor at the first item
+      const actual = await repository.findPaginated(givenModelId, 2, 1, givenSkillGroup1.id);
+
+      // THEN expect the next items after the cursor to be returned in ascending order
+      expect(actual).toHaveLength(2);
+      expect(actual[0].id).toBe(givenSkillGroup2.id);
+      expect(actual[1].id).toBe(givenSkillGroup3.id);
+    });
+    test("should paginate with descending sort order and a valid cursor", async () => {
+      // GIVEN multiple skill groups in the same model
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroup1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "a_group"));
+      const givenSkillGroup2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "b_group"));
+      const givenSkillGroup3 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "c_group"));
+
+      // WHEN requesting paginated results with descending sort and cursor at the last item
+      const actual = await repository.findPaginated(givenModelId, 2, -1, givenSkillGroup3.id);
+
+      // THEN expect the items before the cursor to be returned in descending order
+      expect(actual).toHaveLength(2);
+      expect(actual[0].id).toBe(givenSkillGroup2.id);
+      expect(actual[1].id).toBe(givenSkillGroup1.id);
+    });
   });
 
   describe("Test findParents()", () => {

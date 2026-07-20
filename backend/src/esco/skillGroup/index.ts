@@ -4,6 +4,7 @@ import { HTTP_VERBS, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { Routes } from "routes.constant";
 import { pathToRegexp } from "path-to-regexp";
 import { handler as skillGroupListHandler } from "./GET";
+import { handler as skillGroupCreateHandler } from "./POST";
 import { handler as skillGroupDetailHandler } from "./[id]/GET";
 import { handler as skillGroupParentsHandler } from "./[id]/parents/GET";
 import { handler as skillGroupChildrenHandler } from "./[id]/children/GET";
@@ -28,6 +29,9 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
   }
   if (event?.httpMethod === HTTP_VERBS.POST) {
     const pathToMatch = event.path || "";
+    if (pathToRegexp(Routes.SKILL_GROUPS_ROUTE).regexp.exec(pathToMatch)) {
+      return skillGroupCreateHandler(event);
+    }
     if (pathToRegexp(Routes.SKILL_GROUP_PARENTS_ROUTE).regexp.exec(pathToMatch)) {
       return skillGroupParentsPOSTHandler(event);
     }

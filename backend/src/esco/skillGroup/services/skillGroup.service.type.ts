@@ -1,5 +1,6 @@
 import { ObjectTypes } from "esco/common/objectTypes";
 import {
+  INewSkillGroupSpecWithoutImportId,
   ISkillGroup,
   ISkillGroupChild,
   ISkillGroupReference,
@@ -40,6 +41,15 @@ export class SetSkillGroupParentError extends Error {
 }
 
 export interface ISkillGroupService {
+  /**
+   * Creates a new SkillGroup entry.
+   *
+   * @param {INewSkillGroupSpecWithoutImportId} newSkillGroupSpec - The specification for the new SkillGroup entry.
+   * @return {Promise<ISkillGroup>} - A Promise that resolves to the newly created SkillGroup entry.
+   * Rejects with an error if the SkillGroup entry cannot be created due to reasons other than validation.
+   */
+  create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup>;
+
   findById(id: string): Promise<ISkillGroup | null>;
 
   findPaginated(
