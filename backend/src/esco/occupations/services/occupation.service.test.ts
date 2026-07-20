@@ -41,10 +41,12 @@ describe("Test the OccupationService", () => {
       findSkillsForOccupation: jest.fn(),
       update: jest.fn(),
       patch: jest.fn(),
+      findHistoryReferencesByUUIDs: jest.fn(),
     } as unknown as jest.Mocked<IOccupationRepository>;
 
     mockModelRepository = {
       getModelById: jest.fn(),
+      getModelsByIds: jest.fn(),
     } as unknown as jest.Mocked<IModelRepository>;
 
     service = new OccupationService(mockRepository, mockModelRepository);
@@ -900,6 +902,111 @@ describe("Test the OccupationService", () => {
       // WHEN calling service.patch
       // THEN expect it to rethrow
       await expect(service.patch(givenId, givenModelId, givenSpec)).rejects.toThrow(givenError);
+    });
+  });
+
+  describe("getHistory", () => {
+    test("should return null if occupation not found", async () => {
+      mockRepository.findById.mockResolvedValue(null);
+      const actual = await service.getHistory(getMockStringId(1));
+      expect(actual).toBeNull();
+    });
+
+    test("should return empty array if UUIDHistory is missing or empty", async () => {
+      mockRepository.findById.mockResolvedValue({ UUIDHistory: [] } as unknown as IOccupation);
+      const actual = await service.getHistory(getMockStringId(1));
+      expect(actual).toEqual([]);
+    });
+
+    test("should return history entries successfully", async () => {
+      const uuid1 = "uuid-1";
+      const uuid2 = "uuid-2";
+      const uuid3 = "uuid-3";
+      mockRepository.findById.mockResolvedValue({ UUIDHistory: [uuid1, uuid2, uuid3] } as unknown as IOccupation);
+
+      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([
+        {
+          UUID: uuid1,
+          modelId: getMockStringId(1),
+          reference: { id: "ref-1", modelId: getMockStringId(1) } as unknown as IOccupation,
+        },
+        {
+          UUID: uuid2,
+          modelId: getMockStringId(2),
+          reference: { id: "ref-2", modelId: getMockStringId(2) } as unknown as IOccupation,
+        },
+        { UUID: uuid3, modelId: null, reference: null }, // testing missing modelId / reference line 168
+      ]);
+
+      mockModelRepository.getModelsByIds.mockResolvedValue([
+        {
+          id: getMockStringId(1),
+          name: "Model 1",
+          UUID: "mock-uuid-1",
+          version: "1.0",
+          locale: { shortCode: "en" },
+        } as IModelInfo,
+        // Model 2 intentionally omitted to test missing model logic line 172
+      ]);
+
+      const actual = await service.getHistory(getMockStringId(1));
+
+      expect(actual).toEqual([
+        {
+          entity: { id: "ref-1", modelId: getMockStringId(1) },
+          model: {
+            id: getMockStringId(1),
+            name: "Model 1",
+            localeShortCode: "en",
+            UUID: "mock-uuid-1",
+            version: "1.0",
+          },
+        },
+      ]);
+    });
+
+    test("should skip duplicate models in history (seenModelIds)", async () => {
+      const uuid1 = "uuid-1";
+      const uuid2 = "uuid-2";
+      mockRepository.findById.mockResolvedValue({ UUIDHistory: [uuid1, uuid2] } as unknown as IOccupation);
+
+      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([
+        {
+          UUID: uuid1,
+          modelId: getMockStringId(1),
+          reference: { id: "ref-1", modelId: getMockStringId(1) } as unknown as IOccupation,
+        },
+        {
+          UUID: uuid2,
+          modelId: getMockStringId(1),
+          reference: { id: "ref-2", modelId: getMockStringId(1) } as unknown as IOccupation,
+        }, // Duplicate model
+      ]);
+
+      mockModelRepository.getModelsByIds.mockResolvedValue([
+        {
+          id: getMockStringId(1),
+          name: "Model 1",
+          UUID: "mock-uuid-1",
+          version: "1.0",
+          locale: { shortCode: "en" },
+        } as IModelInfo,
+      ]);
+
+      const actual = await service.getHistory(getMockStringId(1));
+
+      expect(actual).toEqual([
+        {
+          entity: { id: "ref-1", modelId: getMockStringId(1) },
+          model: {
+            id: getMockStringId(1),
+            name: "Model 1",
+            localeShortCode: "en",
+            UUID: "mock-uuid-1",
+            version: "1.0",
+          },
+        },
+      ]);
     });
   });
 });

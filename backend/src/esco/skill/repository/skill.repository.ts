@@ -3,9 +3,11 @@ import { randomUUID } from "crypto";
 import {
   INewSkillSpec,
   INewSkillSpecWithoutImportId,
+  IPartialUpdateSkillSpec,
   ISkill,
   ISkillDoc,
   ISkillReference,
+  IUpdateSkillSpec,
 } from "../_shared/skill.types";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { getSkillDocReference, SkillDocument } from "../_shared/skillReference";
@@ -195,6 +197,28 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
    * @return {Promise<ISkillModelHistoryReference[]>} - The resolved reference + modelId per input UUID.
    */
   findHistoryReferencesByUUIDs(uuids: string[]): Promise<ISkillModelHistoryReference[]>;
+
+  /**
+   * Fully replaces the mutable fields of a Skill (PUT semantics).
+   *
+   * @param {string} id - The ID of the Skill to update.
+   * @param {string} modelId - The model ID the Skill belongs to.
+   * @param {IUpdateSkillSpec} spec - The full set of new field values.
+   * @return {Promise<ISkill | null>} - The updated skill, or null if not found.
+   * Rejects with an error if the operation fails.
+   */
+  update(id: string, modelId: string, spec: IUpdateSkillSpec): Promise<ISkill | null>;
+
+  /**
+   * Partially updates a Skill (PATCH semantics).
+   *
+   * @param {string} id - The ID of the Skill to update.
+   * @param {string} modelId - The model ID the Skill belongs to.
+   * @param {IPartialUpdateSkillSpec} spec - Only the fields to update.
+   * @return {Promise<ISkill | null>} - The updated skill, or null if not found.
+   * Rejects with an error if the operation fails.
+   */
+  patch(id: string, modelId: string, spec: IPartialUpdateSkillSpec): Promise<ISkill | null>;
 }
 
 export class SkillRepository implements ISkillRepository {
@@ -805,6 +829,50 @@ export class SkillRepository implements ISkillRepository {
       const err = new Error("SkillRepository.findHistoryReferencesByUUIDs: findHistoryReferencesByUUIDs failed", {
         cause: e,
       });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async update(id: string, modelId: string, spec: IUpdateSkillSpec): Promise<ISkill | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
+      if (!doc) return null;
+      doc.set(spec);
+      await doc.save();
+      await doc.populate([
+        populateSkillParentsOptions,
+        populateSkillChildrenOptions,
+        populateSkillRequiresSkillsOptions,
+        populateSkillRequiredBySkillsOptions,
+        populateSkillRequiredByOccupationOptions,
+      ]);
+      return doc.toObject();
+    } catch (e: unknown) {
+      const err = new Error("SkillRepository.update: update failed.", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async patch(id: string, modelId: string, spec: IPartialUpdateSkillSpec): Promise<ISkill | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
+      if (!doc) return null;
+      doc.set(spec);
+      await doc.save();
+      await doc.populate([
+        populateSkillParentsOptions,
+        populateSkillChildrenOptions,
+        populateSkillRequiresSkillsOptions,
+        populateSkillRequiredBySkillsOptions,
+        populateSkillRequiredByOccupationOptions,
+      ]);
+      return doc.toObject();
+    } catch (e: unknown) {
+      const err = new Error("SkillRepository.patch: patch failed.", { cause: e });
       console.error(err);
       throw err;
     }

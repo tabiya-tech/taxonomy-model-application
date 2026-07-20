@@ -101,6 +101,31 @@ export interface ISkillReferenceDoc extends Pick<ISkillDoc, "modelId" | "UUID" |
 }
 
 /**
+ * Describes the mutable fields for a full skill replacement (PUT).
+ * Excludes server-managed fields: id, UUID, importId, parents, children, requiresSkills, requiredBySkills, requiredByOccupations, createdAt, updatedAt.
+ */
+export type IUpdateSkillSpec = Pick<
+  ISkill,
+  | "preferredLabel"
+  | "originUri"
+  | "altLabels"
+  | "definition"
+  | "description"
+  | "scopeNote"
+  | "skillType"
+  | "reuseLevel"
+  | "modelId"
+  | "UUIDHistory"
+  | "isLocalized"
+>;
+
+/**
+ * Describes the mutable fields for a partial skill update (PATCH).
+ * All fields are optional.
+ */
+export type IPartialUpdateSkillSpec = Partial<IUpdateSkillSpec>;
+
+/**
  * These are service level error codes for validating a model for skill operations
  */
 export enum ModelForSkillValidationErrorCode {

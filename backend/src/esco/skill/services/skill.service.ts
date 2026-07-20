@@ -6,7 +6,13 @@ import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { ISkill, INewSkillSpecWithoutImportId, ModelForSkillValidationErrorCode } from "esco/skill/_shared/skill.types";
+import {
+  ISkill,
+  INewSkillSpecWithoutImportId,
+  ModelForSkillValidationErrorCode,
+  IUpdateSkillSpec,
+  IPartialUpdateSkillSpec,
+} from "esco/skill/_shared/skill.types";
 import { IEntityEmbeddingRepository } from "embeddings/entityEmbeddings/entityEmbeddingRepository";
 import { ISkillEmbeddingDoc } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import { IEmbeddingProcessStateRepository } from "embeddings/embeddingProcessState/embeddingProcessStateRepository";
@@ -263,6 +269,22 @@ export class SkillService implements ISkillService {
     }
 
     return { items: pageItems, nextCursor };
+  }
+
+  async update(id: string, modelId: string, spec: IUpdateSkillSpec): Promise<ISkill | null> {
+    const errorCode = await this.validateModelForSkill(modelId);
+    if (errorCode != null) {
+      throw new SkillModelValidationError(errorCode);
+    }
+    return this.skillRepository.update(id, modelId, spec);
+  }
+
+  async patch(id: string, modelId: string, spec: IPartialUpdateSkillSpec): Promise<ISkill | null> {
+    const errorCode = await this.validateModelForSkill(modelId);
+    if (errorCode != null) {
+      throw new SkillModelValidationError(errorCode);
+    }
+    return this.skillRepository.patch(id, modelId, spec);
   }
 
   async getHistory(skillId: string): Promise<ISkillHistoryEntry[] | null> {

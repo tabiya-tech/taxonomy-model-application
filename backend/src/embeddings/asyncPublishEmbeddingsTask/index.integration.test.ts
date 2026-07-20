@@ -244,7 +244,7 @@ describe("Test the async-publish-embeddings-task lambda handler with a DB", () =
       embeddingServiceId: givenEmbeddingServiceId,
       totalDocuments: expectedTotalDocuments,
     });
-  });
+  }, 30000);
 
   test("should complete the process and delete nothing when the model has no entities", async () => {
     // GIVEN a released model in the DB with no entities

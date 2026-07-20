@@ -126,6 +126,10 @@ delete Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id;
 delete Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload.$id;
 delete Skill.Skill.RelatedSkills.POST.Schemas.Response.Payload.$id;
 delete Skill.Skill.History.GET.Schemas.Response.Payload.$id;
+delete Skill.Skill.PUT.Schemas.Request.Payload.$id;
+delete Skill.Skill.PUT.Schemas.Response.Payload.$id;
+delete Skill.Skill.PATCH.Schemas.Request.Payload.$id;
+delete Skill.Skill.PATCH.Schemas.Response.Payload.$id;
 //--------------------------------------------------------------------------------------------------
 // Generate the openapi specification and store it in the build folder.
 //--------------------------------------------------------------------------------------------------
@@ -447,6 +451,31 @@ function getOpenAPISpecification(
             404,
             Object.values(Skill.GET.Errors.Status404.RelatedSkills.ErrorCodes)
           ),
+          // PUT/PATCH Skill-specific error schemas
+          PUTSkill400ErrorSchema: APIError.Schemas.getPayload(
+            "PUT",
+            "Skill",
+            400,
+            Object.values(Skill.Skill.PUT.Errors.Status400.ErrorCodes)
+          ),
+          PUTSkill404ErrorSchema: APIError.Schemas.getPayload(
+            "PUT",
+            "Skill",
+            404,
+            Object.values(Skill.Skill.PUT.Errors.Status404.ErrorCodes)
+          ),
+          PATCHSkill400ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "Skill",
+            400,
+            Object.values(Skill.Skill.PATCH.Errors.Status400.ErrorCodes)
+          ),
+          PATCHSkill404ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "Skill",
+            404,
+            Object.values(Skill.Skill.PATCH.Errors.Status404.ErrorCodes)
+          ),
           // EmbeddingProcess-specific error schemas
           POSTEmbeddingProcess400ErrorSchema: APIError.Schemas.getPayload(
             "POST",
@@ -537,8 +566,12 @@ function getOpenAPISpecification(
           SkillGroupResponseSchemaGET: SkillGroup.GET.Schemas.Response.Payload,
           SkillGroupRequestByIdParamSchemaGET: SkillGroup.SkillGroup.Schemas.Request.Param.Payload,
           SkillRequestSchemaPOST: Skill.POST.Schemas.Request.Payload,
+          SkillRequestSchemaPUT: Skill.Skill.PUT.Schemas.Request.Payload,
+          SkillRequestSchemaPATCH: Skill.Skill.PATCH.Schemas.Request.Payload,
           SkillRequestParamSchemaPOST: Skill.POST.Schemas.Request.Param.Payload,
           SkillResponseSchemaPOST: Skill.POST.Schemas.Response.Payload,
+          SkillResponseSchemaPUT: Skill.Skill.PUT.Schemas.Response.Payload,
+          SkillResponseSchemaPATCH: Skill.Skill.PATCH.Schemas.Response.Payload,
           SkillResponseSchemaGETById: Skill.Skill.GET.Schemas.Response.Payload,
           SkillRequestParamSchemaGET: Skill.GET.Schemas.Request.Param.Payload,
           SkillRequestQueryParamSchemaGET: Skill.GET.Schemas.Request.Query.Payload,
