@@ -115,6 +115,8 @@ interface ISkillDetailParam {
 interface ISkillQueryParams {
   limit?: number;
   cursor?: string;
+  query?: string;
+  searchFields?: string;
 }
 
 namespace SkillTypes {

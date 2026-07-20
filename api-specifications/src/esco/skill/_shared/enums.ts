@@ -34,6 +34,12 @@ namespace SkillEnums {
     }
   }
 
+  export enum SearchableField {
+    preferredLabel = "preferredLabel",
+    description = "description",
+    altLabels = "altLabels",
+  }
+
   export enum SkillType {
     None = "",
     SkillCompetence = "skill/competence",
