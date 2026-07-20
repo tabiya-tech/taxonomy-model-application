@@ -158,9 +158,38 @@ namespace SkillTypes {
     }
   }
 
+  export namespace PUTSkill {
+    export namespace Request {
+      export type Payload = ISkillRequest;
+    }
+    export namespace Response {
+      export type Payload = ISkillResponse;
+    }
+  }
+
   export namespace Detail {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = 0;
+    export namespace PUT {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = 0;
+      export namespace Request {
+        export type Payload = ISkillRequest;
+      }
+      export namespace Response {
+        export type Payload = ISkillResponse;
+      }
+    }
+    export namespace PATCH {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = 0;
+      export namespace Request {
+        export type Payload = Partial<ISkillRequest>;
+      }
+      export namespace Response {
+        export type Payload = ISkillResponse;
+      }
+    }
     export namespace GET {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _ = 0;
