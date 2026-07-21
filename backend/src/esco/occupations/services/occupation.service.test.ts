@@ -1008,5 +1008,34 @@ describe("Test the OccupationService", () => {
         },
       ]);
     });
+
+    test("should return empty array when UUIDHistory is undefined (nullish fallback)", async () => {
+      // GIVEN an occupation whose UUIDHistory property is missing/undefined
+      mockRepository.findById.mockResolvedValue({} as unknown as IOccupation);
+
+      // WHEN calling getHistory
+      const actual = await service.getHistory(getMockStringId(1));
+
+      // THEN it should return an empty array (the ?? [] branch on line 152)
+      expect(actual).toEqual([]);
+      expect(mockRepository.findHistoryReferencesByUUIDs).not.toHaveBeenCalled();
+    });
+
+    test("should return empty history when all history references have null modelId", async () => {
+      // GIVEN an occupation with UUIDs
+      const uuid1 = "uuid-1";
+      mockRepository.findById.mockResolvedValue({ UUIDHistory: [uuid1] } as unknown as IOccupation);
+
+      // AND all references have null modelId (so modelIds array will be empty)
+      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([{ UUID: uuid1, modelId: null, reference: null }]);
+
+      // WHEN calling getHistory
+      const actual = await service.getHistory(getMockStringId(1));
+
+      // THEN getModelsByIds should NOT be called (empty modelIds branch on line 161)
+      expect(mockModelRepository.getModelsByIds).not.toHaveBeenCalled();
+      // AND result should be an empty history
+      expect(actual).toEqual([]);
+    });
   });
 });

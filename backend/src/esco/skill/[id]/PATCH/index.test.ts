@@ -267,6 +267,29 @@ describe("Test for skill PATCH handler", () => {
     expect(actualResponse.statusCode).toEqual(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
   });
 
+  test("should accept lowercase 'content-type' header (case-insensitive fallback)", async () => {
+    const givenModelId = getMockStringId(1);
+    const givenSkillId = getMockStringId(2);
+    const givenEvent: APIGatewayProxyEvent = {
+      httpMethod: HTTP_VERBS.PATCH,
+      body: JSON.stringify({ preferredLabel: "A label" }),
+      // API Gateway may lowercase header names — only lowercase key present
+      headers: { "content-type": "application/json" },
+      path: `/models/${givenModelId}/skills/${givenSkillId}`,
+      pathParameters: { modelId: givenModelId, id: givenSkillId },
+    } as unknown as APIGatewayProxyEvent;
+
+    const givenSkillServiceMock = {
+      patch: jest.fn().mockResolvedValue(null),
+    } as unknown as ISkillService;
+    mockGetServiceRegistry().skill = givenSkillServiceMock;
+
+    const actualResponse = await skillHandler(givenEvent);
+
+    // NOT a 415 — the lowercase header was correctly recognised
+    expect(actualResponse.statusCode).not.toEqual(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
+  });
+
   test("should respond with PAYLOAD_TOO_LARGE when body exceeds max length", async () => {
     const givenModelId = getMockStringId(1);
     const givenSkillId = getMockStringId(2);
@@ -413,5 +436,26 @@ describe("Test for skill PATCH handler", () => {
     const actualResponse = await skillHandler(givenEvent);
 
     expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+  });
+
+  test("should respond with INTERNAL_SERVER_ERROR when AJV schema is not registered (getSchema returns undefined)", async () => {
+    const givenModelId = getMockStringId(1);
+    const givenSkillId = getMockStringId(2);
+    const givenEvent: APIGatewayProxyEvent = {
+      httpMethod: HTTP_VERBS.PATCH,
+      body: JSON.stringify({ preferredLabel: "A label" }),
+      headers: { "Content-Type": "application/json" },
+      path: `/models/${givenModelId}/skills/${givenSkillId}`,
+      pathParameters: { modelId: givenModelId, id: givenSkillId },
+    } as unknown as APIGatewayProxyEvent;
+
+    // AND ajvInstance.getSchema returns undefined (schema not registered)
+    const ajvModule = await import("validator");
+    const getSchema = jest.spyOn(ajvModule.ajvInstance, "getSchema").mockReturnValueOnce(undefined);
+
+    const actualResponse = await skillHandler(givenEvent);
+
+    getSchema.mockRestore();
+    expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
   });
 });
