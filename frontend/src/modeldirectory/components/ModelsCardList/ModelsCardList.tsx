@@ -14,6 +14,7 @@ export interface ModelsCardListProps {
   notifyOnExport: (modelId: string) => void;
   notifyOnShowModelDetails: (modelId: string) => void;
   notifyOnExplore: (modelId: string) => void;
+  notifyOnRelease: (modelId: string, releaseNotes?: string) => void;
 }
 
 const uniqueId = "d2c56aa9-8c26-42a0-83f0-905e0d63c821";
@@ -83,6 +84,7 @@ const ModelsCardList = (props: Readonly<ModelsCardListProps>) => {
         notifyOnExport={props.notifyOnExport}
         notifyOnShowModelDetails={props.notifyOnShowModelDetails}
         notifyOnExplore={props.notifyOnExplore}
+        notifyOnRelease={props.notifyOnRelease}
       />
     ));
   }

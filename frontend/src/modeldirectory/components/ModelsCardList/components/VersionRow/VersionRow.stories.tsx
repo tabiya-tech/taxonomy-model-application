@@ -12,6 +12,7 @@ const meta: Meta<typeof VersionRow> = {
     notifyOnExport: { action: "notifyOnExport" },
     notifyOnShowModelDetails: { action: "notifyOnShowModelDetails" },
     notifyOnExplore: { action: "notifyOnExplore" },
+    notifyOnRelease: { action: "notifyOnRelease" },
   },
 };
 
@@ -48,6 +49,18 @@ export const ModelManagerWithoutSuccessfulExport: Story = {
       return model;
     })(),
     isLatest: true,
+    isModelManager: true,
+  },
+};
+
+export const ModelManagerUnreleasedModel: Story = {
+  args: {
+    model: (() => {
+      const model = getOneFakeModel(1);
+      model.released = false;
+      return model;
+    })(),
+    isLatest: false,
     isModelManager: true,
   },
 };

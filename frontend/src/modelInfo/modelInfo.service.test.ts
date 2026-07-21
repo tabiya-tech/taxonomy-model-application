@@ -461,4 +461,141 @@ describe("ModelInfoService", () => {
       }
     );
   });
+
+  describe("releaseModel", () => {
+    const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
+    addFormats(ajv);
+    ajv.addSchema(LocaleAPISpecs.Schemas.Payload);
+    ajv.addSchema(ModelInfoAPISpecs.ModelInfo.PATCH.Schemas.Request.Payload);
+    ajv.addSchema(ModelInfoAPISpecs.ModelInfo.PATCH.Schemas.Response.Payload);
+    const validateResponse = ajv.compile(ModelInfoAPISpecs.ModelInfo.PATCH.Schemas.Response.Payload);
+
+    test("should call the REST releaseModel API at the correct URL, with PATCH and the correct headers and payload successfully", async () => {
+      // GIVEN a api server url and a modelId
+      const givenApiServerUrl = "/path/to/api";
+      const givenModelId = getTestString(24);
+      const givenReleaseNotes = getTestString(10);
+      // AND the release model REST API will respond with OK and the released model
+      const givenResponseBody: ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload =
+        MockPayload.PATCH.getPayloadWithOneRandomModelInfo();
+      const apiServiceSpy = setupAPIServiceSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
+
+      // WHEN the releaseModel function is called with the given modelId and releaseNotes
+      const service = new ModelInfoService(givenApiServerUrl);
+      const actualReleasedModel = await service.releaseModel(givenModelId, givenReleaseNotes);
+
+      // THEN expect it to make a PATCH request to the model's own url
+      // AND the headers
+      // AND the request payload to contain released:true and the given releaseNotes
+      expect(apiServiceSpy).toHaveBeenCalledWith(`${givenApiServerUrl}/models/${givenModelId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ released: true, releaseNotes: givenReleaseNotes }),
+        expectedStatusCode: StatusCodes.OK,
+        serviceName: ModelInfoService.name,
+        serviceFunction: "releaseModel",
+        failureMessage: "Failed to release the model",
+        expectedContentType: "application/json",
+      });
+
+      const payload = JSON.parse(apiServiceSpy.mock.calls[0][1].body);
+
+      // AND the body conforms to the PATCH request schema
+      const validateRequest = ajv.compile(ModelInfoAPISpecs.ModelInfo.PATCH.Schemas.Request.Payload);
+      validateRequest(payload);
+      // @ts-ignore
+      expect(validateResponse.errors).toBeNull();
+
+      // AND returns the released model
+      expect(actualReleasedModel).toEqual({
+        ...givenResponseBody,
+        exportProcessState: givenResponseBody.exportProcessState.map((givenExportProcessState) => ({
+          ...givenExportProcessState,
+          timestamp: new Date(givenExportProcessState.timestamp),
+          createdAt: new Date(givenExportProcessState.createdAt),
+          updatedAt: new Date(givenExportProcessState.updatedAt),
+        })),
+        importProcessState: {
+          ...givenResponseBody.importProcessState,
+          createdAt: givenResponseBody.importProcessState.createdAt
+            ? new Date(givenResponseBody.importProcessState.createdAt)
+            : undefined,
+          updatedAt: givenResponseBody.importProcessState.updatedAt
+            ? new Date(givenResponseBody.importProcessState.updatedAt)
+            : undefined,
+        },
+        createdAt: new Date(givenResponseBody.createdAt),
+        updatedAt: new Date(givenResponseBody.updatedAt),
+      });
+    });
+
+    test("should omit releaseNotes from the request body when it is not provided", async () => {
+      // GIVEN a api server url and a modelId, and no releaseNotes
+      const givenApiServerUrl = "/path/to/api";
+      const givenModelId = getTestString(24);
+      const givenResponseBody: ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload =
+        MockPayload.PATCH.getPayloadWithOneRandomModelInfo();
+      const apiServiceSpy = setupAPIServiceSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
+
+      // WHEN the releaseModel function is called without releaseNotes
+      const service = new ModelInfoService(givenApiServerUrl);
+      await service.releaseModel(givenModelId);
+
+      // THEN expect the request body to only contain released:true
+      expect(apiServiceSpy).toHaveBeenCalledWith(
+        `${givenApiServerUrl}/models/${givenModelId}`,
+        expect.objectContaining({ body: JSON.stringify({ released: true }) })
+      );
+    });
+
+    test("on fail to fetch, it should reject with the error thrown by fetchWithAuth", async () => {
+      // GIVEN fetch rejects with some unknown error
+      const givenFetchError = new Error();
+      jest
+        .spyOn(require("src/apiService/APIService"), "fetchWithAuth")
+        .mockImplementationOnce(givenFetchFn(givenFetchError));
+
+      // WHEN calling releaseModel
+      const service = new ModelInfoService("/path/to/foo");
+
+      // THEN expected it to reject with the same error thrown by fetchWithAuth
+      await expect(service.releaseModel(getTestString(24))).rejects.toMatchObject(givenFetchError);
+    });
+
+    test.each([
+      ["is a malformed json", "{"],
+      ["is a string", "foo"],
+      ["is not conforming to the PATCH response schema", { foo: "foo" }],
+    ])(
+      "on 200, should reject with an error ERROR_CODE.INVALID_RESPONSE_BODY if response %s",
+      async (description, givenResponse) => {
+        // GIVEN a api server url and a modelId
+        const givenApiServerUrl = "/path/to/api";
+        const givenModelId = getTestString(24);
+        // AND the release model REST API will respond with OK and some response that does not conform to the PATCH response schema
+        setupAPIServiceSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
+
+        // WHEN the releaseModel function is called
+        const service = new ModelInfoService(givenApiServerUrl);
+        const releaseModelPromise = service.releaseModel(givenModelId);
+
+        // THEN expected it to reject with the error response
+        const expectedError = {
+          ...new ServiceError(
+            ModelInfoService.name,
+            "releaseModel",
+            "PATCH",
+            `${givenApiServerUrl}/models/${givenModelId}`,
+            StatusCodes.OK,
+            ErrorCodes.INVALID_RESPONSE_BODY,
+            "",
+            ""
+          ),
+          message: expect.any(String),
+          details: expect.anything(),
+        };
+        await expect(releaseModelPromise).rejects.toMatchObject(expectedError);
+      }
+    );
+  });
 });

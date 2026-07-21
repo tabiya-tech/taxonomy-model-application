@@ -37,6 +37,7 @@ describe("ModelsCardList", () => {
   const notifyOnExport = jest.fn();
   const notifyOnShowModelDetails = jest.fn();
   const notifyOnExplore = jest.fn();
+  const notifyOnRelease = jest.fn();
 
   function renderModelsCardList(models: ModelInfoTypes.ModelInfo[], isLoading: boolean = false) {
     render(
@@ -46,6 +47,7 @@ describe("ModelsCardList", () => {
         notifyOnExport={notifyOnExport}
         notifyOnShowModelDetails={notifyOnShowModelDetails}
         notifyOnExplore={notifyOnExplore}
+        notifyOnRelease={notifyOnRelease}
       />
     );
   }
@@ -94,6 +96,7 @@ describe("ModelsCardList", () => {
       expect(actualProps.notifyOnExport).toBe(notifyOnExport);
       expect(actualProps.notifyOnShowModelDetails).toBe(notifyOnShowModelDetails);
       expect(actualProps.notifyOnExplore).toBe(notifyOnExplore);
+      expect(actualProps.notifyOnRelease).toBe(notifyOnRelease);
     });
 
     // AND the list to match the snapshot

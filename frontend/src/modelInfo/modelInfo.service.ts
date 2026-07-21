@@ -15,11 +15,18 @@ ajv.addSchema(LocaleAPISpecs.Schemas.Payload, LocaleAPISpecs.Schemas.Payload.$id
 ajv.addSchema(ModelInfoAPISpecs.Schemas.GET.Response.Payload, ModelInfoAPISpecs.Schemas.GET.Response.Payload.$id);
 ajv.addSchema(ModelInfoAPISpecs.Schemas.POST.Response.Payload, ModelInfoAPISpecs.Schemas.POST.Response.Payload.$id);
 ajv.addSchema(ModelInfoAPISpecs.Schemas.POST.Request.Payload, ModelInfoAPISpecs.Schemas.POST.Request.Payload.$id);
+ajv.addSchema(
+  ModelInfoAPISpecs.ModelInfo.PATCH.Schemas.Response.Payload,
+  ModelInfoAPISpecs.ModelInfo.PATCH.Schemas.Response.Payload.$id
+);
 const responseValidatorGET: ValidateFunction = ajv.getSchema(
   ModelInfoAPISpecs.Schemas.GET.Response.Payload.$id as string
 ) as ValidateFunction;
 const responseValidatorPOST: ValidateFunction = ajv.getSchema(
   ModelInfoAPISpecs.Schemas.POST.Response.Payload.$id as string
+) as ValidateFunction;
+const responseValidatorPATCH: ValidateFunction = ajv.getSchema(
+  ModelInfoAPISpecs.ModelInfo.PATCH.Schemas.Response.Payload.$id as string
 ) as ValidateFunction;
 
 /**
@@ -30,7 +37,8 @@ type PayloadItem<ArrayOfItemType extends Array<unknown>> = ArrayOfItemType exten
   : never;
 type ModelInfoTypeAPISpecs =
   | PayloadItem<ModelInfoAPISpecs.Types.GET.Response.Payload>
-  | ModelInfoAPISpecs.Types.POST.Response.Payload;
+  | ModelInfoAPISpecs.Types.POST.Response.Payload
+  | ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload;
 export const UPDATE_INTERVAL = 10000; // In milliseconds
 
 export default class ModelInfoService {
@@ -86,6 +94,59 @@ export default class ModelInfoService {
         {
           responseBody: modelResponse,
           errors: responseValidatorPOST.errors,
+        }
+      );
+    }
+
+    return this.transform(modelResponse);
+  }
+
+  /**
+   * Releases a model. This can only ever set released to true (it cannot be used to un-release a model).
+   * Resolves with the updated model or rejects with a ServiceError.
+   */
+  public async releaseModel(modelId: string, releaseNotes?: string): Promise<ModelInfoTypes.ModelInfo> {
+    const serviceName = "ModelInfoService";
+    const serviceFunction = "releaseModel";
+    const method = "PATCH";
+    const url = `${this.modelInfoEndpointUrl}/${modelId}`;
+    const errorFactory = getServiceErrorFactory(serviceName, serviceFunction, method, url);
+    const requestBody = JSON.stringify({
+      released: true,
+      ...(releaseNotes ? { releaseNotes } : {}),
+    });
+    const response = await fetchWithAuth(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: requestBody,
+      expectedStatusCode: StatusCodes.OK,
+      serviceName: serviceName,
+      serviceFunction: serviceFunction,
+      failureMessage: "Failed to release the model",
+      expectedContentType: "application/json",
+    });
+    const responseBody = await response.text();
+
+    let modelResponse: ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload;
+    try {
+      modelResponse = JSON.parse(responseBody);
+    } catch (e: any) {
+      throw errorFactory(response.status, ErrorCodes.INVALID_RESPONSE_BODY, "Response did not contain valid JSON", {
+        responseBody,
+        error: e,
+      });
+    }
+    const result = responseValidatorPATCH(modelResponse);
+    if (!result) {
+      throw errorFactory(
+        response.status,
+        ErrorCodes.INVALID_RESPONSE_BODY,
+        "Response did not conform to the expected schema",
+        {
+          responseBody: modelResponse,
+          errors: responseValidatorPATCH.errors,
         }
       );
     }

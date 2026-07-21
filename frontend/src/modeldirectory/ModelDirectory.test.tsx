@@ -43,6 +43,7 @@ jest.mock("src/modelInfo/modelInfo.service", () => {
   mockModelInfoService.prototype.createModel = jest.fn(); // adding a mock method
   mockModelInfoService.prototype.getAllModels = jest.fn(); // adding a mock method
   mockModelInfoService.prototype.fetchAllModelsPeriodically = jest.fn(); // adding a mock method
+  mockModelInfoService.prototype.releaseModel = jest.fn(); // adding a mock method
   return mockModelInfoService;
 });
 
@@ -306,6 +307,7 @@ describe("ModelDirectory", () => {
           notifyOnExport: expect.any(Function),
           notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
+          notifyOnRelease: expect.any(Function),
         },
         {}
       );
@@ -325,6 +327,7 @@ describe("ModelDirectory", () => {
             notifyOnExport: expect.any(Function),
             notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
+            notifyOnRelease: expect.any(Function),
           },
           expect.anything()
         );
@@ -363,6 +366,7 @@ describe("ModelDirectory", () => {
           notifyOnExport: expect.any(Function),
           notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
+          notifyOnRelease: expect.any(Function),
         },
         {}
       );
@@ -380,6 +384,7 @@ describe("ModelDirectory", () => {
             notifyOnExport: expect.any(Function),
             notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
+            notifyOnRelease: expect.any(Function),
           },
           {}
         );
@@ -396,6 +401,7 @@ describe("ModelDirectory", () => {
             notifyOnExport: expect.any(Function),
             notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
+            notifyOnRelease: expect.any(Function),
           },
           {}
         );
@@ -432,6 +438,7 @@ describe("ModelDirectory", () => {
           notifyOnExport: expect.any(Function),
           notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
+          notifyOnRelease: expect.any(Function),
         },
         {}
       );
@@ -453,6 +460,7 @@ describe("ModelDirectory", () => {
             notifyOnExport: expect.any(Function),
             notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
+            notifyOnRelease: expect.any(Function),
           },
           {}
         );
@@ -489,6 +497,7 @@ describe("ModelDirectory", () => {
             notifyOnExport: expect.any(Function),
             notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
+            notifyOnRelease: expect.any(Function),
           },
           {}
         );
@@ -517,6 +526,7 @@ describe("ModelDirectory", () => {
           notifyOnExport: expect.any(Function),
           notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
+          notifyOnRelease: expect.any(Function),
         },
         {}
       );
@@ -542,6 +552,7 @@ describe("ModelDirectory", () => {
           notifyOnExport: expect.any(Function),
           notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
+          notifyOnRelease: expect.any(Function),
         },
         {}
       );
@@ -586,6 +597,7 @@ describe("ModelDirectory", () => {
           notifyOnExport: expect.any(Function),
           notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
+          notifyOnRelease: expect.any(Function),
         },
         {}
       );
@@ -604,6 +616,7 @@ describe("ModelDirectory", () => {
             notifyOnExport: expect.any(Function),
             notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
+            notifyOnRelease: expect.any(Function),
           },
           expect.anything()
         );
@@ -633,6 +646,7 @@ describe("ModelDirectory", () => {
           notifyOnExport: expect.any(Function),
           notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
+          notifyOnRelease: expect.any(Function),
         },
         {}
       );
@@ -928,6 +942,7 @@ describe("ModelDirectory", () => {
             notifyOnExport: expect.any(Function),
             notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
+            notifyOnRelease: expect.any(Function),
           },
           {}
         );
@@ -952,6 +967,7 @@ describe("ModelDirectory", () => {
             notifyOnExport: expect.any(Function),
             notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
+            notifyOnRelease: expect.any(Function),
           },
           {}
         );
@@ -1082,6 +1098,7 @@ describe("ModelDirectory", () => {
             notifyOnExport: expect.any(Function),
             notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
+            notifyOnRelease: expect.any(Function),
           },
           expect.anything()
         );
@@ -1289,6 +1306,7 @@ describe("ModelDirectory", () => {
             notifyOnExport: expect.any(Function),
             notifyOnExplore: expect.any(Function),
             notifyOnShowModelDetails: expect.any(Function),
+            notifyOnRelease: expect.any(Function),
           },
           expect.anything()
         );
@@ -1461,6 +1479,166 @@ describe("ModelDirectory", () => {
       await waitFor(() => {
         expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
           `The model '${givenExportedModel.name}' export could not be started. Please try again.`,
+          {
+            variant: "error",
+            preventDuplicate: true,
+          }
+        );
+      });
+      // AND writeServiceErrorToLog to have been called
+      expect(writeServiceErrorToLog).toHaveBeenCalledWith(mockServiceError, console.error);
+    });
+  });
+
+  describe("ModelDirectory action tests: handleNotifyOnRelease", () => {
+    test("should handle release successfully and update the model in the list", async () => {
+      // GIVEN the ModelDirectory is rendered
+      const givenModels = getArrayOfRandomModelsMaxLength(3);
+      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementationOnce((onSuccess, _) => {
+        onSuccess(givenModels);
+        return 1 as unknown as NodeJS.Timer;
+      });
+      render(<ModelDirectory />);
+      // AND the release will succeed
+      const givenModelToRelease = givenModels[1];
+      const givenReleasedModel = { ...givenModelToRelease, released: true, releaseNotes: "some notes" };
+      ModelInfoService.prototype.releaseModel = jest.fn().mockResolvedValueOnce(givenReleasedModel);
+
+      // WHEN the user releases the model with some release notes
+      act(() => {
+        const mock = (ModelsCardList as jest.Mock).mock;
+        mock.lastCall[0].notifyOnRelease(givenModelToRelease.id, "some notes");
+      });
+
+      // THEN expect the backdrop to be shown
+      expect(Backdrop).toHaveBeenNthCalledWith(
+        1,
+        {
+          isShown: true,
+          message: "The model is being released. Please wait ...",
+        },
+        {}
+      );
+      // AND the releaseModel service to have been called with the modelId and releaseNotes
+      expect(ModelInfoService.prototype.releaseModel).toHaveBeenCalledWith(givenModelToRelease.id, "some notes");
+      // AND the model in the list to have been updated with the released model
+      await waitFor(() => {
+        expect((ModelsCardList as jest.Mock).mock.lastCall[0].models).toContainEqual(givenReleasedModel);
+      });
+      // AND the snackbar notification to be shown
+      await waitFor(() => {
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+          `The model '${givenModelToRelease.name}' has been released.`,
+          {
+            variant: "success",
+            preventDuplicate: true,
+          }
+        );
+      });
+    });
+
+    test("should update the model properties drawer when the released model is currently shown", async () => {
+      // GIVEN the ModelDirectory is rendered
+      const givenModels = getArrayOfRandomModelsMaxLength(3);
+      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementationOnce((onSuccess, _) => {
+        onSuccess(givenModels);
+        return 1 as unknown as NodeJS.Timer;
+      });
+      render(<ModelDirectory />);
+      // AND the model's details drawer is currently open for that model
+      const givenModelToRelease = givenModels[1];
+      act(() => {
+        (ModelsCardList as jest.Mock).mock.lastCall[0].notifyOnShowModelDetails(givenModelToRelease.id);
+      });
+      // AND the release will succeed
+      const givenReleasedModel = { ...givenModelToRelease, released: true };
+      ModelInfoService.prototype.releaseModel = jest.fn().mockResolvedValueOnce(givenReleasedModel);
+
+      // WHEN the user releases that same model
+      act(() => {
+        (ModelsCardList as jest.Mock).mock.lastCall[0].notifyOnRelease(givenModelToRelease.id);
+      });
+
+      // THEN expect the drawer to have been updated with the released model
+      await waitFor(() => {
+        expect((ModelPropertiesDrawer as jest.Mock).mock.lastCall[0].model).toEqual(givenReleasedModel);
+      });
+    });
+
+    test("should handle release failure", async () => {
+      // GIVEN the ModelDirectory is rendered
+      const givenModels = getArrayOfRandomModelsMaxLength(3);
+      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementationOnce((onSuccess, _) => {
+        onSuccess(givenModels);
+        return 1 as unknown as NodeJS.Timer;
+      });
+      render(<ModelDirectory />);
+      // AND the release will fail
+      const givenModelToRelease = givenModels[1];
+      ModelInfoService.prototype.releaseModel = jest.fn().mockRejectedValueOnce(new Error("Release failed"));
+
+      // WHEN the user releases the model
+      act(() => {
+        const mock = (ModelsCardList as jest.Mock).mock;
+        mock.lastCall[0].notifyOnRelease(givenModelToRelease.id);
+      });
+
+      // THEN expect the backdrop to be shown
+      expect(Backdrop).toHaveBeenNthCalledWith(
+        1,
+        {
+          isShown: true,
+          message: "The model is being released. Please wait ...",
+        },
+        {}
+      );
+      // AND the releaseModel service to have been called with the modelId
+      expect(ModelInfoService.prototype.releaseModel).toHaveBeenCalledWith(givenModelToRelease.id, undefined);
+      // AND the snackbar notification to be shown
+      await waitFor(() => {
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+          `The model '${givenModelToRelease.name}' could not be released. Please try again.`,
+          {
+            variant: "error",
+            preventDuplicate: true,
+          }
+        );
+      });
+    });
+
+    test("should throw a ServiceError when the release service fails to release", async () => {
+      // GIVEN the ModelDirectory is rendered
+      const givenModels = getArrayOfRandomModelsMaxLength(3);
+      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementationOnce((onSuccess, _) => {
+        onSuccess(givenModels);
+        return 1 as unknown as NodeJS.Timer;
+      });
+      render(<ModelDirectory />);
+      // AND the release will fail with a ServiceError
+      const givenModelToRelease = givenModels[1];
+      const mockServiceError = new ServiceError(
+        "ServiceName",
+        "ServiceFunction",
+        "PATCH",
+        "/api/path",
+        409,
+        ErrorCodes.API_ERROR,
+        "Service Error Message"
+      );
+      ModelInfoService.prototype.releaseModel = jest.fn().mockRejectedValueOnce(mockServiceError);
+
+      // WHEN the user releases the model
+      act(() => {
+        const mock = (ModelsCardList as jest.Mock).mock;
+        mock.lastCall[0].notifyOnRelease(givenModelToRelease.id);
+      });
+
+      // THEN expect the releaseModel service to have been called with the modelId
+      expect(ModelInfoService.prototype.releaseModel).toHaveBeenCalledWith(givenModelToRelease.id, undefined);
+      // AND the snackbar notification to be shown
+      await waitFor(() => {
+        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(
+          `The model '${givenModelToRelease.name}' could not be released. Please try again.`,
           {
             variant: "error",
             preventDuplicate: true,

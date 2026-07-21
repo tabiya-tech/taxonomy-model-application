@@ -12,6 +12,7 @@ export interface ModelCardProps {
   notifyOnExport: (modelId: string) => void;
   notifyOnShowModelDetails: (modelId: string) => void;
   notifyOnExplore: (modelId: string) => void;
+  notifyOnRelease: (modelId: string, releaseNotes?: string) => void;
 }
 
 const uniqueId = "2fb5e5e4-8f4b-486c-b419-a68f207b1bcd";
@@ -202,6 +203,7 @@ const ModelCard = (props: Readonly<ModelCardProps>) => {
               notifyOnExport={props.notifyOnExport}
               notifyOnShowModelDetails={props.notifyOnShowModelDetails}
               notifyOnExplore={props.notifyOnExplore}
+              notifyOnRelease={props.notifyOnRelease}
             />
           </React.Fragment>
         ))}
