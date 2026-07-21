@@ -20,6 +20,7 @@ import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { DATA_TEST_ID as APPROVE_MODAL_DATA_TEST_ID } from "src/theme/ApproveModal/ApproveModal";
 
 // mock the ImportProcessStateIcon component
 jest.mock("src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon", () => {
@@ -48,6 +49,7 @@ describe("VersionRow", () => {
   const notifyOnExport = jest.fn();
   const notifyOnShowModelDetails = jest.fn();
   const notifyOnExplore = jest.fn();
+  const notifyOnRelease = jest.fn();
 
   function setupVersionRow(overrides: Partial<React.ComponentProps<typeof VersionRow>> = {}) {
     const model = overrides.model ?? getOneDeterministicFakeModel(1);
@@ -59,6 +61,7 @@ describe("VersionRow", () => {
         notifyOnExport={notifyOnExport}
         notifyOnShowModelDetails={notifyOnShowModelDetails}
         notifyOnExplore={notifyOnExplore}
+        notifyOnRelease={notifyOnRelease}
       />
     );
     return model;
@@ -316,6 +319,116 @@ describe("VersionRow", () => {
 
       // THEN expect no export state icon
       expect(screen.queryByTestId(DATA_TEST_ID.EXPORT_STATE_ICON_CONTAINER)).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Release button", () => {
+    test("should render the release button for a model manager viewing an unreleased model", () => {
+      // GIVEN an unreleased model
+      const givenModel = getOneDeterministicFakeModel(1, { released: false });
+
+      // WHEN the component is rendered for a model manager
+      setupVersionRow({ model: givenModel, isModelManager: true });
+
+      // THEN expect the release button to be shown and enabled
+      expect(screen.getByTestId(DATA_TEST_ID.RELEASE_BUTTON)).toBeEnabled();
+    });
+
+    test("should not render the release button for a released model", () => {
+      // GIVEN a released model
+      const givenModel = getOneDeterministicFakeModel(1, { released: true });
+
+      // WHEN the component is rendered for a model manager
+      setupVersionRow({ model: givenModel, isModelManager: true });
+
+      // THEN expect no release button
+      expect(screen.queryByTestId(DATA_TEST_ID.RELEASE_BUTTON)).not.toBeInTheDocument();
+    });
+
+    test("should not render the release button for a user that is not a model manager", () => {
+      // GIVEN an unreleased model
+      const givenModel = getOneDeterministicFakeModel(1, { released: false });
+
+      // WHEN the component is rendered for a user that is not a model manager
+      setupVersionRow({ model: givenModel, isModelManager: false });
+
+      // THEN expect no release button
+      expect(screen.queryByTestId(DATA_TEST_ID.RELEASE_BUTTON)).not.toBeInTheDocument();
+    });
+
+    test("should disable the release button when the browser is offline", () => {
+      // GIVEN the browser is offline
+      mockBrowserIsOnLine(false);
+      // AND an unreleased model
+      const givenModel = getOneDeterministicFakeModel(1, { released: false });
+
+      // WHEN the component is rendered for a model manager
+      setupVersionRow({ model: givenModel, isModelManager: true });
+
+      // THEN expect the release button to be disabled
+      expect(screen.getByTestId(DATA_TEST_ID.RELEASE_BUTTON)).toBeDisabled();
+    });
+
+    test("should not show the confirmation dialog until the release button is clicked", () => {
+      // GIVEN an unreleased model
+      const givenModel = getOneDeterministicFakeModel(1, { released: false });
+
+      // WHEN the component is rendered for a model manager
+      setupVersionRow({ model: givenModel, isModelManager: true });
+
+      // THEN expect no confirmation dialog to be shown
+      expect(screen.queryByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL)).not.toBeInTheDocument();
+    });
+
+    test("should show a confirmation dialog when the release button is clicked, and notify on release when confirmed with release notes", async () => {
+      // GIVEN an unreleased model
+      const givenModel = getOneDeterministicFakeModel(1, { released: false });
+      setupVersionRow({ model: givenModel, isModelManager: true });
+
+      // WHEN the release button is clicked
+      await userEvent.click(screen.getByTestId(DATA_TEST_ID.RELEASE_BUTTON));
+
+      // THEN expect the confirmation dialog to be shown
+      expect(screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL_TITLE)).toHaveTextContent(
+        TEXT.RELEASE_DIALOG_TITLE
+      );
+
+      // AND typing release notes and confirming notifies with the model id and the entered notes
+      const givenReleaseNotes = "Some release notes";
+      await userEvent.type(screen.getByTestId(DATA_TEST_ID.RELEASE_NOTES_INPUT), givenReleaseNotes);
+      await userEvent.click(screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL_CONFIRM));
+
+      expect(notifyOnRelease).toHaveBeenCalledWith(givenModel.id, givenReleaseNotes);
+      // AND the dialog to be closed afterward
+      expect(screen.queryByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL)).not.toBeInTheDocument();
+    });
+
+    test("should notify on release with undefined release notes when none are entered", async () => {
+      // GIVEN an unreleased model
+      const givenModel = getOneDeterministicFakeModel(1, { released: false });
+      setupVersionRow({ model: givenModel, isModelManager: true });
+
+      // WHEN the release button is clicked and confirmed without entering release notes
+      await userEvent.click(screen.getByTestId(DATA_TEST_ID.RELEASE_BUTTON));
+      await userEvent.click(screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL_CONFIRM));
+
+      // THEN expect the callback to be called with undefined release notes
+      expect(notifyOnRelease).toHaveBeenCalledWith(givenModel.id, undefined);
+    });
+
+    test("should not notify on release when the confirmation dialog is cancelled", async () => {
+      // GIVEN an unreleased model
+      const givenModel = getOneDeterministicFakeModel(1, { released: false });
+      setupVersionRow({ model: givenModel, isModelManager: true });
+
+      // WHEN the release button is clicked and then cancelled
+      await userEvent.click(screen.getByTestId(DATA_TEST_ID.RELEASE_BUTTON));
+      await userEvent.click(screen.getByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL_CANCEL));
+
+      // THEN expect the callback to not have been called
+      expect(notifyOnRelease).not.toHaveBeenCalled();
+      // AND the dialog to be closed
+      expect(screen.queryByTestId(APPROVE_MODAL_DATA_TEST_ID.APPROVE_MODEL)).not.toBeInTheDocument();
     });
   });
 });

@@ -67,6 +67,7 @@ describe("ModelCard", () => {
   const notifyOnExport = jest.fn();
   const notifyOnShowModelDetails = jest.fn();
   const notifyOnExplore = jest.fn();
+  const notifyOnRelease = jest.fn();
 
   function renderModelCard(group: TaxonomyGroup = getTestGroup(), isModelManager: boolean = false) {
     render(
@@ -76,6 +77,7 @@ describe("ModelCard", () => {
         notifyOnExport={notifyOnExport}
         notifyOnShowModelDetails={notifyOnShowModelDetails}
         notifyOnExplore={notifyOnExplore}
+        notifyOnRelease={notifyOnRelease}
       />
     );
   }
@@ -147,6 +149,7 @@ describe("ModelCard", () => {
           notifyOnExport: notifyOnExport,
           notifyOnShowModelDetails: notifyOnShowModelDetails,
           notifyOnExplore: notifyOnExplore,
+          notifyOnRelease: notifyOnRelease,
         },
         {}
       );

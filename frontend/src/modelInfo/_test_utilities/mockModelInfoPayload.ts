@@ -20,6 +20,15 @@ export namespace POST {
   }
 }
 
+export namespace PATCH {
+  /**
+   * Get a mock ModelInfo payload with special character strings of maximum length
+   */
+  export function getPayloadWithOneRandomModelInfo(): ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload {
+    return { ...getRandomModelInfo(1), released: true };
+  }
+}
+
 export namespace GET {
   /**
    * Get a mock ModelInfo payload with special character strings of maximum length

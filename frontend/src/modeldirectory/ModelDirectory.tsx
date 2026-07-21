@@ -215,6 +215,35 @@ const ModelDirectory = () => {
     }
   };
 
+  const handleNotifyOnRelease = async (modelId: string, releaseNotes?: string) => {
+    setMessage("The model is being released. Please wait ...");
+    setIsBackDropShown(true);
+    const modelName = models.find((model) => model.id === modelId)?.name;
+    try {
+      const updatedModel = await modelInfoService.releaseModel(modelId, releaseNotes);
+      setModels(models.map((model) => (model.id === modelId ? updatedModel : model)));
+      if (drawerModel?.id === modelId) {
+        setDrawerModel(updatedModel);
+      }
+      enqueueSnackbar(`The model '${modelName}' has been released.`, {
+        variant: "success",
+        preventDuplicate: true,
+      });
+    } catch (e) {
+      enqueueSnackbar(`The model '${modelName}' could not be released. Please try again.`, {
+        variant: "error",
+        preventDuplicate: true,
+      });
+      if (e instanceof ServiceError) {
+        writeServiceErrorToLog(e, console.error);
+      } else {
+        console.error(e);
+      }
+    } finally {
+      setIsBackDropShown(false);
+    }
+  };
+
   return (
     <div style={{ width: "100%", height: "100%" }} data-testid={DATA_TEST_ID.MODEL_DIRECTORY_PAGE}>
       <ContentLayout
@@ -228,6 +257,7 @@ const ModelDirectory = () => {
             notifyOnExport={handleNotifyOnExport}
             notifyOnShowModelDetails={handleNotifyOnShowModelDetails}
             notifyOnExplore={handleNotifyOnExplore}
+            notifyOnRelease={handleNotifyOnRelease}
           />
         }
       >

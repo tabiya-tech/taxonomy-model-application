@@ -1,15 +1,17 @@
 import * as React from "react";
-import { useContext } from "react";
-import { alpha, Box, Chip, Theme, Typography, useTheme } from "@mui/material";
+import { useContext, useState } from "react";
+import { alpha, Box, Chip, TextField, Theme, Typography, useTheme } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import CodeIcon from "@mui/icons-material/Code";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { IsOnlineContext } from "src/app/providers";
 import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
 import ExportProcessStateIcon from "src/modeldirectory/components/ExportProcessStateIcon/ExportProcessStateIcon";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
+import ApproveModal from "src/theme/ApproveModal/ApproveModal";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 
@@ -20,6 +22,7 @@ export interface VersionRowProps {
   notifyOnExport: (modelId: string) => void;
   notifyOnShowModelDetails: (modelId: string) => void;
   notifyOnExplore: (modelId: string) => void;
+  notifyOnRelease: (modelId: string, releaseNotes?: string) => void;
 }
 
 const uniqueId = "5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33";
@@ -36,6 +39,8 @@ export const DATA_TEST_ID = {
   CSV_BUTTON: `csv-button-${uniqueId}`,
   EXPORT_BUTTON: `export-button-${uniqueId}`,
   SHOW_DETAILS_BUTTON: `show-details-button-${uniqueId}`,
+  RELEASE_BUTTON: `release-button-${uniqueId}`,
+  RELEASE_NOTES_INPUT: `release-notes-input-${uniqueId}`,
 };
 
 export const TEXT = {
@@ -46,6 +51,13 @@ export const TEXT = {
   CSV_BUTTON_LABEL: "CSV",
   EXPORT_BUTTON_LABEL: "Export",
   SHOW_DETAILS_BUTTON_LABEL: "Details",
+  RELEASE_BUTTON_LABEL: "Release",
+  RELEASE_DIALOG_TITLE: "Release a model",
+  RELEASE_DIALOG_WARNING:
+    "Releasing this model makes it read-only and visible to everyone. This action cannot be undone. Are you sure you want to continue?",
+  RELEASE_NOTES_LABEL: "Release notes (optional)",
+  RELEASE_DIALOG_CANCEL: "Cancel",
+  RELEASE_DIALOG_CONFIRM: "Release",
 };
 
 const extractFilename = (url: string): string => {
@@ -114,6 +126,23 @@ const VersionRow = (props: Readonly<VersionRowProps>) => {
   const versionLabel = props.model.version || props.model.name;
   const latestSuccessfulExport = getLatestSuccessfulExport(props.model);
   const latestExport = getLatestExport(props.model);
+
+  const [isReleaseDialogOpen, setIsReleaseDialogOpen] = useState(false);
+  const [releaseNotes, setReleaseNotes] = useState("");
+
+  const handleOpenReleaseDialog = () => {
+    setReleaseNotes("");
+    setIsReleaseDialogOpen(true);
+  };
+
+  const handleCancelRelease = () => {
+    setIsReleaseDialogOpen(false);
+  };
+
+  const handleApproveRelease = () => {
+    setIsReleaseDialogOpen(false);
+    props.notifyOnRelease(props.model.id, releaseNotes.trim() || undefined);
+  };
 
   return (
     <Box
@@ -253,7 +282,43 @@ const VersionRow = (props: Readonly<VersionRowProps>) => {
             {TEXT.EXPORT_BUTTON_LABEL}
           </PrimaryButton>
         )}
+        {props.isModelManager && !props.model.released && (
+          <PrimaryButton
+            size="small"
+            startIcon={<PublishedWithChangesIcon />}
+            sx={{ ...BUTTON_SX, fontWeight: 700 }}
+            onClick={handleOpenReleaseDialog}
+            disabled={!isOnline}
+            data-testid={DATA_TEST_ID.RELEASE_BUTTON}
+          >
+            {TEXT.RELEASE_BUTTON_LABEL}
+          </PrimaryButton>
+        )}
       </Box>
+      {isReleaseDialogOpen && (
+        <ApproveModal
+          isOpen={isReleaseDialogOpen}
+          title={TEXT.RELEASE_DIALOG_TITLE}
+          content={
+            <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.md}>
+              <Typography variant="body1">{TEXT.RELEASE_DIALOG_WARNING}</Typography>
+              <TextField
+                label={TEXT.RELEASE_NOTES_LABEL}
+                multiline
+                rows={4}
+                fullWidth
+                value={releaseNotes}
+                onChange={(event) => setReleaseNotes(event.target.value)}
+                inputProps={{ "data-testid": DATA_TEST_ID.RELEASE_NOTES_INPUT }}
+              />
+            </Box>
+          }
+          cancelButtonText={TEXT.RELEASE_DIALOG_CANCEL}
+          approveButtonText={TEXT.RELEASE_DIALOG_CONFIRM}
+          onCancel={handleCancelRelease}
+          onApprove={handleApproveRelease}
+        />
+      )}
     </Box>
   );
 };
