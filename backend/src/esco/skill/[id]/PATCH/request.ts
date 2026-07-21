@@ -7,7 +7,8 @@ import SkillAPISpecs from "api-specifications/esco/skill";
 export function parseAndValidatePATCHRequest(
   event: APIGatewayProxyEvent
 ): SkillAPISpecs.Skill.PATCH.Types.Request.Payload | APIGatewayProxyResult {
-  if (!event.headers?.["Content-Type"]?.includes("application/json")) {
+  const contentType = event.headers?.["Content-Type"] ?? event.headers?.["content-type"];
+  if (!contentType?.includes("application/json")) {
     return STD_ERRORS_RESPONSES.UNSUPPORTED_MEDIA_TYPE_ERROR;
   }
 
@@ -29,9 +30,14 @@ export function parseAndValidatePATCHRequest(
     return STD_ERRORS_RESPONSES.MALFORMED_BODY_ERROR(errorMessage);
   }
 
-  const validateFunction = ajvInstance.getSchema(
-    SkillAPISpecs.Skill.PATCH.Schemas.Request.Payload.$id as string
-  ) as ValidateFunction;
+  const validateFunction = ajvInstance.getSchema(SkillAPISpecs.Skill.PATCH.Schemas.Request.Payload.$id as string) as
+    | ValidateFunction
+    | undefined;
+
+  if (!validateFunction) {
+    console.error("AJV schema not found for PATCH Skill request payload");
+    return STD_ERRORS_RESPONSES.INTERNAL_SERVER_ERROR;
+  }
 
   const isValid = validateFunction(payload);
   if (!isValid) {

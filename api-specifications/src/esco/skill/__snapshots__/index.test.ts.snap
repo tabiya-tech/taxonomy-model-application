@@ -4794,6 +4794,11 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
           "SectorSpecific": "sector-specific",
           "Transversal": "transversal",
         },
+        "SearchableField": {
+          "altLabels": "altLabels",
+          "description": "description",
+          "preferredLabel": "preferredLabel",
+        },
         "SignallingValueLabel": {
           "HIGH": "high",
           "LOW": "low",
@@ -5501,6 +5506,11 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
           "OccupationSpecific": "occupation-specific",
           "SectorSpecific": "sector-specific",
           "Transversal": "transversal",
+        },
+        "SearchableField": {
+          "altLabels": "altLabels",
+          "description": "description",
+          "preferredLabel": "preferredLabel",
         },
         "SignallingValueLabel": {
           "HIGH": "high",

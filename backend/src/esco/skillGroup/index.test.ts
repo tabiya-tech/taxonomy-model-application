@@ -30,7 +30,6 @@ import { handler as getHistoryHandler } from "./[id]/history/GET/index";
 jest.mock("./[id]/parents/POST/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "POST_PARENT" }),
 }));
-import { handler as postParentsHandler } from "./[id]/parents/POST/index";
 describe("SkillGroups Router", () => {
   beforeEach(() => {
     jest.clearAllMocks();

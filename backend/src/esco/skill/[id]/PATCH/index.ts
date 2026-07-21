@@ -8,10 +8,10 @@ import SkillAPISpecs from "api-specifications/esco/skill";
 import { buildPATCHResponse } from "./response";
 import { parseAndValidatePATCHRequest } from "./request";
 import { getResourcesBaseUrl } from "server/config/config";
-import { IPartialUpdateSkillSpec } from "../../_shared/skill.types";
+import { IPartialUpdateSkillSpec, ModelForSkillValidationErrorCode } from "../../_shared/skill.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForSkillValidationErrorCode, SkillModelValidationError } from "../../services/skill.service.types";
+import { SkillModelValidationError } from "../../services/skill.service.types";
 import { extractAndValidateIdParams } from "../../_shared/params";
 
 export class SkillPATCHController {
