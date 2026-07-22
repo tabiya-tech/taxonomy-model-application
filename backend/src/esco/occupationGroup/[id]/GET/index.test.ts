@@ -44,6 +44,7 @@ describe("OccupationGroupDetailController", () => {
         findById: jest.fn(),
         findParent: jest.fn(),
         findPaginated: jest.fn(),
+        searchPaginated: jest.fn(),
         validateModelForOccupationGroup: jest.fn(),
         findChildren: jest.fn(),
         setParent: jest.fn(),

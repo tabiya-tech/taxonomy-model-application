@@ -19,6 +19,8 @@ exports[`Test the Occupation Children Instance Detail module The export module m
     "PREFERRED_LABEL_MAX_LENGTH": 256,
     "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
     "SCOPE_NOTE_MAX_LENGTH": 4000,
+    "SEARCH_FIELDS_MAX_LENGTH": 256,
+    "SEARCH_VALUE_MAX_LENGTH": 256,
     "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
     "SIGNALLING_VALUE_MAX": 100,
     "SIGNALLING_VALUE_MIN": 0,
@@ -58,6 +60,11 @@ exports[`Test the Occupation Children Instance Detail module The export module m
           "Skill": "skill",
         },
       },
+    },
+    "SearchableField": {
+      "altLabels": "altLabels",
+      "description": "description",
+      "preferredLabel": "preferredLabel",
     },
   },
   "GET": {

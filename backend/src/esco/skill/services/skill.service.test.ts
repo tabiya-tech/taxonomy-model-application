@@ -31,7 +31,7 @@ import { EmbeddableField } from "embeddings/service/types";
 import { IEmbeddingModelService } from "embeddings/models/modelsServiceTypes";
 import { decodeCursor } from "esco/occupations/_shared/pagination/decodeCursor";
 import { encodeCursor } from "esco/occupations/_shared/pagination/encodeCursor";
-import { decodeSearchCursor, encodeSearchCursor } from "../_shared/searchCursor";
+import { decodeSearchCursor, encodeSearchCursor } from "esco/common/searchCursor";
 import { SkillsEmbeddingsVectorSearchIndexName } from "embeddings/entityEmbeddings/vectorSearchIndex.constant";
 
 interface ITestingSkillService {

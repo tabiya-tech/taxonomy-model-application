@@ -1,6 +1,12 @@
 import { ObjectTypes as CommonObjectTypes } from "../../common/objectTypes";
 
 namespace OccupationEnums {
+  export enum SearchableField {
+    preferredLabel = "preferredLabel",
+    description = "description",
+    altLabels = "altLabels",
+  }
+
   export enum OccupationType {
     ESCOOccupation = CommonObjectTypes.ESCOOccupation,
     LocalOccupation = CommonObjectTypes.LocalOccupation,

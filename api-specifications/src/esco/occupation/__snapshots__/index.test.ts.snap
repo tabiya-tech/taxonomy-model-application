@@ -19,6 +19,8 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
     "PREFERRED_LABEL_MAX_LENGTH": 256,
     "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
     "SCOPE_NOTE_MAX_LENGTH": 4000,
+    "SEARCH_FIELDS_MAX_LENGTH": 256,
+    "SEARCH_VALUE_MAX_LENGTH": 256,
     "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
     "SIGNALLING_VALUE_MAX": 100,
     "SIGNALLING_VALUE_MIN": 0,
@@ -59,6 +61,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         },
       },
     },
+    "SearchableField": {
+      "altLabels": "altLabels",
+      "description": "description",
+      "preferredLabel": "preferredLabel",
+    },
   },
   "GET": {
     "Enums": {
@@ -93,6 +100,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             "Skill": "skill",
           },
         },
+      },
+      "SearchableField": {
+        "altLabels": "altLabels",
+        "description": "description",
+        "preferredLabel": "preferredLabel",
       },
     },
     "Errors": {
@@ -139,6 +151,26 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
           "Payload": {
             "$id": "/components/schemas/OccupationRequestQueryParamSchemaGET",
             "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "searchFields": {},
+                  },
+                  "required": [
+                    "searchFields",
+                  ],
+                },
+                "then": {
+                  "properties": {
+                    "query": {},
+                  },
+                  "required": [
+                    "query",
+                  ],
+                },
+              },
+            ],
             "properties": {
               "cursor": {
                 "description": "A base64 string representing the cursor for pagination.",
@@ -152,6 +184,17 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                 "maximum": 100,
                 "minimum": 1,
                 "type": "integer",
+              },
+              "query": {
+                "description": "A free-text value to search the occupations by. When set, the endpoint returns the occupations that match the value on the requested searchFields, ranked by relevance. On released models the search uses vector embeddings; on unreleased models it uses a case-insensitive regex.",
+                "maxLength": 256,
+                "type": "string",
+              },
+              "searchFields": {
+                "description": "A comma-separated list of the occupation fields to search on (e.g. 'preferredLabel,description'). Only meaningful together with 'query'. Defaults to 'preferredLabel' when omitted.",
+                "maxLength": 256,
+                "pattern": "^(preferredLabel|description|altLabels)(,(preferredLabel|description|altLabels))*$",
+                "type": "string",
               },
             },
             "type": "object",
@@ -782,6 +825,8 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "PREFERRED_LABEL_MAX_LENGTH": 256,
         "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
         "SCOPE_NOTE_MAX_LENGTH": 4000,
+        "SEARCH_FIELDS_MAX_LENGTH": 256,
+        "SEARCH_VALUE_MAX_LENGTH": 256,
         "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
         "SIGNALLING_VALUE_MAX": 100,
         "SIGNALLING_VALUE_MIN": 0,
@@ -821,6 +866,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
               "Skill": "skill",
             },
           },
+        },
+        "SearchableField": {
+          "altLabels": "altLabels",
+          "description": "description",
+          "preferredLabel": "preferredLabel",
         },
       },
       "GET": {
@@ -1510,6 +1560,8 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
       "PREFERRED_LABEL_MAX_LENGTH": 256,
       "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
       "SCOPE_NOTE_MAX_LENGTH": 4000,
+      "SEARCH_FIELDS_MAX_LENGTH": 256,
+      "SEARCH_VALUE_MAX_LENGTH": 256,
       "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
       "SIGNALLING_VALUE_MAX": 100,
       "SIGNALLING_VALUE_MIN": 0,
@@ -1549,6 +1601,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             "Skill": "skill",
           },
         },
+      },
+      "SearchableField": {
+        "altLabels": "altLabels",
+        "description": "description",
+        "preferredLabel": "preferredLabel",
       },
     },
     "GET": {
@@ -1598,6 +1655,8 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "PREFERRED_LABEL_MAX_LENGTH": 256,
         "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
         "SCOPE_NOTE_MAX_LENGTH": 4000,
+        "SEARCH_FIELDS_MAX_LENGTH": 256,
+        "SEARCH_VALUE_MAX_LENGTH": 256,
         "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
         "SIGNALLING_VALUE_MAX": 100,
         "SIGNALLING_VALUE_MIN": 0,
@@ -1637,6 +1696,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
               "Skill": "skill",
             },
           },
+        },
+        "SearchableField": {
+          "altLabels": "altLabels",
+          "description": "description",
+          "preferredLabel": "preferredLabel",
         },
       },
       "GET": {
@@ -1781,6 +1845,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
               "Skill": "skill",
             },
           },
+        },
+        "SearchableField": {
+          "altLabels": "altLabels",
+          "description": "description",
+          "preferredLabel": "preferredLabel",
         },
       },
       "Errors": {
@@ -2558,6 +2627,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             },
           },
         },
+        "SearchableField": {
+          "altLabels": "altLabels",
+          "description": "description",
+          "preferredLabel": "preferredLabel",
+        },
       },
       "Errors": {
         "Status400": {
@@ -3314,6 +3388,8 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "PREFERRED_LABEL_MAX_LENGTH": 256,
         "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
         "SCOPE_NOTE_MAX_LENGTH": 4000,
+        "SEARCH_FIELDS_MAX_LENGTH": 256,
+        "SEARCH_VALUE_MAX_LENGTH": 256,
         "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
         "SIGNALLING_VALUE_MAX": 100,
         "SIGNALLING_VALUE_MIN": 0,
@@ -3353,6 +3429,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
               "Skill": "skill",
             },
           },
+        },
+        "SearchableField": {
+          "altLabels": "altLabels",
+          "description": "description",
+          "preferredLabel": "preferredLabel",
         },
       },
       "GET": {
@@ -5303,6 +5384,8 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
         "PREFERRED_LABEL_MAX_LENGTH": 256,
         "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
         "SCOPE_NOTE_MAX_LENGTH": 4000,
+        "SEARCH_FIELDS_MAX_LENGTH": 256,
+        "SEARCH_VALUE_MAX_LENGTH": 256,
         "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
         "SIGNALLING_VALUE_MAX": 100,
         "SIGNALLING_VALUE_MIN": 0,
@@ -5342,6 +5425,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
               "Skill": "skill",
             },
           },
+        },
+        "SearchableField": {
+          "altLabels": "altLabels",
+          "description": "description",
+          "preferredLabel": "preferredLabel",
         },
       },
       "GET": {
@@ -6657,6 +6745,11 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             "Skill": "skill",
           },
         },
+      },
+      "SearchableField": {
+        "altLabels": "altLabels",
+        "description": "description",
+        "preferredLabel": "preferredLabel",
       },
     },
     "Errors": {

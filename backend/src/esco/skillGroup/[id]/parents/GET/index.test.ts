@@ -44,6 +44,7 @@ describe("SkillGroupParentsController", () => {
         findById: jest.fn(),
         findParents: jest.fn(),
         findPaginated: jest.fn(),
+        searchPaginated: jest.fn(),
         validateModelForSkillGroup: jest.fn(),
         findChildren: jest.fn(),
         getHistory: jest.fn(),

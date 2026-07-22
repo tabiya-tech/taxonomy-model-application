@@ -17,6 +17,7 @@ import { getRandomString } from "_test_utilities/getMockRandomData";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
+import { EmbeddableField } from "embeddings/service/types";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
@@ -55,6 +56,7 @@ describe("SkillGroupListController", () => {
         findById: jest.fn(),
         findParents: jest.fn(),
         findPaginated: jest.fn(),
+        searchPaginated: jest.fn(),
         validateModelForSkillGroup: jest.fn(),
         findChildren: jest.fn(),
         getHistory: jest.fn(),
@@ -122,6 +124,54 @@ describe("SkillGroupListController", () => {
     );
     expect(JSON.parse(actualResponse.body)).toEqual(transformed);
   });
+  test("GET should delegate to searchPaginated when a query is provided and pass through its encoded cursor", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+
+    // GIVEN the search service returns a page with an already-encoded nextCursor
+    const givenItems = [{ ...getISkillGroupMockData(1, givenModelId), UUID: "foo", UUIDHistory: ["foo"] }];
+    const givenNextCursor = "nextOpaqueCursor";
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.searchPaginated = jest
+      .fn()
+      .mockResolvedValue({ items: givenItems, nextCursor: givenNextCursor });
+    const transformed = { data: [{ id: "group-1" }], limit: 100, nextCursor: givenNextCursor };
+    mockTransformPaginated.mockReturnValue(transformed as never);
+
+    // WHEN searching with a query and explicit searchFields (no cursor)
+    const controller = new SkillGroupListController();
+    const actualResponse = await controller.getSkillGroups(
+      buildEvent(`/models/${givenModelId}/skillGroups`, {
+        query: "data",
+        searchFields: "preferredLabel,description",
+      })
+    );
+
+    // THEN expect OK and the search path to have been used (not the plain list path)
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+    expect(mockServiceRegistry.skillGroup.searchPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      "data",
+      [EmbeddableField.preferredLabel, EmbeddableField.description],
+      undefined,
+      100
+    );
+    expect(mockServiceRegistry.skillGroup.findPaginated).not.toHaveBeenCalled();
+    // AND the response to be built with the service's already-encoded nextCursor
+    expect(mockTransformPaginated).toHaveBeenCalledWith(
+      givenItems,
+      "https://resources.example.com",
+      100,
+      givenNextCursor
+    );
+    expect(JSON.parse(actualResponse.body)).toEqual(transformed);
+  });
+
   test("GET should return nextCursor when nextCursor is present in the paginated skill group result", async () => {
     const validatePathFunction = jest.fn().mockReturnValue(true);
     const validateQueryFunction = jest.fn().mockReturnValue(true);
@@ -162,6 +212,7 @@ describe("SkillGroupListController", () => {
         items: [givenSkillGroups[0]],
         nextCursor: { _id: givenSkillGroups[1].id, createdAt: givenSkillGroups[0].createdAt },
       }),
+      searchPaginated: jest.fn(),
       validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
       findChildren: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn(),
@@ -424,6 +475,7 @@ describe("SkillGroupListController", () => {
       findById: jest.fn().mockResolvedValue(null),
       findParents: jest.fn().mockResolvedValue(null),
       findPaginated: jest.fn(),
+      searchPaginated: jest.fn(),
       findChildren: jest.fn(),
       validateModelForSkillGroup: jest
         .fn()
@@ -465,6 +517,7 @@ describe("SkillGroupListController", () => {
     const givenSkillGroupServiceMock = {
       findById: jest.fn().mockResolvedValue(null),
       findPaginated: jest.fn(),
+      searchPaginated: jest.fn(),
       findParents: jest.fn().mockResolvedValue(null),
       validateModelForSkillGroup: jest.fn(),
       findChildren: jest.fn(),
@@ -523,6 +576,7 @@ describe("SkillGroupListController", () => {
       findById: jest.fn().mockResolvedValue(null),
       findAll: jest.fn().mockResolvedValue(null),
       findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
+      findByIds: jest.fn().mockResolvedValue([]),
       findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),
@@ -564,6 +618,7 @@ describe("SkillGroupListController", () => {
     const givenSkillGroupServiceMock = {
       findById: jest.fn().mockResolvedValue(null),
       findPaginated: jest.fn().mockRejectedValue("repository failed"),
+      searchPaginated: jest.fn(),
       findParents: jest.fn().mockResolvedValue(null),
       validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
       findChildren: jest.fn().mockResolvedValue(null),

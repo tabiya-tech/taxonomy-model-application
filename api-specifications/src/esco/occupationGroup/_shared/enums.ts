@@ -1,6 +1,12 @@
 import { ObjectTypes as CommonGroupTypes } from "../../common/objectTypes";
 
 namespace OccupationGroupEnums {
+  export enum SearchableField {
+    preferredLabel = "preferredLabel",
+    description = "description",
+    altLabels = "altLabels",
+  }
+
   export enum ObjectTypes {
     ISCOGroup = CommonGroupTypes.ISCOGroup,
     LocalGroup = CommonGroupTypes.LocalGroup,

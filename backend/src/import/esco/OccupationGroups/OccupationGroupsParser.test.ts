@@ -69,6 +69,7 @@ describe("test parseOccupationGroups from", () => {
         setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         create: jest.fn().mockResolvedValue({}),
+        findByIds: jest.fn().mockResolvedValue([]),
         createMany: jest.fn().mockImplementation((specs: INewOccupationGroupSpec[]): Promise<IOccupationGroup[]> => {
           return Promise.resolve(
             specs.map((spec: INewOccupationGroupSpec): IOccupationGroup => {

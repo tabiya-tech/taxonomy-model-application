@@ -33,6 +33,7 @@ describe("Test for occupation PATCH handler", () => {
         create: jest.fn(),
         findById: jest.fn().mockResolvedValue(null),
         findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn(),
         update: jest.fn(),
         patch: jest.fn(),

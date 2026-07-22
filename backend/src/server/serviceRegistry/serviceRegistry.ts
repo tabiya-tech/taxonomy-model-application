@@ -87,12 +87,24 @@ export class ServiceRegistry {
   async initialize() {
     const awsSQSClient = new SQSClient({ region: getEmbeddingsQueueRegion() });
     const repositoryRegistry = getRepositoryRegistry();
-    this.occupation = new OccupationService(repositoryRegistry.occupation, repositoryRegistry.modelInfo);
+    this.occupation = new OccupationService(
+      repositoryRegistry.occupation,
+      repositoryRegistry.modelInfo,
+      repositoryRegistry.occupationEmbedding,
+      repositoryRegistry.embeddingProcessState
+    );
     this.occupationGroup = new OccupationGroupService(
       repositoryRegistry.OccupationGroup,
-      repositoryRegistry.occupationHierarchy
+      repositoryRegistry.occupationHierarchy,
+      repositoryRegistry.occupationGroupEmbedding,
+      repositoryRegistry.embeddingProcessState
     );
-    this.skillGroup = new SkillGroupService(repositoryRegistry.skillGroup, repositoryRegistry.skillHierarchy);
+    this.skillGroup = new SkillGroupService(
+      repositoryRegistry.skillGroup,
+      repositoryRegistry.skillHierarchy,
+      repositoryRegistry.skillGroupEmbedding,
+      repositoryRegistry.embeddingProcessState
+    );
     this.skill = new SkillService(
       repositoryRegistry.skill,
       repositoryRegistry.modelInfo,

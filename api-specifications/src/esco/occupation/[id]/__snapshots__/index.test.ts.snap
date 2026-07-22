@@ -20,6 +20,8 @@ exports[`Test the Occupation Instance module The export module matches the snaps
       "PREFERRED_LABEL_MAX_LENGTH": 256,
       "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
       "SCOPE_NOTE_MAX_LENGTH": 4000,
+      "SEARCH_FIELDS_MAX_LENGTH": 256,
+      "SEARCH_VALUE_MAX_LENGTH": 256,
       "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
       "SIGNALLING_VALUE_MAX": 100,
       "SIGNALLING_VALUE_MIN": 0,
@@ -59,6 +61,11 @@ exports[`Test the Occupation Instance module The export module matches the snaps
             "Skill": "skill",
           },
         },
+      },
+      "SearchableField": {
+        "altLabels": "altLabels",
+        "description": "description",
+        "preferredLabel": "preferredLabel",
       },
     },
     "GET": {
@@ -748,6 +755,8 @@ exports[`Test the Occupation Instance module The export module matches the snaps
     "PREFERRED_LABEL_MAX_LENGTH": 256,
     "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
     "SCOPE_NOTE_MAX_LENGTH": 4000,
+    "SEARCH_FIELDS_MAX_LENGTH": 256,
+    "SEARCH_VALUE_MAX_LENGTH": 256,
     "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
     "SIGNALLING_VALUE_MAX": 100,
     "SIGNALLING_VALUE_MIN": 0,
@@ -787,6 +796,11 @@ exports[`Test the Occupation Instance module The export module matches the snaps
           "Skill": "skill",
         },
       },
+    },
+    "SearchableField": {
+      "altLabels": "altLabels",
+      "description": "description",
+      "preferredLabel": "preferredLabel",
     },
   },
   "GET": {
@@ -836,6 +850,8 @@ exports[`Test the Occupation Instance module The export module matches the snaps
       "PREFERRED_LABEL_MAX_LENGTH": 256,
       "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
       "SCOPE_NOTE_MAX_LENGTH": 4000,
+      "SEARCH_FIELDS_MAX_LENGTH": 256,
+      "SEARCH_VALUE_MAX_LENGTH": 256,
       "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
       "SIGNALLING_VALUE_MAX": 100,
       "SIGNALLING_VALUE_MIN": 0,
@@ -875,6 +891,11 @@ exports[`Test the Occupation Instance module The export module matches the snaps
             "Skill": "skill",
           },
         },
+      },
+      "SearchableField": {
+        "altLabels": "altLabels",
+        "description": "description",
+        "preferredLabel": "preferredLabel",
       },
     },
     "GET": {
@@ -1019,6 +1040,11 @@ exports[`Test the Occupation Instance module The export module matches the snaps
             "Skill": "skill",
           },
         },
+      },
+      "SearchableField": {
+        "altLabels": "altLabels",
+        "description": "description",
+        "preferredLabel": "preferredLabel",
       },
     },
     "Errors": {
@@ -1796,6 +1822,11 @@ exports[`Test the Occupation Instance module The export module matches the snaps
           },
         },
       },
+      "SearchableField": {
+        "altLabels": "altLabels",
+        "description": "description",
+        "preferredLabel": "preferredLabel",
+      },
     },
     "Errors": {
       "Status400": {
@@ -2552,6 +2583,8 @@ exports[`Test the Occupation Instance module The export module matches the snaps
       "PREFERRED_LABEL_MAX_LENGTH": 256,
       "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
       "SCOPE_NOTE_MAX_LENGTH": 4000,
+      "SEARCH_FIELDS_MAX_LENGTH": 256,
+      "SEARCH_VALUE_MAX_LENGTH": 256,
       "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
       "SIGNALLING_VALUE_MAX": 100,
       "SIGNALLING_VALUE_MIN": 0,
@@ -2591,6 +2624,11 @@ exports[`Test the Occupation Instance module The export module matches the snaps
             "Skill": "skill",
           },
         },
+      },
+      "SearchableField": {
+        "altLabels": "altLabels",
+        "description": "description",
+        "preferredLabel": "preferredLabel",
       },
     },
     "GET": {
@@ -4541,6 +4579,8 @@ exports[`Test the Occupation Instance module The export module matches the snaps
       "PREFERRED_LABEL_MAX_LENGTH": 256,
       "REGULATED_PROFESSION_NOTE_MAX_LENGTH": 4000,
       "SCOPE_NOTE_MAX_LENGTH": 4000,
+      "SEARCH_FIELDS_MAX_LENGTH": 256,
+      "SEARCH_VALUE_MAX_LENGTH": 256,
       "SIGNALLING_VALUE_LABEL_MAX_LENGTH": 256,
       "SIGNALLING_VALUE_MAX": 100,
       "SIGNALLING_VALUE_MIN": 0,
@@ -4580,6 +4620,11 @@ exports[`Test the Occupation Instance module The export module matches the snaps
             "Skill": "skill",
           },
         },
+      },
+      "SearchableField": {
+        "altLabels": "altLabels",
+        "description": "description",
+        "preferredLabel": "preferredLabel",
       },
     },
     "GET": {

@@ -7,6 +7,7 @@ import {
   ModelForSkillGroupValidationErrorCode,
 } from "../_shared/skillGroup.types";
 import { IModelInfoReference } from "modelInfo/modelInfo.types";
+import { EmbeddableField } from "embeddings/service/types";
 
 export interface ISkillGroupPaginatedFilter {
   childrenIds?: string;
@@ -59,6 +60,30 @@ export interface ISkillGroupService {
     desc?: boolean,
     filter?: ISkillGroupPaginatedFilter
   ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }>;
+
+  /**
+   * Searches the SkillGroups of a model by a free-text value on the given searchFields.
+   *
+   * Uses vector (embeddings) similarity ranked by relevance when the model is released and its embeddings have
+   * been generated, and a case-insensitive regex match otherwise. The returned nextCursor is already encoded (its
+   * shape depends on the strategy) and should be passed back verbatim as the `cursor` argument to fetch the next
+   * page.
+   *
+   * @param {string} modelId - The modelId of the SkillGroups.
+   * @param {string} searchValue - The free-text value to search for.
+   * @param {EmbeddableField[]} searchFields - The fields to search the value on.
+   * @param {string | undefined} cursor - The opaque pagination cursor from a previous page, if any.
+   * @param {number} limit - The maximum number of SkillGroups to return.
+   * @return {Promise<{ items: ISkillGroup[]; nextCursor: string | null }>} - The page of SkillGroups (ordered by
+   * relevance for vector search) and the encoded cursor of the next page, if any.
+   */
+  searchPaginated(
+    modelId: string,
+    searchValue: string,
+    searchFields: EmbeddableField[],
+    cursor: string | undefined,
+    limit: number
+  ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }>;
 
   validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null>;
 

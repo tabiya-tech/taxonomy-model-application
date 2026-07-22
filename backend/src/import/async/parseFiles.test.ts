@@ -479,6 +479,7 @@ describe("Test the main async handler", () => {
         patch: jest.fn(),
         setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+        findByIds: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(givenOccupationRepositoryMock);
       // AND a skill repository
@@ -518,6 +519,7 @@ describe("Test the main async handler", () => {
         findHistoryReferencesByUUIDs: jest.fn(),
         setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+        findByIds: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
 
@@ -543,6 +545,7 @@ describe("Test the main async handler", () => {
         setParent: jest.fn().mockResolvedValue(undefined),
         setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+        findByIds: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
 

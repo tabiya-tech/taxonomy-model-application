@@ -110,6 +110,8 @@ export interface IOccupationGroupDetailParam {
 export interface IOccupationGroupQueryParams {
   limit?: number;
   cursor?: string;
+  query?: string;
+  searchFields?: string;
 }
 
 namespace OccupationGroupTypes {

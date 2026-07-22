@@ -127,6 +127,8 @@ interface IOccupationDetailParam {
 interface IOccupationQueryParams {
   limit?: number;
   cursor?: string;
+  query?: string;
+  searchFields?: string;
 }
 
 namespace OccupationTypes {

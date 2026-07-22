@@ -17,11 +17,22 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ISkillGroupPaginatedFilter } from "./skillGroup.service.type";
 import { toModelReference } from "modelInfo/modelInfoReference";
+import { IEntityEmbeddingRepository } from "embeddings/entityEmbeddings/entityEmbeddingRepository";
+import { ISkillGroupEmbeddingDoc } from "embeddings/entityEmbeddings/entityEmbedding.types";
+import { IEmbeddingProcessStateRepository } from "embeddings/embeddingProcessState/embeddingProcessStateRepository";
+import { EmbeddableField } from "embeddings/service/types";
+import { EmbeddingModelServiceFactory, getEmbeddingModelService } from "embeddings/models/embeddingModelServiceFactory";
+import { SkillGroupsEmbeddingsVectorSearchIndexName } from "embeddings/entityEmbeddings/vectorSearchIndex.constant";
+import { encodeCursor, decodeCursor } from "../GET/query";
+import { decodeSearchCursor, encodeSearchCursor } from "esco/common/searchCursor";
 
 export class SkillGroupService implements ISkillGroupService {
   constructor(
     private readonly skillGroupRepository: ISkillGroupRepository,
-    private readonly skillHierarchyRepository: ISkillHierarchyRepository
+    private readonly skillHierarchyRepository: ISkillHierarchyRepository,
+    private readonly skillGroupEmbeddingRepository: IEntityEmbeddingRepository<ISkillGroupEmbeddingDoc>,
+    private readonly embeddingProcessStateRepository: IEmbeddingProcessStateRepository,
+    private readonly embeddingModelServiceFactory: EmbeddingModelServiceFactory = getEmbeddingModelService
   ) {}
 
   async create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup> {
@@ -61,6 +72,115 @@ export class SkillGroupService implements ISkillGroupService {
       items: pageItems,
       nextCursor,
     };
+  }
+
+  async searchPaginated(
+    modelId: string,
+    searchValue: string,
+    searchFields: EmbeddableField[],
+    cursor: string | undefined,
+    limit: number
+  ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }> {
+    // Vector (embeddings) similarity on released, already-embedded models; a case-insensitive regex otherwise.
+    const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
+    if (model?.released) {
+      const completedProcess = await this.embeddingProcessStateRepository.findCompletedByModelId(modelId);
+      if (completedProcess) {
+        return this.vectorSearchPaginated(
+          modelId,
+          completedProcess.embeddingServiceId,
+          searchValue,
+          searchFields,
+          cursor,
+          limit
+        );
+      }
+      // The model is released but its embeddings have not been generated (completed) yet, so there is nothing to
+      // search with vectors. Fall back to regex so the endpoint still returns useful results.
+    }
+    return this.regexSearchPaginated(modelId, searchValue, searchFields, cursor, limit);
+  }
+
+  /**
+   * Searches an unreleased (or not-yet-embedded) model's skill groups with a case-insensitive regex, paginated with
+   * the same keyset (_id) cursor as the plain list endpoint.
+   */
+  private async regexSearchPaginated(
+    modelId: string,
+    searchValue: string,
+    searchFields: EmbeddableField[],
+    cursor: string | undefined,
+    limit: number
+  ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }> {
+    // Newest first, consistent with the plain list endpoint's default order.
+    const sortOrder = -1;
+    const decodedCursorId = cursor ? decodeCursor(cursor).id : undefined;
+
+    const items = await this.skillGroupRepository.findPaginated(
+      modelId,
+      limit + 1,
+      sortOrder,
+      decodedCursorId,
+      undefined,
+      {
+        value: searchValue,
+        fields: searchFields,
+      }
+    );
+
+    const hasMore = items.length > limit;
+    const pageItems = hasMore ? items.slice(0, limit) : items;
+
+    let nextCursor: string | null = null;
+    if (hasMore && pageItems.length > 0) {
+      const lastItemOnPage = pageItems[pageItems.length - 1];
+      nextCursor = encodeCursor(lastItemOnPage.id, lastItemOnPage.createdAt);
+    }
+
+    return { items: pageItems, nextCursor };
+  }
+
+  /**
+   * Searches a released model's skill groups with vector (embeddings) similarity, ranked by relevance and paginated
+   * by rank offset. The query value is embedded with the same embedding service the model was embedded with.
+   */
+  private async vectorSearchPaginated(
+    modelId: string,
+    embeddingServiceId: string,
+    searchValue: string,
+    searchFields: EmbeddableField[],
+    cursor: string | undefined,
+    limit: number
+  ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }> {
+    const offset = cursor ? decodeSearchCursor(cursor) : 0;
+
+    const embeddingService = this.embeddingModelServiceFactory(embeddingServiceId);
+    const queryVector = await embeddingService.generateEmbedding(searchValue);
+
+    const hits = await this.skillGroupEmbeddingRepository.vectorSearch({
+      indexName: SkillGroupsEmbeddingsVectorSearchIndexName,
+      modelId,
+      embeddingServiceId,
+      queryVector,
+      searchFields,
+      limit: limit + 1,
+      offset,
+    });
+
+    const hasMore = hits.length > limit;
+    const pageHits = hasMore ? hits.slice(0, limit) : hits;
+
+    // Hydrate the ranked ids to full skill groups and re-apply the relevance order (findByIds does not preserve it).
+    const ids = pageHits.map((hit) => hit.entityId);
+    const skillGroups = await this.skillGroupRepository.findByIds(modelId, ids);
+    const skillGroupById = new Map(skillGroups.map((skillGroup) => [skillGroup.id, skillGroup]));
+    const items = ids
+      .map((id) => skillGroupById.get(id))
+      .filter((skillGroup): skillGroup is ISkillGroup => skillGroup !== undefined);
+
+    const nextCursor = hasMore ? encodeSearchCursor(offset + limit) : null;
+
+    return { items, nextCursor };
   }
 
   async validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null> {

@@ -1,4 +1,6 @@
-import { getTestBase64String } from "_test_utilities/specialCharacters";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
+import { getTestBase64String, getTestString } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import {
   testBooleanField,
@@ -12,6 +14,19 @@ import { getMockId } from "_test_utilities/mockMongoId";
 
 import SkillGroupGETAPISpecs from "./index";
 import SkillGroupEnums from "../_shared/enums";
+import SkillGroupConstants from "../_shared/constants";
+
+/**
+ * Compiles the GET query-param schema and validates the given object against it.
+ * Used to assert the `query`/`searchFields` search parameters (optional fields with an inter-field
+ * `allOf` constraint), which the shared single-field helpers do not cover.
+ */
+function validateSkillGroupGETQuery(givenObject: object): { valid: boolean } {
+  const ajv = new Ajv({ allErrors: true, strict: true });
+  addFormats(ajv);
+  const validate = ajv.compile(SkillGroupGETAPISpecs.Schemas.Request.Query.Payload);
+  return { valid: validate(givenObject) as boolean };
+}
 
 describe("Test SkillGroupGETAPISpecs.Schemas.GET.Request.Query validity", () => {
   // WHEN the SkillGroupGETAPISpecs.GET.Request.Query schema
@@ -165,6 +180,40 @@ describe("Test objects against the SkillGroupGETAPISpecs.Schemas.GET.Request.Que
         ],
       ])("%s Validate 'childrenType' when it is %s", (caseType, _description, givenObject, failureMessage) => {
         assertCaseForProperty("childrenType", givenObject, givenSchema, caseType, failureMessage);
+      });
+    });
+
+    describe("Test validation of the search parameters 'query' and 'searchFields'", () => {
+      test.each([
+        ["query only", { query: "software developer" }],
+        ["query with a single searchField", { query: "software", searchFields: "preferredLabel" }],
+        [
+          "query with multiple searchFields",
+          { query: "software", searchFields: "preferredLabel,description,altLabels,scopeNote" },
+        ],
+        ["an empty query", { query: "" }],
+        ["a query of the maximum length", { query: getTestString(SkillGroupConstants.SEARCH_VALUE_MAX_LENGTH) }],
+        ["no search parameters at all", { limit: SkillGroupGETAPISpecs.Constants.DEFAULT_LIMIT }],
+      ])("(Success) Validate the search parameters when they are %s", (_description, givenQueryParams) => {
+        // WHEN the query params are validated against the schema
+        const actual = validateSkillGroupGETQuery(givenQueryParams);
+        // THEN expect them to be valid
+        expect(actual.valid).toBe(true);
+      });
+
+      test.each([
+        ["query is longer than the maximum", { query: getTestString(SkillGroupConstants.SEARCH_VALUE_MAX_LENGTH + 1) }],
+        ["query is null", { query: null }],
+        ["searchFields is set without a query", { searchFields: "preferredLabel" }],
+        ["searchFields contains an unknown field", { query: "software", searchFields: "unknownField" }],
+        ["searchFields has a trailing comma", { query: "software", searchFields: "preferredLabel," }],
+        ["searchFields is separated by semicolons", { query: "software", searchFields: "preferredLabel;description" }],
+        ["searchFields is null", { query: "software", searchFields: null }],
+      ])("(Failure) Reject the search parameters when %s", (_description, givenQueryParams) => {
+        // WHEN the query params are validated against the schema
+        const actual = validateSkillGroupGETQuery(givenQueryParams as object);
+        // THEN expect them to be invalid
+        expect(actual.valid).toBe(false);
       });
     });
   });

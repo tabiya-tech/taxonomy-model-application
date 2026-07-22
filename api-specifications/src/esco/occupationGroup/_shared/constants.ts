@@ -12,6 +12,12 @@ namespace OccupationGroupConstants {
   export const DEFAULT_LIMIT = 10;
   export const MAX_LIMIT = 100;
   export const MAX_CURSOR_LENGTH = 1720;
+
+  // The maximum length of the free-text search value (the `query` query parameter).
+  export const SEARCH_VALUE_MAX_LENGTH = 256;
+
+  // The maximum length of the (comma-separated) `searchFields` query parameter.
+  export const SEARCH_FIELDS_MAX_LENGTH = 256;
 }
 
 export default OccupationGroupConstants;

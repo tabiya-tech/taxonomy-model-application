@@ -16,6 +16,7 @@ import {
 } from "../_shared/populate/occupationHierarchyOptions";
 import { populateOccupationRequiresSkillsOptions } from "../_shared/populate/occupationToSkillRelationOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import { escapeRegExp } from "esco/common/escapeRegExp";
 import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
@@ -97,12 +98,15 @@ export interface IOccupationRepository extends IEmbeddableEntityRepository {
   findAll(modelId: string, filter?: SearchFilter): Readable;
 
   /**
-   * Returns paginated Occupations.
+   * Returns paginated Occupations, ordered by _id. When a `search` is provided, only Occupations whose
+   * requested fields match the search value (case-insensitive regex) are returned; otherwise all the model's
+   * Occupations are listed.
    * @param {string} modelId - The modelId of the Occupations.
    * @param {number} limit - The maximum number of Occupations to return.
    * @param {1 | -1} sortOrder - The sort order for pagination.
    * @param {string} [cursorId] - The ID of the cursor for pagination.
    * @param {Record<string, unknown>} [filter] - Additional filters to apply.
+   * @param {{ value: string; fields: string[] }} [search] - The search value and the fields to match it on; when omitted the Occupations are not filtered.
    * @return {Promise<IOccupation[]>} - An array of IOccupations
    * Rejects with an error if the operation fails.
    */
@@ -111,8 +115,21 @@ export interface IOccupationRepository extends IEmbeddableEntityRepository {
     limit: number,
     sortOrder: 1 | -1,
     cursorId?: string,
-    filter?: Record<string, unknown>
+    filter?: Record<string, unknown>,
+    search?: { value: string; fields: string[] }
   ): Promise<IOccupation[]>;
+
+  /**
+   * Finds the Occupations of a model with the given ids, with parents, children and requiresSkills populated.
+   * The result is NOT ordered by the input ids (the caller re-orders it). Ids that are not valid or do not belong
+   * to the model are ignored. Used to hydrate the results of a vector search.
+   *
+   * @param {string} modelId - The modelId of the Occupations.
+   * @param {string[]} ids - The ids of the Occupations to fetch.
+   * @return {Promise<IOccupation[]>} - A Promise that resolves to the found Occupations.
+   * Rejects with an error if the operation fails.
+   */
+  findByIds(modelId: string, ids: string[]): Promise<IOccupation[]>;
 
   /**
    * Finds an Occupation entry by it's UUID.
@@ -340,12 +357,23 @@ export class OccupationRepository implements IOccupationRepository {
     limit: number,
     sortOrder: 1 | -1,
     cursorId?: string,
-    filter?: Record<string, unknown>
+    filter?: Record<string, unknown>,
+    search?: { value: string; fields: string[] }
   ): Promise<IOccupation[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       // Build the match stage
       const matchStage: Record<string, unknown> = { ...filter, modelId: modelIdObj };
+
+      // When searching, match the value literally (escaped) and case-insensitively on any of the requested fields.
+      // altLabels is an array of strings, which $regex matches element-wise, so array and scalar fields are handled
+      // uniformly.
+      if (search) {
+        const escapedValue = escapeRegExp(search.value);
+        matchStage.$and = [
+          { $or: search.fields.map((field) => ({ [field]: { $regex: escapedValue, $options: "i" } })) },
+        ];
+      }
 
       // If a cursorId is provided, add it to the match stage to get results after the cursor
       if (cursorId && mongoose.Types.ObjectId.isValid(cursorId)) {
@@ -373,6 +401,32 @@ export class OccupationRepository implements IOccupationRepository {
       return populated.map((doc) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("OccupationRepository.findPaginated: findPaginated failed", { cause: e });
+      throw err;
+    }
+  }
+
+  async findByIds(modelId: string, ids: string[]): Promise<IOccupation[]> {
+    try {
+      const validIds = ids
+        .filter((id) => mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+      if (validIds.length === 0) {
+        return [];
+      }
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+
+      const results = await this.Model.aggregate([{ $match: { modelId: modelIdObj, _id: { $in: validIds } } }]).exec();
+
+      const hydrated = results.map((r) => this.Model.hydrate(r));
+      const populated = await this.Model.populate(hydrated, [
+        populateOccupationParentOptions,
+        populateOccupationChildrenOptions,
+        populateOccupationRequiresSkillsOptions,
+      ]);
+
+      return populated.map((doc) => doc.toObject());
+    } catch (e: unknown) {
+      const err = new Error("OccupationRepository.findByIds: findByIds failed", { cause: e });
       throw err;
     }
   }

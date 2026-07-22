@@ -14,6 +14,7 @@ import {
   populateOccupationGroupParentOptions,
 } from "esco/occupationGroup/_shared/populateOccupationHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import { escapeRegExp } from "esco/common/escapeRegExp";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
@@ -120,8 +121,21 @@ export interface IOccupationGroupRepository extends IEmbeddableEntityRepository 
     limit: number,
     sortOrder: 1 | -1,
     cursorId?: string,
-    filter?: FindPaginatedFilter
+    filter?: FindPaginatedFilter,
+    search?: { value: string; fields: string[] }
   ): Promise<IOccupationGroup[]>;
+
+  /**
+   * Finds the OccupationGroups of a model with the given ids, with parents and children populated. The result is
+   * NOT ordered by the input ids (the caller re-orders it). Ids that are not valid or do not belong to the model
+   * are ignored. Used to hydrate the results of a vector search.
+   *
+   * @param {string} modelId - The modelId of the OccupationGroups.
+   * @param {string[]} ids - The ids of the OccupationGroups to fetch.
+   * @return {Promise<IOccupationGroup[]>} - A Promise that resolves to the found OccupationGroups.
+   * Rejects with an error if the operation fails.
+   */
+  findByIds(modelId: string, ids: string[]): Promise<IOccupationGroup[]>;
 
   /**
    * Finds an OccupationGroup entry by it's UUID.
@@ -429,12 +443,23 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     limit: number,
     sortOrder: 1 | -1,
     cursorId?: string,
-    filter?: FindPaginatedFilter
+    filter?: FindPaginatedFilter,
+    search?: { value: string; fields: string[] }
   ): Promise<IOccupationGroup[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       // Build the match stage
       const matchStage: Record<string, unknown> = { modelId: modelIdObj };
+
+      // When searching, match the value literally (escaped) and case-insensitively on any of the requested fields.
+      // altLabels is an array of strings, which $regex matches element-wise, so array and scalar fields are handled
+      // uniformly.
+      if (search) {
+        const escapedValue = escapeRegExp(search.value);
+        matchStage.$and = [
+          { $or: search.fields.map((field) => ({ [field]: { $regex: escapedValue, $options: "i" } })) },
+        ];
+      }
 
       // If a cursorId is provided, add it to the match stage to get results after the cursor
       if (cursorId && mongoose.Types.ObjectId.isValid(cursorId)) {
@@ -485,6 +510,32 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       return populated.map((doc) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.findPaginated: findPaginated failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findByIds(modelId: string, ids: string[]): Promise<IOccupationGroup[]> {
+    try {
+      const validIds = ids
+        .filter((id) => mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+      if (validIds.length === 0) {
+        return [];
+      }
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+
+      const results = await this.Model.aggregate([{ $match: { modelId: modelIdObj, _id: { $in: validIds } } }]).exec();
+
+      const hydrated = results.map((r) => this.Model.hydrate(r));
+      const populated = await this.Model.populate(hydrated, [
+        populateOccupationGroupParentOptions,
+        populateOccupationGroupChildrenOptions,
+      ]);
+
+      return populated.map((doc) => doc.toObject());
+    } catch (e: unknown) {
+      const err = new Error("OccupationGroupRepository.findByIds: findByIds failed", { cause: e });
       console.error(err);
       throw err;
     }

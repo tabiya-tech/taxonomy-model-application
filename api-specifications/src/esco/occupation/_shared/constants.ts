@@ -23,6 +23,12 @@ namespace OccupationConstants {
   export const MAX_LIMIT = 100;
   export const MAX_CURSOR_LENGTH = 1024;
 
+  // The maximum length of the free-text search value (the `query` query parameter).
+  export const SEARCH_VALUE_MAX_LENGTH = 256;
+
+  // The maximum length of the (comma-separated) `searchFields` query parameter.
+  export const SEARCH_FIELDS_MAX_LENGTH = 256;
+
   // Signalling value constraints (used in skill-relation response schema)
   export const SIGNALLING_VALUE_MIN = 0;
   export const SIGNALLING_VALUE_MAX = 100;

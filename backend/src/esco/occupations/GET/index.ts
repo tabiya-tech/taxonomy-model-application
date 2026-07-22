@@ -42,6 +42,23 @@ export class OccupationGetController {
    *        name: cursor
    *        schema:
    *          $ref: '#/components/schemas/OccupationRequestQueryParamSchemaGET/properties/cursor'
+   *      - in: query
+   *        name: query
+   *        required: false
+   *        description: >
+   *          A free-text value to search the occupations by. When set, the endpoint returns the occupations
+   *          matching the value on the requested searchFields, ranked by relevance. Released models are searched
+   *          with vector embeddings; unreleased models with a case-insensitive regex.
+   *        schema:
+   *          $ref: '#/components/schemas/OccupationRequestQueryParamSchemaGET/properties/query'
+   *      - in: query
+   *        name: searchFields
+   *        required: false
+   *        description: >
+   *          A comma-separated list of the occupation fields to search on (e.g. 'preferredLabel,description').
+   *          Only meaningful together with query. Defaults to 'preferredLabel'.
+   *        schema:
+   *          $ref: '#/components/schemas/OccupationRequestQueryParamSchemaGET/properties/searchFields'
    *    responses:
    *      '200':
    *        description: Successfully retrieved the paginated occupations.
@@ -100,9 +117,26 @@ export class OccupationGetController {
         );
       }
 
-      const paginationParams = parseGETQuery(event);
-      if ("statusCode" in paginationParams) {
-        return paginationParams;
+      const queryParams = parseGETQuery(event);
+      if ("statusCode" in queryParams) {
+        return queryParams;
+      }
+
+      // When a search value is provided, delegate to the search path. It takes the opaque cursor verbatim and
+      // returns an already-encoded nextCursor (keyset for regex search, relevance offset for vector search), so
+      // the controller stays agnostic to the search pagination strategy.
+      if (queryParams.searchValue !== undefined) {
+        const searchPage = await service.searchPaginated(
+          params.modelId,
+          queryParams.searchValue,
+          queryParams.searchFields,
+          event.queryStringParameters?.cursor ?? undefined,
+          queryParams.limit
+        );
+        return responseJSON(
+          StatusCodes.OK,
+          buildGETResponse(searchPage.items, getResourcesBaseUrl(), queryParams.limit, searchPage.nextCursor)
+        );
       }
 
       let decodedCursorObj: { id: string; createdAt: Date } | undefined = undefined;
@@ -112,11 +146,7 @@ export class OccupationGetController {
         decodedCursorObj = decodeCursor(event.queryStringParameters.cursor);
       }
 
-      const currentPageOccupations = await service.findPaginated(
-        params.modelId,
-        decodedCursorObj,
-        paginationParams.limit
-      );
+      const currentPageOccupations = await service.findPaginated(params.modelId, decodedCursorObj, queryParams.limit);
 
       let nextCursor: string | null = null;
       if (currentPageOccupations?.nextCursor?._id) {
@@ -125,7 +155,7 @@ export class OccupationGetController {
 
       return responseJSON(
         StatusCodes.OK,
-        buildGETResponse(currentPageOccupations.items, getResourcesBaseUrl(), paginationParams.limit, nextCursor)
+        buildGETResponse(currentPageOccupations.items, getResourcesBaseUrl(), queryParams.limit, nextCursor)
       );
     } catch (error: unknown) {
       return errorResponseGET(
