@@ -26,6 +26,9 @@ export const DATA_TEST_ID = {
 const modelInfoService = new ModelInfoService(getApiUrl());
 const explorerService = new ExplorerService(getApiUrl());
 
+// Debounce so search doesn't fire a request on every keystroke.
+const SEARCH_DEBOUNCE_MS = 300;
+
 const findItemById = (items: ExplorerTreeItem[], id: string): ExplorerTreeItem | undefined => {
   for (const item of items) {
     if (item.id === id) return item;
@@ -64,6 +67,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   const [models, setModels] = useState<ModelInfoTypes.ModelInfo[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [searchValue, setSearchValue] = useState("");
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
 
   const [treeItems, setTreeItems] = useState<ExplorerTreeItem[]>([]);
   const [isTreeLoading, setIsTreeLoading] = useState(true);
@@ -85,29 +89,48 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   const selectedModel = models.find((m) => m.id === modelId) ?? null;
 
   useEffect(() => {
+    const handle = setTimeout(() => setDebouncedSearchValue(searchValue), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(handle);
+  }, [searchValue]);
+
+  const trimmedSearchValue = initialTab === "skills" ? debouncedSearchValue.trim() : "";
+
+  useEffect(() => {
     if (!modelId) {
       setTreeItems([]);
       return;
     }
-    const loadRootItems = async () => {
+    let cancelled = false;
+    const loadTreeItems = async () => {
       setIsTreeLoading(true);
       setTreeItems([]);
       try {
-        const items = await explorerService.getRootItems(modelId, initialTab);
-        setTreeItems([
-          ...items.filter((item) => item.objectType !== ObjectType.LocalGroup),
-          ...items.filter((item) => item.objectType === ObjectType.LocalGroup),
-        ]);
+        const items = trimmedSearchValue
+          ? await explorerService.searchSkills(modelId, trimmedSearchValue)
+          : await explorerService.getRootItems(modelId, initialTab);
+        if (cancelled) return;
+        setTreeItems(
+          trimmedSearchValue
+            ? items
+            : [
+                ...items.filter((item) => item.objectType !== ObjectType.LocalGroup),
+                ...items.filter((item) => item.objectType === ObjectType.LocalGroup),
+              ]
+        );
       } catch (e) {
+        if (cancelled) return;
         if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
         else console.error(e);
         setTreeItems([]);
       } finally {
-        setIsTreeLoading(false);
+        if (!cancelled) setIsTreeLoading(false);
       }
     };
-    void loadRootItems();
-  }, [modelId, initialTab]);
+    void loadTreeItems();
+    return () => {
+      cancelled = true;
+    };
+  }, [modelId, initialTab, trimmedSearchValue]);
 
   const handleExpandItem = (item: ExplorerTreeItem) => {
     if (!modelId) return;
@@ -165,6 +188,8 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   const csvDownloadUrl = selectedModel ? getLatestSuccessfulExport(selectedModel)?.downloadUrl : undefined;
 
   const handleModelChange = (newModelId: string) => {
+    setSearchValue("");
+    setDebouncedSearchValue("");
     navigate(
       generatePath(initialTab === "occupations" ? routerPaths.EXPLORER_OCCUPATIONS : routerPaths.EXPLORER_SKILLS, {
         modelId: newModelId,
@@ -174,6 +199,8 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
 
   const handleTabChange = (tab: "occupations" | "skills") => {
     if (!modelId) return;
+    setSearchValue("");
+    setDebouncedSearchValue("");
     navigate(
       generatePath(tab === "occupations" ? routerPaths.EXPLORER_OCCUPATIONS : routerPaths.EXPLORER_SKILLS, { modelId })
     );
@@ -244,7 +271,10 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
                 borderColor="grey.200"
                 sx={{ minHeight: 0, overflow: "auto" }}
               >
-                <ExplorerDetailPanel item={detailItem} isLoading={isDetailLoading} />
+                <ExplorerDetailPanel
+                  item={detailItem}
+                  isLoading={isDetailLoading || (isTreeLoading && !selectedTreeItem)}
+                />
               </Box>
             </Box>
           </Box>

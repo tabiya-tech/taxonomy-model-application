@@ -115,6 +115,15 @@ const skillS120Detail = {
   reuseLevel: "sector-specific",
   requiredByOccupations: [{ id: "occ-1120", preferredLabel: "Business services managers", relationType: "essential" }],
 };
+const skillSearchResults = [
+  {
+    id: "skill-s1.2.0",
+    UUID: "skill-s1.2.0-uuid",
+    preferredLabel: "communicate effectively in healthcare",
+    description: "Communicate clearly and empathetically with patients, families and colleagues.",
+    altLabels: ["healthcare communication"],
+  },
+];
 
 // Disable switching tabs
 const disableTabsDecorator = (Story: () => React.ReactElement) => (
@@ -166,6 +175,12 @@ const meta: Meta<typeof ExplorerPage> = {
         method: "GET",
         status: 200,
         response: skillS120Detail,
+      },
+      {
+        url: `${modelUrl}/skills?query=communicate&searchFields=preferredLabel,altLabels,description&limit=100`,
+        method: "GET",
+        status: 200,
+        response: paginated(skillSearchResults),
       },
     ],
   },
