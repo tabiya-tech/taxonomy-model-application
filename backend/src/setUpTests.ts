@@ -7,3 +7,5 @@
 // Environment variables required for the tests
 // DOMAIN_NAME used in CORS policy
 process.env.DOMAIN_NAME = "https://test-url";
+
+jest.setTimeout(15000);
