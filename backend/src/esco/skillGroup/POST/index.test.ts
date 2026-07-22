@@ -193,6 +193,7 @@ describe("SkillGroupCreateController", () => {
       getModels: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn().mockResolvedValue([]),
       getModelsByIds: jest.fn(),
+      releaseModel: jest.fn(),
     } as IModelRepository;
 
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
@@ -260,6 +261,7 @@ describe("SkillGroupCreateController", () => {
       getModels: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn().mockResolvedValue([]),
       getModelsByIds: jest.fn(),
+      releaseModel: jest.fn(),
     };
 
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
@@ -360,6 +362,7 @@ describe("SkillGroupCreateController", () => {
       getModels: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn().mockResolvedValue([]),
       getModelsByIds: jest.fn(),
+      releaseModel: jest.fn(),
     };
 
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
