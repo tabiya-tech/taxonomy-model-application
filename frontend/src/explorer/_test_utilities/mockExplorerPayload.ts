@@ -27,6 +27,17 @@ export function getMockSkillGroupNode(overrides: Partial<Record<string, unknown>
   };
 }
 
+export function getMockSkillNode(overrides: Partial<Record<string, unknown>> = {}) {
+  return {
+    id: "skill-1",
+    UUID: "skill-1-uuid",
+    preferredLabel: "manage business operations",
+    description: "Oversee and coordinate the day-to-day operations of a business.",
+    altLabels: [],
+    ...overrides,
+  };
+}
+
 export function getMockChildRef(overrides: Partial<Record<string, unknown>> = {}) {
   return {
     id: "occ-1120",

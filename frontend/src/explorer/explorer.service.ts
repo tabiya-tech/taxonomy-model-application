@@ -1,4 +1,5 @@
 import { StatusCodes } from "http-status-codes/";
+import SkillAPISpecs from "api-specifications/esco/skill";
 import { getServiceErrorFactory } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { fetchWithAuth } from "src/apiService/APIService";
@@ -6,6 +7,14 @@ import { ExplorerTreeItem } from "src/explorer/components/ExplorerTreePanel/Expl
 import { ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
 
 export const PAGE_LIMIT = 100;
+
+// Search matches on the label, its synonyms and its description, so a query finds skills by any of the ways
+// a user might refer to them, not just their exact preferred name.
+const SEARCH_FIELDS = [
+  SkillAPISpecs.Enums.SearchableField.preferredLabel,
+  SkillAPISpecs.Enums.SearchableField.altLabels,
+  SkillAPISpecs.Enums.SearchableField.description,
+].join(",");
 
 type ExplorerApiNodeRef = {
   id: string;
@@ -81,6 +90,15 @@ const toRootTreeItem = (node: ExplorerApiNode, objectType: ObjectType): Explorer
   children: node.children?.map(toChildTreeItem),
 });
 
+// Search results are always Skill entities (the only searchable collection) and are always leaves in the tree.
+const toSearchResultTreeItem = (node: ExplorerApiNode): ExplorerTreeItem => ({
+  id: node.id,
+  code: node.code ?? "",
+  title: node.preferredLabel,
+  objectType: ObjectType.Skill,
+  hasChildren: false,
+});
+
 export default class ExplorerService {
   readonly apiServerUrl: string;
 
@@ -142,6 +160,14 @@ export default class ExplorerService {
       (cursor ? `&cursor=${encodeURIComponent(cursor)}` : "");
     const nodes = await this.getAllPages<ExplorerApiNodeRef>(buildUrl, "getChildren");
     return nodes.map(toChildTreeItem);
+  }
+
+  public async searchSkills(modelId: string, searchValue: string): Promise<ExplorerTreeItem[]> {
+    const url =
+      `${this.apiServerUrl}/models/${modelId}/skills?query=${encodeURIComponent(searchValue)}` +
+      `&searchFields=${encodeURIComponent(SEARCH_FIELDS)}&limit=${PAGE_LIMIT}`;
+    const response = await this.getJSON<PaginatedResponse<ExplorerApiNode>>(url, "searchSkills");
+    return response.data.map(toSearchResultTreeItem);
   }
 
   public async getItemDetail(modelId: string, item: ExplorerTreeItem): Promise<ExplorerItemDetail> {

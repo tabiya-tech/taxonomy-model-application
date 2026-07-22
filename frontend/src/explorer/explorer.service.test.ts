@@ -247,6 +247,51 @@ describe("ExplorerService", () => {
     });
   });
 
+  describe("searchSkills", () => {
+    test("should call the skills endpoint with the query and default searchFields, and map results to leaf tree items", async () => {
+      // GIVEN the skills endpoint returns a matching skill
+      const givenSkill = MockPayload.getMockSkillNode({ id: "skill-1", preferredLabel: "manage business operations" });
+      const apiServiceSpy = setupAPIServiceSpy(
+        StatusCodes.OK,
+        MockPayload.getMockPaginatedResponse([givenSkill]),
+        "application/json;charset=UTF-8"
+      );
+
+      // WHEN searchSkills is called with a search value
+      const service = new ExplorerService(givenApiServerUrl);
+      const actualItems = await service.searchSkills(givenModelId, "manage business");
+
+      // THEN expect it to call the skills endpoint with the query and searchFields params
+      expect(apiServiceSpy).toHaveBeenCalledWith(
+        `${givenApiServerUrl}/models/${givenModelId}/skills?query=manage%20business` +
+          `&searchFields=preferredLabel%2CaltLabels%2Cdescription&limit=${PAGE_LIMIT}`,
+        expect.objectContaining({ method: "GET" })
+      );
+      // AND expect the matched skill to be mapped to a leaf tree item typed as a Skill
+      expect(actualItems).toEqual([
+        {
+          id: "skill-1",
+          code: "",
+          title: "manage business operations",
+          objectType: ObjectType.Skill,
+          hasChildren: false,
+        },
+      ]);
+    });
+
+    test("on fail to fetch, should reject with the error thrown by fetchWithAuth", async () => {
+      // GIVEN fetch rejects with some unknown error
+      const givenFetchError = new Error();
+      jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockRejectedValueOnce(givenFetchError);
+
+      // WHEN calling searchSkills
+      const service = new ExplorerService(givenApiServerUrl);
+
+      // THEN expect it to reject with the same error
+      await expect(service.searchSkills(givenModelId, "foo")).rejects.toMatchObject(givenFetchError);
+    });
+  });
+
   describe("getItemDetail", () => {
     test("should fetch an occupation's detail from the occupations collection and use the tree item's objectType", async () => {
       // GIVEN a tree item for an occupation

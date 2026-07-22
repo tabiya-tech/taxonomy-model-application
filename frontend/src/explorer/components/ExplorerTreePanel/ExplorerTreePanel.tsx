@@ -251,7 +251,6 @@ const ExplorerTreePanel = ({
           placeholder={activeTab === "occupations" ? "Search occupations..." : "Search skills..."}
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
-          disabled={isLoading}
           data-testid={DATA_TEST_ID.EXPLORER_TREE_PANEL_SEARCH}
           InputProps={{
             startAdornment: (
