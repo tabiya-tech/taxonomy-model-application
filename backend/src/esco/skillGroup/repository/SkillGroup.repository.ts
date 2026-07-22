@@ -14,6 +14,7 @@ import {
 } from "../_shared/populateSkillHierarchyOptions";
 import { getSkillGroupDocReference, SkillGroupDocument } from "../_shared/skillGroupReference";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import { escapeRegExp } from "esco/common/escapeRegExp";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
@@ -60,8 +61,21 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
     limit: number,
     sortOrder: 1 | -1,
     cursorId?: string,
-    filter?: FindPaginatedFilter
+    filter?: FindPaginatedFilter,
+    search?: { value: string; fields: string[] }
   ): Promise<ISkillGroup[]>;
+
+  /**
+   * Finds the SkillGroups of a model with the given ids, with parents and children populated. The result is NOT
+   * ordered by the input ids (the caller re-orders it). Ids that are not valid or do not belong to the model are
+   * ignored. Used to hydrate the results of a vector search.
+   *
+   * @param {string} modelId - The modelId of the SkillGroups.
+   * @param {string[]} ids - The ids of the SkillGroups to fetch.
+   * @return {Promise<ISkillGroup[]>} - A Promise that resolves to the found SkillGroups.
+   * Rejects with an error if the operation fails.
+   */
+  findByIds(modelId: string, ids: string[]): Promise<ISkillGroup[]>;
   findParents(
     modelId: string | mongoose.Types.ObjectId,
     id: string | mongoose.Types.ObjectId,
@@ -211,11 +225,22 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     limit: number,
     sortOrder: 1 | -1,
     cursorId?: string,
-    filter?: FindPaginatedFilter
+    filter?: FindPaginatedFilter,
+    search?: { value: string; fields: string[] }
   ): Promise<ISkillGroup[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       const matchStage: Record<string, unknown> = { modelId: modelIdObj };
+
+      // When searching, match the value literally (escaped) and case-insensitively on any of the requested fields.
+      // altLabels is an array of strings, which $regex matches element-wise, so array and scalar fields are handled
+      // uniformly.
+      if (search) {
+        const escapedValue = escapeRegExp(search.value);
+        matchStage.$and = [
+          { $or: search.fields.map((field) => ({ [field]: { $regex: escapedValue, $options: "i" } })) },
+        ];
+      }
 
       if (filter?.childrenIds && filter.childrenType) {
         const childIds = filter.childrenIds
@@ -306,6 +331,32 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       return populated.map((doc) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findPaginated: findPaginated failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async findByIds(modelId: string, ids: string[]): Promise<ISkillGroup[]> {
+    try {
+      const validIds = ids
+        .filter((id) => mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+      if (validIds.length === 0) {
+        return [];
+      }
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+
+      const results = await this.Model.aggregate([{ $match: { modelId: modelIdObj, _id: { $in: validIds } } }]).exec();
+
+      const hydrated = results.map((r) => this.Model.hydrate(r));
+      const populated = await this.Model.populate(hydrated, [
+        populateSkillGroupParentsOptions,
+        populateSkillGroupChildrenOptions,
+      ]);
+
+      return populated.map((doc) => doc.toObject());
+    } catch (e: unknown) {
+      const err = new Error("SkillGroupRepository.findByIds: findByIds failed", { cause: e });
       console.error(err);
       throw err;
     }

@@ -37,6 +37,7 @@ describe("Test for occupation History GET handler", () => {
     jest.clearAllMocks();
     const mockServiceRegistry = {
       occupation: {
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockResolvedValue([]),
       } as unknown as IOccupationService,
@@ -72,6 +73,7 @@ describe("Test for occupation History GET handler", () => {
       };
       const givenHistory: IOccupationHistoryEntry[] = [{ entity: givenEntity, model: givenModel }];
       const givenOccupationServiceMock = {
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockResolvedValue(givenHistory),
       } as unknown as IOccupationService;
@@ -93,6 +95,7 @@ describe("Test for occupation History GET handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent = givenValidEvent(givenModelId, givenOccupationId);
       const givenOccupationServiceMock = {
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockResolvedValue([]),
       } as unknown as IOccupationService;
@@ -110,6 +113,7 @@ describe("Test for occupation History GET handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent = givenValidEvent(givenModelId, givenOccupationId);
       const givenOccupationServiceMock = {
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest
           .fn()
           .mockResolvedValue(ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED),
@@ -130,6 +134,7 @@ describe("Test for occupation History GET handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent = givenValidEvent(givenModelId, givenOccupationId);
       const givenOccupationServiceMock = {
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
@@ -147,6 +152,7 @@ describe("Test for occupation History GET handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent = givenValidEvent(givenModelId, givenOccupationId);
       const givenOccupationServiceMock = {
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest
           .fn()
           .mockResolvedValue(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
@@ -166,6 +172,7 @@ describe("Test for occupation History GET handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent = givenValidEvent(givenModelId, givenOccupationId);
       const givenOccupationServiceMock = {
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest
           .fn()
           .mockResolvedValue(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
@@ -187,6 +194,7 @@ describe("Test for occupation History GET handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent = givenValidEvent(givenModelId, givenOccupationId);
       const givenOccupationServiceMock = {
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockRejectedValue(new Error("foo")),
       } as unknown as IOccupationService;
@@ -202,6 +210,7 @@ describe("Test for occupation History GET handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent = givenValidEvent(givenModelId, givenOccupationId);
       const givenOccupationServiceMock = {
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
         getHistory: jest.fn().mockRejectedValue("some string error"),
       } as unknown as IOccupationService;

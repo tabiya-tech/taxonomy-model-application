@@ -41,6 +41,7 @@ describe("OccupationGroupHistoryController", () => {
         findById: jest.fn(),
         findParent: jest.fn(),
         findPaginated: jest.fn(),
+        searchPaginated: jest.fn(),
         validateModelForOccupationGroup: jest.fn().mockResolvedValue(null),
         findChildren: jest.fn(),
         setParent: jest.fn(),

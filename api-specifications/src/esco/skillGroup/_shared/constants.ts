@@ -13,6 +13,12 @@ namespace SkillGroupConstants {
   export const DEFAULT_LIMIT = 20;
   export const MAX_CURSOR_LENGTH = 1720;
   export const MAX_SCOPE_NOTE_LENGTH = 4000;
+
+  // The maximum length of the free-text search value (the `query` query parameter).
+  export const SEARCH_VALUE_MAX_LENGTH = 256;
+
+  // The maximum length of the (comma-separated) `searchFields` query parameter.
+  export const SEARCH_FIELDS_MAX_LENGTH = 256;
   export const MAX_JSON_OVERHEAD = 10_000;
 
   const TOTAL_ALT_LABELS_MAX_LENGTH = ALT_LABELS_MAX_ITEMS * ALT_LABEL_MAX_LENGTH;

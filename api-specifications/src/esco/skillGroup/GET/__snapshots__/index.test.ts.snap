@@ -55,6 +55,24 @@ exports[`Test the skillGroup GET module The export module matches the snapshot 1
             {
               "if": {
                 "properties": {
+                  "searchFields": {},
+                },
+                "required": [
+                  "searchFields",
+                ],
+              },
+              "then": {
+                "properties": {
+                  "query": {},
+                },
+                "required": [
+                  "query",
+                ],
+              },
+            },
+            {
+              "if": {
+                "properties": {
                   "childrenIds": {},
                 },
                 "required": [
@@ -116,9 +134,20 @@ exports[`Test the skillGroup GET module The export module matches the snapshot 1
               "minimum": 1,
               "type": "integer",
             },
+            "query": {
+              "description": "A free-text value to search the skill groups by. When set, the endpoint returns the skill groups that match the value on the requested searchFields, ranked by relevance. On released models the search uses vector embeddings; on unreleased models it uses a case-insensitive regex.",
+              "maxLength": 256,
+              "type": "string",
+            },
             "root": {
               "description": "Filter only root skill groups (skill groups with no parent).",
               "type": "boolean",
+            },
+            "searchFields": {
+              "description": "A comma-separated list of the skill group fields to search on (e.g. 'preferredLabel,description'). Only meaningful together with 'query'. Defaults to 'preferredLabel' when omitted.",
+              "maxLength": 256,
+              "pattern": "^(preferredLabel|description|altLabels|scopeNote)(,(preferredLabel|description|altLabels|scopeNote))*$",
+              "type": "string",
             },
           },
           "type": "object",

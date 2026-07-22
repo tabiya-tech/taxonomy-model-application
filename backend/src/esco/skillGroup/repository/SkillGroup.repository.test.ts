@@ -1324,6 +1324,114 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actual[0].id).toBe(givenSkillGroup2.id);
       expect(actual[1].id).toBe(givenSkillGroup1.id);
     });
+
+    describe("with a search value", () => {
+      test("should only return the SkillGroups whose requested field matches the search value (case-insensitive)", async () => {
+        // GIVEN a model with three skill groups, two of which match the search value on preferredLabel
+        const givenModelId = getMockStringId(1);
+        const givenDataScience = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "Data Science"));
+        const givenDataEngineering = await repository.create(
+          getSimpleNewSkillGroupSpec(givenModelId, "DATA engineering")
+        );
+        await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "Nursing"));
+
+        // WHEN searching for "data" on preferredLabel
+        const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
+          value: "data",
+          fields: ["preferredLabel"],
+        });
+
+        // THEN expect only the two matching skill groups
+        expect(actual.map((g) => g.id).sort()).toEqual([givenDataScience.id, givenDataEngineering.id].sort());
+      });
+
+      test("should treat the search value literally (regex special characters are escaped)", async () => {
+        // GIVEN a model with a skill group whose label contains regex special characters
+        const givenModelId = getMockStringId(1);
+        const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "a.b.c"));
+        await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "axbxc"));
+
+        // WHEN searching for the literal value "a.b.c"
+        const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
+          value: "a.b.c",
+          fields: ["preferredLabel"],
+        });
+
+        // THEN expect only the skill group that matches literally
+        expect(actual).toHaveLength(1);
+        expect(actual[0].id).toBe(givenSkillGroup.id);
+      });
+
+      test("should return an empty array when nothing matches the search value", async () => {
+        // GIVEN a model with a skill group
+        const givenModelId = getMockStringId(1);
+        await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "Nursing"));
+
+        // WHEN searching for a value that matches nothing
+        const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
+          value: "data",
+          fields: ["preferredLabel"],
+        });
+
+        // THEN expect no results
+        expect(actual).toHaveLength(0);
+      });
+    });
+  });
+
+  describe("Test findByIds()", () => {
+    test("should return the SkillGroups of the model with the given ids", async () => {
+      // GIVEN a model with three skill groups
+      const givenModelId = getMockStringId(1);
+      const given1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g1"));
+      const given2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g2"));
+      await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g3"));
+
+      // WHEN finding two of them by id
+      const actual = await repository.findByIds(givenModelId, [given1.id, given2.id]);
+
+      // THEN expect exactly those two skill groups back (order not guaranteed)
+      expect(actual.map((g) => g.id).sort()).toEqual([given1.id, given2.id].sort());
+    });
+
+    test("should ignore invalid ids and ids that do not belong to the model", async () => {
+      // GIVEN a model with one skill group, and another skill group in a different model
+      const givenModelId = getMockStringId(1);
+      const givenOtherModelId = getMockStringId(2);
+      const given = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g1"));
+      const givenOther = await repository.create(getSimpleNewSkillGroupSpec(givenOtherModelId, "other"));
+
+      // WHEN finding by a mix of a valid id, an invalid id and an id from another model
+      const actual = await repository.findByIds(givenModelId, [given.id, "not-an-id", givenOther.id]);
+
+      // THEN expect only the skill group of the model to be returned
+      expect(actual).toHaveLength(1);
+      expect(actual[0].id).toBe(given.id);
+    });
+
+    test("should return an empty array when no valid ids are given", async () => {
+      // GIVEN a model
+      const givenModelId = getMockStringId(1);
+
+      // WHEN finding by only invalid ids
+      const actual = await repository.findByIds(givenModelId, ["not-an-id", ""]);
+
+      // THEN expect an empty array
+      expect(actual).toEqual([]);
+    });
+
+    test("should reject when the database query fails", async () => {
+      // GIVEN the aggregation will fail
+      const givenError = new Error("database query failure");
+      jest.spyOn(repository.Model, "aggregate").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // WHEN finding by ids THEN expect it to reject
+      await expect(repository.findByIds(getMockStringId(1), [getMockStringId(2)])).rejects.toThrow(
+        new Error("SkillGroupRepository.findByIds: findByIds failed", { cause: givenError })
+      );
+    });
   });
 
   describe("Test findParents()", () => {

@@ -16,6 +16,8 @@ import {
   createModelInDB,
   createOccupationGroupInDB,
 } from "esco/_test_utilities/createDocsInDB";
+import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { getSimpleNewISCOGroupSpec } from "esco/_test_utilities/getNewSpecs";
 
 async function createOccupationGroupsInDB(count: number, modelId: string = getMockStringId(1)) {
   const occupationGroups = [];
@@ -194,5 +196,33 @@ describe("Test for occupationGroup GET handler with a DB", () => {
     expect(JSON.parse(response.body).data).toHaveLength(
       givenParentOccupationGroup.length + givenChildOccupationGroups.length
     );
+  });
+
+  test("GET should regex-search an unreleased model's occupationGroups by the query on the requested fields", async () => {
+    // GIVEN an unreleased model with three occupation groups, two of which match "nursing" on preferredLabel
+    const givenModelInfo = await createModelInDB();
+    const givenModelId = givenModelInfo.id.toString();
+    const givenOriginUri = "https://example.com/origin";
+    const givenNursing = await getRepositoryRegistry().OccupationGroup.create({
+      ...getSimpleNewISCOGroupSpec(givenModelId, "Nursing professionals"),
+      originUri: givenOriginUri,
+    });
+    const givenNursingAssoc = await getRepositoryRegistry().OccupationGroup.create({
+      ...getSimpleNewISCOGroupSpec(givenModelId, "nursing associate professionals"),
+      originUri: givenOriginUri,
+    });
+    await getRepositoryRegistry().OccupationGroup.create({
+      ...getSimpleNewISCOGroupSpec(givenModelId, "Software developers"),
+      originUri: givenOriginUri,
+    });
+
+    // WHEN searching for "nursing" on preferredLabel
+    const givenEvent = buildRequestEvent(givenModelId, { query: "nursing", searchFields: "preferredLabel" });
+    const actualResponse = await occupationGroupHandler(givenEvent as never);
+
+    // THEN expect OK and only the two matching occupation groups
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    const actualIds = JSON.parse(actualResponse.body).data.map((g: { id: string }) => g.id);
+    expect(actualIds.sort()).toEqual([givenNursing.id, givenNursingAssoc.id].sort());
   });
 });

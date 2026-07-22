@@ -122,4 +122,34 @@ describe("Test for occupation List GET handler with a DB", () => {
     expect(validateGETResponse(JSON.parse(actualResponse.body))).toBeTruthy();
     expect(JSON.parse(actualResponse.body).data.length).toEqual(givenLimit);
   });
+
+  test("GET should regex-search an unreleased model's occupations by the query on the requested fields", async () => {
+    // GIVEN an unreleased model with three occupations, two of which match "software" on preferredLabel
+    const givenModel = await getRepositoryRegistry().modelInfo.create({
+      name: "Test Model",
+      description: "Test Description",
+      locale: { shortCode: "en", name: "English", UUID: randomUUID() },
+      license: "MIT",
+      UUIDHistory: [],
+    });
+    const givenModelId = givenModel.id;
+    const givenSoftwareEngineer = await createOccupationInDB(givenModelId, { preferredLabel: "Software Engineer" });
+    const givenSoftwareArchitect = await createOccupationInDB(givenModelId, { preferredLabel: "software architect" });
+    await createOccupationInDB(givenModelId, { preferredLabel: "Nurse" });
+
+    // WHEN searching for "software" on preferredLabel
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      path: `/models/${givenModelId}/occupations`,
+      queryStringParameters: { query: "software", searchFields: "preferredLabel" },
+      pathParameters: { modelId: givenModelId },
+    };
+    const actualResponse = await occupationHandler(givenEvent as unknown as APIGatewayProxyEvent);
+
+    // THEN expect OK, a schema-valid response and only the two matching occupations
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(validateGETResponse(JSON.parse(actualResponse.body))).toBeTruthy();
+    const actualIds = JSON.parse(actualResponse.body).data.map((o: { id: string }) => o.id);
+    expect(actualIds.sort()).toEqual([givenSoftwareEngineer.id, givenSoftwareArchitect.id].sort());
+  });
 });

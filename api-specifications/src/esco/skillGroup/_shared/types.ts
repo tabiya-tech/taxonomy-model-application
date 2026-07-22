@@ -113,6 +113,8 @@ export interface ISkillGroupDetailParam {
 export interface ISkillGroupQueryParams {
   limit?: number;
   cursor?: string;
+  query?: string;
+  searchFields?: string;
   childrenIds?: string;
   childrenType?: SkillGroupEnums.Relations.Children.ObjectTypes;
 }

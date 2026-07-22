@@ -18,6 +18,8 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
     "MAX_UUID_HISTORY_ITEM_LENGTH": 36,
     "ORIGIN_URI_MAX_LENGTH": 4096,
     "PREFERRED_LABEL_MAX_LENGTH": 256,
+    "SEARCH_FIELDS_MAX_LENGTH": 256,
+    "SEARCH_VALUE_MAX_LENGTH": 256,
     "UUID_HISTORY_MAX_ITEMS": 10000,
   },
   "Enums": {
@@ -33,6 +35,12 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
           "SkillGroup": "skillgroup",
         },
       },
+    },
+    "SearchableField": {
+      "altLabels": "altLabels",
+      "description": "description",
+      "preferredLabel": "preferredLabel",
+      "scopeNote": "scopeNote",
     },
   },
   "GET": {
@@ -86,6 +94,24 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
             "$id": "/components/schemas/SkillGroupRequestQueryParamSchemaGET",
             "additionalProperties": false,
             "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "searchFields": {},
+                  },
+                  "required": [
+                    "searchFields",
+                  ],
+                },
+                "then": {
+                  "properties": {
+                    "query": {},
+                  },
+                  "required": [
+                    "query",
+                  ],
+                },
+              },
               {
                 "if": {
                   "properties": {
@@ -150,9 +176,20 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                 "minimum": 1,
                 "type": "integer",
               },
+              "query": {
+                "description": "A free-text value to search the skill groups by. When set, the endpoint returns the skill groups that match the value on the requested searchFields, ranked by relevance. On released models the search uses vector embeddings; on unreleased models it uses a case-insensitive regex.",
+                "maxLength": 256,
+                "type": "string",
+              },
               "root": {
                 "description": "Filter only root skill groups (skill groups with no parent).",
                 "type": "boolean",
+              },
+              "searchFields": {
+                "description": "A comma-separated list of the skill group fields to search on (e.g. 'preferredLabel,description'). Only meaningful together with 'query'. Defaults to 'preferredLabel' when omitted.",
+                "maxLength": 256,
+                "pattern": "^(preferredLabel|description|altLabels|scopeNote)(,(preferredLabel|description|altLabels|scopeNote))*$",
+                "type": "string",
               },
             },
             "type": "object",

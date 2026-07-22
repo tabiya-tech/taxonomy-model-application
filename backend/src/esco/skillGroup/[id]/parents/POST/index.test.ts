@@ -95,6 +95,7 @@ describe("SkillGroupParentPOSTController", () => {
         findPaginated: jest.fn(),
         findParents: jest.fn(),
         findChildren: jest.fn(),
+        searchPaginated: jest.fn(),
         validateModelForSkillGroup: jest.fn(),
         getHistory: jest.fn(),
       } as ISkillGroupService,

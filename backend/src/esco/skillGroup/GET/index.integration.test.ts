@@ -22,6 +22,8 @@ import {
   createChildSkillGroups,
 } from "esco/_test_utilities/createDocsInDB";
 import { APIGatewayProxyEvent } from "aws-lambda";
+import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
+import { getSimpleNewSkillGroupSpec } from "esco/_test_utilities/getNewSpecs";
 
 function buildRequestEvent(modelId: string, queryStringParameters: object): APIGatewayProxyEvent {
   return {
@@ -376,6 +378,38 @@ describe("Test for skillGroup handler with a DB", () => {
       // AND the response to contain the parent and all of its children
       const actualAllBody = JSON.parse(actualAllResponse.body);
       expect(actualAllBody.data as ISkillGroup[]).toHaveLength(1 + givenChildSkillGroups.length);
+    });
+  });
+
+  describe("GET searching skillGroups by a query", () => {
+    test("GET should regex-search an unreleased model's skillGroups by the query on the requested fields", async () => {
+      // GIVEN an unreleased model with three skill groups, two of which match "data" on preferredLabel
+      const givenModelInfo = await createModelInDB();
+      const givenModelId = givenModelInfo.id.toString();
+      const givenOriginUri = "https://example.com/origin";
+      const givenDataScience = await getRepositoryRegistry().skillGroup.create({
+        ...getSimpleNewSkillGroupSpec(givenModelId, "Data Science"),
+        originUri: givenOriginUri,
+      });
+      const givenDataEngineering = await getRepositoryRegistry().skillGroup.create({
+        ...getSimpleNewSkillGroupSpec(givenModelId, "data engineering"),
+        originUri: givenOriginUri,
+      });
+      await getRepositoryRegistry().skillGroup.create({
+        ...getSimpleNewSkillGroupSpec(givenModelId, "Nursing"),
+        originUri: givenOriginUri,
+      });
+
+      // WHEN searching for "data" on preferredLabel
+      const givenEvent = buildRequestEvent(givenModelId, { query: "data", searchFields: "preferredLabel" });
+      const actualResponse = await skillGroupHandler(givenEvent);
+
+      // THEN expect OK, a schema-valid response and only the two matching skill groups
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      validateGETResponse(JSON.parse(actualResponse.body));
+      expect(validateGETResponse.errors).toBeNull();
+      const actualIds = (JSON.parse(actualResponse.body).data as ISkillGroup[]).map((g) => g.id);
+      expect(actualIds.sort()).toEqual([givenDataScience.id, givenDataEngineering.id].sort());
     });
   });
 });

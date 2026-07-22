@@ -21,7 +21,7 @@ import { EmbeddingModelServiceFactory, getEmbeddingModelService } from "embeddin
 import { SkillsEmbeddingsVectorSearchIndexName } from "embeddings/entityEmbeddings/vectorSearchIndex.constant";
 import { encodeCursor } from "esco/occupations/_shared/pagination/encodeCursor";
 import { decodeCursor } from "esco/occupations/_shared/pagination/decodeCursor";
-import { decodeSearchCursor, encodeSearchCursor } from "../_shared/searchCursor";
+import { decodeSearchCursor, encodeSearchCursor } from "esco/common/searchCursor";
 
 export class SkillService implements ISkillService {
   constructor(

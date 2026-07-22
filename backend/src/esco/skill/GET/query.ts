@@ -8,7 +8,7 @@ import SkillAPISpecs from "api-specifications/esco/skill";
 import ErrorAPISpecs from "api-specifications/error";
 import { EmbeddableField } from "embeddings/service/types";
 import { decodeCursor } from "../../occupations/_shared/pagination/decodeCursor";
-import { decodeSearchCursor } from "../_shared/searchCursor";
+import { decodeSearchCursor } from "esco/common/searchCursor";
 
 /**
  * Checks that a cursor token is well-formed for one of the two pagination strategies this endpoint uses:

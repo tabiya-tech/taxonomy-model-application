@@ -31,6 +31,7 @@ describe("Test for occupation Children GET handler", () => {
     const mockServiceRegistry = {
       occupation: {
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn(),
       } as unknown as IOccupationService,
       initialize: jest.fn(),
@@ -55,6 +56,7 @@ describe("Test for occupation Children GET handler", () => {
       const givenChildren: IOccupation[] = [getIOccupationMockData(3)];
       const givenOccupationServiceMock = {
         getChildren: jest.fn().mockResolvedValue({ items: givenChildren, nextCursor: null }),
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -88,6 +90,7 @@ describe("Test for occupation Children GET handler", () => {
       checkRole.mockResolvedValue(true);
       const givenOccupationServiceMock = {
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -114,6 +117,7 @@ describe("Test for occupation Children GET handler", () => {
       checkRole.mockResolvedValue(true);
       const givenOccupationServiceMock = {
         getChildren: jest.fn(),
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest
           .fn()
           .mockResolvedValue(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
@@ -147,6 +151,7 @@ describe("Test for occupation Children GET handler", () => {
       checkRole.mockResolvedValue(true);
       const givenOccupationServiceMock = {
         getChildren: jest.fn(),
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest
           .fn()
           .mockResolvedValue(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
@@ -169,6 +174,7 @@ describe("Test for occupation Children GET handler", () => {
       checkRole.mockResolvedValue(true);
       const givenOccupationServiceMock = {
         getChildren: jest.fn(),
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -189,6 +195,7 @@ describe("Test for occupation Children GET handler", () => {
       const nextCursorDoc = { _id: getMockStringId(3), createdAt: new Date() };
       const givenOccupationServiceMock = {
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: nextCursorDoc }),
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -210,6 +217,7 @@ describe("Test for occupation Children GET handler", () => {
       checkRole.mockResolvedValue(true);
       const givenOccupationServiceMock = {
         getChildren: jest.fn().mockRejectedValue(new Error("DB error")),
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -229,6 +237,7 @@ describe("Test for occupation Children GET handler", () => {
       checkRole.mockResolvedValue(true);
       const givenOccupationServiceMock = {
         getChildren: jest.fn().mockRejectedValue("some string error"),
+        searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;

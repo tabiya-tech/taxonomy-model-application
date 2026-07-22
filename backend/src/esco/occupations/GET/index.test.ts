@@ -11,10 +11,12 @@ import OccupationAPISpecs from "api-specifications/esco/occupation";
 
 import * as authenticatorModule from "auth/authorizer";
 import { IOccupation } from "../_shared/occupation.types";
+import { EmbeddableField } from "embeddings/service/types";
 import { getIOccupationMockData } from "../_shared/testDataHelper";
 import { IOccupationService, ModelForOccupationValidationErrorCode } from "../services/occupation.service.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { encodeCursor } from "../_shared/pagination/encodeCursor";
+import { encodeSearchCursor } from "esco/common/searchCursor";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
@@ -109,6 +111,58 @@ describe("Test for occupation List GET handler", () => {
         givenModelId,
         { id: givenCursorId, createdAt: givenCreatedAt },
         givenLimit
+      );
+    });
+
+    test("GET should delegate to searchPaginated when a query is provided and pass through its encoded cursor", async () => {
+      // GIVEN a request with a search query and explicit searchFields
+      const givenModelId = getMockStringId(1);
+      const givenSearchValue = "software";
+      const givenCursor = encodeSearchCursor(5);
+      const givenEvent = {
+        httpMethod: "GET",
+        path: `/models/${givenModelId}/occupations`,
+        queryStringParameters: {
+          query: givenSearchValue,
+          searchFields: "preferredLabel,description",
+          cursor: givenCursor,
+        },
+        pathParameters: { modelId: givenModelId },
+      } as unknown as APIGatewayProxyEvent;
+      checkRole.mockResolvedValue(true);
+
+      const givenResourcesBaseUrl = "https://some/path/to/api/resources";
+      jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
+
+      // AND the service returns a page with an already-encoded nextCursor
+      const givenOccupations = [getIOccupationMockData(1)];
+      const givenNextCursor = "nextOpaqueCursor";
+      const givenOccupationServiceMock = {
+        findPaginated: jest.fn(),
+        searchPaginated: jest.fn().mockResolvedValue({ items: givenOccupations, nextCursor: givenNextCursor }),
+        validateModelForOccupation: jest.fn().mockResolvedValue(null),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      // WHEN calling the handler
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect OK and the search path to have been used (not the plain list path)
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(givenOccupationServiceMock.searchPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        givenSearchValue,
+        [EmbeddableField.preferredLabel, EmbeddableField.description],
+        givenCursor,
+        OccupationAPISpecs.Constants.DEFAULT_LIMIT
+      );
+      expect(givenOccupationServiceMock.findPaginated).not.toHaveBeenCalled();
+      // AND the response to be built with the service's already-encoded nextCursor
+      expect(buildGETResponseSpy).toHaveBeenCalledWith(
+        givenOccupations,
+        givenResourcesBaseUrl,
+        OccupationAPISpecs.Constants.DEFAULT_LIMIT,
+        givenNextCursor
       );
     });
 

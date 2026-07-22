@@ -44,6 +44,7 @@ function setupOccupationRepositoryMock(findAllImpl: () => Readable) {
     create: jest.fn().mockResolvedValue(null),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
+    findByIds: jest.fn().mockResolvedValue([]),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
     findPaginated: jest.fn().mockResolvedValue({}),
     getOccupationByUUID: jest.fn().mockResolvedValue(null),

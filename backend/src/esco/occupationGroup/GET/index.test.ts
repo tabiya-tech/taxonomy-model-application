@@ -18,6 +18,7 @@ import { randomUUID } from "node:crypto";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
+import { EmbeddableField } from "embeddings/service/types";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
@@ -57,6 +58,7 @@ describe("OccupationGroupListController", () => {
         findById: jest.fn(),
         findParent: jest.fn(),
         findPaginated: jest.fn(),
+        searchPaginated: jest.fn(),
         validateModelForOccupationGroup: jest.fn(),
         findChildren: jest.fn(),
         getHistory: jest.fn(),
@@ -134,6 +136,54 @@ describe("OccupationGroupListController", () => {
     expect(JSON.parse(actualResponse.body)).toEqual(transformed);
   });
 
+  test("GET should delegate to searchPaginated when a query is provided and pass through its encoded cursor", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetOccupationGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+
+    // GIVEN the search service returns a page with an already-encoded nextCursor
+    const givenItems = [{ ...getIOccupationGroupMockData(1, givenModelId), UUID: "foo", UUIDHistory: ["foo"] }];
+    const givenNextCursor = "nextOpaqueCursor";
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.searchPaginated = jest
+      .fn()
+      .mockResolvedValue({ items: givenItems, nextCursor: givenNextCursor });
+    const transformed = { data: [{ id: "group-1" }], limit: 100, nextCursor: givenNextCursor };
+    mockTransformPaginated.mockReturnValue(transformed as never);
+
+    // WHEN searching with a query and explicit searchFields (no cursor)
+    const controller = new OccupationGroupListController();
+    const actualResponse = await controller.getOccupationGroups(
+      buildEvent(`/models/${givenModelId}/occupationGroups`, {
+        query: "nursing",
+        searchFields: "preferredLabel,description",
+      })
+    );
+
+    // THEN expect OK and the search path to have been used (not the plain list path)
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+    expect(mockServiceRegistry.occupationGroup.searchPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      "nursing",
+      [EmbeddableField.preferredLabel, EmbeddableField.description],
+      undefined,
+      100
+    );
+    expect(mockServiceRegistry.occupationGroup.findPaginated).not.toHaveBeenCalled();
+    // AND the response to be built with the service's already-encoded nextCursor
+    expect(mockTransformPaginated).toHaveBeenCalledWith(
+      givenItems,
+      "https://resources.example.com",
+      100,
+      givenNextCursor
+    );
+    expect(JSON.parse(actualResponse.body)).toEqual(transformed);
+  });
+
   test("GET should return nextCursor when nextCursor is present in the paginated occupation group result", async () => {
     // GIVEN role check passes for anonymous access
     const validatePathFunction = jest.fn().mockReturnValue(true);
@@ -176,6 +226,7 @@ describe("OccupationGroupListController", () => {
         items: [givenOccupationGroups[0]],
         nextCursor: { _id: givenOccupationGroups[1].id, createdAt: givenOccupationGroups[0].createdAt },
       }),
+      searchPaginated: jest.fn(),
       validateModelForOccupationGroup: jest.fn().mockResolvedValue(null),
       findChildren: jest.fn().mockResolvedValue([]),
       setParent: jest.fn(),
@@ -363,6 +414,7 @@ describe("OccupationGroupListController", () => {
       findById: jest.fn().mockResolvedValue(null),
       findParent: jest.fn().mockResolvedValue(null),
       findPaginated: jest.fn(),
+      searchPaginated: jest.fn(),
       findChildren: jest.fn(),
       setParent: jest.fn(),
       validateModelForOccupationGroup: jest
@@ -406,6 +458,7 @@ describe("OccupationGroupListController", () => {
       create: jest.fn(),
       findById: jest.fn().mockResolvedValue(null),
       findPaginated: jest.fn(),
+      searchPaginated: jest.fn(),
       findParent: jest.fn().mockResolvedValue(null),
       validateModelForOccupationGroup: jest.fn(),
       findChildren: jest.fn(),
@@ -462,6 +515,7 @@ describe("OccupationGroupListController", () => {
       findById: jest.fn().mockResolvedValue(null),
       findAll: jest.fn().mockResolvedValue(null),
       findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
+      findByIds: jest.fn().mockResolvedValue([]),
       getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
       getHistory: jest.fn().mockResolvedValue([]),
       findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),

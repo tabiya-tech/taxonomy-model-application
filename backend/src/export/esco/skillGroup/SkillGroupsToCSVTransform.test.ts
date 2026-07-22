@@ -35,6 +35,7 @@ function setupSkillGroupRepositoryMock(findAllImpl: () => Readable) {
     Model: undefined as never,
     hierarchyModel: undefined as never,
     create: jest.fn().mockResolvedValue(null),
+    findByIds: jest.fn().mockResolvedValue([]),
     findPaginated: jest.fn().mockResolvedValue(null),
     createMany: jest.fn().mockResolvedValue(null),
     findById: jest.fn().mockResolvedValue(null),
