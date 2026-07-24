@@ -21,6 +21,7 @@ import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { DATA_TEST_ID as APPROVE_MODAL_DATA_TEST_ID } from "src/theme/ApproveModal/ApproveModal";
+import { routerPaths } from "src/app/routerPaths";
 
 // mock the ImportProcessStateIcon component
 jest.mock("src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon", () => {
@@ -44,6 +45,13 @@ jest.mock("src/modeldirectory/components/ExportProcessStateIcon/ExportProcessSta
     default: mock,
   };
 });
+
+// mock useNavigate
+const mockNavigate = jest.fn();
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockNavigate,
+}));
 
 describe("VersionRow", () => {
   const notifyOnExport = jest.fn();
@@ -174,18 +182,17 @@ describe("VersionRow", () => {
     expect(notifyOnShowModelDetails).toHaveBeenCalledWith(givenModel.id);
   });
 
-  test("should render the API button as a placeholder that does not navigate anywhere", async () => {
+  test("should render the API button that navigates to the API docs", async () => {
     // GIVEN a rendered version row
     setupVersionRow({});
 
-    // WHEN the api button is inspected
+    // WHEN apiButton is clicked
     const actualApiButton = screen.getByTestId(DATA_TEST_ID.API_BUTTON);
-
-    // THEN expect it to have no href
-    expect(actualApiButton).not.toHaveAttribute("href");
-
-    // AND clicking it to not notify any callback
     await userEvent.click(actualApiButton);
+
+    // THEN it should navigate to API docs
+    expect(mockNavigate).toHaveBeenCalledWith(routerPaths.API_DOCS);
+    // AND clicking it to not notify any other callback
     expect(notifyOnExport).not.toHaveBeenCalled();
     expect(notifyOnShowModelDetails).not.toHaveBeenCalled();
     expect(notifyOnExplore).not.toHaveBeenCalled();
