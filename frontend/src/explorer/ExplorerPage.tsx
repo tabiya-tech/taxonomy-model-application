@@ -93,7 +93,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     return () => clearTimeout(handle);
   }, [searchValue]);
 
-  const trimmedSearchValue = initialTab === "skills" ? debouncedSearchValue.trim() : "";
+  const trimmedSearchValue = debouncedSearchValue.trim();
 
   useEffect(() => {
     if (!modelId) {
@@ -101,22 +101,28 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
       return;
     }
     let cancelled = false;
+    // Search results come back already ordered by relevance; root items are sorted so local groups come last.
+    const searchTreeItems = () =>
+      initialTab === "occupations"
+        ? explorerService.searchOccupations(modelId, trimmedSearchValue)
+        : explorerService.searchSkills(modelId, trimmedSearchValue);
+    const localGroupsLast = (items: ExplorerTreeItem[]) => [
+      ...items.filter((item) => item.objectType !== ObjectType.LocalGroup),
+      ...items.filter((item) => item.objectType === ObjectType.LocalGroup),
+    ];
     const loadTreeItems = async () => {
       setIsTreeLoading(true);
       setTreeItems([]);
       try {
-        const items = trimmedSearchValue
-          ? await explorerService.searchSkills(modelId, trimmedSearchValue)
-          : await explorerService.getRootItems(modelId, initialTab);
-        if (cancelled) return;
-        setTreeItems(
-          trimmedSearchValue
-            ? items
-            : [
-                ...items.filter((item) => item.objectType !== ObjectType.LocalGroup),
-                ...items.filter((item) => item.objectType === ObjectType.LocalGroup),
-              ]
-        );
+        if (trimmedSearchValue) {
+          const items = await searchTreeItems();
+          if (cancelled) return;
+          setTreeItems(items);
+        } else {
+          const items = await explorerService.getRootItems(modelId, initialTab);
+          if (cancelled) return;
+          setTreeItems(localGroupsLast(items));
+        }
       } catch (e) {
         if (cancelled) return;
         if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);

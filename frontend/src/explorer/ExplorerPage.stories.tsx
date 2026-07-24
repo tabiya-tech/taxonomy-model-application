@@ -80,6 +80,18 @@ const occupation1120Detail = {
   ],
 };
 
+const occupationSearchResults = [
+  {
+    id: "occ-1120",
+    UUID: "occ-1120-uuid",
+    code: "1120",
+    preferredLabel: "Business services managers",
+    description: "Plan, direct and coordinate the delivery of business services.",
+    altLabels: ["business services manager"],
+    occupationType: ObjectType.ESCOOccupation,
+  },
+];
+
 // --- Skills tab fixtures ---
 const skillGroupsRoot = [
   {
@@ -163,6 +175,12 @@ const meta: Meta<typeof ExplorerPage> = {
         method: "GET",
         status: 200,
         response: occupation1120Detail,
+      },
+      {
+        url: `${modelUrl}/occupations?query=business&searchFields=preferredLabel,altLabels,description&limit=100`,
+        method: "GET",
+        status: 200,
+        response: paginated(occupationSearchResults),
       },
       {
         url: `${modelUrl}/skillGroups?root=true&limit=100`,

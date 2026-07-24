@@ -66,12 +66,21 @@ const givenSkillResult: ExplorerTreeItem = {
   hasChildren: false,
 };
 
+const givenOccupationResult: ExplorerTreeItem = {
+  id: "occ-1",
+  code: "1120",
+  title: "business services manager",
+  objectType: ObjectType.ESCOOccupation,
+  hasChildren: false,
+};
+
 describe("ExplorerPage", () => {
   let getAllModelsSpy: jest.SpyInstance;
   let getRootItemsSpy: jest.SpyInstance;
   let getChildrenSpy: jest.SpyInstance;
   let getItemDetailSpy: jest.SpyInstance;
   let searchSkillsSpy: jest.SpyInstance;
+  let searchOccupationsSpy: jest.SpyInstance;
 
   beforeEach(() => {
     (console.error as jest.Mock).mockClear();
@@ -82,6 +91,9 @@ describe("ExplorerPage", () => {
     getChildrenSpy = jest.spyOn(ExplorerService.prototype, "getChildren").mockResolvedValue([givenChildOccupation]);
     getItemDetailSpy = jest.spyOn(ExplorerService.prototype, "getItemDetail").mockResolvedValue(givenDetail);
     searchSkillsSpy = jest.spyOn(ExplorerService.prototype, "searchSkills").mockResolvedValue([givenSkillResult]);
+    searchOccupationsSpy = jest
+      .spyOn(ExplorerService.prototype, "searchOccupations")
+      .mockResolvedValue([givenOccupationResult]);
   });
 
   afterEach(() => {
@@ -179,6 +191,27 @@ describe("ExplorerPage", () => {
     // AND expect it to eventually fire once, with the full typed value, and render the matching skill
     await waitFor(() => expect(searchSkillsSpy).toHaveBeenCalledWith(givenModelId, "manage"));
     await waitFor(() => expect(screen.getAllByText(givenSkillResult.title).length).toBeGreaterThan(0));
+    // AND expect the occupations search to not have been used
+    expect(searchOccupationsSpy).not.toHaveBeenCalled();
+  });
+
+  test("should search occupations as the user types on the occupations tab, and render the matching results", async () => {
+    // GIVEN the explorer page has rendered its root items on the occupations tab
+    renderExplorerPage("occupations");
+    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations"));
+
+    // WHEN the user types into the search field
+    const searchInput = screen.getByPlaceholderText("Search occupations...");
+    await userEvent.type(searchInput, "manager");
+
+    // THEN expect the search to not have fired immediately (it is debounced)
+    expect(searchOccupationsSpy).not.toHaveBeenCalled();
+
+    // AND expect it to eventually fire once, with the full typed value, and render the matching occupation
+    await waitFor(() => expect(searchOccupationsSpy).toHaveBeenCalledWith(givenModelId, "manager"));
+    await waitFor(() => expect(screen.getAllByText(givenOccupationResult.title).length).toBeGreaterThan(0));
+    // AND expect the skills search to not have been used
+    expect(searchSkillsSpy).not.toHaveBeenCalled();
   });
 
   test("should fall back to the root tree when the search field is cleared", async () => {
@@ -195,20 +228,6 @@ describe("ExplorerPage", () => {
 
     // THEN expect the root items to be fetched again
     await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledTimes(2));
-  });
-
-  test("should not call search on the occupations tab, since occupations search isn't supported yet", async () => {
-    // GIVEN the explorer page has rendered its root items on the occupations tab
-    renderExplorerPage("occupations");
-    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations"));
-
-    // WHEN the user types into the search field
-    const searchInput = screen.getByPlaceholderText("Search occupations...");
-    await userEvent.type(searchInput, "manager");
-
-    // THEN expect no search call to ever be made
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    expect(searchSkillsSpy).not.toHaveBeenCalled();
   });
 
   test("should clear the search field when switching tabs", async () => {
