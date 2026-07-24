@@ -1,5 +1,6 @@
 import { StatusCodes } from "http-status-codes/";
 import SkillAPISpecs from "api-specifications/esco/skill";
+import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { getServiceErrorFactory } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { fetchWithAuth } from "src/apiService/APIService";
@@ -8,12 +9,18 @@ import { ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
 
 export const PAGE_LIMIT = 100;
 
-// Search matches on the label, its synonyms and its description, so a query finds skills by any of the ways
+// Search matches on the label, its synonyms and its description, so a query finds entities by any of the ways
 // a user might refer to them, not just their exact preferred name.
-const SEARCH_FIELDS = [
+const SKILL_SEARCH_FIELDS = [
   SkillAPISpecs.Enums.SearchableField.preferredLabel,
   SkillAPISpecs.Enums.SearchableField.altLabels,
   SkillAPISpecs.Enums.SearchableField.description,
+].join(",");
+
+const OCCUPATION_SEARCH_FIELDS = [
+  OccupationAPISpecs.Enums.SearchableField.preferredLabel,
+  OccupationAPISpecs.Enums.SearchableField.altLabels,
+  OccupationAPISpecs.Enums.SearchableField.description,
 ].join(",");
 
 type ExplorerApiNodeRef = {
@@ -28,6 +35,7 @@ type ExplorerApiNode = Omit<ExplorerApiNodeRef, "objectType"> & {
   definition?: string;
   description?: string;
   groupType?: ObjectType;
+  occupationType?: ObjectType;
   children?: ExplorerApiNodeRef[];
 };
 
@@ -90,14 +98,18 @@ const toRootTreeItem = (node: ExplorerApiNode, objectType: ObjectType): Explorer
   children: node.children?.map(toChildTreeItem),
 });
 
-// Search results are always Skill entities (the only searchable collection) and are always leaves in the tree.
-const toSearchResultTreeItem = (node: ExplorerApiNode): ExplorerTreeItem => ({
+// Search results are always leaves in the tree, and the caller knows which objectType the matches carry.
+const toSearchResultTreeItem = (node: ExplorerApiNode, objectType: ObjectType): ExplorerTreeItem => ({
   id: node.id,
   code: node.code ?? "",
   title: node.preferredLabel,
-  objectType: ObjectType.Skill,
+  objectType,
   hasChildren: false,
 });
+
+// Occupations self-report whether they are an ESCO or a local occupation, defaulting to ESCO when unset.
+const occupationObjectType = (node: ExplorerApiNode): ObjectType =>
+  node.occupationType === ObjectType.LocalOccupation ? ObjectType.LocalOccupation : ObjectType.ESCOOccupation;
 
 export default class ExplorerService {
   readonly apiServerUrl: string;
@@ -162,12 +174,34 @@ export default class ExplorerService {
     return nodes.map(toChildTreeItem);
   }
 
-  public async searchSkills(modelId: string, searchValue: string): Promise<ExplorerTreeItem[]> {
+  private async searchCollection(
+    modelId: string,
+    collection: string,
+    searchFields: string,
+    searchValue: string,
+    serviceFunction: string
+  ): Promise<ExplorerApiNode[]> {
     const url =
-      `${this.apiServerUrl}/models/${modelId}/skills?query=${encodeURIComponent(searchValue)}` +
-      `&searchFields=${encodeURIComponent(SEARCH_FIELDS)}&limit=${PAGE_LIMIT}`;
-    const response = await this.getJSON<PaginatedResponse<ExplorerApiNode>>(url, "searchSkills");
-    return response.data.map(toSearchResultTreeItem);
+      `${this.apiServerUrl}/models/${modelId}/${collection}?query=${encodeURIComponent(searchValue)}` +
+      `&searchFields=${encodeURIComponent(searchFields)}&limit=${PAGE_LIMIT}`;
+    const response = await this.getJSON<PaginatedResponse<ExplorerApiNode>>(url, serviceFunction);
+    return response.data;
+  }
+
+  public async searchSkills(modelId: string, searchValue: string): Promise<ExplorerTreeItem[]> {
+    const nodes = await this.searchCollection(modelId, "skills", SKILL_SEARCH_FIELDS, searchValue, "searchSkills");
+    return nodes.map((node) => toSearchResultTreeItem(node, ObjectType.Skill));
+  }
+
+  public async searchOccupations(modelId: string, searchValue: string): Promise<ExplorerTreeItem[]> {
+    const nodes = await this.searchCollection(
+      modelId,
+      "occupations",
+      OCCUPATION_SEARCH_FIELDS,
+      searchValue,
+      "searchOccupations"
+    );
+    return nodes.map((node) => toSearchResultTreeItem(node, occupationObjectType(node)));
   }
 
   public async getItemDetail(modelId: string, item: ExplorerTreeItem): Promise<ExplorerItemDetail> {
