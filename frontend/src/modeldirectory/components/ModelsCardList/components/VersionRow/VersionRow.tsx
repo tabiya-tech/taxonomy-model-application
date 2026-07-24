@@ -14,6 +14,8 @@ import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import ApproveModal from "src/theme/ApproveModal/ApproveModal";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
+import { routerPaths } from "src/app/routerPaths";
+import { useNavigate } from "react-router-dom";
 
 export interface VersionRowProps {
   model: ModelInfoTypes.ModelInfo;
@@ -123,6 +125,7 @@ const BUTTON_SX = {
 const VersionRow = (props: Readonly<VersionRowProps>) => {
   const theme = useTheme();
   const isOnline = useContext(IsOnlineContext);
+  const navigate = useNavigate();
   const versionLabel = props.model.version || props.model.name;
   const latestSuccessfulExport = getLatestSuccessfulExport(props.model);
   const latestExport = getLatestExport(props.model);
@@ -243,6 +246,7 @@ const VersionRow = (props: Readonly<VersionRowProps>) => {
           size="small"
           startIcon={<CodeIcon />}
           sx={BUTTON_SX}
+          onClick={() => navigate(routerPaths.API_DOCS)}
           data-testid={DATA_TEST_ID.API_BUTTON}
         >
           {TEXT.API_BUTTON_LABEL}

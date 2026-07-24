@@ -43,8 +43,8 @@ const ModelSelectionPage = () => {
 
   const renderContent = () => {
     if (isLoading) {
-      return Array.from(new Array(4)).map((_, index) => (
-        <Skeleton key={index} variant="rounded" width="100%" height={72} sx={{ borderRadius: "12px" }} />
+      return Array.from(new Array(6)).map((_, index) => (
+        <Skeleton key={index} variant="rounded" width="100%" height={80} sx={{ borderRadius: "12px" }} />
       ));
     }
     if (models.length === 0) {
@@ -85,7 +85,7 @@ const ModelSelectionPage = () => {
           },
         }}
       >
-        <CheckCircleIcon sx={{ color: "success.main", fontSize: 28, flexShrink: 0 }} />
+        <CheckCircleIcon sx={{ color: (theme) => theme.palette.tabiyaGreen.dark, fontSize: 28, flexShrink: 0 }} />
         <Box flex={1} minWidth={0}>
           <Typography variant="body1" fontWeight={600} noWrap>
             {m.name}
@@ -118,13 +118,7 @@ const ModelSelectionPage = () => {
           </Box>
         }
         mainComponent={
-          <Box
-            display="flex"
-            flexDirection="column"
-            gap={theme.fixedSpacing(theme.tabiyaSpacing.md)}
-            maxWidth={900}
-            width="100%"
-          >
+          <Box display="flex" flexDirection="column" gap={theme.fixedSpacing(theme.tabiyaSpacing.md)} width="100%">
             {renderContent()}
           </Box>
         }
