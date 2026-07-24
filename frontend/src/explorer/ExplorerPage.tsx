@@ -93,7 +93,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     return () => clearTimeout(handle);
   }, [searchValue]);
 
-  const trimmedSearchValue = initialTab === "skills" ? debouncedSearchValue.trim() : "";
+  const trimmedSearchValue = debouncedSearchValue.trim();
 
   useEffect(() => {
     if (!modelId) {
@@ -106,7 +106,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
       setTreeItems([]);
       try {
         const items = trimmedSearchValue
-          ? await explorerService.searchSkills(modelId, trimmedSearchValue)
+          ? await explorerService.search(modelId, initialTab, trimmedSearchValue)
           : await explorerService.getRootItems(modelId, initialTab);
         if (cancelled) return;
         setTreeItems(

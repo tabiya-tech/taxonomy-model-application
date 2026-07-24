@@ -38,6 +38,19 @@ export function getMockSkillNode(overrides: Partial<Record<string, unknown>> = {
   };
 }
 
+export function getMockOccupationNode(overrides: Partial<Record<string, unknown>> = {}) {
+  return {
+    id: "occ-1",
+    UUID: "occ-1-uuid",
+    code: "1120",
+    preferredLabel: "business services manager",
+    description: "Plan, direct and coordinate the delivery of business services.",
+    altLabels: [],
+    occupationType: ObjectType.ESCOOccupation,
+    ...overrides,
+  };
+}
+
 export function getMockChildRef(overrides: Partial<Record<string, unknown>> = {}) {
   return {
     id: "occ-1120",
