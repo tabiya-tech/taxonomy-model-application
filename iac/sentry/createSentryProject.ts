@@ -13,6 +13,8 @@ function createSentryTeam(sentryConfig: SentryConfig) {
     name: sentryConfig.team,
     organization: sentryConfig.organization,
     slug: sentryConfig.team,
+  }, {
+    protect: true,
   });
 }
 
@@ -39,6 +41,8 @@ export function createSentryProject(organization: string, team: string, authToke
     organization: sentryConfig.organization,
     team: sentryTeam.slug,
     platform: platform
+  }, {
+    protect: true,
   });
 
   return sentryProject.slug.apply((slug) => getSentryKey(sentryConfig.organization, slug));
