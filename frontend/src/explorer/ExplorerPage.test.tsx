@@ -66,12 +66,20 @@ const givenSkillResult: ExplorerTreeItem = {
   hasChildren: false,
 };
 
+const givenOccupationResult: ExplorerTreeItem = {
+  id: "occ-1",
+  code: "1120",
+  title: "business services manager",
+  objectType: ObjectType.ESCOOccupation,
+  hasChildren: false,
+};
+
 describe("ExplorerPage", () => {
   let getAllModelsSpy: jest.SpyInstance;
   let getRootItemsSpy: jest.SpyInstance;
   let getChildrenSpy: jest.SpyInstance;
   let getItemDetailSpy: jest.SpyInstance;
-  let searchSkillsSpy: jest.SpyInstance;
+  let searchSpy: jest.SpyInstance;
 
   beforeEach(() => {
     (console.error as jest.Mock).mockClear();
@@ -81,7 +89,11 @@ describe("ExplorerPage", () => {
     getRootItemsSpy = jest.spyOn(ExplorerService.prototype, "getRootItems").mockResolvedValue([givenRootGroup]);
     getChildrenSpy = jest.spyOn(ExplorerService.prototype, "getChildren").mockResolvedValue([givenChildOccupation]);
     getItemDetailSpy = jest.spyOn(ExplorerService.prototype, "getItemDetail").mockResolvedValue(givenDetail);
-    searchSkillsSpy = jest.spyOn(ExplorerService.prototype, "searchSkills").mockResolvedValue([givenSkillResult]);
+    searchSpy = jest
+      .spyOn(ExplorerService.prototype, "search")
+      .mockImplementation((_modelId, tab) =>
+        Promise.resolve(tab === "occupations" ? [givenOccupationResult] : [givenSkillResult])
+      );
   });
 
   afterEach(() => {
@@ -174,11 +186,28 @@ describe("ExplorerPage", () => {
     await userEvent.type(searchInput, "manage");
 
     // THEN expect the search to not have fired immediately (it is debounced)
-    expect(searchSkillsSpy).not.toHaveBeenCalled();
+    expect(searchSpy).not.toHaveBeenCalled();
 
     // AND expect it to eventually fire once, with the full typed value, and render the matching skill
-    await waitFor(() => expect(searchSkillsSpy).toHaveBeenCalledWith(givenModelId, "manage"));
+    await waitFor(() => expect(searchSpy).toHaveBeenCalledWith(givenModelId, "skills", "manage"));
     await waitFor(() => expect(screen.getAllByText(givenSkillResult.title).length).toBeGreaterThan(0));
+  });
+
+  test("should search occupations as the user types on the occupations tab, and render the matching results", async () => {
+    // GIVEN the explorer page has rendered its root items on the occupations tab
+    renderExplorerPage("occupations");
+    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations"));
+
+    // WHEN the user types into the search field
+    const searchInput = screen.getByPlaceholderText("Search occupations...");
+    await userEvent.type(searchInput, "manager");
+
+    // THEN expect the search to not have fired immediately (it is debounced)
+    expect(searchSpy).not.toHaveBeenCalled();
+
+    // AND expect it to eventually fire once, with the full typed value, and render the matching occupation
+    await waitFor(() => expect(searchSpy).toHaveBeenCalledWith(givenModelId, "occupations", "manager"));
+    await waitFor(() => expect(screen.getAllByText(givenOccupationResult.title).length).toBeGreaterThan(0));
   });
 
   test("should fall back to the root tree when the search field is cleared", async () => {
@@ -187,7 +216,7 @@ describe("ExplorerPage", () => {
     await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills"));
     const searchInput = screen.getByPlaceholderText("Search skills...");
     await userEvent.type(searchInput, "manage");
-    await waitFor(() => expect(searchSkillsSpy).toHaveBeenCalledWith(givenModelId, "manage"));
+    await waitFor(() => expect(searchSpy).toHaveBeenCalledWith(givenModelId, "skills", "manage"));
     await waitFor(() => expect(screen.getAllByText(givenSkillResult.title).length).toBeGreaterThan(0));
 
     // WHEN the user clears the search field
@@ -197,27 +226,13 @@ describe("ExplorerPage", () => {
     await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledTimes(2));
   });
 
-  test("should not call search on the occupations tab, since occupations search isn't supported yet", async () => {
-    // GIVEN the explorer page has rendered its root items on the occupations tab
-    renderExplorerPage("occupations");
-    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations"));
-
-    // WHEN the user types into the search field
-    const searchInput = screen.getByPlaceholderText("Search occupations...");
-    await userEvent.type(searchInput, "manager");
-
-    // THEN expect no search call to ever be made
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    expect(searchSkillsSpy).not.toHaveBeenCalled();
-  });
-
   test("should clear the search field when switching tabs", async () => {
     // GIVEN the explorer page has rendered search results on the skills tab
     renderExplorerPage("skills");
     await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills"));
     const searchInput = screen.getByPlaceholderText("Search skills...");
     await userEvent.type(searchInput, "manage");
-    await waitFor(() => expect(searchSkillsSpy).toHaveBeenCalledWith(givenModelId, "manage"));
+    await waitFor(() => expect(searchSpy).toHaveBeenCalledWith(givenModelId, "skills", "manage"));
 
     // WHEN the user switches to the occupations tab
     await userEvent.click(screen.getByText("Occupations"));

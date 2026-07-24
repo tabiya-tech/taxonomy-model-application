@@ -247,7 +247,7 @@ describe("ExplorerService", () => {
     });
   });
 
-  describe("searchSkills", () => {
+  describe("search", () => {
     test("should call the skills endpoint with the query and default searchFields, and map results to leaf tree items", async () => {
       // GIVEN the skills endpoint returns a matching skill
       const givenSkill = MockPayload.getMockSkillNode({ id: "skill-1", preferredLabel: "manage business operations" });
@@ -257,9 +257,9 @@ describe("ExplorerService", () => {
         "application/json;charset=UTF-8"
       );
 
-      // WHEN searchSkills is called with a search value
+      // WHEN search is called on the skills tab with a search value
       const service = new ExplorerService(givenApiServerUrl);
-      const actualItems = await service.searchSkills(givenModelId, "manage business");
+      const actualItems = await service.search(givenModelId, "skills", "manage business");
 
       // THEN expect it to call the skills endpoint with the query and searchFields params
       expect(apiServiceSpy).toHaveBeenCalledWith(
@@ -279,16 +279,64 @@ describe("ExplorerService", () => {
       ]);
     });
 
+    test("should call the occupations endpoint with the query and default searchFields, and map results to leaf tree items", async () => {
+      // GIVEN the occupations endpoint returns a matching ESCO and a matching local occupation
+      const givenEscoOccupation = MockPayload.getMockOccupationNode({
+        id: "occ-1",
+        preferredLabel: "business services manager",
+        occupationType: ObjectType.ESCOOccupation,
+      });
+      const givenLocalOccupation = MockPayload.getMockOccupationNode({
+        id: "occ-2",
+        code: "",
+        preferredLabel: "community business manager",
+        occupationType: ObjectType.LocalOccupation,
+      });
+      const apiServiceSpy = setupAPIServiceSpy(
+        StatusCodes.OK,
+        MockPayload.getMockPaginatedResponse([givenEscoOccupation, givenLocalOccupation]),
+        "application/json;charset=UTF-8"
+      );
+
+      // WHEN search is called on the occupations tab with a search value
+      const service = new ExplorerService(givenApiServerUrl);
+      const actualItems = await service.search(givenModelId, "occupations", "business manager");
+
+      // THEN expect it to call the occupations endpoint with the query and searchFields params
+      expect(apiServiceSpy).toHaveBeenCalledWith(
+        `${givenApiServerUrl}/models/${givenModelId}/occupations?query=business%20manager` +
+          `&searchFields=preferredLabel%2CaltLabels%2Cdescription&limit=${PAGE_LIMIT}`,
+        expect.objectContaining({ method: "GET" })
+      );
+      // AND expect each matched occupation to be mapped to a leaf tree item typed by its occupation type
+      expect(actualItems).toEqual([
+        {
+          id: "occ-1",
+          code: "1120",
+          title: "business services manager",
+          objectType: ObjectType.ESCOOccupation,
+          hasChildren: false,
+        },
+        {
+          id: "occ-2",
+          code: "",
+          title: "community business manager",
+          objectType: ObjectType.LocalOccupation,
+          hasChildren: false,
+        },
+      ]);
+    });
+
     test("on fail to fetch, should reject with the error thrown by fetchWithAuth", async () => {
       // GIVEN fetch rejects with some unknown error
       const givenFetchError = new Error();
       jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockRejectedValueOnce(givenFetchError);
 
-      // WHEN calling searchSkills
+      // WHEN calling search
       const service = new ExplorerService(givenApiServerUrl);
 
       // THEN expect it to reject with the same error
-      await expect(service.searchSkills(givenModelId, "foo")).rejects.toMatchObject(givenFetchError);
+      await expect(service.search(givenModelId, "skills", "foo")).rejects.toMatchObject(givenFetchError);
     });
   });
 
