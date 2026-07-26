@@ -1,0 +1,28 @@
+name: Deploy to ELMIS
+
+# Manually triggered deployment of the whole stack to the `elmis` environment
+# (elmis.taxonomy.tabiya.tech). It builds every component and then runs the same
+# deployment pipeline as the automated one, targeting the `elmis` Pulumi stacks:
+# setup-environment -> name-servers -> certificate -> auth -> locales -> frontend -> backend -> common.
+on:
+  workflow_dispatch:
+
+jobs:
+  # Build api-specifications, locales, backend and frontend
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+  # Deploy the built artifacts and the infrastructure to the elmis environment
+  deploy:
+    needs: [ build ]
+    uses: ./.github/workflows/deploy.yml
+    concurrency:
+      # This concurrency group ensures that only one deployment to elmis can happen at a time.
+      group: ${{ github.workflow }}-elmis
+      cancel-in-progress: false
+    secrets: inherit
+    with:
+      target-environment: elmis
+      backend-version-info: ${{ needs.build.outputs.backend-version-info }}
+      frontend-version-info: ${{ needs.build.outputs.frontend-version-info }}

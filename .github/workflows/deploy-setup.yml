@@ -80,7 +80,9 @@ jobs:
   validate-versions:
     runs-on: ubuntu-latest
     needs: hosted-zone
-    if: ${{ inputs.target-environment != 'dev' }}
+    # Only the release environments are version-gated; dev and the ad-hoc environments
+    # (e.g. elmis) are deployed from a branch, so there is no semantic version to compare.
+    if: ${{ inputs.target-environment == 'test' || inputs.target-environment == 'production' }}
     environment: ${{ inputs.target-environment }}
     steps:
       - name: Checkout code
