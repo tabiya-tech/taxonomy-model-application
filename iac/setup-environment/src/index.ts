@@ -3,7 +3,12 @@ import * as aws from "@pulumi/aws";
 
 export const environment = pulumi.getStack();
 
-export const baseDomainName = "taxonomy." + process.env.BASE_DOMAIN_NAME!;
+const envBaseDomainName = process.env.BASE_DOMAIN_NAME!;
+if (!envBaseDomainName) {
+  throw new Error("environment variable BASE_DOMAIN_NAME is required");
+}
+
+export const baseDomainName = "taxonomy." + envBaseDomainName;
 
 // for production environment we dont append environment
 const domainName = environment === "production" ?
