@@ -5,6 +5,7 @@ import OccupationRegexes from "../../_shared/regex";
 
 import GETOccupationParentsOperation from "./GET";
 import POSTOccupationParentOperation from "./POST";
+import PATCHOccupationParentOperation from "./PATCH";
 
 namespace OccupationParentAPISpecs {
   export import Constants = OccupationConstants;
@@ -14,6 +15,7 @@ namespace OccupationParentAPISpecs {
 
   export import GET = GETOccupationParentsOperation;
   export import POST = POSTOccupationParentOperation;
+  export import PATCH = PATCHOccupationParentOperation;
 }
 
 export default OccupationParentAPISpecs;

@@ -5,6 +5,7 @@ import OccupationRegexes from "../../_shared/regex";
 
 import GETOccupationSkillsOperation from "./GET";
 import POSTOccupationSkillsOperation from "./POST";
+import PATCHOccupationSkillsOperation from "./PATCH";
 
 namespace OccupationSkillsAPISpecs {
   export import Constants = OccupationConstants;
@@ -14,6 +15,7 @@ namespace OccupationSkillsAPISpecs {
 
   export import GET = GETOccupationSkillsOperation;
   export import POST = POSTOccupationSkillsOperation;
+  export import PATCH = PATCHOccupationSkillsOperation;
 }
 
 export default OccupationSkillsAPISpecs;
