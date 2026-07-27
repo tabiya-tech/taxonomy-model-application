@@ -79,6 +79,7 @@ describe("ExplorerPage", () => {
   let getRootItemsSpy: jest.SpyInstance;
   let getChildrenSpy: jest.SpyInstance;
   let getItemDetailSpy: jest.SpyInstance;
+  let getItemHistorySpy: jest.SpyInstance;
   let searchSkillsSpy: jest.SpyInstance;
   let searchOccupationsSpy: jest.SpyInstance;
 
@@ -90,6 +91,7 @@ describe("ExplorerPage", () => {
     getRootItemsSpy = jest.spyOn(ExplorerService.prototype, "getRootItems").mockResolvedValue([givenRootGroup]);
     getChildrenSpy = jest.spyOn(ExplorerService.prototype, "getChildren").mockResolvedValue([givenChildOccupation]);
     getItemDetailSpy = jest.spyOn(ExplorerService.prototype, "getItemDetail").mockResolvedValue(givenDetail);
+    getItemHistorySpy = jest.spyOn(ExplorerService.prototype, "getItemHistory").mockResolvedValue([]);
     searchSkillsSpy = jest.spyOn(ExplorerService.prototype, "searchSkills").mockResolvedValue([givenSkillResult]);
     searchOccupationsSpy = jest
       .spyOn(ExplorerService.prototype, "searchOccupations")
@@ -162,6 +164,8 @@ describe("ExplorerPage", () => {
     expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation);
     // AND expect the fetched definition to be rendered
     expect(await screen.findByText(givenDetail.definition)).toBeInTheDocument();
+    // AND expect the item's model history to have been fetched for the same selected item
+    await waitFor(() => expect(getItemHistorySpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation));
   });
 
   test("should refetch the root items when switching tabs", async () => {

@@ -432,4 +432,69 @@ describe("ExplorerService", () => {
       );
     });
   });
+
+  describe("getItemHistory", () => {
+    const givenModelReference = {
+      id: "model-2",
+      UUID: "model-2-uuid",
+      name: "ESCO",
+      version: "v1.0.1.1",
+      localeShortCode: "en",
+    };
+
+    test("should fetch the history from the item's collection and return the model and preferred label of each entry", async () => {
+      // GIVEN a skill tree item
+      const givenItem = getMockExplorerTreeItem({ id: "skill-1", objectType: ObjectType.Skill });
+      // AND the history endpoint returns items with the entity reference flat plus a nested model
+      const givenHistoryPayload = [
+        { id: "skill-1", UUID: "skill-1-uuid", preferredLabel: "a skill", model: givenModelReference },
+        {
+          id: "skill-1",
+          UUID: "skill-1-uuid-old",
+          preferredLabel: "an older label for the skill",
+          model: { ...givenModelReference, id: null, name: null, version: null },
+        },
+      ];
+      const apiServiceSpy = setupAPIServiceSpy(StatusCodes.OK, givenHistoryPayload, "application/json;charset=UTF-8");
+
+      // WHEN getItemHistory is called
+      const service = new ExplorerService(givenApiServerUrl);
+      const actualHistory = await service.getItemHistory(givenModelId, givenItem);
+
+      // THEN expect it to call the skills history endpoint
+      expect(apiServiceSpy).toHaveBeenCalledWith(
+        `${givenApiServerUrl}/models/${givenModelId}/skills/skill-1/history`,
+        expect.objectContaining({ method: "GET" })
+      );
+      // AND expect the id, model and preferred label of each entry to be returned, in order
+      expect(actualHistory).toEqual([
+        { id: "skill-1", model: givenModelReference, preferredLabel: "a skill" },
+        { id: "skill-1", model: givenHistoryPayload[1].model, preferredLabel: "an older label for the skill" },
+      ]);
+    });
+
+    test("should return an empty array when the item has no history", async () => {
+      // GIVEN the history endpoint returns an empty array
+      setupAPIServiceSpy(StatusCodes.OK, [], "application/json;charset=UTF-8");
+
+      // WHEN getItemHistory is called
+      const service = new ExplorerService(givenApiServerUrl);
+      const actualHistory = await service.getItemHistory(givenModelId, getMockExplorerTreeItem());
+
+      // THEN expect an empty array
+      expect(actualHistory).toEqual([]);
+    });
+
+    test("on fail to fetch, should reject with the error thrown by fetchWithAuth", async () => {
+      // GIVEN fetch rejects with some unknown error
+      const givenFetchError = new Error();
+      jest.spyOn(require("src/apiService/APIService"), "fetchWithAuth").mockRejectedValueOnce(givenFetchError);
+
+      // WHEN calling getItemHistory THEN expect it to reject with the same error
+      const service = new ExplorerService(givenApiServerUrl);
+      await expect(service.getItemHistory(givenModelId, getMockExplorerTreeItem())).rejects.toMatchObject(
+        givenFetchError
+      );
+    });
+  });
 });

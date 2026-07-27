@@ -4,7 +4,7 @@ import "src/_test_utilities/consoleMock";
 import ExplorerDetailPanel, { DATA_TEST_ID, ExplorerDetailItem } from "./ExplorerDetailPanel";
 import { render, screen } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
-import { ObjectType } from "src/explorer/explorer.types";
+import { ExplorerHistoryItem, ObjectType } from "src/explorer/explorer.types";
 
 const givenOccupationItem: ExplorerDetailItem = {
   id: "occ-1120",
@@ -312,15 +312,98 @@ describe("ExplorerDetailPanel", () => {
   });
 
   describe("History tab", () => {
-    test("should show the not-yet-available placeholder (history is not implemented on the frontend)", async () => {
-      // GIVEN any item
-      render(<ExplorerDetailPanel item={givenGroupItem} />);
+    const givenHistory: ExplorerHistoryItem[] = [
+      {
+        id: "entry-2",
+        preferredLabel: "diagnose medical conditions",
+        model: {
+          id: "model-2",
+          UUID: "model-2-uuid",
+          name: "ESCO",
+          version: "v0.0.1",
+          localeShortCode: "en",
+        },
+      },
+      {
+        id: "entry-1",
+        preferredLabel: "diagnose a medical condition",
+        model: {
+          id: "model-1",
+          UUID: "model-1-uuid",
+          name: "ESCO",
+          version: "v1.1.1",
+          localeShortCode: "en",
+        },
+      },
+    ];
+
+    test("should show the empty placeholder when there is no history", async () => {
+      // GIVEN an item with no history
+      render(<ExplorerDetailPanel item={givenGroupItem} history={[]} />);
 
       // WHEN the user opens the History tab
       await clickTab("History");
 
-      // THEN expect the placeholder message
+      // THEN expect the empty message
       expect(screen.getByText("No history available.")).toBeInTheDocument();
+    });
+
+    test("should show a loading skeleton while history is loading", async () => {
+      // GIVEN history is loading
+      render(<ExplorerDetailPanel item={givenGroupItem} history={null} isHistoryLoading />);
+
+      // WHEN the user opens the History tab
+      await clickTab("History");
+
+      // THEN expect the history skeleton
+      expect(screen.getByTestId(DATA_TEST_ID.EXPLORER_DETAIL_PANEL_HISTORY_SKELETON)).toBeInTheDocument();
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+    });
+
+    test("should render one row per model with its label and the item's preferred label at that time", async () => {
+      // GIVEN an item with history
+      render(<ExplorerDetailPanel item={givenGroupItem} history={givenHistory} />);
+
+      // WHEN the user opens the History tab
+      await clickTab("History");
+
+      // THEN expect one row per history entry
+      const rows = screen.getAllByTestId(DATA_TEST_ID.EXPLORER_DETAIL_PANEL_HISTORY_ITEM);
+      expect(rows).toHaveLength(2);
+      // AND each row shows the resolved model's version label and the item's preferred label in that model
+      expect(screen.getByText("v0.0.1")).toBeInTheDocument();
+      expect(screen.getByText("diagnose medical conditions")).toBeInTheDocument();
+      expect(screen.getByText("v1.1.1")).toBeInTheDocument();
+      expect(screen.getByText("diagnose a medical condition")).toBeInTheDocument();
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+    });
+
+    test("should fall back to the model's name when it has no version", async () => {
+      // GIVEN a history entry whose model is resolved but has no version (e.g. an unreleased model)
+      const givenUnversionedHistory: ExplorerHistoryItem[] = [
+        {
+          id: "entry-1",
+          preferredLabel: "diagnose medical conditions",
+          model: {
+            id: "model-1",
+            UUID: "model-1-uuid",
+            name: "ESCO",
+            version: null,
+            localeShortCode: "en",
+          },
+        },
+      ];
+      render(<ExplorerDetailPanel item={givenGroupItem} history={givenUnversionedHistory} />);
+
+      // WHEN the user opens the History tab
+      await clickTab("History");
+
+      // THEN expect the row to show the model's name rather than a shortened UUID
+      expect(screen.getByText("ESCO")).toBeInTheDocument();
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
     });
   });
 });
