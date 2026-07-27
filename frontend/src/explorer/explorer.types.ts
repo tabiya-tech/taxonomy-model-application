@@ -27,6 +27,20 @@ export type ExplorerContainedItem = {
   title: string;
 };
 
+export type ExplorerHistoryModel = {
+  id: string | null;
+  UUID: string;
+  name: string | null;
+  version: string | null;
+  localeShortCode: string | null;
+};
+
+export type ExplorerHistoryItem = {
+  id: string;
+  model: ExplorerHistoryModel;
+  preferredLabel: string;
+};
+
 export type ExplorerItemDetail = {
   id: string;
   UUID: string;

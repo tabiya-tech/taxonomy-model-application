@@ -5,7 +5,7 @@ import { useTheme } from "@mui/material";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ExplorerService from "src/explorer/explorer.service";
-import { ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
+import { ExplorerHistoryItem, ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
 import { getApiUrl } from "src/envService";
 import { ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
@@ -74,6 +74,9 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
 
   const [detail, setDetail] = useState<ExplorerItemDetail | null>(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
+
+  const [history, setHistory] = useState<{ id: string; items: ExplorerHistoryItem[] } | null>(null);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
 
   useEffect(() => {
     modelInfoService
@@ -176,6 +179,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     const currentItem = selectedItemId ? findItemById(treeItemsRef.current, selectedItemId) : null;
     if (!modelId || !currentItem) {
       setDetail(null);
+      setIsDetailLoading(false);
       return;
     }
     setIsDetailLoading(true);
@@ -188,6 +192,34 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
         setDetail(null);
       })
       .finally(() => setIsDetailLoading(false));
+  }, [modelId, selectedItemId, isTreeLoading]);
+
+  useEffect(() => {
+    const currentItem = selectedItemId ? findItemById(treeItemsRef.current, selectedItemId) : null;
+    if (!modelId || !currentItem) {
+      setHistory(null);
+      setIsHistoryLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setIsHistoryLoading(true);
+    explorerService
+      .getItemHistory(modelId, currentItem)
+      .then((items) => {
+        if (!cancelled) setHistory({ id: currentItem.id, items });
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
+        else console.error(e);
+        setHistory(null);
+      })
+      .finally(() => {
+        if (!cancelled) setIsHistoryLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [modelId, selectedItemId, isTreeLoading]);
 
   // The CSV button links directly to the model's most recent successful export (if any).
@@ -280,6 +312,8 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
                 <ExplorerDetailPanel
                   item={detailItem}
                   isLoading={isDetailLoading || (isTreeLoading && !selectedTreeItem)}
+                  history={history && history.id === selectedTreeItem?.id ? history.items : null}
+                  isHistoryLoading={isHistoryLoading}
                 />
               </Box>
             </Box>

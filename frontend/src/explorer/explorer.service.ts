@@ -5,7 +5,7 @@ import { getServiceErrorFactory } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { fetchWithAuth } from "src/apiService/APIService";
 import { ExplorerTreeItem } from "src/explorer/components/ExplorerTreePanel/ExplorerTreePanel";
-import { ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
+import { ExplorerHistoryItem, ExplorerHistoryModel, ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
 
 export const PAGE_LIMIT = 100;
 
@@ -57,6 +57,12 @@ type PaginatedResponse<T> = {
   nextCursor: string | null;
 };
 
+type ExplorerApiHistoryItem = {
+  id: string;
+  preferredLabel: string;
+  model: ExplorerHistoryModel;
+};
+
 const isGroupType = (objectType: ObjectType): boolean =>
   objectType === ObjectType.ISCOGroup || objectType === ObjectType.LocalGroup || objectType === ObjectType.SkillGroup;
 
@@ -105,6 +111,13 @@ const toSearchResultTreeItem = (node: ExplorerApiNode, objectType: ObjectType): 
   title: node.preferredLabel,
   objectType,
   hasChildren: false,
+});
+
+// Each history entry carries the model it belongs to plus the label the entity had in that model.
+const toHistoryItem = (entry: ExplorerApiHistoryItem): ExplorerHistoryItem => ({
+  id: entry.id,
+  model: entry.model,
+  preferredLabel: entry.preferredLabel,
 });
 
 // Occupations self-report whether they are an ESCO or a local occupation, defaulting to ESCO when unset.
@@ -228,5 +241,12 @@ export default class ExplorerService {
       requiresSkills: node.requiresSkills,
       requiredByOccupations: node.requiredByOccupations,
     };
+  }
+
+  public async getItemHistory(modelId: string, item: ExplorerTreeItem): Promise<ExplorerHistoryItem[]> {
+    const collection = collectionForObjectType(item.objectType as ObjectType);
+    const url = `${this.apiServerUrl}/models/${modelId}/${collection}/${item.id}/history`;
+    const entries = await this.getJSON<ExplorerApiHistoryItem[]>(url, "getItemHistory");
+    return entries.map(toHistoryItem);
   }
 }

@@ -3,6 +3,8 @@ import Box from "@mui/material/Box";
 import { Typography, Divider, Skeleton, Tabs, Tab, Chip, useTheme } from "@mui/material";
 import {
   ExplorerContainedItem,
+  ExplorerHistoryItem,
+  ExplorerHistoryModel,
   ExplorerRelatedOccupation,
   ExplorerRelatedSkill,
   ObjectType,
@@ -18,6 +20,9 @@ export const DATA_TEST_ID = {
   EXPLORER_DETAIL_PANEL_CONTAINS: `explorer-detail-panel-contains-${uniqueId}`,
   EXPLORER_DETAIL_PANEL_BADGE: `explorer-detail-panel-badge-${uniqueId}`,
   EXPLORER_DETAIL_PANEL_ALT_LABELS: `explorer-detail-panel-alt-labels-${uniqueId}`,
+  EXPLORER_DETAIL_PANEL_HISTORY: `explorer-detail-panel-history-${uniqueId}`,
+  EXPLORER_DETAIL_PANEL_HISTORY_ITEM: `explorer-detail-panel-history-item-${uniqueId}`,
+  EXPLORER_DETAIL_PANEL_HISTORY_SKELETON: `explorer-detail-panel-history-skeleton-${uniqueId}`,
 };
 
 export type ExplorerDetailItem = {
@@ -41,6 +46,8 @@ export type ExplorerDetailItem = {
 type ExplorerDetailPanelProps = {
   item: ExplorerDetailItem | null;
   isLoading?: boolean;
+  history?: ExplorerHistoryItem[] | null;
+  isHistoryLoading?: boolean;
 };
 
 const GROUP_OBJECT_TYPES = new Set([ObjectType.ISCOGroup, ObjectType.LocalGroup, ObjectType.SkillGroup]);
@@ -302,14 +309,69 @@ const DetailsTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => 
   );
 };
 
-// History is not implemented on the frontend yet — the tab shows a placeholder for now.
-const HistoryTabContent = () => (
-  <Typography variant="body1" color="text.secondary">
-    No history available.
-  </Typography>
-);
+const historyModelLabel = (model: ExplorerHistoryModel): string => {
+  return model.version?.trim() || model.name?.trim() || "";
+};
 
-const ExplorerDetailPanel = ({ item, isLoading = false }: Readonly<ExplorerDetailPanelProps>) => {
+const HistoryTabContent = ({
+  history,
+  isLoading,
+}: Readonly<{ history?: ExplorerHistoryItem[] | null; isLoading?: boolean }>) => {
+  if (isLoading) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        gap={2}
+        data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_HISTORY_SKELETON}
+      >
+        {[0, 1, 2].map((i) => (
+          <Box key={i} display="flex" gap={2}>
+            <Skeleton variant="text" width={90} height={20} />
+            <Skeleton variant="text" width="50%" height={20} />
+          </Box>
+        ))}
+      </Box>
+    );
+  }
+
+  if (!history || history.length === 0) {
+    return (
+      <Typography variant="body1" color="text.secondary">
+        No history available.
+      </Typography>
+    );
+  }
+
+  return (
+    <Box
+      display="grid"
+      gridTemplateColumns={{ xs: "1fr", sm: "minmax(96px, auto) 1fr" }}
+      columnGap={(theme) => theme.fixedSpacing(theme.tabiyaSpacing.xl)}
+      rowGap={(theme) => theme.fixedSpacing(theme.tabiyaSpacing.md)}
+      data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_HISTORY}
+    >
+      {history.map((entry, index) => (
+        <Box key={entry.id} data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_HISTORY_ITEM} sx={{ display: "contents" }}>
+          {index > 0 && <Divider sx={{ gridColumn: "1 / -1" }} />}
+          <Typography variant="body2" fontWeight="bold" alignSelf="baseline" sx={{ fontFamily: "IBM Plex Mono" }}>
+            {historyModelLabel(entry.model)}
+          </Typography>
+          <Typography variant="body2" alignSelf="baseline">
+            {entry.preferredLabel}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
+};
+
+const ExplorerDetailPanel = ({
+  item,
+  isLoading = false,
+  history,
+  isHistoryLoading = false,
+}: Readonly<ExplorerDetailPanelProps>) => {
   const [activeTab, setActiveTab] = useState(0);
 
   if (isLoading) {
@@ -411,7 +473,7 @@ const ExplorerDetailPanel = ({ item, isLoading = false }: Readonly<ExplorerDetai
         {activeTab === 0 && <DefinitionTabContent item={item} />}
         {activeTab === 1 && <LinksTabContent item={item} />}
         {activeTab === 2 && <DetailsTabContent item={item} />}
-        {activeTab === 3 && <HistoryTabContent />}
+        {activeTab === 3 && <HistoryTabContent history={history} isLoading={isHistoryLoading} />}
       </Box>
     </Box>
   );
