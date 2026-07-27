@@ -14,6 +14,8 @@ import { handler as getSkillsHandler } from "./[id]/skills/GET/index";
 import { handler as postSkillsHandler } from "./[id]/skills/POST/index";
 import { handler as putByIdHandler } from "./[id]/PUT/index";
 import { handler as patchByIdHandler } from "./[id]/PATCH/index";
+import { handler as patchParentHandler } from "./[id]/parent/PATCH/index";
+import { handler as patchSkillsHandler } from "./[id]/skills/PATCH/index";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent
@@ -47,7 +49,11 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
     }
   } else if (event?.httpMethod === HTTP_VERBS.PATCH) {
     const pathToMatch = event.path || "";
-    if (pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.exec(pathToMatch)) {
+    if (pathToRegexp(Routes.OCCUPATION_PARENT_ROUTE).regexp.exec(pathToMatch)) {
+      return patchParentHandler(event);
+    } else if (pathToRegexp(Routes.OCCUPATION_SKILLS_ROUTE).regexp.exec(pathToMatch)) {
+      return patchSkillsHandler(event);
+    } else if (pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.exec(pathToMatch)) {
       return patchByIdHandler(event);
     }
   }

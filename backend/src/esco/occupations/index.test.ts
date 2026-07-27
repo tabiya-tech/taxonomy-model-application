@@ -8,6 +8,12 @@ jest.mock("./POST/index", () => ({ handler: jest.fn().mockResolvedValue({ status
 jest.mock("./[id]/parent/POST/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 201, body: "POST_PARENT" }),
 }));
+jest.mock("./[id]/parent/PATCH/index", () => ({
+  handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "PATCH_PARENT" }),
+}));
+jest.mock("./[id]/skills/PATCH/index", () => ({
+  handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "PATCH_SKILLS" }),
+}));
 jest.mock("./[id]/GET/index", () => ({ handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "GET_BY_ID" }) }));
 jest.mock("./[id]/parent/GET/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "GET_PARENT" }),
@@ -33,6 +39,8 @@ import { handler as postHandler } from "./POST/index";
 import { handler as getByIdHandler } from "./[id]/GET/index";
 import { handler as getParentHandler } from "./[id]/parent/GET/index";
 import { handler as postParentHandler } from "./[id]/parent/POST/index";
+import { handler as patchParentHandler } from "./[id]/parent/PATCH/index";
+import { handler as patchSkillsHandler } from "./[id]/skills/PATCH/index";
 import { handler as getChildrenHandler } from "./[id]/children/GET/index";
 import { handler as getSkillsHandler } from "./[id]/skills/GET/index";
 import { handler as postSkillsHandler } from "./[id]/skills/POST/index";
@@ -125,6 +133,20 @@ describe("Occupations Router", () => {
     const response = await handler(event);
     expect(putByIdHandler).toHaveBeenCalledWith(event);
     expect(response.body).toBe("PUT");
+  });
+
+  test("should route PATCH parent to patchParentHandler", async () => {
+    const event = { httpMethod: HTTP_VERBS.PATCH, path: "/models/1/occupations/2/parent" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(patchParentHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("PATCH_PARENT");
+  });
+
+  test("should route PATCH skills to patchSkillsHandler", async () => {
+    const event = { httpMethod: HTTP_VERBS.PATCH, path: "/models/1/occupations/2/skills" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(patchSkillsHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("PATCH_SKILLS");
   });
 
   test("should route PATCH to patchByIdHandler", async () => {
