@@ -128,6 +128,24 @@ namespace OccupationGroupTypes {
       export type Payload = IOccupationGroupHistoryItem[];
     }
   }
+
+  export namespace Detail.PUT {
+    export namespace Request {
+      export type Payload = IOccupationGroupRequest;
+    }
+    export namespace Response {
+      export type Payload = IOccupationGroupResponse;
+    }
+  }
+
+  export namespace Detail.PATCH {
+    export namespace Request {
+      export type Payload = Partial<IOccupationGroupRequest>;
+    }
+    export namespace Response {
+      export type Payload = IOccupationGroupResponse;
+    }
+  }
 }
 
 export default OccupationGroupTypes;

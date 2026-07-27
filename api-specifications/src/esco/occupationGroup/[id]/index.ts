@@ -2,6 +2,8 @@ import OccupationGroupGETDetailAPISpecs from "./GET";
 import OccupationGroupGETParentAPISpecs from "./parent";
 import OccupationGroupGETChildrenAPISpecs from "./children";
 import OccupationGroupHistoryAPISpecs from "./history";
+import PUTOccupationGroupOperation from "./PUT";
+import PATCHOccupationGroupOperation from "./PATCH";
 
 import SchemaGETRequestDetailParam from "./schema.request.param";
 
@@ -20,6 +22,8 @@ namespace OccupationGroupDetailAPISpecs {
   export import Types = OccupationGroupDetailURLParameter;
 
   export import GET = OccupationGroupGETDetailAPISpecs;
+  export import PUT = PUTOccupationGroupOperation;
+  export import PATCH = PATCHOccupationGroupOperation;
 
   export import Parent = OccupationGroupGETParentAPISpecs;
   export import Children = OccupationGroupGETChildrenAPISpecs;
