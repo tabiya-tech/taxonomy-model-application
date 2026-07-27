@@ -17,7 +17,6 @@ import {
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { buildParentResponse } from "./response";
-import "_test_utilities/consoleMock";
 
 let checkRole: jest.SpyInstance;
 let transformDynamicEntitySpy: jest.SpyInstance;

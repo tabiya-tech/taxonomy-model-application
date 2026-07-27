@@ -23,6 +23,9 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
   };
   let relationRepositoryMock: {
     createMany: jest.Mock;
+    relationModel: {
+      deleteMany: jest.Mock;
+    };
   };
 
   let service: OccupationToSkillRelationService;
@@ -38,6 +41,9 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
     };
     relationRepositoryMock = {
       createMany: jest.fn(),
+      relationModel: {
+        deleteMany: jest.fn().mockResolvedValue({}),
+      },
     };
 
     service = new OccupationToSkillRelationService(
