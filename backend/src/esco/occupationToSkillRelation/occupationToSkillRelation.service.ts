@@ -69,6 +69,13 @@ export class OccupationToSkillRelationService implements IOccupationToSkillRelat
       }
     }
 
+    // Delete existing relation between this occupation and skill if present to support updating existing relations
+    await this.occupationToSkillRelationRepository.relationModel.deleteMany({
+      modelId: { $eq: modelId },
+      requiringOccupationId: { $eq: requiringOccupationId },
+      requiredSkillId: { $eq: requiredSkillId },
+    });
+
     const spec: INewOccupationToSkillPairSpec = {
       requiringOccupationId,
       requiringOccupationType: child.occupationType as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation,

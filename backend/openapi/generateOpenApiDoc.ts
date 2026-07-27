@@ -562,6 +562,7 @@ function getOpenAPISpecification(
           OccupationParentRequestSchemaPOST: Occupation.Occupation.Parent.POST.Schemas.Request.Payload,
           OccupationParentResponseSchemaPOST: Occupation.Occupation.Parent.POST.Schemas.Response.Payload,
           OccupationParentRequestSchemaPATCH: Occupation.Occupation.Parent.PATCH.Schemas.Request.Payload,
+          OccupationParentResponseSchemaPATCH: Occupation.Occupation.Parent.PATCH.Schemas.Response.Payload,
           OccupationResponseSchemaGETChildren: Occupation.Occupation.Children.GET.Schemas.Response.Payload,
           OccupationChildrenRequestQueryParamSchemaGET:
             Occupation.Occupation.Children.GET.Schemas.Request.Query.Payload,

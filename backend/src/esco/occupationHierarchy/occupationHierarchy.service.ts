@@ -56,6 +56,13 @@ export class OccupationHierarchyService implements IOccupationHierarchyService {
         childType,
       };
 
+      // Delete existing parent relationship for this child if present to support updating/replacing parent
+      await this.occupationHierarchyRepository.hierarchyModel.deleteMany({
+        modelId: { $eq: modelId },
+        childId: { $eq: childId },
+        childType: { $eq: childType },
+      });
+
       const createdPairs = await this.occupationHierarchyRepository.createMany(modelId, [spec]);
 
       if (createdPairs.length === 0) {

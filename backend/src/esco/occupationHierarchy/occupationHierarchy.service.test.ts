@@ -22,6 +22,9 @@ describe("OccupationHierarchyService Unit Tests", () => {
   };
   let occupationHierarchyRepositoryMock: {
     createMany: jest.Mock;
+    hierarchyModel: {
+      deleteMany: jest.Mock;
+    };
   };
 
   let service: OccupationHierarchyService;
@@ -37,6 +40,9 @@ describe("OccupationHierarchyService Unit Tests", () => {
     };
     occupationHierarchyRepositoryMock = {
       createMany: jest.fn(),
+      hierarchyModel: {
+        deleteMany: jest.fn().mockResolvedValue({}),
+      },
     };
 
     service = new OccupationHierarchyService(

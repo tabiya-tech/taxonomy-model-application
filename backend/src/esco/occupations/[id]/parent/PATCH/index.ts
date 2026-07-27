@@ -55,7 +55,7 @@ export class OccupationParentPATCHController {
    *        content:
    *          application/json:
    *            schema:
-   *               $ref: '#/components/schemas/OccupationResponseSchemaGETParent'
+   *               $ref: '#/components/schemas/OccupationParentResponseSchemaPATCH'
    *      '400':
    *        description: |
    *          Failed to update the parent. Additional information can be found in the response body.
