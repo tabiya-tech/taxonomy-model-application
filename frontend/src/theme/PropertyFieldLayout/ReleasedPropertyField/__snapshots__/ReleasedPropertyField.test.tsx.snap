@@ -9,7 +9,7 @@ exports[`ReleasedPropertyField should render with provided 'Not Released' status
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -29,7 +29,7 @@ exports[`ReleasedPropertyField should render with provided 'Not Released' status
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-il7e6s-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1hmiunx-MuiSvgIcon-root"
         data-testid="not-released-icon-7e51bcc0-7abc-462c-81e8-a33058fa1b1e"
         focusable="false"
         viewBox="0 0 24 24"
@@ -39,7 +39,7 @@ exports[`ReleasedPropertyField should render with provided 'Not Released' status
         />
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-qfprmt-MuiTypography-root"
         data-testid="not-released-text-7e51bcc0-7abc-462c-81e8-a33058fa1b1e"
       >
         Not Released
@@ -58,7 +58,7 @@ exports[`ReleasedPropertyField should render with provided 'Released' status 1`]
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -78,7 +78,7 @@ exports[`ReleasedPropertyField should render with provided 'Released' status 1`]
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-il7e6s-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1hmiunx-MuiSvgIcon-root"
         data-testid="released-icon-7e51bcc0-7abc-462c-81e8-a33058fa1b1e"
         focusable="false"
         viewBox="0 0 24 24"
@@ -88,7 +88,7 @@ exports[`ReleasedPropertyField should render with provided 'Released' status 1`]
         />
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-qfprmt-MuiTypography-root"
         data-testid="released-text-7e51bcc0-7abc-462c-81e8-a33058fa1b1e"
       >
         Released

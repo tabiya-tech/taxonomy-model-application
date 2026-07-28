@@ -31,7 +31,16 @@ jobs:
           echo "\"LOCALES_URL\": btoa(\"\")," >> frontend/public/data/env.js
           echo "\"AUTH_URL\": btoa(\"\")," >> frontend/public/data/env.js
           echo "\"COGNITO_CLIENT_ID\": btoa(\"\")," >> frontend/public/data/env.js
-          echo "\"COGNITO_CLIENT_SECRET\": btoa(\"\")" >> frontend/public/data/env.js
+          echo "\"COGNITO_CLIENT_SECRET\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"LOGO_URL\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"NAVBAR_LOGOS\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"PARTNER_LOGOS\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"FRONTEND_THEME_CSS_VARIABLES\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"FRONTEND_BROWSER_TAB_TITLE\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"FRONTEND_FAVICON_URL\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"FRONTEND_APP_ICON_URL\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"FRONTEND_LANDING_COPY\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"FRONTEND_LANDING_STATS\": btoa(\"\")" >> frontend/public/data/env.js
           echo "};" >> frontend/public/data/env.js
           cat frontend/public/data/env.js
       - name: Install dependencies

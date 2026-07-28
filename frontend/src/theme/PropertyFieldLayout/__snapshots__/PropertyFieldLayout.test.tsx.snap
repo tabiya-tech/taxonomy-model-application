@@ -9,7 +9,7 @@ exports[`PropertyFieldLayout render tests should render with provided title and 
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -42,7 +42,7 @@ exports[`PropertyFieldLayout render tests should render with provided title and 
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"

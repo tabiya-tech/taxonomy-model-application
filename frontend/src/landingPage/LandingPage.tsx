@@ -4,6 +4,8 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { routerPaths } from "src/app/routerPaths";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import AppHeader from "src/app/components/AppHeader";
+import Footer from "src/Footer/Footer";
+import { getLandingPageCopy, getLandingPageStats } from "src/envService";
 
 const uniqueId = "1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a";
 
@@ -15,7 +17,7 @@ export const DATA_TEST_ID = {
   LANDING_PAGE_HEADING: `landing-page-heading-${uniqueId}`,
   LANDING_PAGE_DESCRIPTION: `landing-page-description-${uniqueId}`,
   LANDING_PAGE_AUDIENCE: `landing-page-audience-${uniqueId}`,
-  LANDING_PAGE_CONCEIVED_LINK: `landing-page-conceived-link-${uniqueId}`,
+  LANDING_PAGE_READ_MORE_LINK: `landing-page-read-more-link-${uniqueId}`,
   LANDING_PAGE_START_EXPLORING_BUTTON: `landing-page-start-exploring-button-${uniqueId}`,
   LANDING_PAGE_BROWSE_TAXONOMIES_BUTTON: `landing-page-browse-taxonomies-button-${uniqueId}`,
   LANDING_PAGE_CTA_CAPTION: `landing-page-cta-caption-${uniqueId}`,
@@ -24,7 +26,7 @@ export const DATA_TEST_ID = {
   LANDING_PAGE_API_BANNER_LINK: `landing-page-api-banner-link-${uniqueId}`,
 };
 
-const STATS = [
+const DEFAULT_STATS = [
   {
     key: "occupations",
     value: "3,000+",
@@ -45,6 +47,13 @@ const STATS = [
 const LandingPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+
+  const landingCopy = getLandingPageCopy();
+  const overriddenStats = getLandingPageStats();
+  const stats =
+    overriddenStats.length > 0
+      ? overriddenStats.map((stat, index) => ({ ...stat, key: `stat-${index}` }))
+      : DEFAULT_STATS;
 
   const handleStartExploring = () => {
     navigate(routerPaths.EXPLORER);
@@ -110,14 +119,14 @@ const LandingPage = () => {
             sx={{
               fontFamily: "IBM Plex Mono",
               fontWeight: 700,
-              color: (theme) => theme.palette.success.dark,
+              color: landingCopy.eyebrow?.color || ((theme) => theme.palette.success.dark),
             }}
           >
-            Inclusive Livelihoods Taxonomy
+            {landingCopy.eyebrow?.text || "Inclusive Livelihoods Taxonomy"}
           </Typography>
 
           <Typography variant="h1" data-testid={DATA_TEST_ID.LANDING_PAGE_HEADING} sx={{ maxWidth: "42rem" }}>
-            Every form of work builds skills. We make them visible.
+            {landingCopy.heading || "Every form of work builds skills. We make them visible."}
           </Typography>
 
           <Typography
@@ -125,15 +134,19 @@ const LandingPage = () => {
             data-testid={DATA_TEST_ID.LANDING_PAGE_DESCRIPTION}
             sx={{ maxWidth: "40rem", color: (theme) => theme.palette.text.secondary }}
           >
-            An open taxonomy of occupations and skills covering the{" "}
-            <Box component="span" sx={{ fontWeight: 700, color: (theme) => theme.palette.text.primary }}>
-              seen economy
-            </Box>{" "}
-            of formal work, based on ESCO, and the{" "}
-            <Box component="span" sx={{ fontWeight: 700, color: (theme) => theme.palette.text.primary }}>
-              unseen economy
-            </Box>{" "}
-            of care and informal work, based on ICATUS. Localized for the labour markets where our partners operate.
+            {landingCopy.description || (
+              <>
+                An open taxonomy of occupations and skills covering the{" "}
+                <Box component="span" sx={{ fontWeight: 700, color: (theme) => theme.palette.text.primary }}>
+                  seen economy
+                </Box>{" "}
+                of formal work, based on ESCO, and the{" "}
+                <Box component="span" sx={{ fontWeight: 700, color: (theme) => theme.palette.text.primary }}>
+                  unseen economy
+                </Box>{" "}
+                of care and informal work, based on ICATUS. Localized for the labour markets where our partners operate.
+              </>
+            )}
           </Typography>
 
           <Typography
@@ -145,14 +158,16 @@ const LandingPage = () => {
           </Typography>
 
           <Link
-            href="https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy"
+            href={
+              landingCopy.readMoreLink?.url || "https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy"
+            }
             target="_blank"
             rel="noopener noreferrer"
             variant="body2"
-            data-testid={DATA_TEST_ID.LANDING_PAGE_CONCEIVED_LINK}
+            data-testid={DATA_TEST_ID.LANDING_PAGE_READ_MORE_LINK}
             sx={{ color: (theme) => theme.palette.secondary.main, fontWeight: 600 }}
           >
-            Read what the taxonomy is and how it was conceived →
+            {landingCopy.readMoreLink?.text || "Read what the taxonomy is and how it was conceived"} →
           </Link>
 
           <Box
@@ -189,7 +204,8 @@ const LandingPage = () => {
             data-testid={DATA_TEST_ID.LANDING_PAGE_CTA_CAPTION}
             sx={{ color: (theme) => theme.palette.grey[600] }}
           >
-            Start exploring opens the latest Base taxonomy · browse for country versions, CSV download and API access.
+            {landingCopy.ctaCaption ||
+              "Start exploring opens the latest Base taxonomy · browse for country versions, CSV download and API access."}
           </Typography>
         </Box>
 
@@ -209,7 +225,7 @@ const LandingPage = () => {
               gap: theme.fixedSpacing(theme.tabiyaSpacing.lg),
             }}
           >
-            {STATS.map((stat) => (
+            {stats.map((stat) => (
               <Box
                 key={stat.key}
                 data-testid={`landing-page-stat-${stat.key}-${uniqueId}`}
@@ -262,6 +278,8 @@ const LandingPage = () => {
           </Box>
         </Box>
       </Box>
+
+      <Footer />
     </Box>
   );
 };

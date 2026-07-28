@@ -98,4 +98,18 @@ describe.each([ThemeMode.LIGHT, ThemeMode.DARK])("%s theme mode", (givenThemeMod
     // AND get the correct rounding
     expect(actualRounding).toMatchSnapshot();
   });
+
+  it("should give MuiSkeleton a resolvable background, not one derived from alpha() on a CSS variable", () => {
+    // GIVEN the theme
+    const givenTheme = applicationTheme(givenThemeMode);
+
+    // WHEN the Skeleton styleOverride is invoked
+    const skeletonStyles = (givenTheme.components!.MuiSkeleton!.styleOverrides!.root as Function)({
+      theme: givenTheme,
+    });
+
+    // THEN expect a resolvable grey background, not an alpha()-derived one
+    expect(skeletonStyles.backgroundColor).toBe(givenTheme.palette.grey[200]);
+    expect(skeletonStyles.backgroundColor).not.toContain("NaN");
+  });
 });

@@ -2,8 +2,9 @@
 import "src/_test_utilities/consoleMock";
 
 import { render, screen } from "src/_test_utilities/test-utils";
-import PrimaryButton from "./PrimaryButton";
+import PrimaryButton, { getOutlinedButtonSx } from "./PrimaryButton";
 import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
+import applicationTheme, { ThemeMode } from "src/theme/applicationTheme/applicationTheme";
 
 describe("Primary Button tests", () => {
   beforeEach(() => {
@@ -74,6 +75,32 @@ describe("Primary Button tests", () => {
       const primaryButton = screen.getByRole("button");
       expect(primaryButton).toHaveProperty("disabled", expectedState);
     });
+  });
+
+  test.each(["primary", "secondary"] as const)(
+    "getOutlinedButtonSx should give outlined %s buttons a resolvable border, not an alpha()-derived one",
+    (color) => {
+      // GIVEN the app theme
+      const theme = applicationTheme(ThemeMode.LIGHT);
+
+      // WHEN getOutlinedButtonSx is called for the outlined variant
+      const sx = getOutlinedButtonSx(theme, "outlined", color);
+
+      // THEN expect a border referencing the theme's color directly - MUI's default alpha()-derived border
+      // can't parse our CSS-variable-based palette and would silently produce an invisible border
+      expect(sx.border).toBe(`1px solid ${theme.palette[color].main}`);
+    }
+  );
+
+  test("getOutlinedButtonSx should return no override for the contained variant", () => {
+    // GIVEN the app theme
+    const theme = applicationTheme(ThemeMode.LIGHT);
+
+    // WHEN getOutlinedButtonSx is called for the (default) contained variant
+    const sx = getOutlinedButtonSx(theme, "contained", "primary");
+
+    // THEN expect no border override, since MUI's default works fine for contained buttons
+    expect(sx).toEqual({});
   });
 
   test("should render enable->disabled->enabled when online status changes", async () => {

@@ -2,7 +2,7 @@
 
 exports[`HeaderTitle should render header component with provided title 1`] = `
 <h2
-  class="MuiTypography-root MuiTypography-h2 css-2jbldj-MuiTypography-root"
+  class="MuiTypography-root MuiTypography-h2 css-27x2gi-MuiTypography-root"
   data-testid="header-title"
 >
   Header title

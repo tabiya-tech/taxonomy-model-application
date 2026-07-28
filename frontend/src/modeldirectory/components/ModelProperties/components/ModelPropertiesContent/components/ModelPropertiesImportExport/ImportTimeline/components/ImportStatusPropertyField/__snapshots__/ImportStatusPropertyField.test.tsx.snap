@@ -9,7 +9,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed 1
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -25,7 +25,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed 1
       class="MuiBox-root css-1t5r8n4"
     >
       <svg
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-ldtitb-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1s3hyfs-MuiSvgIcon-root"
         data-testid="icon-status-success-bae86ed9-33bf-4492-a0e2-f9c8bd112bae"
         focusable="false"
         role="img"
@@ -39,7 +39,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed 1
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Completed successfully
@@ -58,7 +58,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -88,7 +88,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Completed with 
@@ -112,7 +112,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -142,7 +142,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Completed with 
@@ -166,7 +166,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -196,7 +196,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         <span>
@@ -228,7 +228,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -258,7 +258,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Completed W
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Completed with 
@@ -282,7 +282,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Pending 1`]
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -312,7 +312,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Pending 1`]
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Pending
@@ -331,7 +331,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Running 1`]
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -361,7 +361,7 @@ exports[`ImportStatusPropertyField Should Render correctly for case: Running 1`]
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-d321d7cc-6396-43c8-bec9-70a04fdb3607"
       >
         Running

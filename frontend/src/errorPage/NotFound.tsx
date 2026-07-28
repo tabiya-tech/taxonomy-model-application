@@ -1,4 +1,5 @@
 import { Box, Typography } from "@mui/material";
+import { getLogoUrl } from "src/envService";
 
 const uniqueId = "37d307ae-4f1e-4d8d-bafe-fd642f8af4ab";
 
@@ -18,7 +19,12 @@ const NotFound = () => {
       display="flex"
       data-testid={DATA_TEST_ID.NOT_FOUND_CONTAINER}
     >
-      <img src="/TabiyaLogo.svg" alt="not found" width="250px" data-testid={DATA_TEST_ID.NOT_FOUND_ILLUSTRATION} />
+      <img
+        src={getLogoUrl() || "/TabiyaLogo.svg"}
+        alt="not found"
+        width="250px"
+        data-testid={DATA_TEST_ID.NOT_FOUND_ILLUSTRATION}
+      />
       <Typography variant="h2" data-testid={DATA_TEST_ID.NOT_FOUND_MESSAGE}>
         404 Error - Page Not Found
       </Typography>

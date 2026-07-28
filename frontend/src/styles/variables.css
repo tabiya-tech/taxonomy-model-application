@@ -1,0 +1,22 @@
+/*
+  Default branding values, expressed as CSS custom properties so they can be overridden at runtime
+  Colors are in RGB format without rgb() wrapper (e.g., "0 33 71")
+*/
+:root {
+  --brand-primary: 0 33 71;
+  --brand-primary-light: 64 89 117;
+  --brand-primary-dark: 0 25 53;
+  --brand-primary-contrast-text: 255 255 255;
+
+  --brand-secondary: 38 94 167;
+  --brand-secondary-light: 92 134 189;
+  --brand-secondary-dark: 29 71 125;
+  --brand-secondary-contrast-text: 255 255 255;
+
+  --text-primary: 0 33 71;
+  --text-secondary: 67 71 78;
+  --text-accent: 38 94 167;
+
+  --font-heading: "IBM Plex Mono", monospace;
+  --font-body: "Inter", sans-serif;
+}

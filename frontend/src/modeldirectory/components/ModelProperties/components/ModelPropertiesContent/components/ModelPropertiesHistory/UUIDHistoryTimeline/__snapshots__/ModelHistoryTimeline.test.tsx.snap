@@ -14,20 +14,20 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
       data-testid="uuid-history-timeline-separator-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <span
-        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
+        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-1omwbbq-MuiTimelineDot-root"
         data-testid="uuid-history-timeline-dot-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
       />
       <span
-        class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
+        class="MuiTimelineConnector-root css-oaqzrp-MuiTimelineConnector-root"
         data-testid="uuid-history-timeline-connector-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-12fo4a1-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1rlyk6j-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-qfprmt-MuiTypography-root"
       >
         Model0 V1.1.0 (ZA)
       </p>
@@ -42,20 +42,20 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
       data-testid="uuid-history-timeline-separator-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <span
-        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
+        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-1omwbbq-MuiTimelineDot-root"
         data-testid="uuid-history-timeline-dot-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
       />
       <span
-        class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
+        class="MuiTimelineConnector-root css-oaqzrp-MuiTimelineConnector-root"
         data-testid="uuid-history-timeline-connector-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-12fo4a1-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1rlyk6j-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-qfprmt-MuiTypography-root"
       >
         Model1 V1.1.1 (ZA)
       </p>
@@ -70,20 +70,20 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
       data-testid="uuid-history-timeline-separator-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <span
-        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
+        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-1omwbbq-MuiTimelineDot-root"
         data-testid="uuid-history-timeline-dot-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
       />
       <span
-        class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
+        class="MuiTimelineConnector-root css-oaqzrp-MuiTimelineConnector-root"
         data-testid="uuid-history-timeline-connector-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-12fo4a1-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1rlyk6j-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-qfprmt-MuiTypography-root"
       >
         Model2 V1.1.2 (ZA)
       </p>
@@ -98,20 +98,20 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
       data-testid="uuid-history-timeline-separator-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <span
-        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
+        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-1omwbbq-MuiTimelineDot-root"
         data-testid="uuid-history-timeline-dot-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
       />
       <span
-        class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
+        class="MuiTimelineConnector-root css-oaqzrp-MuiTimelineConnector-root"
         data-testid="uuid-history-timeline-connector-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-12fo4a1-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1rlyk6j-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-qfprmt-MuiTypography-root"
       >
         Model3 V1.1.3 (ZA)
       </p>
@@ -126,16 +126,16 @@ exports[`UUIDHistoryTimeline renders correctly 1`] = `
       data-testid="uuid-history-timeline-separator-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <span
-        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
+        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-1omwbbq-MuiTimelineDot-root"
         data-testid="uuid-history-timeline-dot-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-12fo4a1-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1rlyk6j-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-qfprmt-MuiTypography-root"
       >
         Model4 V1.1.4 (ZA)
       </p>
@@ -158,16 +158,16 @@ exports[`UUIDHistoryTimeline renders correctly when the UUIDHistoryDetails have 
       data-testid="uuid-history-timeline-separator-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <span
-        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
+        class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-1omwbbq-MuiTimelineDot-root"
         data-testid="uuid-history-timeline-dot-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
       />
     </div>
     <div
-      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-12fo4a1-MuiTypography-root-MuiTimelineContent-root"
+      class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-1rlyk6j-MuiTypography-root-MuiTimelineContent-root"
       data-testid="uuid-history-timeline-content-48d564f1-fe4b-4c2f-bfc4-023cde28397f"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-3ahvbo-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-qfprmt-MuiTypography-root"
       >
         e26aca13-aa00-4346-9e83-edaf593143780: (details not available)
       </p>

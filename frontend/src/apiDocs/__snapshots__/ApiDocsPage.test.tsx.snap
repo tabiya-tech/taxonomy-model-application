@@ -22,19 +22,19 @@ exports[`Testing ApiDocsPage component should render the API docs page successfu
             class="MuiBox-root css-0"
           >
             <h2
-              class="MuiTypography-root MuiTypography-h2 css-1a5e95o-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-h2 css-lyhrgz-MuiTypography-root"
               data-testid="api-docs-page-heading-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
             >
               Open Taxonomy Platform API
             </h2>
             <p
-              class="MuiTypography-root MuiTypography-body1 css-rrzw3g-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-jdi7b6-MuiTypography-root"
               data-testid="api-docs-page-intro-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
             >
               Secure access to taxonomy models, occupations, skills and their groups. All requests and responses use JSON. Deep links from the directory pre-fill the model. The examples below use
                
               <span
-                class="MuiBox-root css-1xgopbs"
+                class="MuiBox-root css-o0w2ms"
               >
                 mdl_base_2f9a
               </span>
@@ -55,23 +55,23 @@ exports[`Testing ApiDocsPage component should render the API docs page successfu
               data-testid="api-docs-page-credentials-section-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
             >
               <p
-                class="MuiTypography-root MuiTypography-body1 css-yxgdv6-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body1 css-ytlmja-MuiTypography-root"
               >
                 1 · Request credentials
               </p>
               <p
-                class="MuiTypography-root MuiTypography-body1 css-qyrrs3-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body1 css-1t45jev-MuiTypography-root"
               >
                 Access requires an 
                 <span
-                  class="MuiBox-root css-1xgopbs"
+                  class="MuiBox-root css-o0w2ms"
                 >
                   X-API-Key
                 </span>
                  or M2M OAuth client credentials, issued by the platform administrators.
               </p>
               <a
-                class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineAlways css-18s2ff3-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineAlways css-dec91i-MuiTypography-root-MuiLink-root"
                 data-testid="api-docs-page-credentials-link-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
                 href="https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy/open-taxonomy-platform/open-taxonomy-platform-api#credentials-and-authentication"
                 rel="noopener noreferrer"
@@ -88,18 +88,18 @@ exports[`Testing ApiDocsPage component should render the API docs page successfu
                 class="MuiBox-root css-1821gv5"
               >
                 <p
-                  class="MuiTypography-root MuiTypography-body1 css-yxgdv6-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-body1 css-ytlmja-MuiTypography-root"
                 >
                   2 · Call the API with an API key (path prefix 
                   <span
-                    class="MuiBox-root css-1xgopbs"
+                    class="MuiBox-root css-o0w2ms"
                   >
                     /api/partner
                   </span>
                   )
                 </p>
                 <pre
-                  class="MuiBox-root css-35nac3"
+                  class="MuiBox-root css-1mafye8"
                   data-testid="api-docs-page-api-key-code-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
                 >
                   curl -X GET \\
@@ -111,18 +111,18 @@ exports[`Testing ApiDocsPage component should render the API docs page successfu
                 class="MuiBox-root css-1821gv5"
               >
                 <p
-                  class="MuiTypography-root MuiTypography-body1 css-yxgdv6-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-body1 css-ytlmja-MuiTypography-root"
                 >
                   or with M2M OAuth 2.0 (path prefix 
                   <span
-                    class="MuiBox-root css-1xgopbs"
+                    class="MuiBox-root css-o0w2ms"
                   >
                     /api/app
                   </span>
                   )
                 </p>
                 <pre
-                  class="MuiBox-root css-35nac3"
+                  class="MuiBox-root css-1mafye8"
                   data-testid="api-docs-page-oauth-code-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
                 >
                   curl -X GET \\
@@ -136,17 +136,17 @@ exports[`Testing ApiDocsPage component should render the API docs page successfu
               data-testid="api-docs-page-reference-section-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
             >
               <p
-                class="MuiTypography-root MuiTypography-body1 css-yxgdv6-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body1 css-ytlmja-MuiTypography-root"
               >
                 3 · Full endpoint reference
               </p>
               <p
-                class="MuiTypography-root MuiTypography-body1 css-qyrrs3-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-body1 css-1t45jev-MuiTypography-root"
               >
                 Browse and live-test every endpoint in the
                  
                 <a
-                  class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-girr2l-MuiTypography-root-MuiLink-root"
+                  class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-83gzdv-MuiTypography-root-MuiLink-root"
                   data-testid="api-docs-page-swagger-link-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
                   href="https://taxonomy.tabiya.tech/api-doc/swagger/"
                   rel="noopener noreferrer"
@@ -158,7 +158,7 @@ exports[`Testing ApiDocsPage component should render the API docs page successfu
                 or
                  
                 <a
-                  class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-girr2l-MuiTypography-root-MuiLink-root"
+                  class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-83gzdv-MuiTypography-root-MuiLink-root"
                   data-testid="api-docs-page-redoc-link-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
                   href="https://taxonomy.tabiya.tech/api-doc/redoc/"
                   rel="noopener noreferrer"
@@ -169,7 +169,7 @@ exports[`Testing ApiDocsPage component should render the API docs page successfu
                 , or import the
                  
                 <a
-                  class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-girr2l-MuiTypography-root-MuiLink-root"
+                  class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-83gzdv-MuiTypography-root-MuiLink-root"
                   data-testid="api-docs-page-openapi-link-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
                   href="https://taxonomy.tabiya.tech/api-doc/swagger/tabiya-api.json"
                   rel="noopener noreferrer"
@@ -181,7 +181,7 @@ exports[`Testing ApiDocsPage component should render the API docs page successfu
                 directly into Postman or Insomnia. Full guide:
                  
                 <a
-                  class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-girr2l-MuiTypography-root-MuiLink-root"
+                  class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-83gzdv-MuiTypography-root-MuiLink-root"
                   data-testid="api-docs-page-guide-link-3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d"
                   href="https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy/open-taxonomy-platform/open-taxonomy-platform-api"
                   rel="noopener noreferrer"

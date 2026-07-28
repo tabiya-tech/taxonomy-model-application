@@ -9,7 +9,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -39,7 +39,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Completed with 
@@ -68,7 +68,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -98,7 +98,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         <span>
@@ -140,7 +140,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -170,7 +170,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Completed with 
@@ -199,7 +199,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -229,7 +229,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Completed with 
@@ -258,7 +258,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -288,7 +288,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Completed successfully
@@ -312,7 +312,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -342,7 +342,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Pending
@@ -366,7 +366,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
     class="MuiBox-root css-70qvj9"
   >
     <h6
-      class="MuiTypography-root MuiTypography-h6 css-1h8vygf-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h6 css-1o0mzcr-MuiTypography-root"
       data-testid="item-title-5abb0d55-4073-4f5b-8432-ee8c96aa4df2"
       id="field-id"
       tabindex="0"
@@ -396,7 +396,7 @@ exports[`ExportStatusPropertyField Should Render correctly when export process i
         </title>
       </svg>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1os18n4-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-afs2x-MuiTypography-root"
         data-testid="message-c2031286-4333-4e71-a003-388bf91dc1b9"
       >
         Running
