@@ -5,6 +5,11 @@ import { acm } from "@pulumi/aws/types/input";
 
 export const environment = pulumi.getStack();
 
+const config = new pulumi.Config();
+// Additional domain aliases for the CloudFront distribution (e.g. externally-owned domains
+// that CNAME here). Must already be covered as SANs in the certificate stack.
+const extraCloudfrontAliases: string[] = config.getObject<string[]>("extraCloudfrontAliases") ?? [];
+
 const baseDomainName = process.env.BASE_DOMAIN_NAME!;
 
 pulumi.log.info(`Using base domain name : ${baseDomainName}`);
@@ -110,7 +115,7 @@ export const cdn = setupCDN({
   redocBucketOrigin: redocBucket,
   localesBucketOrigin: localesBucket,
   downloadBucketOrigin: downloadBucket
-}, certificate.arn, hostedZone.zoneId, domainName);
+}, certificate.arn, hostedZone.zoneId, domainName, extraCloudfrontAliases);
 export const backendURLBase = cdn.backendURLBase;
 
 // The resources base URL is the base URL for accessing tabiya resources
@@ -126,3 +131,12 @@ pulumi.all([resourcesBaseUrl, backendURLBase]).apply(([resourcesBaseUrl, backend
 export const resourcesBaseURL = resourcesBaseUrl;
 
 export const frontendURLBase = cdn.frontendURLBase;
+
+// The CloudFront domain name for this distribution.
+// External domains that alias to this distribution should CNAME to this value.
+export const cloudfrontDomainName = cdn.cloudfrontDomainName;
+
+// ACM validation records for extra SANs on externally-owned domains.
+// Share these with the domain owner so they can add the required CNAME records
+// in their DNS zone to complete certificate validation.
+export const extraSANValidationRecords = certificateStack.getOutput("extraSANValidationRecords");

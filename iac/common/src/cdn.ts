@@ -94,14 +94,20 @@ export function setupCDN(
   origns: Origins,
   certificateArn: Output<string>,
   hostedZoneId: Output<string>,
-  domainName: string
+  domainName: string,
+  // Additional domain aliases to add to the CloudFront distribution.
+  // These domains must already be covered by the certificate as SANs.
+  // No Route53 records are created for them — the external domain owner
+  // must point their DNS (CNAME or ALIAS) at the CloudFront domain name.
+  extraAliases: string[] = []
 ): {
   backendURLBase: Output<string>,
   frontendURLBase: Output<string>,
   swaggerURLBase: Output<string>,
   redocURLBase: Output<string>,
   localesURLBase: Output<string>,
-  downloadURLBase: Output<string>
+  downloadURLBase: Output<string>,
+  cloudfrontDomainName: Output<string>
 } {
   const { frontendBucketOrigin, backendRestApiOrigin, swaggerBucketOrigin, redocBucketOrigin, localesBucketOrigin, downloadBucketOrigin } = origns;
 
@@ -358,7 +364,7 @@ export function setupCDN(
         restrictionType: "none",
       },
     },
-    aliases: [domainName],
+    aliases: [domainName, ...extraAliases],
     viewerCertificate: {
       acmCertificateArn: certificateArn,
       minimumProtocolVersion: "TLSv1.2_2021",
@@ -386,7 +392,8 @@ export function setupCDN(
     swaggerURLBase: interpolate`https://${domainName}/api-doc/swagger`,
     redocURLBase: interpolate`https://${domainName}/api-doc/redoc`,
     localesURLBase: interpolate`https://${domainName}/locales/api`,
-    downloadURLBase: interpolate`https://${domainName}/downloads`
+    downloadURLBase: interpolate`https://${domainName}/downloads`,
+    cloudfrontDomainName: cdn.domainName
   };
 }
 
