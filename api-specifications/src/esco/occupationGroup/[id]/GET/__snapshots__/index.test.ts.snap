@@ -87,7 +87,7 @@ exports[`Test the occupationGroup GET Detail module The export module matches th
               "maxLength": 256,
               "type": "string",
             },
-            "maxItems": 100,
+            "maxItems": 200,
             "minItems": 0,
             "type": "array",
             "uniqueItems": true,

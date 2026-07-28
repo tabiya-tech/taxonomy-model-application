@@ -186,7 +186,7 @@ exports[`Test the skillGroup GET module The export module matches the snapshot 1
                     "maxLength": 256,
                     "type": "string",
                   },
-                  "maxItems": 100,
+                  "maxItems": 200,
                   "minItems": 0,
                   "type": "array",
                   "uniqueItems": true,

@@ -4,7 +4,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
 {
   "Children": {
     "Constants": {
-      "ALT_LABELS_MAX_ITEMS": 100,
+      "ALT_LABELS_MAX_ITEMS": 200,
       "ALT_LABEL_MAX_LENGTH": 256,
       "CODE_MAX_LENGTH": 256,
       "CODE_PATTERN_MAX_LENGTH": 100,
@@ -253,7 +253,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                         "maxLength": 256,
                         "type": "string",
                       },
-                      "maxItems": 100,
+                      "maxItems": 200,
                       "minItems": 0,
                       "type": "array",
                       "uniqueItems": true,
@@ -739,7 +739,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
     "Types": {},
   },
   "Constants": {
-    "ALT_LABELS_MAX_ITEMS": 100,
+    "ALT_LABELS_MAX_ITEMS": 200,
     "ALT_LABEL_MAX_LENGTH": 256,
     "CODE_MAX_LENGTH": 256,
     "CODE_PATTERN_MAX_LENGTH": 100,
@@ -834,7 +834,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
   },
   "History": {
     "Constants": {
-      "ALT_LABELS_MAX_ITEMS": 100,
+      "ALT_LABELS_MAX_ITEMS": 200,
       "ALT_LABEL_MAX_LENGTH": 256,
       "CODE_MAX_LENGTH": 256,
       "CODE_PATTERN_MAX_LENGTH": 100,
@@ -1006,7 +1006,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
   "PATCH": {
     "Constants": {
       "MAX_JSON_OVERHEAD": 10000,
-      "MAX_PATCH_PAYLOAD_LENGTH": 566656,
+      "MAX_PATCH_PAYLOAD_LENGTH": 592256,
     },
     "Enums": {
       "OccupationToSkillRelationType": {
@@ -1127,7 +1127,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                 "maxLength": 256,
                 "type": "string",
               },
-              "maxItems": 100,
+              "maxItems": 200,
               "minItems": 0,
               "type": "array",
               "uniqueItems": true,
@@ -1344,7 +1344,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                 "maxLength": 256,
                 "type": "string",
               },
-              "maxItems": 100,
+              "maxItems": 200,
               "minItems": 0,
               "type": "array",
               "uniqueItems": true,
@@ -1787,7 +1787,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
   "PUT": {
     "Constants": {
       "MAX_JSON_OVERHEAD": 10000,
-      "MAX_PUT_PAYLOAD_LENGTH": 566656,
+      "MAX_PUT_PAYLOAD_LENGTH": 592256,
     },
     "Enums": {
       "OccupationToSkillRelationType": {
@@ -1893,7 +1893,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                 "maxLength": 256,
                 "type": "string",
               },
-              "maxItems": 100,
+              "maxItems": 200,
               "minItems": 0,
               "type": "array",
               "uniqueItems": true,
@@ -2125,7 +2125,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                 "maxLength": 256,
                 "type": "string",
               },
-              "maxItems": 100,
+              "maxItems": 200,
               "minItems": 0,
               "type": "array",
               "uniqueItems": true,
@@ -2567,7 +2567,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
   },
   "Parent": {
     "Constants": {
-      "ALT_LABELS_MAX_ITEMS": 100,
+      "ALT_LABELS_MAX_ITEMS": 200,
       "ALT_LABEL_MAX_LENGTH": 256,
       "CODE_MAX_LENGTH": 256,
       "CODE_PATTERN_MAX_LENGTH": 100,
@@ -2786,7 +2786,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                       "maxLength": 256,
                       "type": "string",
                     },
-                    "maxItems": 100,
+                    "maxItems": 200,
                     "minItems": 0,
                     "type": "array",
                     "uniqueItems": true,
@@ -3267,7 +3267,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                       "maxLength": 256,
                       "type": "string",
                     },
-                    "maxItems": 100,
+                    "maxItems": 200,
                     "minItems": 0,
                     "type": "array",
                     "uniqueItems": true,
@@ -3748,7 +3748,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                       "maxLength": 256,
                       "type": "string",
                     },
-                    "maxItems": 100,
+                    "maxItems": 200,
                     "minItems": 0,
                     "type": "array",
                     "uniqueItems": true,
@@ -4229,7 +4229,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                       "maxLength": 256,
                       "type": "string",
                     },
-                    "maxItems": 100,
+                    "maxItems": 200,
                     "minItems": 0,
                     "type": "array",
                     "uniqueItems": true,
@@ -4563,7 +4563,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
   },
   "Skills": {
     "Constants": {
-      "ALT_LABELS_MAX_ITEMS": 100,
+      "ALT_LABELS_MAX_ITEMS": 200,
       "ALT_LABEL_MAX_LENGTH": 256,
       "CODE_MAX_LENGTH": 256,
       "CODE_PATTERN_MAX_LENGTH": 100,
@@ -4706,7 +4706,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                         "maxLength": 256,
                         "type": "string",
                       },
-                      "maxItems": 100,
+                      "maxItems": 200,
                       "minItems": 0,
                       "type": "array",
                       "uniqueItems": true,
@@ -5354,7 +5354,7 @@ exports[`Test the Occupation Instance module The export module matches the snaps
                   "maxLength": 256,
                   "type": "string",
                 },
-                "maxItems": 100,
+                "maxItems": 200,
                 "minItems": 0,
                 "type": "array",
                 "uniqueItems": true,

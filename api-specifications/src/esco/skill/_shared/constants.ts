@@ -13,7 +13,7 @@ namespace SkillConstants {
   export const SIGNALLING_VALUE_MAX = 100;
 
   // Array constraints
-  export const ALT_LABELS_MAX_ITEMS = 100;
+  export const ALT_LABELS_MAX_ITEMS = 200;
   export const UUID_HISTORY_MAX_ITEMS = 10000;
   export const UUID_HISTORY_MAX_LENGTH = 50;
 
