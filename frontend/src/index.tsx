@@ -1,15 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import "src/styles/variables.css";
 import App from "./app";
 import reportWebVitals from "./reportWebVitals";
 import applicationTheme, { ThemeMode } from "./theme/applicationTheme/applicationTheme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import SnackbarProvider from "./theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider, AuthProvider } from "src/app/providers";
+import { applyBrandingFromEnv } from "src/branding/branding";
 
 // Currently the fonts are downloaded from Google via the index.css
 // Fonts could be distributed with the app instead, by explicitly importing them here
+
+// Apply branding overrides
+applyBrandingFromEnv();
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 

@@ -22,6 +22,21 @@ const groupedColorCategories = [
 const colorCategories = groupedColorCategories.flat();
 type ColorCategory = (typeof colorCategories)[number];
 
+// Resolves CSS variable colors to their computed values. MUI's rgbToHex() (like alpha()) can't parse a
+// "rgb(var(--x))" reference, so this story's color swatches need the actual computed value first.
+// rgbToHex parses via decomposeColor(), which only understands the legacy comma-separated "rgb(r, g, b)"
+// syntax (not the space-separated "rgb(r g b)" the CSS var stores), so the channels must be joined with ", ".
+const resolveCssColor = (value: string): string => {
+  if (globalThis.window === undefined || !value.includes("var(")) return value;
+
+  const match = /var\((--[^)]+)\)/.exec(value);
+  if (!match) return value;
+
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(match[1]).trim();
+
+  return raw?.includes(" ") ? `rgb(${raw.split(/\s+/).join(", ")})` : raw || value;
+};
+
 const PaletteElements = () => {
   const theme = useTheme();
   return (
@@ -133,13 +148,13 @@ const ColorBox = (props: ColorBoxProps) => {
   let contrastText: string;
 
   if (props.color) {
-    color = rgbToHex(props.color);
+    color = rgbToHex(resolveCssColor(props.color));
     contrastText = props.theme.palette.getContrastText(color);
   } else if (props.category && props.variant) {
-    color = rgbToHex(props.theme.palette[props.category][props.variant]);
+    color = rgbToHex(resolveCssColor(props.theme.palette[props.category][props.variant]));
     contrastText = props.theme.palette.getContrastText(color);
   } else if (props.shade) {
-    color = rgbToHex(props.theme.palette.grey[props.shade]);
+    color = rgbToHex(resolveCssColor(props.theme.palette.grey[props.shade]));
     contrastText = props.theme.palette.getContrastText(color);
   } else {
     throw new Error("Invalid props provided to ColorBox");

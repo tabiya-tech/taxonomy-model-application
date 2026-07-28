@@ -6,7 +6,7 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
   data-testid="import-files-selection-e60583c2-9ce5-47e0-bb8f-d2a4349dde15"
 >
   <label
-    class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1k0yz6l-MuiFormLabel-root"
+    class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1v3qfrb-MuiFormLabel-root"
   >
     Select files to import
     <span
@@ -129,7 +129,7 @@ exports[`ImportFilesSelection render tests should render default state 1`] = `
           />
           <div
             aria-label="Add LICENSE file"
-            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+            class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-1fwx1ir-MuiButtonBase-root-MuiChip-root"
             data-testid="license-select-file-button-16c54d56-b091-48ce-826a-c721b0c3643f"
             role="button"
             tabindex="0"

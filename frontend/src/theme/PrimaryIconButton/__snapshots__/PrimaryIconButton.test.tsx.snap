@@ -2,7 +2,7 @@
 
 exports[`PrimaryIconButton tests should render the icon button with default props 1`] = `
 <button
-  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-1e844z7-MuiButtonBase-root-MuiIconButton-root"
+  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-k5n931-MuiButtonBase-root-MuiIconButton-root"
   data-testid="test-icon"
   tabindex="0"
   type="button"

@@ -47,7 +47,7 @@ export default function ImportProcessStateIcon(props: Readonly<ImportStatusIconP
       return (
         <CheckCircle
           titleAccess="Completed succesfully"
-          sx={{ color: (theme) => theme.palette.tabiyaGreen.dark }}
+          sx={{ color: (theme) => theme.palette.success.dark }}
           data-testid={DATA_TEST_ID.ICON_STATUS_SUCCESS}
         />
       );

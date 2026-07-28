@@ -9,7 +9,7 @@ exports[`MarkdownPropertyField should render with provided markdown 1`] = `
   </span>
   <span>
     <span
-      class="MuiTypography-root MuiTypography-body1 css-swfwp-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-body1 css-1o02csy-MuiTypography-root"
       data-testid="markdown-property-field-text-0af822fc-07e3-4032-8276-d7ebf6dc4631"
     >
       <span>

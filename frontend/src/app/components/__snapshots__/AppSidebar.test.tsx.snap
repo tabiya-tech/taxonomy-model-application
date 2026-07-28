@@ -6,7 +6,7 @@ exports[`AppSidebar render tests renders correctly 1`] = `
   data-testid="app-sidebar-container-579896ed-8a99-4a1e-8dc4-e4236d7b06df"
 >
   <a
-    class="css-5mjdi8"
+    class="css-94za5q"
     data-testid="app-sidebar-directory-link-579896ed-8a99-4a1e-8dc4-e4236d7b06df"
     href="#/modeldirectory"
   >
@@ -26,13 +26,13 @@ exports[`AppSidebar render tests renders correctly 1`] = `
       </svg>
     </div>
     <span
-      class="MuiTypography-root MuiTypography-caption css-1vghao7-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-caption css-16d54zf-MuiTypography-root"
     >
       Directory
     </span>
   </a>
   <a
-    class="css-5mjdi8"
+    class="css-94za5q"
     data-testid="app-sidebar-explore-link-579896ed-8a99-4a1e-8dc4-e4236d7b06df"
     href="#/explorer"
   >
@@ -52,7 +52,7 @@ exports[`AppSidebar render tests renders correctly 1`] = `
       </svg>
     </div>
     <span
-      class="MuiTypography-root MuiTypography-caption css-1vghao7-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-caption css-16d54zf-MuiTypography-root"
     >
       Explore
     </span>

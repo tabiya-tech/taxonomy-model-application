@@ -12,7 +12,7 @@ exports[`NotFound NotFound page renders correctly 1`] = `
     width="250px"
   />
   <h2
-    class="MuiTypography-root MuiTypography-h2 css-ca93eg-MuiTypography-root"
+    class="MuiTypography-root MuiTypography-h2 css-pir66o-MuiTypography-root"
     data-testid="not-found-message-37d307ae-4f1e-4d8d-bafe-fd642f8af4ab"
   >
     404 Error - Page Not Found

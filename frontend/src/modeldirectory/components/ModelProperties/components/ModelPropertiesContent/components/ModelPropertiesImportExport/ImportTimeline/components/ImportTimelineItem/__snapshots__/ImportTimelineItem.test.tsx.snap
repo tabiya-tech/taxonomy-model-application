@@ -6,11 +6,11 @@ exports[`ImportTimelineItem render tests should render with fallback text when i
   data-testid="import-timeline-item-920424ec-c21e-4673-a127-6c92451a38dc"
 >
   <div
-    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-1jlt6h8-MuiTypography-root-MuiTimelineOppositeContent-root"
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-vx5r38-MuiTypography-root-MuiTimelineOppositeContent-root"
     data-testid="import-timeline-opposite-content-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <p
-      class="MuiTypography-root MuiTypography-body2 css-17ygoe0-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-body2 css-u44f48-MuiTypography-root"
       data-testid="import-timeline-fallback-text-920424ec-c21e-4673-a127-6c92451a38dc"
     >
       Import has not started yet
@@ -21,16 +21,16 @@ exports[`ImportTimelineItem render tests should render with fallback text when i
     data-testid="import-timeline-separator-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <span
-      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-1omwbbq-MuiTimelineDot-root"
       data-testid="import-timeline-dot-920424ec-c21e-4673-a127-6c92451a38dc"
     />
     <span
-      class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
+      class="MuiTimelineConnector-root css-oaqzrp-MuiTimelineConnector-root"
       data-testid="import-timeline-connector-920424ec-c21e-4673-a127-6c92451a38dc"
     />
   </div>
   <div
-    class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-p3xido-MuiTypography-root-MuiTimelineContent-root"
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-n7gqdi-MuiTypography-root-MuiTimelineContent-root"
     data-testid="import-timeline-content-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <div
@@ -48,11 +48,11 @@ exports[`ImportTimelineItem render tests should render with provided importProce
   data-testid="import-timeline-item-920424ec-c21e-4673-a127-6c92451a38dc"
 >
   <div
-    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-1jlt6h8-MuiTypography-root-MuiTimelineOppositeContent-root"
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineOppositeContent-root MuiTimelineOppositeContent-positionRight css-vx5r38-MuiTypography-root-MuiTimelineOppositeContent-root"
     data-testid="import-timeline-opposite-content-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <p
-      class="MuiTypography-root MuiTypography-body1 css-ghakyl-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-body1 css-zoko8l-MuiTypography-root"
       data-testid="import-timeline-opposite-content-created-at-920424ec-c21e-4673-a127-6c92451a38dc"
     >
       foo-date-user-friendly-formatted
@@ -63,16 +63,16 @@ exports[`ImportTimelineItem render tests should render with provided importProce
     data-testid="import-timeline-separator-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <span
-      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-12fjwjc-MuiTimelineDot-root"
+      class="MuiTimelineDot-root MuiTimelineDot-filled MuiTimelineDot-filledPrimary css-1omwbbq-MuiTimelineDot-root"
       data-testid="import-timeline-dot-920424ec-c21e-4673-a127-6c92451a38dc"
     />
     <span
-      class="MuiTimelineConnector-root css-itego1-MuiTimelineConnector-root"
+      class="MuiTimelineConnector-root css-oaqzrp-MuiTimelineConnector-root"
       data-testid="import-timeline-connector-920424ec-c21e-4673-a127-6c92451a38dc"
     />
   </div>
   <div
-    class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-p3xido-MuiTypography-root-MuiTimelineContent-root"
+    class="MuiTypography-root MuiTypography-body1 MuiTimelineContent-root MuiTimelineContent-positionRight css-n7gqdi-MuiTypography-root-MuiTimelineContent-root"
     data-testid="import-timeline-content-920424ec-c21e-4673-a127-6c92451a38dc"
   >
     <div

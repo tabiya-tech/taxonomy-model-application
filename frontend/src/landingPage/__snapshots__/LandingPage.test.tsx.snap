@@ -21,25 +21,25 @@ exports[`Testing LandingPage component should render the landing page successful
       data-testid="landing-page-hero-header-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
     >
       <span
-        class="MuiTypography-root MuiTypography-overline css-17o62j5-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-overline css-1x63lzv-MuiTypography-root"
         data-testid="landing-page-eyebrow-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
       >
         Inclusive Livelihoods Taxonomy
       </span>
       <h1
-        class="MuiTypography-root MuiTypography-h1 css-1t12whv-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h1 css-8lhlo1-MuiTypography-root"
         data-testid="landing-page-heading-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
       >
         Every form of work builds skills. We make them visible.
       </h1>
       <p
-        class="MuiTypography-root MuiTypography-body1 css-19n14lw-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-15ht1k1-MuiTypography-root"
         data-testid="landing-page-description-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
       >
         An open taxonomy of occupations and skills covering the
          
         <span
-          class="MuiBox-root css-zzefjg"
+          class="MuiBox-root css-1g8tsnc"
         >
           seen economy
         </span>
@@ -47,7 +47,7 @@ exports[`Testing LandingPage component should render the landing page successful
         of formal work, based on ESCO, and the
          
         <span
-          class="MuiBox-root css-zzefjg"
+          class="MuiBox-root css-1g8tsnc"
         >
           unseen economy
         </span>
@@ -55,25 +55,26 @@ exports[`Testing LandingPage component should render the landing page successful
         of care and informal work, based on ICATUS. Localized for the labour markets where our partners operate.
       </p>
       <p
-        class="MuiTypography-root MuiTypography-body2 css-nzlw26-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body2 css-6t12e5-MuiTypography-root"
         data-testid="landing-page-audience-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
       >
         For partners, researchers, employers and governments.
       </p>
       <a
-        class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineAlways css-1qnxsp0-MuiTypography-root-MuiLink-root"
-        data-testid="landing-page-conceived-link-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
+        class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineAlways css-przixj-MuiTypography-root-MuiLink-root"
+        data-testid="landing-page-read-more-link-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
         href="https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy"
         rel="noopener noreferrer"
         target="_blank"
       >
-        Read what the taxonomy is and how it was conceived →
+        Read what the taxonomy is and how it was conceived
+         →
       </a>
       <div
         class="MuiBox-root css-188y3ek"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-fwypri-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-k8wjv2-MuiButtonBase-root-MuiButton-root"
           data-testid="landing-page-start-exploring-button-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
           style="white-space: nowrap;"
           tabindex="0"
@@ -100,7 +101,7 @@ exports[`Testing LandingPage component should render the landing page successful
           />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-140m69p-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-8y9qk0-MuiButtonBase-root-MuiButton-root"
           data-testid="landing-page-browse-taxonomies-button-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
           style="white-space: nowrap;"
           tabindex="0"
@@ -113,7 +114,7 @@ exports[`Testing LandingPage component should render the landing page successful
         </button>
       </div>
       <span
-        class="MuiTypography-root MuiTypography-caption css-pouf3q-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-sbf5rf-MuiTypography-root"
         data-testid="landing-page-cta-caption-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
       >
         Start exploring opens the latest Base taxonomy · browse for country versions, CSV download and API access.
@@ -131,12 +132,12 @@ exports[`Testing LandingPage component should render the landing page successful
           data-testid="landing-page-stat-occupations-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
         >
           <h3
-            class="MuiTypography-root MuiTypography-h3 css-80gmt7-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h3 css-1jrpfz0-MuiTypography-root"
           >
             3,000+
           </h3>
           <p
-            class="MuiTypography-root MuiTypography-body2 css-nzlw26-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body2 css-6t12e5-MuiTypography-root"
           >
             occupations across the seen and unseen economy
           </p>
@@ -146,12 +147,12 @@ exports[`Testing LandingPage component should render the landing page successful
           data-testid="landing-page-stat-skills-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
         >
           <h3
-            class="MuiTypography-root MuiTypography-h3 css-80gmt7-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h3 css-1jrpfz0-MuiTypography-root"
           >
             13,000+
           </h3>
           <p
-            class="MuiTypography-root MuiTypography-body2 css-nzlw26-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body2 css-6t12e5-MuiTypography-root"
           >
             skills and competencies, cross-linked to occupations
           </p>
@@ -161,12 +162,12 @@ exports[`Testing LandingPage component should render the landing page successful
           data-testid="landing-page-stat-taxonomies-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
         >
           <h3
-            class="MuiTypography-root MuiTypography-h3 css-80gmt7-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h3 css-1jrpfz0-MuiTypography-root"
           >
             4
           </h3>
           <p
-            class="MuiTypography-root MuiTypography-body2 css-nzlw26-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body2 css-6t12e5-MuiTypography-root"
           >
             taxonomies: Base (EN·ES), South Africa, Kenya, Zambia
           </p>
@@ -180,18 +181,18 @@ exports[`Testing LandingPage component should render the landing page successful
           class="MuiBox-root css-0"
         >
           <h6
-            class="MuiTypography-root MuiTypography-h6 css-yyitj4-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h6 css-1kkjc85-MuiTypography-root"
           >
             Building on the taxonomy?
           </h6>
           <p
-            class="MuiTypography-root MuiTypography-body2 css-nzlw26-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body2 css-6t12e5-MuiTypography-root"
           >
             Every taxonomy offers Explore, API integration and CSV download from the directory.
           </p>
         </div>
         <button
-          class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineAlways MuiLink-button css-13mw7g3-MuiTypography-root-MuiLink-root"
+          class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineAlways MuiLink-button css-11nbjla-MuiTypography-root-MuiLink-root"
           data-testid="landing-page-api-banner-link-1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a"
           type="button"
         >

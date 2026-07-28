@@ -6,7 +6,7 @@ exports[`TabControl component render tests renders correctly with no items 1`] =
   data-testid="test-id"
 >
   <div
-    class="MuiTabs-root css-6gqcb5-MuiTabs-root"
+    class="MuiTabs-root css-481mm-MuiTabs-root"
   >
     <div
       class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
@@ -18,7 +18,7 @@ exports[`TabControl component render tests renders correctly with no items 1`] =
         role="tablist"
       />
       <span
-        class="MuiTabs-indicator css-1ktk2h2-MuiTabs-indicator"
+        class="MuiTabs-indicator css-1sg9yex-MuiTabs-indicator"
         style="left: 0px; width: 0px;"
       >
         <span
@@ -36,7 +36,7 @@ exports[`TabControl component render tests renders tabs and content for a single
   data-testid="test-id"
 >
   <div
-    class="MuiTabs-root css-6gqcb5-MuiTabs-root"
+    class="MuiTabs-root css-481mm-MuiTabs-root"
   >
     <div
       class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
@@ -49,7 +49,7 @@ exports[`TabControl component render tests renders tabs and content for a single
       >
         <button
           aria-selected="true"
-          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth Mui-selected css-l3v1a8-MuiButtonBase-root-MuiTab-root"
+          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth Mui-selected css-dhz5k4-MuiButtonBase-root-MuiTab-root"
           data-testid="tab-control-tabs-c356cfd6-5a7a-4471-9ef3-4c1932251bcc"
           id="tab-unique-id"
           role="tab"
@@ -63,7 +63,7 @@ exports[`TabControl component render tests renders tabs and content for a single
         </button>
       </div>
       <span
-        class="MuiTabs-indicator css-1ktk2h2-MuiTabs-indicator"
+        class="MuiTabs-indicator css-1sg9yex-MuiTabs-indicator"
         style="left: 0px; width: 0px;"
       >
         <span
@@ -96,7 +96,7 @@ exports[`TabControl component render tests renders tabs and content for multiple
   data-testid="test-id"
 >
   <div
-    class="MuiTabs-root css-6gqcb5-MuiTabs-root"
+    class="MuiTabs-root css-481mm-MuiTabs-root"
   >
     <div
       class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
@@ -109,7 +109,7 @@ exports[`TabControl component render tests renders tabs and content for multiple
       >
         <button
           aria-selected="true"
-          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth Mui-selected css-l3v1a8-MuiButtonBase-root-MuiTab-root"
+          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth Mui-selected css-dhz5k4-MuiButtonBase-root-MuiTab-root"
           data-testid="tab-control-tabs-c356cfd6-5a7a-4471-9ef3-4c1932251bcc"
           id="tab-unique-id-1"
           role="tab"
@@ -123,7 +123,7 @@ exports[`TabControl component render tests renders tabs and content for multiple
         </button>
         <button
           aria-selected="false"
-          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth css-l3v1a8-MuiButtonBase-root-MuiTab-root"
+          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth css-dhz5k4-MuiButtonBase-root-MuiTab-root"
           data-testid="tab-control-tabs-c356cfd6-5a7a-4471-9ef3-4c1932251bcc"
           id="tab-unique-id-2"
           role="tab"
@@ -137,7 +137,7 @@ exports[`TabControl component render tests renders tabs and content for multiple
         </button>
       </div>
       <span
-        class="MuiTabs-indicator css-1ktk2h2-MuiTabs-indicator"
+        class="MuiTabs-indicator css-1sg9yex-MuiTabs-indicator"
         style="left: 0px; width: 0px;"
       >
         <span

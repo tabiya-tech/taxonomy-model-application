@@ -16,7 +16,7 @@ exports[`LicenseFileEntry render tests Should render the licenseFileEntry compon
     />
     <div
       aria-label="Add LICENSE file"
-      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-d8rrhm-MuiButtonBase-root-MuiChip-root"
+      class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorPrimary MuiChip-clickable MuiChip-clickableColorPrimary MuiChip-filledPrimary css-1fwx1ir-MuiButtonBase-root-MuiChip-root"
       data-testid="license-select-file-button-16c54d56-b091-48ce-826a-c721b0c3643f"
       role="button"
       tabindex="0"

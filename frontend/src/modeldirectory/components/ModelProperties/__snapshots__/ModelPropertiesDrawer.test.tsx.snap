@@ -16,7 +16,7 @@ exports[`ModelPropertiesDrawer component render tests should render the drawer w
     tabindex="0"
   />
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation16 MuiDrawer-paper MuiDrawer-paperAnchorRight css-1rje21t-MuiPaper-root-MuiDrawer-paper"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation16 MuiDrawer-paper MuiDrawer-paperAnchorRight css-1ncla01-MuiPaper-root-MuiDrawer-paper"
     tabindex="-1"
   >
     <div

@@ -8,11 +8,15 @@ import ContextMenu from "src/theme/ContextMenu/ContextMenu";
 import { MenuItemConfig } from "src/theme/ContextMenu/menuItemConfig.types";
 import { LoginOutlined, LogoutOutlined } from "@mui/icons-material";
 import PrimaryIconButton from "src/theme/PrimaryIconButton/PrimaryIconButton";
+import { getNavbarLogos, LogoConfig } from "src/envService";
+
+const DEFAULT_LOGO: LogoConfig = { src: "/logo.svg", alt: "Tabiya", height: 30 };
 
 const uniqueId = "65b0785e-14d9-43a3-b260-869983312406";
 export const DATA_TEST_ID = {
   APP_HEADER_CONTAINER: `app-header-container-${uniqueId}`,
   APP_HEADER_LOGO: `app-header-logo-${uniqueId}`,
+  APP_HEADER_LOGO_DIVIDER: `app-header-logo-divider-${uniqueId}`,
   APP_HEADER_LOGO_LINK: `app-header-logo-link-${uniqueId}`,
   APP_HEADER_ICON_USER: `app-header-icon-user-${uniqueId}`,
   APP_HEADER_AUTH_BUTTON: `app-header-auth-button-${uniqueId}`,
@@ -33,6 +37,8 @@ const AppHeader = () => {
   const { login, logout, user } = useContext(AuthContext);
   const [contextMenuItems, setContextMenuItems] = useState<MenuItemConfig[]>([]);
   const isApiDocsActive = Boolean(useMatch(routerPaths.API_DOCS));
+  const navbarLogos = getNavbarLogos();
+  const logosToRender = navbarLogos.length === 0 ? [DEFAULT_LOGO] : navbarLogos;
 
   useEffect(() => {
     const loginLogoutItem = user
@@ -61,7 +67,29 @@ const AppHeader = () => {
       data-testid={DATA_TEST_ID.APP_HEADER_CONTAINER}
     >
       <NavLink style={{ lineHeight: 0 }} to={routerPaths.ROOT} data-testid={DATA_TEST_ID.APP_HEADER_LOGO_LINK}>
-        <img src="/logo.svg" alt="Tabiya" height={"30px"} data-testid={DATA_TEST_ID.APP_HEADER_LOGO} />
+        <Box display="flex" alignItems="center" sx={{ gap: (theme) => theme.tabiyaSpacing.md }}>
+          {logosToRender.map((logo, index) => (
+            <React.Fragment key={`${index}-${logo.src}`}>
+              {index > 0 && (
+                <Box
+                  data-testid={DATA_TEST_ID.APP_HEADER_LOGO_DIVIDER}
+                  sx={{
+                    width: "1px",
+                    alignSelf: "stretch",
+                    backgroundColor: (theme) => theme.palette.divider,
+                  }}
+                />
+              )}
+              <img
+                src={logo.src}
+                alt={logo.alt ?? `Logo ${index + 1}`}
+                height={logo.height ?? 30}
+                width={logo.width}
+                data-testid={DATA_TEST_ID.APP_HEADER_LOGO}
+              />
+            </React.Fragment>
+          ))}
+        </Box>
       </NavLink>
       <Box display="flex" alignItems="center" sx={{ gap: (theme) => theme.tabiyaSpacing.lg }}>
         <Link

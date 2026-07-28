@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Box from "@mui/material/Box";
 import { Typography, Divider, Skeleton, Tabs, Tab, Chip, useTheme } from "@mui/material";
+import { alpha, Theme } from "@mui/material/styles";
 import {
   ExplorerContainedItem,
   ExplorerHistoryItem,
@@ -58,10 +59,15 @@ const isOccupation = (objectType?: ObjectType): boolean =>
   objectType === ObjectType.ESCOOccupation || objectType === ObjectType.LocalOccupation;
 
 // The colored "flag" shown under the title, indicating the entity's category.
-const getBadge = (item: ExplorerDetailItem): { label: string; bgcolor: string; color: string } | null => {
+const getBadge = (item: ExplorerDetailItem, theme: Theme): { label: string; bgcolor: string; color: string } | null => {
   const objectType = item.objectType;
   if (!objectType) return null;
-  if (GROUP_OBJECT_TYPES.has(objectType)) return { label: "Group", bgcolor: "#E6F4EA", color: "#2E7D32" };
+  if (GROUP_OBJECT_TYPES.has(objectType))
+    return {
+      label: "Group",
+      bgcolor: alpha(theme.palette.primary.main, 0.5),
+      color: theme.palette.primary.main,
+    };
   if (objectType === ObjectType.ESCOOccupation) return { label: "Seen Economy", bgcolor: "#E7F0FB", color: "#265EA7" };
   if (objectType === ObjectType.LocalOccupation)
     return { label: "Unseen Economy", bgcolor: "#FBEEDD", color: "#B26A00" };
@@ -373,6 +379,7 @@ const ExplorerDetailPanel = ({
   isHistoryLoading = false,
 }: Readonly<ExplorerDetailPanelProps>) => {
   const [activeTab, setActiveTab] = useState(0);
+  const theme = useTheme();
 
   if (isLoading) {
     return <DetailSkeleton />;
@@ -394,7 +401,7 @@ const ExplorerDetailPanel = ({
     );
   }
 
-  const badge = getBadge(item);
+  const badge = getBadge(item, theme);
   const tabLabels = ["Definition", linksTabLabel(item.objectType), "Details", "History"];
 
   return (
@@ -445,7 +452,7 @@ const ExplorerDetailPanel = ({
         allowScrollButtonsMobile
         TabIndicatorProps={{
           sx: {
-            backgroundColor: "success.dark",
+            backgroundColor: theme.palette.primary.main,
             height: 3,
             borderTopLeftRadius: 3,
             borderTopRightRadius: 3,
@@ -460,7 +467,7 @@ const ExplorerDetailPanel = ({
             minWidth: 80,
             color: "text.secondary",
             "&.Mui-selected": {
-              color: "success.dark",
+              color: theme.palette.primary.main,
             },
           },
         }}

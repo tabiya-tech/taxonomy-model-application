@@ -46,8 +46,18 @@ export const TabiyaIconStyles = {
 
 const lightPalette: PaletteOptions = {
   contrastThreshold: 4.5, // WCAG 2.0 (AA) ensure color-contrast is at least 4.5:1
-  primary: augmentedThemeColor(TabiyaBasicColors.DarkBlue),
-  secondary: augmentedThemeColor(TabiyaBasicColors.LightBlue),
+  primary: {
+    main: "rgb(var(--brand-primary))",
+    light: "rgb(var(--brand-primary-light))",
+    dark: "rgb(var(--brand-primary-dark))",
+    contrastText: "rgb(var(--brand-primary-contrast-text))",
+  },
+  secondary: {
+    main: "rgb(var(--brand-secondary))",
+    light: "rgb(var(--brand-secondary-light))",
+    dark: "rgb(var(--brand-secondary-dark))",
+    contrastText: "rgb(var(--brand-secondary-contrast-text))",
+  },
   tabiyaYellow: augmentedThemeColor(TabiyaBasicColors.Yellow),
   tabiyaGreen: augmentedThemeColor(TabiyaBasicColors.Green),
   containerBackground: {
@@ -77,9 +87,9 @@ const lightPalette: PaletteOptions = {
     A700: "#CAF09D",
   },
   text: {
-    primary: TabiyaBasicColors.DarkBlue,
-    secondary: TabiyaBasicColors.GrayDark,
-    textAccent: TabiyaBasicColors.LightBlue,
+    primary: "rgb(var(--text-primary))",
+    secondary: "rgb(var(--text-secondary))",
+    textAccent: "rgb(var(--text-accent))",
     textWhite: "#FFFFFF",
     textBlack: "#000000",
     disabled: "#E0E2EC",
@@ -161,7 +171,7 @@ export const applicationTheme = (theme: ThemeMode) => {
     },
     typography: {
       htmlFontSize: TabiyaBaseSizes.font, // Set the base font size
-      fontFamily: "Inter, sans-serif", // Set the desired font family
+      fontFamily: "var(--font-body)", // Set the desired font family
       // @ts-ignore
       fontSize: TabiyaBaseSizes.font, // Set the base font size
       fontWeightLight: 300,
@@ -169,79 +179,79 @@ export const applicationTheme = (theme: ThemeMode) => {
       fontWeightMedium: 500,
       fontWeightBold: 700,
       h1: {
-        fontFamily: "IBM Plex Mono",
+        fontFamily: "var(--font-heading)",
         fontWeight: "700",
         fontSize: CSSClampFnCalculatorRem(1.3, 2, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       h2: {
-        fontFamily: "IBM Plex Mono",
+        fontFamily: "var(--font-heading)",
         fontWeight: "700",
         fontSize: CSSClampFnCalculatorRem(1.25, 1.85, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       h3: {
-        fontFamily: "IBM Plex Mono",
+        fontFamily: "var(--font-heading)",
         fontWeight: "700",
         fontSize: CSSClampFnCalculatorRem(1.2, 1.7, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       h4: {
-        fontFamily: "IBM Plex Mono",
+        fontFamily: "var(--font-heading)",
         fontWeight: "700",
         fontSize: CSSClampFnCalculatorRem(1.15, 1.55, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       h5: {
-        fontFamily: "IBM Plex Mono",
+        fontFamily: "var(--font-heading)",
         fontWeight: "700",
         fontSize: CSSClampFnCalculatorRem(1.1, 1.4, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       h6: {
-        fontFamily: "IBM Plex Mono",
+        fontFamily: "var(--font-heading)",
         fontWeight: "700",
         fontSize: CSSClampFnCalculatorRem(1, 1.25, screenSizeRem),
         color: activePalette.text!!.primary,
       },
       subtitle1: {
-        fontFamily: "Inter",
+        fontFamily: "var(--font-body)",
         fontWeight: "500",
         fontSize: CSSClampFnCalculatorRem(0.75, 1, screenSizeRem),
         color: activePalette.text!!.textAccent,
       },
       subtitle2: {
-        fontFamily: "Inter",
+        fontFamily: "var(--font-body)",
         fontWeight: "500",
         fontSize: CSSClampFnCalculatorRem(0.5, 0.875, screenSizeRem),
         color: activePalette.text!!.textAccent,
       },
       body1: {
-        fontFamily: "Inter",
+        fontFamily: "var(--font-body)",
         fontWeight: "400",
         fontSize: CSSClampFnCalculatorRem(0.75, 1, screenSizeRem),
         color: activePalette.text!!.secondary,
       },
       body2: {
-        fontFamily: "Inter",
+        fontFamily: "var(--font-body)",
         fontWeight: "400",
         fontSize: CSSClampFnCalculatorRem(0.5, 0.875, screenSizeRem),
         color: activePalette.text!!.secondary,
       },
       button: {
-        fontFamily: "Inter",
+        fontFamily: "var(--font-body)",
         fontWeight: "500",
         fontSize: CSSClampFnCalculatorRem(0.75, 1, screenSizeRem),
         color: activePalette.text!!.primary,
         textTransform: "none",
       },
       caption: {
-        fontFamily: "Inter",
+        fontFamily: "var(--font-body)",
         fontWeight: "400",
         fontSize: CSSClampFnCalculatorRem(0.5, 0.75, screenSizeRem),
       },
       overline: {
-        fontFamily: "Inter",
+        fontFamily: "var(--font-body)",
         fontWeight: "400",
         fontSize: CSSClampFnCalculatorRem(0.5, 0.75, screenSizeRem),
       },
@@ -298,6 +308,13 @@ export const applicationTheme = (theme: ThemeMode) => {
             textOverflow: "ellipsis",
             maxWidth: "250px",
           },
+        },
+      },
+      MuiSkeleton: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            backgroundColor: theme.palette.grey[200],
+          }),
         },
       },
     },

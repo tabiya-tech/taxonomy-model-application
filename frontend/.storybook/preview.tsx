@@ -16,10 +16,14 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 */
+import "../src/styles/variables.css"
 import type { Preview } from "@storybook/react";
 import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider } from "../src/app/providers";
 import { AuthContext, authContextDefaultValue } from "../src/auth/AuthProvider";
+import { applyBrandingFromEnv } from "../src/branding/branding";
+
+applyBrandingFromEnv();
 
 const preview: Preview = {
   parameters: {

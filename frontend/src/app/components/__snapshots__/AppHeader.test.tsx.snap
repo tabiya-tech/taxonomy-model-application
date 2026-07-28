@@ -12,18 +12,22 @@ exports[`AppHeader AppHeader render tests renders correctly when the user is log
     href="#/"
     style="line-height: 0;"
   >
-    <img
-      alt="Tabiya"
-      data-testid="app-header-logo-65b0785e-14d9-43a3-b260-869983312406"
-      height="30px"
-      src="/logo.svg"
-    />
+    <div
+      class="MuiBox-root css-hb5gpu"
+    >
+      <img
+        alt="Tabiya"
+        data-testid="app-header-logo-65b0785e-14d9-43a3-b260-869983312406"
+        height="30"
+        src="/logo.svg"
+      />
+    </div>
   </a>
   <div
     class="MuiBox-root css-1y18yrl"
   >
     <a
-      class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineNone css-1vi947c-MuiTypography-root-MuiLink-root"
+      class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineNone css-li0lbq-MuiTypography-root-MuiLink-root"
       data-testid="app-header-documentation-link-65b0785e-14d9-43a3-b260-869983312406"
       href="https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy"
       rel="noopener noreferrer"
@@ -32,7 +36,7 @@ exports[`AppHeader AppHeader render tests renders correctly when the user is log
       Documentation
     </a>
     <a
-      class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineNone css-1vi947c-MuiTypography-root-MuiLink-root"
+      class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineNone css-li0lbq-MuiTypography-root-MuiLink-root"
       data-testid="app-header-api-docs-link-65b0785e-14d9-43a3-b260-869983312406"
       href="#/api-docs"
     >
@@ -42,12 +46,12 @@ exports[`AppHeader AppHeader render tests renders correctly when the user is log
       class="MuiBox-root css-1g0z69"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1z050en-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-vtz2b2-MuiTypography-root"
       >
         JohnDoe
       </p>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-1s9eyn2-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-1xksocw-MuiButtonBase-root-MuiIconButton-root"
         data-testid="app-header-auth-button-65b0785e-14d9-43a3-b260-869983312406"
         tabindex="0"
         title="Account"
@@ -88,18 +92,22 @@ exports[`AppHeader AppHeader render tests renders correctly with unauthenticated
     href="#/"
     style="line-height: 0;"
   >
-    <img
-      alt="Tabiya"
-      data-testid="app-header-logo-65b0785e-14d9-43a3-b260-869983312406"
-      height="30px"
-      src="/logo.svg"
-    />
+    <div
+      class="MuiBox-root css-hb5gpu"
+    >
+      <img
+        alt="Tabiya"
+        data-testid="app-header-logo-65b0785e-14d9-43a3-b260-869983312406"
+        height="30"
+        src="/logo.svg"
+      />
+    </div>
   </a>
   <div
     class="MuiBox-root css-1y18yrl"
   >
     <a
-      class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineNone css-1vi947c-MuiTypography-root-MuiLink-root"
+      class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineNone css-li0lbq-MuiTypography-root-MuiLink-root"
       data-testid="app-header-documentation-link-65b0785e-14d9-43a3-b260-869983312406"
       href="https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy"
       rel="noopener noreferrer"
@@ -108,7 +116,7 @@ exports[`AppHeader AppHeader render tests renders correctly with unauthenticated
       Documentation
     </a>
     <a
-      class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineNone css-1vi947c-MuiTypography-root-MuiLink-root"
+      class="MuiTypography-root MuiTypography-body1 MuiLink-root MuiLink-underlineNone css-li0lbq-MuiTypography-root-MuiLink-root"
       data-testid="app-header-api-docs-link-65b0785e-14d9-43a3-b260-869983312406"
       href="#/api-docs"
     >
@@ -118,10 +126,10 @@ exports[`AppHeader AppHeader render tests renders correctly with unauthenticated
       class="MuiBox-root css-1g0z69"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1z050en-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-vtz2b2-MuiTypography-root"
       />
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-1s9eyn2-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-1xksocw-MuiButtonBase-root-MuiIconButton-root"
         data-testid="app-header-auth-button-65b0785e-14d9-43a3-b260-869983312406"
         tabindex="0"
         title="Account"

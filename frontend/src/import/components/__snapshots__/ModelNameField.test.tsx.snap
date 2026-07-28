@@ -9,7 +9,7 @@ exports[`ModelNameField render tests should render default state 1`] = `
     class="MuiStack-root css-gbnj3n-MuiStack-root"
   >
     <label
-      class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1k0yz6l-MuiFormLabel-root"
+      class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-required css-1v3qfrb-MuiFormLabel-root"
       data-testid="model-name-label-d2bc4d5d-7760-450d-bac6-a8857affeb89"
       for="d2bc4d5d-7760-450d-bac6-a8857affeb89"
     >
@@ -23,11 +23,11 @@ exports[`ModelNameField render tests should render default state 1`] = `
       </span>
     </label>
     <div
-      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl css-1wyjlvd-MuiInputBase-root-MuiInput-root"
+      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl css-1bdqxq0-MuiInputBase-root-MuiInput-root"
     >
       <input
         aria-invalid="false"
-        class="MuiInputBase-input MuiInput-input css-8gll8g-MuiInputBase-input-MuiInput-input"
+        class="MuiInputBase-input MuiInput-input css-yocykn-MuiInputBase-input-MuiInput-input"
         data-testid="model-name-input-d2bc4d5d-7760-450d-bac6-a8857affeb89"
         id="d2bc4d5d-7760-450d-bac6-a8857affeb89"
         placeholder="Enter model name"

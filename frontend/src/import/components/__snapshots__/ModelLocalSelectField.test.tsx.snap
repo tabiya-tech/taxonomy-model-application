@@ -9,7 +9,7 @@ exports[`Locale Selector Component render tests should render the locale selecto
     class="MuiStack-root css-gbnj3n-MuiStack-root"
   >
     <label
-      class="MuiFormLabel-root MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required css-1k0yz6l-MuiFormLabel-root"
+      class="MuiFormLabel-root MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required css-1v3qfrb-MuiFormLabel-root"
       data-testid="model-locale-label-dfdbbef3-ec63-44f4-9945-a757d9c81269"
       id="dfdbbef3-ec63-44f4-9945-a757d9c81269"
     >
@@ -23,7 +23,7 @@ exports[`Locale Selector Component render tests should render the locale selecto
       </span>
     </label>
     <div
-      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl  css-4949pz-MuiInputBase-root-MuiInput-root-MuiSelect-root"
+      class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl  css-b82fim-MuiInputBase-root-MuiInput-root-MuiSelect-root"
       data-testid="model-locale-input-dropdown-dfdbbef3-ec63-44f4-9945-a757d9c81269"
     >
       <div
@@ -31,7 +31,7 @@ exports[`Locale Selector Component render tests should render the locale selecto
         aria-expanded="false"
         aria-haspopup="listbox"
         aria-labelledby="dfdbbef3-ec63-44f4-9945-a757d9c81269"
-        class="MuiSelect-select MuiSelect-standard MuiInputBase-input MuiInput-input css-wrly8k-MuiSelect-select-MuiInputBase-input-MuiInput-input"
+        class="MuiSelect-select MuiSelect-standard MuiInputBase-input MuiInput-input css-7gyu70-MuiSelect-select-MuiInputBase-input-MuiInput-input"
         role="combobox"
         tabindex="0"
       >

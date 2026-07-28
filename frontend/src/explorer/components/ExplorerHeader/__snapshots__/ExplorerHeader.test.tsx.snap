@@ -6,11 +6,11 @@ exports[`ExplorerHeader loading state should render skeleton while loading 1`] =
   data-testid="explorer-header-skeleton-b1c2d3e4-f5a6-7890-bcde-f01234567890"
 >
   <span
-    class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-qn5ikh-MuiSkeleton-root"
+    class="MuiSkeleton-root MuiSkeleton-text MuiSkeleton-pulse css-pq2y66-MuiSkeleton-root"
     style="width: 340px; height: 48px;"
   />
   <span
-    class="MuiSkeleton-root MuiSkeleton-rounded MuiSkeleton-pulse css-qn1zrv-MuiSkeleton-root"
+    class="MuiSkeleton-root MuiSkeleton-rounded MuiSkeleton-pulse css-1oyq32h-MuiSkeleton-root"
     style="width: 120px; height: 36px;"
   />
 </div>
@@ -25,7 +25,7 @@ exports[`ExplorerHeader model selected should render the selected model name and
     class="MuiBox-root css-1as9vw7"
   >
     <button
-      class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineHover MuiLink-button css-1v5gyxj-MuiTypography-root-MuiLink-root"
+      class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineHover MuiLink-button css-es9fz1-MuiTypography-root-MuiLink-root"
       data-testid="explorer-header-back-link-b1c2d3e4-f5a6-7890-bcde-f01234567890"
       type="button"
     >
@@ -43,13 +43,13 @@ exports[`ExplorerHeader model selected should render the selected model name and
       All taxonomies
     </button>
     <h3
-      class="MuiTypography-root MuiTypography-h3 css-1w5365d-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h3 css-xltq2-MuiTypography-root"
       data-testid="explorer-header-model-name-b1c2d3e4-f5a6-7890-bcde-f01234567890"
     >
       Taxonomy for South Africa
     </h3>
     <div
-      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-sizeSmall  css-xztyev-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
+      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-sizeSmall  css-1tv1dur-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
       data-testid="explorer-header-model-select-b1c2d3e4-f5a6-7890-bcde-f01234567890"
     >
       <div
@@ -62,7 +62,7 @@ exports[`ExplorerHeader model selected should render the selected model name and
         tabindex="0"
       >
         <p
-          class="MuiTypography-root MuiTypography-body2 css-1tedo5m-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body2 css-jrgm3w-MuiTypography-root"
         >
           v1.0.1-rc.1
         </p>
@@ -105,7 +105,7 @@ exports[`ExplorerHeader model selected should render the selected model name and
     class="MuiBox-root css-1g0z69"
   >
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-m29tl8-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-1v5wtpc-MuiButtonBase-root-MuiButton-root"
       data-testid="explorer-header-api-button-b1c2d3e4-f5a6-7890-bcde-f01234567890"
       tabindex="0"
       type="button"
@@ -131,7 +131,7 @@ exports[`ExplorerHeader model selected should render the selected model name and
       />
     </button>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-m29tl8-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation css-1v5wtpc-MuiButtonBase-root-MuiButton-root"
       data-testid="explorer-header-csv-button-b1c2d3e4-f5a6-7890-bcde-f01234567890"
       disabled=""
       tabindex="-1"

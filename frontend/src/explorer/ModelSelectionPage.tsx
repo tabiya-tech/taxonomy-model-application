@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, generatePath } from "react-router-dom";
 import { Box, Skeleton, Typography, useTheme } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
 import { getApiUrl } from "src/envService";
 import { ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
@@ -85,7 +85,9 @@ const ModelSelectionPage = () => {
           },
         }}
       >
-        <CheckCircleIcon sx={{ color: (theme) => theme.palette.tabiyaGreen.dark, fontSize: 28, flexShrink: 0 }} />
+        <Box sx={{ fontSize: 28, flexShrink: 0, display: "flex" }}>
+          <ImportProcessStateIcon importProcessState={m.importProcessState} />
+        </Box>
         <Box flex={1} minWidth={0}>
           <Typography variant="body1" fontWeight={600} noWrap>
             {m.name}

@@ -9,13 +9,13 @@ exports[`VersionRow should render the version row with all the common elements 1
     class="MuiBox-root css-1vz7s72"
   >
     <p
-      class="MuiTypography-root MuiTypography-body2 css-pmyg7z-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-body2 css-1lrhyxp-MuiTypography-root"
       data-testid="version-text-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
     >
       v1.0.0
     </p>
     <div
-      class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-93s463-MuiChip-root"
+      class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-2vj4nz-MuiChip-root"
       data-testid="latest-chip-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
     >
       <span
@@ -25,7 +25,7 @@ exports[`VersionRow should render the version row with all the common elements 1
       </span>
     </div>
     <div
-      class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-6k04vf-MuiChip-root"
+      class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1ywqyda-MuiChip-root"
       data-testid="locale-chip-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
     >
       <span
@@ -39,7 +39,7 @@ exports[`VersionRow should render the version row with all the common elements 1
     class="MuiBox-root css-mebn01"
   >
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-jsbdaj-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-14w93u9-MuiButtonBase-root-MuiButton-root"
       data-testid="explore-button-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
       tabindex="0"
       type="button"
@@ -50,7 +50,7 @@ exports[`VersionRow should render the version row with all the common elements 1
       />
     </button>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-s8v40s-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-10gmsyr-MuiButtonBase-root-MuiButton-root"
       data-testid="api-button-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
       tabindex="0"
       type="button"
@@ -76,7 +76,7 @@ exports[`VersionRow should render the version row with all the common elements 1
       />
     </button>
     <a
-      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-s8v40s-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-10gmsyr-MuiButtonBase-root-MuiButton-root"
       data-testid="csv-button-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
       download="model-1.csv.zip"
       href="https://download.example.com/model-1.csv.zip"
@@ -103,7 +103,7 @@ exports[`VersionRow should render the version row with all the common elements 1
       />
     </a>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-s8v40s-MuiButtonBase-root-MuiButton-root"
+      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-colorPrimary MuiButton-disableElevation css-10gmsyr-MuiButtonBase-root-MuiButton-root"
       data-testid="show-details-button-5cd41ff1-8fee-4d31-b47e-3b8ab8ce4d33"
       tabindex="0"
       type="button"

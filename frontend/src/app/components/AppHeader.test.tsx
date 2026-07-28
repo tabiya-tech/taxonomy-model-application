@@ -150,6 +150,31 @@ describe("AppHeader", () => {
       // AND to match the snapshot
       expect(appHeaderContainer).toMatchSnapshot();
     });
+
+    test("shows the default Tabiya logo when NAVBAR_LOGOS is not set", () => {
+      // GIVEN the NAVBAR_LOGOS environment variable is not set (default from beforeEach)
+
+      // WHEN the AppHeader is rendered
+      render(<GivenAppHeader />);
+
+      // THEN expect exactly one logo to be shown
+      expect(screen.getAllByTestId(DATA_TEST_ID.APP_HEADER_LOGO)).toHaveLength(1);
+    });
+
+    test("shows each logo from NAVBAR_LOGOS", () => {
+      // GIVEN the NAVBAR_LOGOS environment variable is set to a JSON array of logo configs
+      const givenLogos = [{ src: "/logo1.svg" }, { src: "/logo2.svg" }];
+      Object.defineProperty(window, "tabiyaConfig", {
+        value: { NAVBAR_LOGOS: btoa(JSON.stringify(givenLogos)) },
+        writable: true,
+      });
+
+      // WHEN the AppHeader is rendered
+      render(<GivenAppHeader />);
+
+      // THEN expect both logos to be shown
+      expect(screen.getAllByTestId(DATA_TEST_ID.APP_HEADER_LOGO)).toHaveLength(givenLogos.length);
+    });
   });
 
   describe("AppHeader action tests", () => {

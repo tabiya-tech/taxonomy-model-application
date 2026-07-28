@@ -12,14 +12,14 @@ exports[`ModelPropertiesHeader should render model properties header component 1
       class="MuiBox-root css-1fjtzvx"
     >
       <h2
-        class="MuiTypography-root MuiTypography-h2 css-2jbldj-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h2 css-27x2gi-MuiTypography-root"
         data-testid="header-title-a9f38045-7a8d-4226-88c6-8c9384516012"
       >
         Model Properties
       </h2>
     </div>
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-1e844z7-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeMedium css-k5n931-MuiButtonBase-root-MuiIconButton-root"
       data-testid="header-close-button-a9f38045-7a8d-4226-88c6-8c9384516012"
       tabindex="0"
       title="Close model properties"
@@ -45,7 +45,7 @@ exports[`ModelPropertiesHeader should render model properties header component 1
     class="MuiBox-root css-1ygqla7"
   >
     <h6
-      class="MuiTypography-root MuiTypography-subtitle1 css-umxpai-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-subtitle1 css-9wvrkq-MuiTypography-root"
       data-testid="model-name-a9f38045-7a8d-4226-88c6-8c9384516012"
     >
       1/1 - fysmros tcgcnjbbrrev
