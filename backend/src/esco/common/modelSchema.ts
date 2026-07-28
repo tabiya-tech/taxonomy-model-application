@@ -60,7 +60,7 @@ export const PreferredLabelProperty: mongoose.SchemaDefinitionProperty<string> =
 };
 
 // Alt Labels
-export const ATL_LABELS_MAX_ITEMS = 100;
+export const ATL_LABELS_MAX_ITEMS = 200;
 export const AltLabelsProperty: mongoose.SchemaDefinitionProperty<string[]> = {
   type: [String],
   required: true,

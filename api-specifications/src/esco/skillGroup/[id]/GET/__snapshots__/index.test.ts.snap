@@ -69,7 +69,7 @@ exports[`Test the skillGroup GET Detail module The export module matches the sna
               "maxLength": 256,
               "type": "string",
             },
-            "maxItems": 100,
+            "maxItems": 200,
             "minItems": 0,
             "type": "array",
             "uniqueItems": true,

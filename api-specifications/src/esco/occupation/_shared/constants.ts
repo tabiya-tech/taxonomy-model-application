@@ -14,7 +14,7 @@ namespace OccupationConstants {
   export const TABIYA_PATH_URI_MAX_LENGTH = 4096;
 
   // Array constraints
-  export const ALT_LABELS_MAX_ITEMS = 100;
+  export const ALT_LABELS_MAX_ITEMS = 200;
   export const UUID_HISTORY_MAX_ITEMS = 10000;
   export const UUID_HISTORY_MAX_LENGTH = 50;
 

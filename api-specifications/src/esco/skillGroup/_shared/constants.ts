@@ -2,7 +2,7 @@ namespace SkillGroupConstants {
   export const DESCRIPTION_MAX_LENGTH = 6000;
   export const CODE_MAX_LENGTH = 256;
   export const PREFERRED_LABEL_MAX_LENGTH = 256;
-  export const ALT_LABELS_MAX_ITEMS = 100;
+  export const ALT_LABELS_MAX_ITEMS = 200;
   export const ALT_LABEL_MAX_LENGTH = 256;
   export const ORIGIN_URI_MAX_LENGTH = 4096;
   export const MAX_PATH_URI_LENGTH = 4096;
