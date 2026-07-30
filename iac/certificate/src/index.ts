@@ -40,10 +40,16 @@ const record = new aws.route53.Record(`cert-validation-record`, {
   zoneId: hostedZone.zoneId,
 });
 
+const extraSANFqdns = _cert.domainValidationOptions.apply((opts) =>
+  opts
+    .filter((o) => extraSANs.includes(o.domainName))
+    .map((o) => o.resourceRecordName)
+);
+
 const validationRecord = new aws.acm.CertificateValidation(`cert-validation`, {
   certificateArn: _cert.arn,
-  validationRecordFqdns: [record.fqdn],
-}, {provider: us_east_1, dependsOn: [record, _cert] });
+  validationRecordFqdns: pulumi.all([record.fqdn, extraSANFqdns]).apply(([fqdn, extra]) => [fqdn, ...extra]),
+}, {provider: us_east_1, dependsOn: [record, _cert]});
 
 // Validation records for extra SANs that belong to external DNS zones.
 // Hand these to the domain owner so they can add the CNAME in their zone.
