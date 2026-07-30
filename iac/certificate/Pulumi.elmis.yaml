@@ -1,4 +1,2 @@
 config:
   aws:region: eu-central-1
-  taxonomy-model-application-certificate:extraSANs:
-    - taxonomy.staging.lmis.gov.et
