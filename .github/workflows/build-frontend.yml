@@ -15,9 +15,9 @@ jobs:
       version-info: ${{ steps.setVersionInfo.outputs.version-info }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20.x
           cache: 'yarn'
@@ -67,7 +67,7 @@ jobs:
         run: yarn run build
         working-directory: frontend
       - name: Archive build bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: frontend.build.folder
           path: frontend/build/
@@ -77,9 +77,9 @@ jobs:
     name: Frontend - Test
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20.x
           cache: 'yarn'
@@ -91,7 +91,7 @@ jobs:
         run: yarn run test
         working-directory: frontend
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: frontend.lcov.info
           path: frontend/coverage/lcov.info
@@ -101,15 +101,15 @@ jobs:
     name: Frontend - Accessibility tests
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20.x
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ runner.os }}-v1
