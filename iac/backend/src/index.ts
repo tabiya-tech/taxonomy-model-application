@@ -14,6 +14,10 @@ import {setupAsyncPublishEmbeddingsTaskFn} from "./asyncPublishEmbeddingsTask";
 export const environment = pulumi.getStack();
 export const domainName = process.env.DOMAIN_NAME!;
 
+const config = new pulumi.Config();
+// Comma-separated list of additional origins to allow in CORS responses (e.g. externally-owned domains aliased to this environment).
+const extraAllowedOrigins: string[] = config.getObject<string[]>("extraAllowedOrigins") ?? [];
+
 
 // =======================
 // Sanity Checks for environment variables.
@@ -51,7 +55,7 @@ export const resourcesBaseUrl = `https://${domainName}${publicApiRootPath}`;
 
 export const currentRegion = pulumi.output(aws.getRegion()).name;
 
-const allowedOrigins = [`https://${domainName}`];
+const allowedOrigins = [`https://${domainName}`, ...extraAllowedOrigins.map(o => `https://${o}`)];
 
 /**
  * Setup Download Bucket
@@ -164,6 +168,7 @@ const {restApi, stage, restApiLambdaRole} = setupBackendRESTApi(environment, {
   gemini_api_key: geminiApiKey,
   gemini_embedding_model: geminiEmbeddingModel,
   sentry_backend_dsn: sentryBackendDSN,
+  extra_allowed_origins: allowedOrigins.join(","),
 });
 
 export const backendRestApi = {

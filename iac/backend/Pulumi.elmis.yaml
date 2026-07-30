@@ -1,2 +1,4 @@
 config:
   aws:region: eu-central-1
+  taxonomy-model-application-backend:extraAllowedOrigins:
+    - taxonomy.staging.lmis.gov.et
