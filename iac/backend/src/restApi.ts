@@ -33,7 +33,8 @@ interface SetupBackendRESTAPIConfig {
   embeddings_queue_region: Output<string>,
   gemini_api_key: string,
   gemini_embedding_model: string,
-  sentry_backend_dsn: string
+  sentry_backend_dsn: string,
+  extra_allowed_origins: string,
 }
 
 interface SetupBackendRESTAPIOutput {
@@ -198,6 +199,7 @@ export function setupBackendRESTApi(environment: string, config: SetupBackendRES
         GEMINI_EMBEDDING_MODEL: config.gemini_embedding_model,
         SENTRY_BACKEND_DSN: config.sentry_backend_dsn,
         TARGET_ENVIRONMENT: environment,
+        EXTRA_ALLOWED_ORIGINS: config.extra_allowed_origins,
       }
     }
   });

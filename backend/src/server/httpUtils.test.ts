@@ -12,6 +12,7 @@ import {
   errorResponsePATCH,
   errorResponsePOST,
   response,
+  setRequestOrigin,
   STD_ERRORS_RESPONSES,
 } from "./httpUtils";
 
@@ -60,8 +61,10 @@ describe("test response function", () => {
     const givenObject = { bar: "baz" };
     // AND the TARGET_ENVIRONMENT environment variable is set to "prod"
     process.env.TARGET_ENVIRONMENT = "prod";
-    // AND the DOMAIN_NAME environment variable is set to "foo.bar.baz"
-    process.env.DOMAIN_NAME = "foo.bar.baz";
+    // AND the EXTRA_ALLOWED_ORIGINS environment variable is set
+    process.env.EXTRA_ALLOWED_ORIGINS = "https://foo.bar.baz";
+    // AND the request origin matches
+    setRequestOrigin("https://foo.bar.baz");
 
     //WHEN response is invoked for the given status javascript object
     const result = response(givenStatusCode, givenObject);
@@ -70,21 +73,64 @@ describe("test response function", () => {
     expect(result.statusCode).toEqual(givenStatusCode);
     // AND body to be a json string of the given object
     expect(result.body).toEqual(JSON.stringify(givenObject));
-    // AND CORS headers to be set
-    expect(result.headers).toEqual({ "Access-Control-Allow-Origin": "foo.bar.baz" });
+    // AND CORS header echoes the matching request origin
+    expect(result.headers).toEqual({ "Access-Control-Allow-Origin": "https://foo.bar.baz" });
     // AND isBase64Encoded to be false
     expect(result.isBase64Encoded).toEqual(false);
+
+    // cleanup
+    setRequestOrigin(undefined);
   });
 
-  test("should return correct response for an object in an environment that is not dev when DOMAIN_NAME is not set", () => {
+  test("should omit CORS header when request origin is not in the allowed list", () => {
+    // GIVEN the TARGET_ENVIRONMENT is prod
+    process.env.TARGET_ENVIRONMENT = "prod";
+    // AND some allowed origins
+    process.env.EXTRA_ALLOWED_ORIGINS = "https://foo.bar.baz";
+    // AND the request origin is not in the list
+    setRequestOrigin("https://evil.example.com");
+
+    //WHEN response is invoked
+    const result = response(200, {});
+
+    //THEN CORS header is omitted so the browser blocks the request
+    expect(result.headers).toEqual({});
+
+    // cleanup
+    setRequestOrigin(undefined);
+  });
+
+  test("should return the request origin when it is in the allowed list", () => {
     // GIVEN a status code
     const givenStatusCode = 200;
     // AND a javascript object
     const givenObject = { bar: "baz" };
     // AND the TARGET_ENVIRONMENT environment variable is set to "prod"
     process.env.TARGET_ENVIRONMENT = "prod";
-    // AND the DOMAIN_NAME environment variable is not set
-    delete process.env.DOMAIN_NAME;
+    // AND multiple allowed origins
+    process.env.EXTRA_ALLOWED_ORIGINS = "https://foo.bar.baz,https://other.example.com";
+    // AND the request origin is the second allowed origin
+    setRequestOrigin("https://other.example.com");
+
+    //WHEN response is invoked
+    const result = response(givenStatusCode, givenObject);
+
+    //THEN the CORS header reflects the request origin
+    expect(result.headers).toEqual({ "Access-Control-Allow-Origin": "https://other.example.com" });
+
+    // cleanup
+    setRequestOrigin(undefined);
+  });
+
+  test("should return correct response for an object in an environment that is not dev when EXTRA_ALLOWED_ORIGINS is not set", () => {
+    // GIVEN a status code
+    const givenStatusCode = 200;
+    // AND a javascript object
+    const givenObject = { bar: "baz" };
+    // AND the TARGET_ENVIRONMENT environment variable is set to "prod"
+    process.env.TARGET_ENVIRONMENT = "prod";
+    // AND the EXTRA_ALLOWED_ORIGINS environment variable is not set
+    delete process.env.EXTRA_ALLOWED_ORIGINS;
 
     //WHEN response is invoked for the given status javascript object
     const result = response(givenStatusCode, givenObject);

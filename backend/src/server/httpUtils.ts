@@ -27,6 +27,44 @@ export enum StatusCodes {
   INTERNAL_SERVER_ERROR = 500,
 }
 
+// Resolved per-invocation by setRequestOrigin() in the top-level handler before any response is built.
+let _currentRequestOrigin: string | undefined;
+
+export function setRequestOrigin(origin: string | undefined): void {
+  _currentRequestOrigin = origin;
+}
+
+function resolveAllowedOrigin(): string {
+  if (process.env.TARGET_ENVIRONMENT === "dev") return "*";
+
+  // No environment set — likely module init time or test context, skip CORS entirely.
+  if (!process.env.TARGET_ENVIRONMENT) return "";
+
+  const allowedOrigins = (process.env.EXTRA_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+  if (allowedOrigins.length === 0) {
+    console.warn(
+      `No EXTRA_ALLOWED_ORIGINS set for environment ${process.env.TARGET_ENVIRONMENT}; CORS requests will be denied.`
+    );
+    return "";
+  }
+
+  if (_currentRequestOrigin && allowedOrigins.includes(_currentRequestOrigin)) {
+    return _currentRequestOrigin;
+  }
+
+  // Request origin is not in the allowed list — omit the CORS header so the browser blocks it.
+  if (_currentRequestOrigin) {
+    console.warn(
+      `Origin ${_currentRequestOrigin} is not in the allowed list for environment ${process.env.TARGET_ENVIRONMENT}; CORS requests will be denied.`
+    );
+  }
+  return "";
+}
+
 // See https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-output-format
 // For the format of the return value
 export function response(
@@ -36,21 +74,13 @@ export function response(
     [key: string]: string;
   }
 ): APIGatewayProxyResult {
-  let allowedOrigins = "";
-  if (process.env.TARGET_ENVIRONMENT === "dev") {
-    allowedOrigins = "*"; // Allow all origins in development
-  } else if (process.env.DOMAIN_NAME) {
-    allowedOrigins = process.env.DOMAIN_NAME; // Use DOMAIN_NAME if set
-  } else {
-    // If DOMAIN_NAME is not set, we intentionally omit the CORS header
-    console.warn(`No DOMAIN_NAME set for environment ${process.env.TARGET_ENVIRONMENT}; CORS requests will be denied.`);
-  }
+  const corsOrigin = resolveAllowedOrigin();
 
   return {
     isBase64Encoded: false,
     headers: {
       ...(headers ?? {}),
-      ...(allowedOrigins && { "Access-Control-Allow-Origin": allowedOrigins }), // Conditionally add the CORS header if allowedOrigins is not empty
+      ...(corsOrigin && { "Access-Control-Allow-Origin": corsOrigin }),
     },
     multiValueHeaders: {},
     statusCode: statusCode,

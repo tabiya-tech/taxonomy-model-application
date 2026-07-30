@@ -8,7 +8,7 @@ import { handler as OccupationGroupHandler } from "esco/occupationGroup/index";
 import { handler as OccupationHandler } from "esco/occupations";
 import { handler as SkillGroupHandler } from "esco/skillGroup/index";
 import { handler as SkillHandler } from "esco/skill/index";
-import { STD_ERRORS_RESPONSES } from "server/httpUtils";
+import { STD_ERRORS_RESPONSES, setRequestOrigin } from "server/httpUtils";
 import { handler as presignedHandler } from "presigned";
 import { handler as ExportHandler } from "export";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
@@ -26,6 +26,9 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = Sen
     try {
       // Initialize the application
       await initOnce();
+
+      // Set the request origin for CORS resolution before any response is built
+      setRequestOrigin(event.headers?.origin ?? event.headers?.Origin);
 
       // Handle routes
       return await handleRouteEvent(event);
