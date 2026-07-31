@@ -40,7 +40,8 @@ jobs:
           echo "\"FRONTEND_FAVICON_URL\": btoa(\"\")," >> frontend/public/data/env.js
           echo "\"FRONTEND_APP_ICON_URL\": btoa(\"\")," >> frontend/public/data/env.js
           echo "\"FRONTEND_LANDING_COPY\": btoa(\"\")," >> frontend/public/data/env.js
-          echo "\"FRONTEND_LANDING_STATS\": btoa(\"\")" >> frontend/public/data/env.js
+          echo "\"FRONTEND_LANDING_STATS\": btoa(\"\")," >> frontend/public/data/env.js
+          echo "\"FRONTEND_API_DOCS\": btoa(\"\")" >> frontend/public/data/env.js
           echo "};" >> frontend/public/data/env.js
           cat frontend/public/data/env.js
       - name: Install dependencies

@@ -38,7 +38,9 @@ exports[`Testing ApiDocsPage component should render the API docs page successfu
               >
                 mdl_base_2f9a
               </span>
-               (Base (Tabiya ESCO 1.1.1), v2.0.0).
+               (
+              Base (Tabiya ESCO 1.1.1), v2.0.0
+              ).
             </p>
           </div>
         </div>

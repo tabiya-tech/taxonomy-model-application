@@ -82,6 +82,7 @@ jobs:
           INPUT_FRONTEND_APP_ICON_URL: ${{ vars.FRONTEND_APP_ICON_URL }}
           INPUT_FRONTEND_LANDING_COPY: ${{ vars.FRONTEND_LANDING_COPY }}
           INPUT_FRONTEND_LANDING_STATS: ${{ vars.FRONTEND_LANDING_STATS }}
+          INPUT_FRONTEND_API_DOCS: ${{ vars.FRONTEND_API_DOCS }}
         run: |
           echo "window.tabiyaConfig = {" > frontend/build/data/env.js
           echo "\"BACKEND_URL\": btoa(\"$INPUT_BACKEND_URL\")," >> frontend/build/data/env.js
@@ -97,7 +98,8 @@ jobs:
           echo "\"FRONTEND_FAVICON_URL\": \"$(printf '%s' "$INPUT_FRONTEND_FAVICON_URL" | base64 -w 0)\"," >> frontend/build/data/env.js
           echo "\"FRONTEND_APP_ICON_URL\": \"$(printf '%s' "$INPUT_FRONTEND_APP_ICON_URL" | base64 -w 0)\"," >> frontend/build/data/env.js
           echo "\"FRONTEND_LANDING_COPY\": \"$(printf '%s' "$INPUT_FRONTEND_LANDING_COPY" | base64 -w 0)\"," >> frontend/build/data/env.js
-          echo "\"FRONTEND_LANDING_STATS\": \"$(printf '%s' "$INPUT_FRONTEND_LANDING_STATS" | base64 -w 0)\"" >> frontend/build/data/env.js
+          echo "\"FRONTEND_LANDING_STATS\": \"$(printf '%s' "$INPUT_FRONTEND_LANDING_STATS" | base64 -w 0)\"," >> frontend/build/data/env.js
+          echo "\"FRONTEND_API_DOCS\": \"$(printf '%s' "$INPUT_FRONTEND_API_DOCS" | base64 -w 0)\"" >> frontend/build/data/env.js
           echo "};" >> frontend/build/data/env.js
           cat frontend/build/data/env.js
       - name: Deploy frontend

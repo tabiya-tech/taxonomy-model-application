@@ -9,6 +9,8 @@ describe("Testing ApiDocsPage component", () => {
     jest.clearAllMocks();
     (console.error as jest.Mock).mockClear();
     (console.warn as jest.Mock).mockClear();
+    // reset the customization env var so each test starts from the defaults
+    Object.defineProperty(window, "tabiyaConfig", { value: {}, writable: true });
   });
 
   test("should render the API docs page successfully", () => {
@@ -65,5 +67,106 @@ describe("Testing ApiDocsPage component", () => {
       expect(link).toHaveAttribute("target", "_blank");
       expect(link).toHaveAttribute("rel", expect.stringContaining("noopener"));
     });
+  });
+
+  test("should fall back to the default values when FRONTEND_API_DOCS is not set", () => {
+    // GIVEN the FRONTEND_API_DOCS environment variable is not set (see beforeEach)
+    // WHEN the component is rendered
+    render(<ApiDocsPage />);
+
+    // THEN expect the intro to name a default model id, followed by its label in brackets
+    // (the exact default copy is covered by the snapshot)
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_INTRO)).toHaveTextContent(/mdl_\w+ \(.+\)\.$/);
+    // AND the curl examples and reference links to be built from the default host
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_API_KEY_CODE)).toHaveTextContent(
+      /https:\/\/\S+\/api\/partner\/info/
+    );
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_SWAGGER_LINK)).toHaveAttribute(
+      "href",
+      expect.stringMatching(/^https:\/\/.+\/api-doc\/swagger\/$/)
+    );
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_REDOC_LINK)).toHaveAttribute(
+      "href",
+      expect.stringMatching(/^https:\/\/.+\/api-doc\/redoc\/$/)
+    );
+    // AND the guide link to be labelled with the default guide host
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_GUIDE_LINK)).toHaveTextContent(/^[a-z0-9.-]+\.[a-z]+$/);
+    // AND no warning to have been logged
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  test("should show the configured model, host and links when FRONTEND_API_DOCS is set, instead of the defaults", () => {
+    // GIVEN every FRONTEND_API_DOCS field is set to an arbitrary value
+    const givenConfig = {
+      apiBaseUrl: "https://foo.example.com",
+      credentialsUrl: "https://bar.example.com/baz#credentials",
+      exampleModel: { id: "mdl_foo_1234", label: "Foo, v3.2.1" },
+      guide: { url: "https://bar.example.com/baz", label: "foo docs" },
+    };
+    Object.defineProperty(window, "tabiyaConfig", {
+      value: { FRONTEND_API_DOCS: btoa(JSON.stringify(givenConfig)) },
+      writable: true,
+    });
+
+    // WHEN the component is rendered
+    render(<ApiDocsPage />);
+
+    // THEN expect the configured model to be shown in the intro
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_INTRO)).toHaveTextContent(
+      `${givenConfig.exampleModel.id} (${givenConfig.exampleModel.label})`
+    );
+    // AND the configured host to be used in both curl examples
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_API_KEY_CODE)).toHaveTextContent(
+      `${givenConfig.apiBaseUrl}/api/partner/info`
+    );
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_OAUTH_CODE)).toHaveTextContent(
+      `${givenConfig.apiBaseUrl}/api/app/info`
+    );
+    // AND the credentials and guide links to be the configured ones
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_CREDENTIALS_LINK)).toHaveAttribute(
+      "href",
+      givenConfig.credentialsUrl
+    );
+    const guideLink = screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_GUIDE_LINK);
+    expect(guideLink).toHaveAttribute("href", givenConfig.guide.url);
+    expect(guideLink).toHaveTextContent(givenConfig.guide.label);
+  });
+
+  test("should build the reference links from apiBaseUrl and derive the guide label from guide.url", () => {
+    // GIVEN only the API base URL and the guide URL are configured, with a trailing slash on the base URL
+    Object.defineProperty(window, "tabiyaConfig", {
+      value: {
+        FRONTEND_API_DOCS: btoa(
+          JSON.stringify({
+            apiBaseUrl: "https://foo.example.com/",
+            guide: { url: "https://bar.example.com/baz" },
+          })
+        ),
+      },
+      writable: true,
+    });
+
+    // WHEN the component is rendered
+    render(<ApiDocsPage />);
+
+    // THEN expect the trailing slash to be trimmed rather than doubled up in the curl example
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_API_KEY_CODE)).toHaveTextContent(
+      "https://foo.example.com/api/partner/info"
+    );
+    // AND the reference links to be built from the configured base URL
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_SWAGGER_LINK)).toHaveAttribute(
+      "href",
+      "https://foo.example.com/api-doc/swagger/"
+    );
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_REDOC_LINK)).toHaveAttribute(
+      "href",
+      "https://foo.example.com/api-doc/redoc/"
+    );
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_OPENAPI_LINK)).toHaveAttribute(
+      "href",
+      "https://foo.example.com/api-doc/swagger/tabiya-api.json"
+    );
+    // AND the guide label to be derived from the guide URL host
+    expect(screen.getByTestId(DATA_TEST_ID.API_DOCS_PAGE_GUIDE_LINK)).toHaveTextContent("bar.example.com");
   });
 });

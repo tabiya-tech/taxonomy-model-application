@@ -1,7 +1,7 @@
 # Frontend Customization Guide
 
 This guide documents which parts of a Taxonomy Model App deployment can be customized: branding, logos,
-colors, fonts, and landing page copy.
+colors, fonts, landing page copy, and API docs page links.
 
 All customization is done through environment variables, set in `public/data/env.js` (see
 [`env.example.js`](public/data/env.example.js) for a fully worked template with every key below). Every
@@ -67,6 +67,18 @@ the [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/).
     omitted field keeps its default.
 - `FRONTEND_LANDING_STATS` — a JSON array of `{ value, description }` objects, overriding the stat cards
   below the hero section. Any number of cards can be provided.
+
+## API Docs Page
+
+- `FRONTEND_API_DOCS` — a JSON object overriding the API docs page, all fields optional:
+  - `apiBaseUrl` — the API host used in the `curl` examples (default: `https://taxonomy.tabiya.tech`). The
+    Swagger, ReDoc and OpenAPI links are built from it as well, so it's normally the only URL to set. A
+    trailing slash is trimmed automatically.
+  - `exampleModel` — `{ id?, label? }`, the model referenced in the intro (default: `mdl_base_2f9a` /
+    "Base (Tabiya ESCO 1.1.1), v2.0.0"). Either field can be set independently.
+  - `credentialsUrl` — the "Request credentials →" link target.
+  - `guide` — `{ url?, label? }`, the "Full guide" link. `label` defaults to `url`'s host (e.g.
+    `docs.tabiya.org`); omit it unless you want different link text.
 
 ## Applying Changes Locally
 

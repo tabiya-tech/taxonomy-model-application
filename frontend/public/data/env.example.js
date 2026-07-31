@@ -46,4 +46,14 @@ window.tabiyaConfig = {
       { value: "4", description: "taxonomies: Base (EN·ES), South Africa, Kenya, Zambia" },
     ])
   ),
+  FRONTEND_API_DOCS: btoa(
+    JSON.stringify({
+      apiBaseUrl: "https://foo.bar",
+      exampleModel: { id: "mdl_base_2f9a", label: "Base (Tabiya ESCO 1.1.1), v2.0.0" },
+      credentialsUrl: "https://foo.bar#credentials-and-authentication",
+      guide: {
+        url: "https://foo.bar/open-taxonomy-platform-api",
+      },
+    })
+  ),
 };

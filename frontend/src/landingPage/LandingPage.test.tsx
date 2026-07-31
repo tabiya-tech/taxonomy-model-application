@@ -1,11 +1,13 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { render, screen } from "src/_test_utilities/test-utils";
+import { act, render, screen, waitFor } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import LandingPage, { DATA_TEST_ID } from "./LandingPage";
 import { routerPaths } from "src/app/routerPaths";
 import { DATA_TEST_ID as FOOTER_DATA_TEST_ID } from "src/Footer/Footer";
+import ModelInfoService from "src/modelInfo/modelInfo.service";
+import { getOneDeterministicFakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
 
 // mock useNavigate
 const mockNavigate = jest.fn();
@@ -23,6 +25,8 @@ jest.mock("src/app/components/AppHeader", () => {
 });
 
 describe("Testing LandingPage component", () => {
+  let getAllModelsSpy: jest.SpyInstance;
+
   beforeEach(() => {
     jest.clearAllMocks();
     (console.error as jest.Mock).mockClear();
@@ -31,6 +35,8 @@ describe("Testing LandingPage component", () => {
       value: {},
       writable: true,
     });
+    // the page counts the available taxonomies to label the "Browse..." button
+    getAllModelsSpy = jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValue([]);
   });
 
   test("should render the landing page successfully", () => {
@@ -66,15 +72,46 @@ describe("Testing LandingPage component", () => {
     expect(mockNavigate).toHaveBeenCalledWith(routerPaths.EXPLORER);
   });
 
-  test("should navigate to the model directory when 'Browse all taxonomies' is clicked", async () => {
+  test("should navigate to the model directory when the browse taxonomies button is clicked", async () => {
     // GIVEN the landing page is rendered
     render(<LandingPage />);
 
-    // WHEN the user clicks on the "Browse all taxonomies" button
+    // WHEN the user clicks on the browse taxonomies button
     await userEvent.click(screen.getByTestId(DATA_TEST_ID.LANDING_PAGE_BROWSE_TAXONOMIES_BUTTON));
 
     // THEN expect the user to be navigated to the model directory
     expect(mockNavigate).toHaveBeenCalledWith(routerPaths.MODEL_DIRECTORY);
+  });
+
+  test("should say 'Browse all taxonomies' when there is more than one taxonomy", async () => {
+    // GIVEN two released and exported taxonomies
+    getAllModelsSpy.mockResolvedValueOnce([getOneDeterministicFakeModel(1), getOneDeterministicFakeModel(2)]);
+
+    // WHEN the landing page is rendered
+    render(<LandingPage />);
+
+    // THEN expect the button to offer all of them
+    await waitFor(() => {
+      expect(screen.getByTestId(DATA_TEST_ID.LANDING_PAGE_BROWSE_TAXONOMIES_BUTTON)).toHaveTextContent(
+        "Browse all taxonomies"
+      );
+    });
+  });
+
+  test("should say 'Browse taxonomies' when there is a single taxonomy", async () => {
+    // GIVEN a single taxonomy
+    getAllModelsSpy.mockResolvedValueOnce([getOneDeterministicFakeModel(1)]);
+
+    // WHEN the landing page is rendered
+    render(<LandingPage />);
+
+    // THEN expect the button not to promise more than the one taxonomy
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.getByTestId(DATA_TEST_ID.LANDING_PAGE_BROWSE_TAXONOMIES_BUTTON)).toHaveTextContent(
+      "Browse taxonomies"
+    );
   });
 
   test("should navigate to the API docs when 'Read the API docs' is clicked", async () => {

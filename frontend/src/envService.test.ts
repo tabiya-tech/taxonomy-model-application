@@ -16,6 +16,7 @@ import {
   getAppIconUrl,
   getLandingPageCopy,
   getLandingPageStats,
+  getApiDocsConfig,
 } from "./envService";
 
 // Some invalid values are caught JSON.parse errors (warn is called with the error as a 2nd arg) and some
@@ -412,5 +413,83 @@ describe("getLandingPageCopy", () => {
     expect(result).toEqual({});
     // AND expect a warning to have been logged
     expectWarnedWithMessage(`Invalid FRONTEND_LANDING_COPY "${invalidValue}". Falling back to default.`);
+  });
+});
+
+describe("getApiDocsConfig", () => {
+  test("should return an empty object if FRONTEND_API_DOCS is not set", () => {
+    // GIVEN the FRONTEND_API_DOCS environment variable is not set
+    Object.defineProperty(window, "tabiyaConfig", {
+      value: {},
+      writable: true,
+    });
+    // WHEN getApiDocsConfig is called
+    const result = getApiDocsConfig();
+    // THEN expect it to return an empty object
+    expect(result).toEqual({});
+  });
+
+  test("should return the parsed object when FRONTEND_API_DOCS is a valid JSON object", () => {
+    // GIVEN the FRONTEND_API_DOCS environment variable is set to a valid JSON object with every field
+    const givenConfig = {
+      apiBaseUrl: "https://foo.example.com",
+      credentialsUrl: "https://bar.example.com/baz#credentials",
+      exampleModel: { id: "mdl_foo_1234", label: "Foo, v1.0.0" },
+      guide: { url: "https://bar.example.com/baz", label: "foo docs" },
+    };
+    Object.defineProperty(window, "tabiyaConfig", {
+      value: {
+        FRONTEND_API_DOCS: btoa(JSON.stringify(givenConfig)),
+      },
+      writable: true,
+    });
+    // WHEN getApiDocsConfig is called
+    const result = getApiDocsConfig();
+    // THEN expect it to return the parsed object
+    expect(result).toEqual(givenConfig);
+  });
+
+  test("should return the parsed object when only some fields are set", () => {
+    // GIVEN the FRONTEND_API_DOCS environment variable is set with only a subset of the fields
+    const givenConfig = { apiBaseUrl: "https://foo.example.com" };
+    Object.defineProperty(window, "tabiyaConfig", {
+      value: {
+        FRONTEND_API_DOCS: btoa(JSON.stringify(givenConfig)),
+      },
+      writable: true,
+    });
+    // WHEN getApiDocsConfig is called
+    const result = getApiDocsConfig();
+    // THEN expect it to return the parsed object
+    expect(result).toEqual(givenConfig);
+  });
+
+  test.each([
+    ["not valid JSON", "not-json"],
+    ["a JSON array rather than an object", JSON.stringify([{ apiBaseUrl: "https://foo.example.com" }])],
+    ["a JSON object with a non-string apiBaseUrl", JSON.stringify({ apiBaseUrl: 1 })],
+    ["a JSON object with a non-string credentialsUrl", JSON.stringify({ credentialsUrl: 1 })],
+    ["a JSON object with a non-object exampleModel", JSON.stringify({ exampleModel: "foo" })],
+    ["a JSON object with an exampleModel with a non-string id", JSON.stringify({ exampleModel: { id: 1 } })],
+    ["a JSON object with an exampleModel with a non-string label", JSON.stringify({ exampleModel: { label: 1 } })],
+    ["a JSON object with a non-object guide", JSON.stringify({ guide: "foo" })],
+    ["a JSON object with a guide with a non-string url", JSON.stringify({ guide: { url: 1 } })],
+    ["a JSON object with a guide with a non-string label", JSON.stringify({ guide: { label: 1 } })],
+  ])("should return an empty object and warn when FRONTEND_API_DOCS is %s", (_description, invalidValue) => {
+    // GIVEN the FRONTEND_API_DOCS environment variable is set to an invalid value
+    Object.defineProperty(window, "tabiyaConfig", {
+      value: {
+        FRONTEND_API_DOCS: btoa(invalidValue),
+      },
+      writable: true,
+    });
+    // WHEN getApiDocsConfig is called
+    const result = getApiDocsConfig();
+    // THEN expect it to return an empty object
+    expect(result).toEqual({});
+    // AND expect a warning to have been logged
+    expectWarnedWithMessage(
+      `Invalid FRONTEND_API_DOCS "${invalidValue}", expected a JSON object of string values. Falling back to default.`
+    );
   });
 });
