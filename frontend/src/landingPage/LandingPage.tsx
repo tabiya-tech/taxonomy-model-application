@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Box, Link, Typography, useTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -5,7 +6,12 @@ import { routerPaths } from "src/app/routerPaths";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import AppHeader from "src/app/components/AppHeader";
 import Footer from "src/Footer/Footer";
-import { getLandingPageCopy, getLandingPageStats } from "src/envService";
+import { getApiUrl, getLandingPageCopy, getLandingPageStats } from "src/envService";
+import ModelInfoService from "src/modelInfo/modelInfo.service";
+import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { getLatestSuccessfulExport } from "src/modeldirectory/components/ModelsCardList/components/VersionRow/VersionRow";
+import { ServiceError } from "src/error/error";
+import { writeServiceErrorToLog } from "src/error/logger";
 
 const uniqueId = "1b6f0b8e-7a2b-4c3b-9a3b-2f6f9b3f4b7a";
 
@@ -44,9 +50,25 @@ const DEFAULT_STATS = [
   },
 ];
 
+const modelInfoService = new ModelInfoService(getApiUrl());
+
+// a taxonomy shows up in the directory once it is released and has been exported
+const isBrowsable = (model: ModelInfoTypes.ModelInfo) => model.released && getLatestSuccessfulExport(model) !== null;
+
 const LandingPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const [taxonomyCount, setTaxonomyCount] = useState<number>();
+
+  useEffect(() => {
+    modelInfoService
+      .getAllModels()
+      .then((models) => setTaxonomyCount(models.filter(isBrowsable).length))
+      .catch((e) => {
+        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
+        else console.error(e);
+      });
+  }, []);
 
   const landingCopy = getLandingPageCopy();
   const overriddenStats = getLandingPageStats();
@@ -195,7 +217,7 @@ const LandingPage = () => {
               data-testid={DATA_TEST_ID.LANDING_PAGE_BROWSE_TAXONOMIES_BUTTON}
               style={{ whiteSpace: "nowrap" }}
             >
-              Browse all taxonomies
+              {taxonomyCount === 1 ? "Browse taxonomies" : "Browse all taxonomies"}
             </PrimaryButton>
           </Box>
 

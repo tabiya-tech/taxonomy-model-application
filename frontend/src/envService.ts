@@ -214,3 +214,52 @@ export const getLandingPageStats = (): LandingPageStat[] => {
     return [];
   }
 };
+
+export interface ApiDocsConfig {
+  apiBaseUrl?: string;
+  credentialsUrl?: string;
+  exampleModel?: { id?: string; label?: string };
+  guide?: { url?: string; label?: string };
+}
+
+// True for an absent value, or an object whose given keys are all absent-or-string.
+const isOptionalStringRecord = (value: unknown, keys: string[]) => {
+  if (value === undefined) return true;
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  return keys.every((key) => record[key] === undefined || typeof record[key] === "string");
+};
+
+const isValidApiDocsConfig = (value: unknown): value is ApiDocsConfig => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const config = value as Record<string, unknown>;
+  return (
+    (config.apiBaseUrl === undefined || typeof config.apiBaseUrl === "string") &&
+    (config.credentialsUrl === undefined || typeof config.credentialsUrl === "string") &&
+    isOptionalStringRecord(config.exampleModel, ["id", "label"]) &&
+    isOptionalStringRecord(config.guide, ["url", "label"])
+  );
+};
+
+export const getApiDocsConfig = (): ApiDocsConfig => {
+  const raw = getEnv("FRONTEND_API_DOCS");
+  if (!raw) {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    if (isValidApiDocsConfig(parsed)) {
+      return parsed;
+    }
+    console.warn(
+      `Invalid FRONTEND_API_DOCS "${raw}", expected a JSON object of string values. Falling back to default.`
+    );
+    return {};
+  } catch (e) {
+    console.warn(
+      `Invalid FRONTEND_API_DOCS "${raw}", expected a JSON object of string values. Falling back to default.`,
+      e
+    );
+    return {};
+  }
+};

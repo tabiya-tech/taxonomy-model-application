@@ -1,8 +1,33 @@
 import React from "react";
 import { Box, Link, Typography, useTheme } from "@mui/material";
 import ContentLayout from "src/theme/ContentLayout/ContentLayout";
+import { getApiDocsConfig } from "src/envService";
 
 const uniqueId = "3c9d4a2e-5f1b-4a8c-9d2e-7b6f1a0c8e4d";
+
+const DEFAULT_GUIDE_URL =
+  "https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy/open-taxonomy-platform/open-taxonomy-platform-api";
+
+const DEFAULTS = {
+  apiBaseUrl: "https://taxonomy.tabiya.tech",
+  credentialsUrl: `${DEFAULT_GUIDE_URL}#credentials-and-authentication`,
+  exampleModel: { id: "mdl_base_2f9a", label: "Base (Tabiya ESCO 1.1.1), v2.0.0" },
+  guideUrl: DEFAULT_GUIDE_URL,
+};
+
+// Paths are appended to the base URL, so a configured trailing slash would double up
+// as "https://host//api/partner/info".
+const withoutTrailingSlash = (url: string) => url.replace(/\/+$/, "");
+
+// The guide link renders as just the host, so a deployment only has to configure the URL.
+// An unparseable URL falls back to itself, keeping the mistake visible instead of blank.
+const hostnameOf = (url: string) => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+};
 
 export const DATA_TEST_ID = {
   API_DOCS_PAGE_ROOT: `api-docs-page-root-${uniqueId}`,
@@ -87,6 +112,16 @@ const DocLink = ({
 const ApiDocsPage = () => {
   const theme = useTheme();
 
+  const config = getApiDocsConfig();
+  const apiBaseUrl = withoutTrailingSlash(config.apiBaseUrl || DEFAULTS.apiBaseUrl);
+  const credentialsUrl = config.credentialsUrl || DEFAULTS.credentialsUrl;
+  const exampleModel = {
+    id: config.exampleModel?.id || DEFAULTS.exampleModel.id,
+    label: config.exampleModel?.label || DEFAULTS.exampleModel.label,
+  };
+  const guideUrl = config.guide?.url || DEFAULTS.guideUrl;
+  const guide = { url: guideUrl, label: config.guide?.label || hostnameOf(guideUrl) };
+
   return (
     <Box data-testid={DATA_TEST_ID.API_DOCS_PAGE_ROOT} width="100%" height="100%">
       <ContentLayout
@@ -104,7 +139,7 @@ const ApiDocsPage = () => {
             >
               Secure access to taxonomy models, occupations, skills and their groups. All requests and responses use
               JSON. Deep links from the directory pre-fill the model. The examples below use{" "}
-              <InlineCode>mdl_base_2f9a</InlineCode> (Base (Tabiya ESCO 1.1.1), v2.0.0).
+              <InlineCode>{exampleModel.id}</InlineCode> ({exampleModel.label}).
             </Typography>
           </Box>
         }
@@ -134,7 +169,7 @@ const ApiDocsPage = () => {
                 platform administrators.
               </Typography>
               <Link
-                href="https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy/open-taxonomy-platform/open-taxonomy-platform-api#credentials-and-authentication"
+                href={credentialsUrl}
                 variant="body1"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -156,7 +191,7 @@ const ApiDocsPage = () => {
                 </StepHeading>
                 <CodeBlock data-testid={DATA_TEST_ID.API_DOCS_PAGE_API_KEY_CODE}>
                   {`curl -X GET \\
-  https://taxonomy.tabiya.tech/api/partner/info \\
+  ${apiBaseUrl}/api/partner/info \\
   -H "X-API-Key: YOUR_API_KEY"`}
                 </CodeBlock>
               </Box>
@@ -167,7 +202,7 @@ const ApiDocsPage = () => {
                 </StepHeading>
                 <CodeBlock data-testid={DATA_TEST_ID.API_DOCS_PAGE_OAUTH_CODE}>
                   {`curl -X GET \\
-  https://taxonomy.tabiya.tech/api/app/info \\
+  ${apiBaseUrl}/api/app/info \\
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"`}
                 </CodeBlock>
               </Box>
@@ -181,32 +216,23 @@ const ApiDocsPage = () => {
               <StepHeading>3 · Full endpoint reference</StepHeading>
               <Typography variant="body1" sx={{ color: (theme) => theme.palette.text.secondary }}>
                 Browse and live-test every endpoint in the{" "}
-                <DocLink
-                  href="https://taxonomy.tabiya.tech/api-doc/swagger/"
-                  data-testid={DATA_TEST_ID.API_DOCS_PAGE_SWAGGER_LINK}
-                >
+                <DocLink href={`${apiBaseUrl}/api-doc/swagger/`} data-testid={DATA_TEST_ID.API_DOCS_PAGE_SWAGGER_LINK}>
                   Swagger UI
                 </DocLink>{" "}
                 or{" "}
-                <DocLink
-                  href="https://taxonomy.tabiya.tech/api-doc/redoc/"
-                  data-testid={DATA_TEST_ID.API_DOCS_PAGE_REDOC_LINK}
-                >
+                <DocLink href={`${apiBaseUrl}/api-doc/redoc/`} data-testid={DATA_TEST_ID.API_DOCS_PAGE_REDOC_LINK}>
                   ReDoc
                 </DocLink>
                 , or import the{" "}
                 <DocLink
-                  href="https://taxonomy.tabiya.tech/api-doc/swagger/tabiya-api.json"
+                  href={`${apiBaseUrl}/api-doc/swagger/tabiya-api.json`}
                   data-testid={DATA_TEST_ID.API_DOCS_PAGE_OPENAPI_LINK}
                 >
                   OpenAPI v3 spec
                 </DocLink>{" "}
                 directly into Postman or Insomnia. Full guide:{" "}
-                <DocLink
-                  href="https://docs.tabiya.org/our-tech-stack/inclusive-livelihoods-taxonomy/open-taxonomy-platform/open-taxonomy-platform-api"
-                  data-testid={DATA_TEST_ID.API_DOCS_PAGE_GUIDE_LINK}
-                >
-                  docs.tabiya.org
+                <DocLink href={guide.url} data-testid={DATA_TEST_ID.API_DOCS_PAGE_GUIDE_LINK}>
+                  {guide.label}
                 </DocLink>
                 .
               </Typography>
