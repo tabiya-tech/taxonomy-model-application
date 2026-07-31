@@ -22,8 +22,13 @@ const hostedZone = hostedZoneStack.getOutput("hostedZone").apply((t) => ({
   zoneId: t.zoneId,
 } as Output<{ zoneId: string }>))
 
-const css = fs.readFileSync("../../frontend/public/styles/auth.css", "utf-8");
-const image = fs.readFileSync("../../frontend/public/logo-horizontal.jpeg", "base64")
+// Login page branding, from frontend/public: the stylesheet by partner, the logo by filename
+const config = new pulumi.Config();
+const partner = config.get("partner") ?? "tabiya";
+const logo = config.get("logo") ?? "logo-horizontal.jpeg";
+
+const css = fs.readFileSync(`../../frontend/public/styles/${partner}/auth.css`, "utf-8");
+const image = fs.readFileSync(`../../frontend/public/${logo}`, "base64")
 
 enum TabiyaRoles {
   MODEL_MANAGER = "model-managers",
