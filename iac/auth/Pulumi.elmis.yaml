@@ -1,2 +1,4 @@
 config:
   aws:region: eu-central-1
+  taxonomy-model-application-auth:partner: elmis
+  taxonomy-model-application-auth:logo: elmis-logo-horizontal.png
