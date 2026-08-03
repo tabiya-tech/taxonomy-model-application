@@ -21,7 +21,7 @@ export class OccupationGroupPUTController {
   /**
    * @openapi
    *
-   * /models/{modelId}/occupationGroups:
+   * /models/{modelId}/occupationGroups/{id}:
    *    put:
    *      operationId: PUTOccupationGroup
    *      tags:

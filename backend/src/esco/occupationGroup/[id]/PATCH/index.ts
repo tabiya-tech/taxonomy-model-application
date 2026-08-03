@@ -21,7 +21,7 @@ export class OccupationGroupPATCHController {
   /**
    * @openapi
    *
-   * /models/{modelId}/occupationGroups:
+   * /models/{modelId}/occupationGroups/{id}:
    *    patch:
    *      operationId: PATCHOccupationGroup
    *      tags:
