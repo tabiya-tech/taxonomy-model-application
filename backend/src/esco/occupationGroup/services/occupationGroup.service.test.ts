@@ -9,6 +9,8 @@ import {
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
   IOccupationGroupChild,
+  IUpdateOccupationGroupSpec,
+  IPartialUpdateOccupationGroupSpec,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { IOccupationGroupRepository } from "esco/occupationGroup/repository/OccupationGroup.repository";
 import { IOccupationHierarchyRepository } from "esco/occupationHierarchy/occupationHierarchyRepository";
@@ -63,6 +65,8 @@ describe("Test the OccupationGroupService", () => {
       findHistoryReferencesByUUIDs: jest.fn(),
       findParent: jest.fn(),
       findChildren: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as unknown as jest.Mocked<IOccupationGroupRepository>;
 
     mockOccupationHierarchyRepository = {
@@ -888,6 +892,209 @@ describe("Test the OccupationGroupService", () => {
         expect(actual.nextCursor).toBeNull();
         expect(actual.items).toHaveLength(2);
       });
+    });
+  });
+
+  describe("update", () => {
+    test("should call repository.update with the given id, modelId and spec when model validation passes", async () => {
+      // GIVEN an id, modelId and a full update spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IUpdateOccupationGroupSpec = {
+        originUri: getRandomString(15),
+        code: getMockRandomISCOGroupCode(),
+        preferredLabel: getRandomString(10),
+        altLabels: [getRandomString(5)],
+        description: getRandomString(20),
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+        groupType: ObjectTypes.ISCOGroup,
+      };
+      // AND the model validation passes
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      // AND the repository returns an updated occupationGroup
+      const expectedOccupationGroup: IOccupationGroup = {
+        ...givenSpec,
+        id: givenId,
+        UUID: getRandomString(10),
+        parent: null,
+        children: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        importId: "",
+      };
+      mockRepository.update.mockResolvedValue(expectedOccupationGroup);
+
+      // WHEN calling service.update
+      const actual = await service.update(givenId, givenModelId, givenSpec);
+
+      // THEN expect repository.update to have been called with the given parameters
+      expect(mockRepository.update).toHaveBeenCalledWith(givenId, givenModelId, givenSpec);
+      // AND expect the returned occupationGroup
+      expect(actual).toEqual(expectedOccupationGroup);
+    });
+
+    test("should return null if repository.update returns null", async () => {
+      // GIVEN an id, modelId and spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IUpdateOccupationGroupSpec = {
+        originUri: getRandomString(15),
+        code: getMockRandomISCOGroupCode(),
+        preferredLabel: getRandomString(10),
+        altLabels: [getRandomString(5)],
+        description: getRandomString(20),
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+        groupType: ObjectTypes.ISCOGroup,
+      };
+      // AND the model validation passes
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      // AND the repository returns null (not found)
+      mockRepository.update.mockResolvedValue(null);
+
+      // WHEN calling service.update
+      const actual = await service.update(givenId, givenModelId, givenSpec);
+
+      // THEN expect null to be returned
+      expect(actual).toBeNull();
+    });
+
+    test("should throw OccupationGroupModelValidationError when model validation fails", async () => {
+      // GIVEN an id, modelId and spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IUpdateOccupationGroupSpec = {
+        originUri: getRandomString(15),
+        code: getMockRandomISCOGroupCode(),
+        preferredLabel: getRandomString(10),
+        altLabels: [getRandomString(5)],
+        description: getRandomString(20),
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+        groupType: ObjectTypes.ISCOGroup,
+      };
+      // AND the model validation fails (model not found)
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue(null),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      // WHEN calling service.update
+      // THEN expect it to throw
+      await expect(service.update(givenId, givenModelId, givenSpec)).rejects.toThrow(
+        OccupationGroupModelValidationError
+      );
+    });
+  });
+
+  describe("patch", () => {
+    test("should call repository.patch with the given id, modelId and spec when model validation passes", async () => {
+      // GIVEN an id, modelId and a partial update spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IPartialUpdateOccupationGroupSpec = {
+        preferredLabel: getRandomString(10),
+        description: getRandomString(20),
+      };
+      // AND the model validation passes
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      // AND the repository returns a patched occupationGroup
+      const expectedOccupationGroup: IOccupationGroup = {
+        id: givenId,
+        modelId: givenModelId,
+        UUID: getRandomString(10),
+        code: getMockRandomISCOGroupCode(),
+        preferredLabel: givenSpec.preferredLabel!,
+        altLabels: [getRandomString(5)],
+        description: givenSpec.description!,
+        groupType: ObjectTypes.ISCOGroup,
+        originUri: getRandomString(15),
+        UUIDHistory: [],
+        importId: "",
+        parent: null,
+        children: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      mockRepository.patch.mockResolvedValue(expectedOccupationGroup);
+
+      // WHEN calling service.patch
+      const actual = await service.patch(givenId, givenModelId, givenSpec);
+
+      // THEN expect repository.patch to have been called with the given parameters
+      expect(mockRepository.patch).toHaveBeenCalledWith(givenId, givenModelId, givenSpec);
+      // AND expect the returned occupationGroup
+      expect(actual).toEqual(expectedOccupationGroup);
+    });
+
+    test("should return null if repository.patch returns null", async () => {
+      // GIVEN an id, modelId and spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IPartialUpdateOccupationGroupSpec = {
+        preferredLabel: getRandomString(10),
+      };
+      // AND the model validation passes
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      // AND the repository returns null (not found)
+      mockRepository.patch.mockResolvedValue(null);
+
+      // WHEN calling service.patch
+      const actual = await service.patch(givenId, givenModelId, givenSpec);
+
+      // THEN expect null to be returned
+      expect(actual).toBeNull();
+    });
+
+    test("should throw OccupationGroupModelValidationError when model validation fails", async () => {
+      // GIVEN an id, modelId and spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IPartialUpdateOccupationGroupSpec = {
+        preferredLabel: getRandomString(10),
+      };
+      // AND the model validation fails (model not found)
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue(null),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      // WHEN calling service.patch
+      // THEN expect it to throw
+      await expect(service.patch(givenId, givenModelId, givenSpec)).rejects.toThrow(
+        OccupationGroupModelValidationError
+      );
     });
   });
 

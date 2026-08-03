@@ -70,6 +70,8 @@ describe("OccupationGroupCreateController", () => {
         findChildren: jest.fn(),
         getHistory: jest.fn(),
         setParent: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
@@ -189,6 +191,8 @@ describe("OccupationGroupCreateController", () => {
       findChildren: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -265,6 +269,8 @@ describe("OccupationGroupCreateController", () => {
       validateModelForOccupationGroup: jest.fn().mockResolvedValue({ isValid: true }),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -400,6 +406,8 @@ describe("OccupationGroupCreateController", () => {
       findChildren: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -610,6 +618,8 @@ describe("OccupationGroupCreateController", () => {
       findChildren: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -660,6 +670,8 @@ describe("OccupationGroupCreateController", () => {
       findChildren: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;

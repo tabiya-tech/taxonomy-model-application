@@ -9,6 +9,8 @@ import { handler as occupationGroupParentHandler } from "./[id]/parent/GET";
 import { handler as occupationGroupParentCreateHandler } from "./[id]/parent/POST";
 import { handler as occupationGroupChildrenHandler } from "./[id]/children/GET";
 import { handler as occupationGroupDetailHandler } from "./[id]/GET";
+import { handler as occupationGroupPutHandler } from "./[id]/PUT";
+import { handler as occupationGroupPatchHandler } from "./[id]/PATCH";
 import { handler as occupationGroupHistoryHandler } from "./[id]/history/GET";
 
 export const handler: (
@@ -35,6 +37,14 @@ export const handler: (
       return occupationGroupHistoryHandler(event);
     }
     return occupationGroupListHandler(event);
+  } else if (event?.httpMethod === HTTP_VERBS.PUT) {
+    if (pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(pathToMatch)) {
+      return occupationGroupPutHandler(event);
+    }
+  } else if (event?.httpMethod === HTTP_VERBS.PATCH) {
+    if (pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(pathToMatch)) {
+      return occupationGroupPatchHandler(event);
+    }
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
 };

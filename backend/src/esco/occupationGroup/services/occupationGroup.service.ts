@@ -11,6 +11,8 @@ import {
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroup,
   IOccupationGroupChild,
+  IPartialUpdateOccupationGroupSpec,
+  IUpdateOccupationGroupSpec,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { IOccupationGroupRepository } from "esco/occupationGroup/repository/OccupationGroup.repository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
@@ -227,6 +229,22 @@ export class OccupationGroupService implements IOccupationGroupService {
     ]);
 
     return parent;
+  }
+
+  async update(id: string, modelId: string, spec: IUpdateOccupationGroupSpec): Promise<IOccupationGroup | null> {
+    const errorCode = await this.validateModelForOccupationGroup(modelId);
+    if (errorCode != null) {
+      throw new OccupationGroupModelValidationError(errorCode);
+    }
+    return this.occupationGroupRepository.update(id, modelId, spec);
+  }
+
+  async patch(id: string, modelId: string, spec: IPartialUpdateOccupationGroupSpec): Promise<IOccupationGroup | null> {
+    const errorCode = await this.validateModelForOccupationGroup(modelId);
+    if (errorCode != null) {
+      throw new OccupationGroupModelValidationError(errorCode);
+    }
+    return this.occupationGroupRepository.patch(id, modelId, spec);
   }
 
   async validateModelForOccupationGroup(modelId: string): Promise<ModelForOccupationGroupValidationErrorCode | null> {

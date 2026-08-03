@@ -7,6 +7,8 @@ import {
   INewOccupationGroupSpec,
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroupChild,
+  IPartialUpdateOccupationGroupSpec,
+  IUpdateOccupationGroupSpec,
 } from "../_shared/OccupationGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import {
@@ -155,6 +157,26 @@ export interface IOccupationGroupRepository extends IEmbeddableEntityRepository 
    * @return {Promise<IOccupationGroupModelHistoryReference[]>} - The resolved reference + modelId per input UUID.
    */
   findHistoryReferencesByUUIDs(uuids: string[]): Promise<IOccupationGroupModelHistoryReference[]>;
+
+  /**
+   * Fully replaces the mutable fields of an OccupationGroup (PUT semantics).
+   *
+   * @param {string} id - The ID of the OccupationGroup to update.
+   * @param {string} modelId - The model ID the OccupationGroup belongs to.
+   * @param {IUpdateOccupationGroupSpec} spec - The full set of new field values.
+   * @return {Promise<IOccupationGroup | null>} - The updated occupation group, or null if not found.
+   */
+  update(id: string, modelId: string, spec: IUpdateOccupationGroupSpec): Promise<IOccupationGroup | null>;
+
+  /**
+   * Partially updates an OccupationGroup (PATCH semantics).
+   *
+   * @param {string} id - The ID of the OccupationGroup to update.
+   * @param {string} modelId - The model ID the OccupationGroup belongs to.
+   * @param {IPartialUpdateOccupationGroupSpec} spec - Only the fields to update.
+   * @return {Promise<IOccupationGroup | null>} - The updated occupation group, or null if not found.
+   */
+  patch(id: string, modelId: string, spec: IPartialUpdateOccupationGroupSpec): Promise<IOccupationGroup | null>;
 }
 
 export class OccupationGroupRepository implements IOccupationGroupRepository {
@@ -510,6 +532,38 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       return populated.map((doc) => doc.toObject());
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.findPaginated: findPaginated failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async update(id: string, modelId: string, spec: IUpdateOccupationGroupSpec): Promise<IOccupationGroup | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
+      if (!doc) return null;
+      doc.set(spec);
+      await doc.save();
+      await doc.populate([populateOccupationGroupParentOptions, populateOccupationGroupChildrenOptions]);
+      return doc.toObject();
+    } catch (e: unknown) {
+      const err = new Error("OccupationGroupRepository.update: update failed.", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async patch(id: string, modelId: string, spec: IPartialUpdateOccupationGroupSpec): Promise<IOccupationGroup | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
+      if (!doc) return null;
+      doc.set(spec);
+      await doc.save();
+      await doc.populate([populateOccupationGroupParentOptions, populateOccupationGroupChildrenOptions]);
+      return doc.toObject();
+    } catch (e: unknown) {
+      const err = new Error("OccupationGroupRepository.patch: patch failed.", { cause: e });
       console.error(err);
       throw err;
     }

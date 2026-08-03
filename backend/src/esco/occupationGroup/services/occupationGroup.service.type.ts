@@ -4,6 +4,8 @@ import {
   ModelForOccupationGroupValidationErrorCode,
   IOccupationGroupChild,
   IOccupationGroupReference,
+  IPartialUpdateOccupationGroupSpec,
+  IUpdateOccupationGroupSpec,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IModelInfoReference } from "modelInfo/modelInfo.types";
@@ -126,6 +128,28 @@ export interface IOccupationGroupService {
    * @return {Promise<ModelForOccupationGroupValidationErrorCode | null>} - Returns null if valid, otherwise the error code
    */
   validateModelForOccupationGroup(modelId: string): Promise<ModelForOccupationGroupValidationErrorCode | null>;
+
+  /**
+   * Fully replaces the mutable fields of an OccupationGroup (PUT semantics).
+   * Validates that the model exists and is not released before updating.
+   *
+   * @param {string} id - The ID of the OccupationGroup to update.
+   * @param {string} modelId - The model ID the OccupationGroup belongs to.
+   * @param {IUpdateOccupationGroupSpec} spec - The full set of new field values.
+   * @return {Promise<IOccupationGroup | null>} - The updated occupation group, or null if not found.
+   */
+  update(id: string, modelId: string, spec: IUpdateOccupationGroupSpec): Promise<IOccupationGroup | null>;
+
+  /**
+   * Partially updates an OccupationGroup (PATCH semantics).
+   * Validates that the model exists and is not released before updating.
+   *
+   * @param {string} id - The ID of the OccupationGroup to update.
+   * @param {string} modelId - The model ID the OccupationGroup belongs to.
+   * @param {IPartialUpdateOccupationGroupSpec} spec - Only the fields to update.
+   * @return {Promise<IOccupationGroup | null>} - The updated occupation group, or null if not found.
+   */
+  patch(id: string, modelId: string, spec: IPartialUpdateOccupationGroupSpec): Promise<IOccupationGroup | null>;
 
   /**
    * Sets the parent for an occupation group by creating or updating a hierarchy entry.

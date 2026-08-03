@@ -20,6 +20,8 @@ jest.mock("./[id]/children/GET/index", () => ({
 jest.mock("./[id]/history/GET/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "GET_HISTORY" }),
 }));
+jest.mock("./[id]/PUT/index", () => ({ handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "PUT" }) }));
+jest.mock("./[id]/PATCH/index", () => ({ handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "PATCH" }) }));
 import { handler as getHandler } from "./GET/index";
 import { handler as postHandler } from "./POST/index";
 import { handler as getByIdHandler } from "./[id]/GET/index";
@@ -27,6 +29,8 @@ import { handler as getParentHandler } from "./[id]/parent/GET/index";
 import { handler as postParentHandler } from "./[id]/parent/POST/index";
 import { handler as getChildrenHandler } from "./[id]/children/GET/index";
 import { handler as getHistoryHandler } from "./[id]/history/GET/index";
+import { handler as putHandler } from "./[id]/PUT/index";
+import { handler as patchHandler } from "./[id]/PATCH/index";
 describe("OccupationGroups Router", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -76,6 +80,18 @@ describe("OccupationGroups Router", () => {
     const response = await handler(event);
     expect(getHistoryHandler).toHaveBeenCalledWith(event);
     expect(response.body).toBe("GET_HISTORY");
+  });
+  test("should route PUT to putHandler", async () => {
+    const event = { httpMethod: HTTP_VERBS.PUT, path: "/models/1/occupationGroups/2" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(putHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("PUT");
+  });
+  test("should route PATCH to patchHandler", async () => {
+    const event = { httpMethod: HTTP_VERBS.PATCH, path: "/models/1/occupationGroups/2" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(patchHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("PATCH");
   });
   test("should return METHOD_NOT_ALLOWED for unsupported verbs", async () => {
     const event = { httpMethod: HTTP_VERBS.DELETE } as APIGatewayProxyEvent;
