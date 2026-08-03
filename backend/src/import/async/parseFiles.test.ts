@@ -546,6 +546,8 @@ describe("Test the main async handler", () => {
         setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         findByIds: jest.fn().mockResolvedValue([]),
+        update: jest.fn(),
+        patch: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
 

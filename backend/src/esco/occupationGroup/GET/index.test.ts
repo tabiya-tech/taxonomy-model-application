@@ -4,7 +4,8 @@ import ErrorAPISpecs from "api-specifications/error";
 import * as authenticatorModule from "auth/authorizer";
 import * as queryModule from "./query";
 import * as responseModule from "./response";
-import { OccupationGroupListController } from "./index";
+import { OccupationGroupListController, handler } from "./index";
+import mongoose from "mongoose";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { IOccupationGroupService } from "../services/occupationGroup.service.type";
@@ -63,6 +64,8 @@ describe("OccupationGroupListController", () => {
         findChildren: jest.fn(),
         getHistory: jest.fn(),
         setParent: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
@@ -184,6 +187,73 @@ describe("OccupationGroupListController", () => {
     expect(JSON.parse(actualResponse.body)).toEqual(transformed);
   });
 
+  test("GET should delegate to searchPaginated when a query and a valid search cursor are provided", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetOccupationGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+
+    const givenItems = [{ ...getIOccupationGroupMockData(1, givenModelId), UUID: "foo", UUIDHistory: ["foo"] }];
+    const givenNextCursor = "nextOpaqueCursor";
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.searchPaginated = jest
+      .fn()
+      .mockResolvedValue({ items: givenItems, nextCursor: givenNextCursor });
+    const transformed = { data: [{ id: "group-1" }], limit: 100, nextCursor: givenNextCursor };
+    mockTransformPaginated.mockReturnValue(transformed as never);
+
+    const validCursor = Buffer.from(JSON.stringify({ offset: 0 })).toString("base64");
+    const controller = new OccupationGroupListController();
+    const actualResponse = await controller.getOccupationGroups(
+      buildEvent(`/models/${givenModelId}/occupationGroups`, {
+        query: "nursing",
+        cursor: validCursor,
+      })
+    );
+
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+    expect(mockServiceRegistry.occupationGroup.searchPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      "nursing",
+      [EmbeddableField.preferredLabel],
+      validCursor,
+      100
+    );
+  });
+
+  test("GET should respond with BAD_REQUEST when searching with an invalid cursor", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetOccupationGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.searchPaginated = jest.fn();
+
+    const controller = new OccupationGroupListController();
+    const actualResponse = await controller.getOccupationGroups(
+      buildEvent(`/models/${givenModelId}/occupationGroups`, {
+        query: "nursing",
+        cursor: "invalid-cursor-string",
+      })
+    );
+
+    expect(actualResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    expect(mockServiceRegistry.occupationGroup.searchPaginated).not.toHaveBeenCalled();
+    const expectedErrorBody = {
+      errorCode: ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+      message: "Invalid cursor parameter",
+      details: "",
+    };
+    expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+  });
+
   test("GET should return nextCursor when nextCursor is present in the paginated occupation group result", async () => {
     // GIVEN role check passes for anonymous access
     const validatePathFunction = jest.fn().mockReturnValue(true);
@@ -231,6 +301,8 @@ describe("OccupationGroupListController", () => {
       findChildren: jest.fn().mockResolvedValue([]),
       setParent: jest.fn(),
       getHistory: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -421,6 +493,8 @@ describe("OccupationGroupListController", () => {
         .fn()
         .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
       getHistory: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -464,6 +538,8 @@ describe("OccupationGroupListController", () => {
       findChildren: jest.fn(),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as IOccupationGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup = givenOccupationGroupServiceMock;
@@ -524,6 +600,8 @@ describe("OccupationGroupListController", () => {
       setParent: jest.fn().mockResolvedValue(undefined),
       setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
       setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+      update: jest.fn(),
+      patch: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
     const limit = 2;
@@ -585,5 +663,61 @@ describe("OccupationGroupListController", () => {
     expect(givenFindPaginated).toHaveBeenCalledWith(givenModelId, undefined, expectedDefaultLimit, true, {
       root: givenParsedRoot,
     });
+  });
+
+  test("should delegate to searchPaginated when a query and a valid keyset cursor are provided", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetOccupationGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+
+    const givenItems = [{ ...getIOccupationGroupMockData(1, givenModelId), UUID: "foo", UUIDHistory: ["foo"] }];
+    const givenNextCursor = "nextOpaqueCursor";
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.searchPaginated = jest
+      .fn()
+      .mockResolvedValue({ items: givenItems, nextCursor: givenNextCursor });
+    const transformed = { data: [{ id: "group-1" }], limit: 100, nextCursor: givenNextCursor };
+    mockTransformPaginated.mockReturnValue(transformed as never);
+
+    const validObjectId = new mongoose.Types.ObjectId().toHexString();
+    jest.spyOn(queryModule, "decodeCursor").mockReturnValue({ id: validObjectId } as never);
+
+    const controller = new OccupationGroupListController();
+    const actualResponse = await controller.getOccupationGroups(
+      buildEvent(`/models/${givenModelId}/occupationGroups`, {
+        query: "nursing",
+        cursor: "some-keyset-cursor",
+      })
+    );
+
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+  });
+
+  test("should return the response from the exported handler", async () => {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetOccupationGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
+    mockTransformPaginated.mockReturnValue({ data: [], limit: 100, nextCursor: null } as never);
+
+    const event = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {},
+      path: `/models/${givenModelId}/occupationGroups`,
+      pathParameters: { modelId: givenModelId.toString() },
+      requestContext: usersRequestContext.REGISTED_USER,
+    } as never;
+    const actualResponse = await handler(event);
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
   });
 });

@@ -16,6 +16,8 @@ import {
   IOccupationGroup,
   IOccupationGroupDoc,
   IOccupationGroupReference,
+  IUpdateOccupationGroupSpec,
+  IPartialUpdateOccupationGroupSpec,
   IOccupationGroupWithoutImportId,
 } from "../_shared/OccupationGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
@@ -2244,4 +2246,235 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       });
     });
   });
+
+  describe.each<ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup>([ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup])(
+    "Test update() %s ",
+    (givenGroupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup) => {
+      test("should successfully update an existing OccupationGroup with new values", async () => {
+        // GIVEN an OccupationGroup exists in the database
+        const givenModelId = getMockStringId(1);
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+        givenNewOccupationGroupSpec.modelId = givenModelId;
+        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+
+        // AND new values to update
+        const givenUpdatedCode =
+          givenGroupType === ObjectTypes.ISCOGroup
+            ? getSimpleNewISCOGroupSpec(givenModelId, "updated").code
+            : getSimpleNewLocalGroupSpec(givenModelId, "updated").code;
+        const givenUpdateSpec: IUpdateOccupationGroupSpec = {
+          code: givenUpdatedCode,
+          preferredLabel: "Updated Label",
+          altLabels: ["updated-alt-1"],
+          description: "Updated description",
+          originUri: "https://updated.example.com",
+          modelId: givenModelId,
+          UUIDHistory: givenOccupationGroup.UUIDHistory,
+          groupType: givenGroupType,
+        };
+
+        // WHEN updating the OccupationGroup
+        const actualUpdated = await repository.update(givenOccupationGroup.id, givenModelId, givenUpdateSpec);
+
+        // THEN expect the updated OccupationGroup to have the new values
+        expect(actualUpdated).not.toBeNull();
+        expect(actualUpdated!.id).toEqual(givenOccupationGroup.id);
+        expect(actualUpdated!.code).toEqual(givenUpdatedCode);
+        expect(actualUpdated!.preferredLabel).toEqual("Updated Label");
+        expect(actualUpdated!.altLabels).toEqual(["updated-alt-1"]);
+        expect(actualUpdated!.description).toEqual("Updated description");
+        expect(actualUpdated!.originUri).toEqual("https://updated.example.com");
+        // AND expect the timestamps to be updated
+        expect(actualUpdated!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenOccupationGroup.updatedAt.getTime());
+      });
+
+      test("should return null if the OccupationGroup with the given id does not exist", async () => {
+        // GIVEN no OccupationGroup with the given id exists
+        const givenModelId = getMockStringId(1);
+        const givenUpdateSpec: IUpdateOccupationGroupSpec = {
+          code: "NEWCODE",
+          preferredLabel: "Label",
+          altLabels: [],
+          description: "Desc",
+          originUri: "https://example.com",
+          modelId: givenModelId,
+          UUIDHistory: [randomUUID()],
+          groupType: givenGroupType,
+        };
+
+        // WHEN updating a non-existent OccupationGroup
+        const actualUpdated = await repository.update(getMockStringId(999), givenModelId, givenUpdateSpec);
+
+        // THEN expect null to be returned
+        expect(actualUpdated).toBeNull();
+      });
+
+      test("should return null if the given id is not a valid ObjectId", async () => {
+        // GIVEN an invalid id
+        const givenModelId = getMockStringId(1);
+        const givenUpdateSpec: IUpdateOccupationGroupSpec = {
+          code: "NEWCODE",
+          preferredLabel: "Label",
+          altLabels: [],
+          description: "Desc",
+          originUri: "https://example.com",
+          modelId: givenModelId,
+          UUIDHistory: [randomUUID()],
+          groupType: givenGroupType,
+        };
+
+        // WHEN updating with an invalid id
+        const actualUpdated = await repository.update("invalid_id", givenModelId, givenUpdateSpec);
+
+        // THEN expect null to be returned
+        expect(actualUpdated).toBeNull();
+      });
+
+      test("should return null if the OccupationGroup exists but belongs to a different model", async () => {
+        // GIVEN an OccupationGroup in model A
+        const givenModelIdA = getMockStringId(1);
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+        givenNewOccupationGroupSpec.modelId = givenModelIdA;
+        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+
+        // WHEN updating with a different modelId
+        const givenModelIdB = getMockStringId(2);
+        const givenUpdateSpec: IUpdateOccupationGroupSpec = {
+          code: "NEWCODE",
+          preferredLabel: "Label",
+          altLabels: [],
+          description: "Desc",
+          originUri: "https://example.com",
+          modelId: givenModelIdB,
+          UUIDHistory: [randomUUID()],
+          groupType: givenGroupType,
+        };
+        const actualUpdated = await repository.update(givenOccupationGroup.id, givenModelIdB, givenUpdateSpec);
+
+        // THEN expect null to be returned (no match for the given modelId)
+        expect(actualUpdated).toBeNull();
+      });
+
+      TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+        const givenSpec: IUpdateOccupationGroupSpec = {
+          code: "CODE",
+          preferredLabel: "Label",
+          altLabels: [],
+          description: "Desc",
+          originUri: "https://example.com",
+          modelId: getMockStringId(1),
+          UUIDHistory: [randomUUID()],
+          groupType: givenGroupType,
+        };
+        return repositoryRegistry.OccupationGroup.update(getMockStringId(1), getMockStringId(1), givenSpec);
+      });
+    }
+  );
+
+  describe.each<ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup>([ObjectTypes.ISCOGroup, ObjectTypes.LocalGroup])(
+    "Test patch() %s ",
+    (givenGroupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup) => {
+      test("should successfully patch an existing OccupationGroup with partial values", async () => {
+        // GIVEN an OccupationGroup exists in the database
+        const givenModelId = getMockStringId(1);
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+        givenNewOccupationGroupSpec.modelId = givenModelId;
+        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+
+        // WHEN patching with only preferredLabel and description
+        const givenPatchSpec: IPartialUpdateOccupationGroupSpec = {
+          preferredLabel: "Patched Label",
+          description: "Patched description",
+        };
+        const actualPatched = await repository.patch(givenOccupationGroup.id, givenModelId, givenPatchSpec);
+
+        // THEN expect only the specified fields to be updated, others remain unchanged
+        expect(actualPatched).not.toBeNull();
+        expect(actualPatched!.id).toEqual(givenOccupationGroup.id);
+        expect(actualPatched!.preferredLabel).toEqual("Patched Label");
+        expect(actualPatched!.description).toEqual("Patched description");
+        // AND expect the other fields to remain unchanged
+        expect(actualPatched!.code).toEqual(givenOccupationGroup.code);
+        expect(actualPatched!.altLabels).toEqual(givenOccupationGroup.altLabels);
+        expect(actualPatched!.originUri).toEqual(givenOccupationGroup.originUri);
+        expect(actualPatched!.groupType).toEqual(givenOccupationGroup.groupType);
+        // AND expect the timestamps to be updated
+        expect(actualPatched!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenOccupationGroup.updatedAt.getTime());
+      });
+
+      test("should return null if the OccupationGroup with the given id does not exist", async () => {
+        // GIVEN no OccupationGroup with the given id exists
+        const givenModelId = getMockStringId(1);
+        const givenPatchSpec: IPartialUpdateOccupationGroupSpec = {
+          preferredLabel: "Patched Label",
+        };
+
+        // WHEN patching a non-existent OccupationGroup
+        const actualPatched = await repository.patch(getMockStringId(999), givenModelId, givenPatchSpec);
+
+        // THEN expect null to be returned
+        expect(actualPatched).toBeNull();
+      });
+
+      test("should return null if the given id is not a valid ObjectId", async () => {
+        // GIVEN an invalid id
+        const givenModelId = getMockStringId(1);
+        const givenPatchSpec: IPartialUpdateOccupationGroupSpec = {
+          preferredLabel: "Patched Label",
+        };
+
+        // WHEN patching with an invalid id
+        const actualPatched = await repository.patch("invalid_id", givenModelId, givenPatchSpec);
+
+        // THEN expect null to be returned
+        expect(actualPatched).toBeNull();
+      });
+
+      test("should return null if the OccupationGroup exists but belongs to a different model", async () => {
+        // GIVEN an OccupationGroup in model A
+        const givenModelIdA = getMockStringId(1);
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+        givenNewOccupationGroupSpec.modelId = givenModelIdA;
+        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+
+        // WHEN patching with a different modelId
+        const givenModelIdB = getMockStringId(2);
+        const givenPatchSpec: IPartialUpdateOccupationGroupSpec = {
+          preferredLabel: "Patched Label",
+        };
+        const actualPatched = await repository.patch(givenOccupationGroup.id, givenModelIdB, givenPatchSpec);
+
+        // THEN expect null to be returned (no match for the given modelId)
+        expect(actualPatched).toBeNull();
+      });
+
+      test("should patch groupType from ISCOGroup to LocalGroup", async () => {
+        // GIVEN an ISCOGroup exists in the database
+        const givenGroupType = ObjectTypes.ISCOGroup;
+        const givenModelId = getMockStringId(1);
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+        givenNewOccupationGroupSpec.modelId = givenModelId;
+        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+
+        // WHEN patching the groupType and code to valid LocalGroup values
+        const givenPatchSpec: IPartialUpdateOccupationGroupSpec = {
+          groupType: ObjectTypes.LocalGroup,
+          code: "a1",
+        };
+        const actualPatched = await repository.patch(givenOccupationGroup.id, givenModelId, givenPatchSpec);
+
+        // THEN expect the groupType and code to be updated
+        expect(actualPatched).not.toBeNull();
+        expect(actualPatched!.groupType).toEqual(ObjectTypes.LocalGroup);
+        expect(actualPatched!.code).toEqual("a1");
+      });
+
+      TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+        const givenSpec: IPartialUpdateOccupationGroupSpec = {
+          preferredLabel: "Label",
+        };
+        return repositoryRegistry.OccupationGroup.patch(getMockStringId(1), getMockStringId(1), givenSpec);
+      });
+    }
+  );
 });

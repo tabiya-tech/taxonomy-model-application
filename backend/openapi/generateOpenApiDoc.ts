@@ -65,6 +65,10 @@ delete OccupationGroup.OccupationGroup.GET.Schemas.Response.Payload.$id;
 delete OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Child.Payload.$id;
 delete OccupationGroup.OccupationGroup.Children.GET.Schemas.Response.Children.Payload.$id;
 delete OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.$id;
+delete OccupationGroup.OccupationGroup.PUT.Schemas.Request.Payload.$id;
+delete OccupationGroup.OccupationGroup.PUT.Schemas.Response.Payload.$id;
+delete OccupationGroup.OccupationGroup.PATCH.Schemas.Request.Payload.$id;
+delete OccupationGroup.OccupationGroup.PATCH.Schemas.Response.Payload.$id;
 delete OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload.$id;
 delete OccupationGroup.OccupationGroup.Parent.POST.Schemas.Response.Payload.$id;
 delete Occupation.POST.Schemas.Request.Payload.$id;
@@ -277,6 +281,18 @@ function getOpenAPISpecification(
           ),
           GETOccupationGroups404ErrorSchema: APIError.Schemas.getPayload("GET", "OccupationGroups", 404, [
             OccupationGroup.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          ]),
+          PATCHOccupationGroup400ErrorSchema: APIError.Schemas.getPayload("PATCH", "OccupationGroup", 400, [
+            OccupationGroup.OccupationGroup.PATCH.Errors.Response.Status400.ErrorCodes.INVALID_MODEL_ID,
+            OccupationGroup.OccupationGroup.PATCH.Errors.Response.Status400.ErrorCodes
+              .OCCUPATION_GROUP_COULD_NOT_VALIDATE,
+            OccupationGroup.OccupationGroup.PATCH.Errors.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL,
+          ]),
+          PUTOccupationGroup400ErrorSchema: APIError.Schemas.getPayload("PUT", "OccupationGroup", 400, [
+            OccupationGroup.OccupationGroup.PUT.Errors.Response.Status400.ErrorCodes.INVALID_MODEL_ID,
+            OccupationGroup.OccupationGroup.PUT.Errors.Response.Status400.ErrorCodes
+              .OCCUPATION_GROUP_COULD_NOT_VALIDATE,
+            OccupationGroup.OccupationGroup.PUT.Errors.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL,
           ]),
           // Occupation-specific error schemas
           POSTOccupation400ErrorSchema: APIError.Schemas.getPayload(
@@ -533,6 +549,10 @@ function getOpenAPISpecification(
           OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.OccupationGroup.Schemas.Request.Param.Payload,
           OccupationGroupParentRequestSchemaPOST: OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload,
           OccupationRequestSchemaPOST: Occupation.POST.Schemas.Request.Payload,
+          OccupationGroupRequestSchemaPUT: OccupationGroup.OccupationGroup.PUT.Schemas.Request.Payload,
+          OccupationGroupResponseSchemaPUT: OccupationGroup.OccupationGroup.PUT.Schemas.Response.Payload,
+          OccupationGroupRequestSchemaPATCH: OccupationGroup.OccupationGroup.PATCH.Schemas.Request.Payload,
+          OccupationGroupResponseSchemaPATCH: OccupationGroup.OccupationGroup.PATCH.Schemas.Response.Payload,
           OccupationResponseSchemaPOST: Occupation.POST.Schemas.Response.Payload,
           OccupationRequestParamSchemaGET: Occupation.GET.Schemas.Request.Param.Payload,
           OccupationRequestByIdParamSchemaGET: Occupation.Occupation.GET.Schemas.Request.Param.Payload,

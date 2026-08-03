@@ -46,6 +46,8 @@ describe("OccupationGroupChildrenController", () => {
         findChildren: jest.fn(),
         setParent: jest.fn(),
         getHistory: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       } as IOccupationGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);

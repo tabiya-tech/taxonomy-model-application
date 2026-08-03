@@ -63,6 +63,21 @@ export type INewOccupationGroupSpec = Omit<
 export type INewOccupationGroupSpecWithoutImportId = Omit<INewOccupationGroupSpec, "importId">;
 
 /**
+ * Describes the mutable fields for a full OccupationGroup replacement (PUT).
+ * Excludes server-managed fields: id, UUID, importId, parent, children, createdAt, updatedAt.
+ */
+export type IUpdateOccupationGroupSpec = Pick<
+  IOccupationGroup,
+  "originUri" | "code" | "preferredLabel" | "altLabels" | "description" | "modelId" | "UUIDHistory" | "groupType"
+>;
+
+/**
+ * Describes the mutable fields for a partial OccupationGroup update (PATCH).
+ * All fields are optional.
+ */
+export type IPartialUpdateOccupationGroupSpec = Partial<IUpdateOccupationGroupSpec>;
+
+/**
  * Describes how a reference to an OccupationGroup is returned from the API.
  */
 export interface IOccupationGroupReference extends Pick<IOccupationGroup, "id" | "UUID" | "code" | "preferredLabel"> {
