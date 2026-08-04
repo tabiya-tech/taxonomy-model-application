@@ -571,7 +571,8 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
   });
 
   describe("Test replaceParent()", () => {
-    test("should upsert the parent relationship for a child", async () => {
+    test("should return null when no existing record exists (no upsert)", async () => {
+      // GIVEN a valid modelId, parent and child occupation exist in the database
       const givenModelId = getMockStringId(1);
       const givenParent = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "parent")
@@ -585,18 +586,16 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         childId: givenChild.id,
         childType: givenChild.occupationType,
       };
+      // AND no prior hierarchy record exists for the child
 
+      // WHEN replaceParent is called without a pre-existing record
       const actualResult = await repository.replaceParent(givenModelId, givenSpec);
 
-      expect(actualResult).toEqual({
-        ...givenSpec,
-        id: expect.any(String),
-        modelId: givenModelId,
-        parentDocModel: MongooseModelName.Occupation,
-        childDocModel: MongooseModelName.Occupation,
-        createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
-      });
+      // THEN expect null to be returned (no upsert)
+      expect(actualResult).toBeNull();
+      // AND no record to have been created in the database
+      const persistedCount = await repository.hierarchyModel.countDocuments({ modelId: givenModelId }).exec();
+      expect(persistedCount).toBe(0);
     });
 
     test("should replace an existing parent relationship for a child", async () => {

@@ -167,7 +167,7 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
             requiredSkillDocModel: MongooseModelName.Skill,
           },
         },
-        { new: true, upsert: true, setDefaultsOnInsert: true }
+        { new: true }
       )
       .exec();
 

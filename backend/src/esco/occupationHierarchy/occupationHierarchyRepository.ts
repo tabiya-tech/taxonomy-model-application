@@ -184,7 +184,7 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
             childDocModel: getModelName(spec.childType),
           },
         },
-        { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true }
+        { new: true, runValidators: true }
       )
       .exec();
 
