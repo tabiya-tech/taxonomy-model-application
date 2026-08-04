@@ -561,7 +561,8 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
   });
 
   describe("Test updateRelation()", () => {
-    test("should upsert an occupation to skill relation", async () => {
+    test("should return null when no existing record exists (no upsert)", async () => {
+      // GIVEN a valid modelId, occupation and skill exist in the database
       const givenModelId = getMockStringId(1);
       const givenOccupation = await repositoryRegistry.occupation.create(
         getSimpleNewESCOOccupationSpec(givenModelId, "occupation")
@@ -575,18 +576,16 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         signallingValueLabel: SignallingValueLabel.NONE,
         signallingValue: null,
       };
+      // AND no prior relation record exists for this occupation-skill pair
 
+      // WHEN updateRelation is called without a pre-existing record
       const actualResult = await repository.updateRelation(givenModelId, givenSpec);
 
-      expect(actualResult).toEqual({
-        ...givenSpec,
-        id: expect.any(String),
-        modelId: givenModelId,
-        requiringOccupationDocModel: MongooseModelName.Occupation,
-        requiredSkillDocModel: MongooseModelName.Skill,
-        createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
-      });
+      // THEN expect null to be returned (no upsert)
+      expect(actualResult).toBeNull();
+      // AND no record to have been created in the database
+      const persistedCount = await repository.relationModel.countDocuments({ modelId: givenModelId }).exec();
+      expect(persistedCount).toBe(0);
     });
 
     test("should update an existing occupation to skill relation", async () => {
