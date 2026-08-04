@@ -28,7 +28,7 @@ export class OccupationToSkillRelationService implements IOccupationToSkillRelat
     this.occupationToSkillRelationRepository = occupationToSkillRelationRepository;
   }
 
-  private async validateAndCreateRelation(
+  private async validateRelation(
     modelId: string,
     requiringOccupationId: string,
     requiredSkillId: string,
@@ -69,13 +69,6 @@ export class OccupationToSkillRelationService implements IOccupationToSkillRelat
       }
     }
 
-    // Delete existing relation between this occupation and skill if present to support updating existing relations
-    await this.occupationToSkillRelationRepository.relationModel.deleteMany({
-      modelId: { $eq: modelId },
-      requiringOccupationId: { $eq: requiringOccupationId },
-      requiredSkillId: { $eq: requiredSkillId },
-    });
-
     const spec: INewOccupationToSkillPairSpec = {
       requiringOccupationId,
       requiringOccupationType: child.occupationType as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation,
@@ -85,13 +78,59 @@ export class OccupationToSkillRelationService implements IOccupationToSkillRelat
       signallingValue,
     };
 
+    return { skill, occupation: child, spec };
+  }
+
+  private async validateAndCreateRelation(
+    modelId: string,
+    requiringOccupationId: string,
+    requiredSkillId: string,
+    relationType: OccupationToSkillRelationType,
+    signallingValueLabel: SignallingValueLabel,
+    signallingValue: number | null
+  ) {
+    const { skill, occupation, spec } = await this.validateRelation(
+      modelId,
+      requiringOccupationId,
+      requiredSkillId,
+      relationType,
+      signallingValueLabel,
+      signallingValue
+    );
+
     const createdRelations = await this.occupationToSkillRelationRepository.createMany(modelId, [spec]);
 
     if (createdRelations.length === 0) {
       throw new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT);
     }
 
-    return { skill, occupation: child };
+    return { skill, occupation };
+  }
+
+  private async validateAndUpdateRelation(
+    modelId: string,
+    requiringOccupationId: string,
+    requiredSkillId: string,
+    relationType: OccupationToSkillRelationType,
+    signallingValueLabel: SignallingValueLabel,
+    signallingValue: number | null
+  ) {
+    const { skill, occupation, spec } = await this.validateRelation(
+      modelId,
+      requiringOccupationId,
+      requiredSkillId,
+      relationType,
+      signallingValueLabel,
+      signallingValue
+    );
+
+    const updatedRelation = await this.occupationToSkillRelationRepository.updateRelation(modelId, spec);
+
+    if (!updatedRelation) {
+      throw new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT);
+    }
+
+    return { skill, occupation };
   }
 
   async addSkill(
@@ -104,6 +143,32 @@ export class OccupationToSkillRelationService implements IOccupationToSkillRelat
   ): Promise<ISkillWithRelation> {
     try {
       const { skill } = await this.validateAndCreateRelation(
+        modelId,
+        requiringOccupationId,
+        requiredSkillId,
+        relationType,
+        signallingValueLabel,
+        signallingValue
+      );
+      return { ...skill, relationType, signallingValue, signallingValueLabel };
+    } catch (error: unknown) {
+      if (error instanceof OccupationSkillValidationError) throw error;
+      throw new OccupationSkillValidationError(
+        SkillForOccupationValidationErrorCode.DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION
+      );
+    }
+  }
+
+  async updateSkill(
+    modelId: string,
+    requiringOccupationId: string,
+    requiredSkillId: string,
+    relationType: OccupationToSkillRelationType,
+    signallingValueLabel: SignallingValueLabel,
+    signallingValue: number | null
+  ): Promise<ISkillWithRelation> {
+    try {
+      const { skill } = await this.validateAndUpdateRelation(
         modelId,
         requiringOccupationId,
         requiredSkillId,

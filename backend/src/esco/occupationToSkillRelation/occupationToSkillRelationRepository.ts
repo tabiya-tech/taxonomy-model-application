@@ -34,6 +34,8 @@ export interface IOccupationToSkillRelationRepository {
     newOccupationToSkillRelationPairSpecs: INewOccupationToSkillPairSpec[]
   ): Promise<IOccupationToSkillRelationPair[]>;
 
+  updateRelation(modelId: string, spec: INewOccupationToSkillPairSpec): Promise<IOccupationToSkillRelationPair | null>;
+
   /**
    * Returns all OccupationToSkillRelation entries as a stream. The entries are transformed to objects (via the .toObject()).
    * @param {string} modelId - The modelId of the occupations.
@@ -137,6 +139,39 @@ export class OccupationToSkillRelationRepository implements IOccupationToSkillRe
       );
     }
     return newRelationsDocs.map((pair) => pair.toObject());
+  }
+
+  async updateRelation(
+    modelId: string,
+    spec: INewOccupationToSkillPairSpec
+  ): Promise<IOccupationToSkillRelationPair | null> {
+    if (!mongoose.Types.ObjectId.isValid(modelId)) {
+      const err = new Error(`Invalid modelId: ${modelId}`);
+      console.error("relation update failed", err);
+      throw err;
+    }
+
+    const updatedRelation = await this.relationModel
+      .findOneAndUpdate(
+        {
+          modelId: { $eq: modelId },
+          requiringOccupationId: { $eq: spec.requiringOccupationId },
+          requiringOccupationType: { $eq: spec.requiringOccupationType },
+          requiredSkillId: { $eq: spec.requiredSkillId },
+        },
+        {
+          $set: {
+            ...spec,
+            modelId,
+            requiringOccupationDocModel: MongooseModelName.Occupation,
+            requiredSkillDocModel: MongooseModelName.Skill,
+          },
+        },
+        { new: true, upsert: true, setDefaultsOnInsert: true }
+      )
+      .exec();
+
+    return updatedRelation?.toObject() ?? null;
   }
 
   findAll(modelId: string): Readable {

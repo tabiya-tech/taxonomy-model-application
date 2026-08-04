@@ -38,6 +38,7 @@ function setupOccupationHierarchyRepositoryMock(findAllImpl: () => Readable) {
     occupationModel: undefined as never,
     occupationGroupModel: undefined as never,
     createMany: jest.fn().mockResolvedValue(null),
+    replaceParent: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
   };
   OccupationHierarchyRepositorySpy.mockReturnValue(mockOccupationHierarchyRepository);

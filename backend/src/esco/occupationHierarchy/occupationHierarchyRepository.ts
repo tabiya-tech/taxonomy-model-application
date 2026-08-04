@@ -36,6 +36,8 @@ export interface IOccupationHierarchyRepository {
     newOccupationHierarchyPairSpecs: INewOccupationHierarchyPairSpec[]
   ): Promise<IOccupationHierarchyPair[]>;
 
+  replaceParent(modelId: string, spec: INewOccupationHierarchyPairSpec): Promise<IOccupationHierarchyPair | null>;
+
   /**
    * Returns all OccupationHierarchyPair entries as a stream. The entries are transformed to objects (via the .toObject()).
    * @param {string} modelId - The modelId of the occupations.
@@ -159,6 +161,34 @@ export class OccupationHierarchyRepository implements IOccupationHierarchyReposi
       );
     }
     return newHierarchyDocs.map((pair) => pair.toObject());
+  }
+
+  async replaceParent(
+    modelId: string,
+    spec: INewOccupationHierarchyPairSpec
+  ): Promise<IOccupationHierarchyPair | null> {
+    if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
+
+    const updatedPair = await this.hierarchyModel
+      .findOneAndUpdate(
+        {
+          modelId: { $eq: modelId },
+          childId: { $eq: spec.childId },
+          childType: { $eq: spec.childType },
+        },
+        {
+          $set: {
+            ...spec,
+            modelId,
+            parentDocModel: getModelName(spec.parentType),
+            childDocModel: getModelName(spec.childType),
+          },
+        },
+        { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true }
+      )
+      .exec();
+
+    return updatedPair?.toObject() ?? null;
   }
 
   findAll(modelId: string): Readable {

@@ -139,7 +139,7 @@ export class OccupationParentPATCHController {
           childOccupation.occupationType as unknown as import("esco/occupationHierarchy/occupationHierarchy.types").OccupationHierarchyChildType;
         const parentType =
           payload.objectType as unknown as import("esco/occupationHierarchy/occupationHierarchy.types").OccupationHierarchyParentType;
-        transformedParent = await hierarchyService.setParent(
+        transformedParent = await hierarchyService.replaceParent(
           params.modelId,
           params.id,
           childType,

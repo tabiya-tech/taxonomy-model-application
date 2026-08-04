@@ -66,6 +66,7 @@ describe("test parseOccupationToSkillRelation from", () => {
         skillModel: undefined as never,
         occupationModel: undefined as never,
         findAll: jest.fn(),
+        updateRelation: jest.fn().mockResolvedValue(null),
         createMany: jest
           .fn()
           .mockImplementation(
