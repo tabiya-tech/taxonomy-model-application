@@ -39,6 +39,15 @@ export interface IOccupationToSkillRelationService {
     signallingValue: number | null
   ): Promise<ISkillWithRelation>;
 
+  updateSkill(
+    modelId: string,
+    requiringOccupationId: string,
+    requiredSkillId: string,
+    relationType: OccupationToSkillRelationType,
+    signallingValueLabel: SignallingValueLabel,
+    signallingValue: number | null
+  ): Promise<ISkillWithRelation>;
+
   /**
    * Adds an occupation requirement to a skill.
    *

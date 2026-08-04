@@ -570,6 +570,99 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
     );
   });
 
+  describe("Test replaceParent()", () => {
+    test("should upsert the parent relationship for a child", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenParent = await repositoryRegistry.occupation.create(
+        getSimpleNewESCOOccupationSpec(givenModelId, "parent")
+      );
+      const givenChild = await repositoryRegistry.occupation.create(
+        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", givenParent.code)
+      );
+      const givenSpec: INewOccupationHierarchyPairSpec = {
+        parentId: givenParent.id,
+        parentType: givenParent.occupationType,
+        childId: givenChild.id,
+        childType: givenChild.occupationType,
+      };
+
+      const actualResult = await repository.replaceParent(givenModelId, givenSpec);
+
+      expect(actualResult).toEqual({
+        ...givenSpec,
+        id: expect.any(String),
+        modelId: givenModelId,
+        parentDocModel: MongooseModelName.Occupation,
+        childDocModel: MongooseModelName.Occupation,
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+      });
+    });
+
+    test("should replace an existing parent relationship for a child", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenParent = await repositoryRegistry.occupation.create(
+        getSimpleNewESCOOccupationSpec(givenModelId, "parent")
+      );
+      const givenReplacementParent = await repositoryRegistry.occupation.create(
+        getSimpleNewESCOOccupationSpec(givenModelId, "replacement-parent")
+      );
+      const givenChild = await repositoryRegistry.occupation.create(
+        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", givenReplacementParent.code)
+      );
+      await repository.hierarchyModel.create({
+        modelId: givenModelId,
+        parentId: givenParent.id,
+        parentType: givenParent.occupationType,
+        parentDocModel: MongooseModelName.Occupation,
+        childId: givenChild.id,
+        childType: givenChild.occupationType,
+        childDocModel: MongooseModelName.Occupation,
+      });
+      const givenReplacementSpec: INewOccupationHierarchyPairSpec = {
+        parentId: givenReplacementParent.id,
+        parentType: givenReplacementParent.occupationType,
+        childId: givenChild.id,
+        childType: givenChild.occupationType,
+      };
+
+      const actualResult = await repository.replaceParent(givenModelId, givenReplacementSpec);
+      const actualPersisted = await repository.hierarchyModel.find({ modelId: givenModelId }).exec();
+
+      expect(actualResult).toMatchObject(givenReplacementSpec);
+      expect(actualPersisted).toHaveLength(1);
+      expect(actualPersisted[0].parentId.toString()).toEqual(givenReplacementParent.id);
+    });
+
+    test("should throw for invalid modelId", async () => {
+      await expect(
+        repository.replaceParent("not-a-model-id", {
+          parentId: getMockStringId(1),
+          parentType: ObjectTypes.ESCOOccupation,
+          childId: getMockStringId(2),
+          childType: ObjectTypes.ESCOOccupation,
+        })
+      ).rejects.toThrow("Invalid modelId: not-a-model-id");
+    });
+
+    test("should return null when replace returns no document", async () => {
+      const mockExec = jest.fn().mockResolvedValue(null);
+      const mockFindOneAndUpdate = jest.spyOn(repository.hierarchyModel, "findOneAndUpdate");
+      // @ts-ignore
+      mockFindOneAndUpdate.mockReturnValue({ exec: mockExec });
+
+      const actualResult = await repository.replaceParent(getMockStringId(1), {
+        parentId: getMockStringId(2),
+        parentType: ObjectTypes.ESCOOccupation,
+        childId: getMockStringId(3),
+        childType: ObjectTypes.ESCOOccupation,
+      });
+
+      expect(actualResult).toBeNull();
+      mockFindOneAndUpdate.mockRestore();
+    });
+  });
+
   describe("Test findAll()", () => {
     test("should find all occupationHierarchies in the given model", async () => {
       // GIVEN some modelId

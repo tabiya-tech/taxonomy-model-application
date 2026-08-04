@@ -37,4 +37,12 @@ export interface IOccupationHierarchyService {
     parentId: string,
     parentType: OccupationHierarchyParentType
   ): Promise<IOccupation | IOccupationGroup>;
+
+  replaceParent(
+    modelId: string,
+    childId: string,
+    childType: OccupationHierarchyChildType,
+    parentId: string,
+    parentType: OccupationHierarchyParentType
+  ): Promise<IOccupation | IOccupationGroup>;
 }

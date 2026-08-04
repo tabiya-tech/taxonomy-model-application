@@ -32,7 +32,7 @@ describe("Test for occupation Skills PATCH handler", () => {
       validateModelForOccupation: jest.Mock;
     };
     occupationToSkillRelation: {
-      addSkill: jest.Mock;
+      updateSkill: jest.Mock;
     };
     initialize: jest.Mock;
   };
@@ -48,7 +48,7 @@ describe("Test for occupation Skills PATCH handler", () => {
         validateModelForOccupation: jest.fn(),
       },
       occupationToSkillRelation: {
-        addSkill: jest.fn(),
+        updateSkill: jest.fn(),
       },
       initialize: jest.fn(),
     };
@@ -108,12 +108,12 @@ describe("Test for occupation Skills PATCH handler", () => {
         signallingValue: null,
       };
 
-      mockServiceRegistry.occupationToSkillRelation.addSkill.mockResolvedValue(mockSkill);
+      mockServiceRegistry.occupationToSkillRelation.updateSkill.mockResolvedValue(mockSkill);
 
       const actualResponse = await patchOccupationSkillsHandler(givenEvent);
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-      expect(mockServiceRegistry.occupationToSkillRelation.addSkill).toHaveBeenCalledWith(
+      expect(mockServiceRegistry.occupationToSkillRelation.updateSkill).toHaveBeenCalledWith(
         givenModelId,
         givenOccupationId,
         givenSkillId,
@@ -153,7 +153,7 @@ describe("Test for occupation Skills PATCH handler", () => {
         signallingValue: null,
       };
 
-      mockServiceRegistry.occupationToSkillRelation.addSkill.mockResolvedValue(mockSkill);
+      mockServiceRegistry.occupationToSkillRelation.updateSkill.mockResolvedValue(mockSkill);
 
       const actualResponse = await patchOccupationSkillsHandler(givenEvent);
 
@@ -377,7 +377,7 @@ describe("Test for occupation Skills PATCH handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
-      mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
+      mockServiceRegistry.occupationToSkillRelation.updateSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.OCCUPATION_NOT_FOUND)
       );
 
@@ -402,7 +402,7 @@ describe("Test for occupation Skills PATCH handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
-      mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
+      mockServiceRegistry.occupationToSkillRelation.updateSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.SKILL_NOT_FOUND)
       );
 
@@ -427,7 +427,7 @@ describe("Test for occupation Skills PATCH handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
-      mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
+      mockServiceRegistry.occupationToSkillRelation.updateSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_RELATION_TYPE)
       );
 
@@ -452,7 +452,7 @@ describe("Test for occupation Skills PATCH handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
-      mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
+      mockServiceRegistry.occupationToSkillRelation.updateSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_SIGNALLING_VALUE_LABEL)
       );
 
@@ -478,7 +478,7 @@ describe("Test for occupation Skills PATCH handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
-      mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
+      mockServiceRegistry.occupationToSkillRelation.updateSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT)
       );
 
@@ -503,7 +503,7 @@ describe("Test for occupation Skills PATCH handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
-      mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
+      mockServiceRegistry.occupationToSkillRelation.updateSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.MUTUALLY_EXCLUSIVE_VALUES)
       );
 
@@ -528,7 +528,7 @@ describe("Test for occupation Skills PATCH handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
-      mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(new Error("generic error"));
+      mockServiceRegistry.occupationToSkillRelation.updateSkill.mockRejectedValue(new Error("generic error"));
 
       const actualResponse = await patchOccupationSkillsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -573,7 +573,7 @@ describe("Test for occupation Skills PATCH handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
-      mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue("string generic DB error");
+      mockServiceRegistry.occupationToSkillRelation.updateSkill.mockRejectedValue("string generic DB error");
 
       const actualResponse = await patchOccupationSkillsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);

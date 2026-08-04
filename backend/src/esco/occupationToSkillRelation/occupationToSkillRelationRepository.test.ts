@@ -560,6 +560,96 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
     );
   });
 
+  describe("Test updateRelation()", () => {
+    test("should upsert an occupation to skill relation", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenOccupation = await repositoryRegistry.occupation.create(
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation")
+      );
+      const givenSkill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill"));
+      const givenSpec: INewOccupationToSkillPairSpec = {
+        requiringOccupationId: givenOccupation.id,
+        requiringOccupationType: givenOccupation.occupationType,
+        requiredSkillId: givenSkill.id,
+        relationType: OccupationToSkillRelationType.ESSENTIAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+        signallingValue: null,
+      };
+
+      const actualResult = await repository.updateRelation(givenModelId, givenSpec);
+
+      expect(actualResult).toEqual({
+        ...givenSpec,
+        id: expect.any(String),
+        modelId: givenModelId,
+        requiringOccupationDocModel: MongooseModelName.Occupation,
+        requiredSkillDocModel: MongooseModelName.Skill,
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+      });
+    });
+
+    test("should update an existing occupation to skill relation", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenOccupation = await repositoryRegistry.occupation.create(
+        getSimpleNewESCOOccupationSpec(givenModelId, "occupation")
+      );
+      const givenSkill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill"));
+      const givenSpec: INewOccupationToSkillPairSpec = {
+        requiringOccupationId: givenOccupation.id,
+        requiringOccupationType: givenOccupation.occupationType,
+        requiredSkillId: givenSkill.id,
+        relationType: OccupationToSkillRelationType.OPTIONAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+        signallingValue: null,
+      };
+      await repository.createMany(givenModelId, [givenSpec]);
+
+      const actualResult = await repository.updateRelation(givenModelId, {
+        ...givenSpec,
+        relationType: OccupationToSkillRelationType.ESSENTIAL,
+      });
+      const actualPersisted = await repository.relationModel.find({ modelId: givenModelId }).exec();
+
+      expect(actualResult?.relationType).toEqual(OccupationToSkillRelationType.ESSENTIAL);
+      expect(actualPersisted).toHaveLength(1);
+      expect(actualPersisted[0].relationType).toEqual(OccupationToSkillRelationType.ESSENTIAL);
+    });
+
+    test("should throw for invalid modelId", async () => {
+      await expect(
+        repository.updateRelation("not-a-model-id", {
+          requiringOccupationId: getMockStringId(1),
+          requiringOccupationType: ObjectTypes.ESCOOccupation,
+          requiredSkillId: getMockStringId(2),
+          relationType: OccupationToSkillRelationType.ESSENTIAL,
+          signallingValueLabel: SignallingValueLabel.NONE,
+          signallingValue: null,
+        })
+      ).rejects.toThrow("Invalid modelId: not-a-model-id");
+      expect(console.error).toHaveBeenCalledWith("relation update failed", expect.any(Error));
+    });
+
+    test("should return null when update returns no document", async () => {
+      const mockExec = jest.fn().mockResolvedValue(null);
+      const mockFindOneAndUpdate = jest.spyOn(repository.relationModel, "findOneAndUpdate");
+      // @ts-ignore
+      mockFindOneAndUpdate.mockReturnValue({ exec: mockExec });
+
+      const actualResult = await repository.updateRelation(getMockStringId(1), {
+        requiringOccupationId: getMockStringId(2),
+        requiringOccupationType: ObjectTypes.ESCOOccupation,
+        requiredSkillId: getMockStringId(3),
+        relationType: OccupationToSkillRelationType.ESSENTIAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+        signallingValue: null,
+      });
+
+      expect(actualResult).toBeNull();
+      mockFindOneAndUpdate.mockRestore();
+    });
+  });
+
   describe("Test findAll()", () => {
     test("should find all occupationToSkills relations in the given model", async () => {
       // GIVEN some modelId

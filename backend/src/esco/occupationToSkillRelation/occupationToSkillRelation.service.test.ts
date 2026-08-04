@@ -23,6 +23,7 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
   };
   let relationRepositoryMock: {
     createMany: jest.Mock;
+    updateRelation: jest.Mock;
     relationModel: {
       deleteMany: jest.Mock;
     };
@@ -41,6 +42,7 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
     };
     relationRepositoryMock = {
       createMany: jest.fn(),
+      updateRelation: jest.fn(),
       relationModel: {
         deleteMany: jest.fn().mockResolvedValue({}),
       },
@@ -51,6 +53,106 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
       skillRepositoryMock as unknown as ISkillRepository,
       relationRepositoryMock as unknown as IOccupationToSkillRelationRepository
     );
+  });
+
+  describe("updateSkill", () => {
+    test("should update existing skill relationship metadata without deleting or creating the relation", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenSkillId = getMockStringId(3);
+      const mockChild = {
+        ...getIOccupationMockData(2),
+        id: givenOccupationId,
+        modelId: givenModelId,
+        occupationType: ObjectTypes.ESCOOccupation,
+      };
+      const mockSkill = {
+        ...getISkillMockData(3),
+        id: givenSkillId,
+        modelId: givenModelId,
+      };
+      occupationRepositoryMock.findById.mockResolvedValue(mockChild);
+      skillRepositoryMock.findById.mockResolvedValue(mockSkill);
+      relationRepositoryMock.updateRelation.mockResolvedValue({});
+
+      const result = await service.updateSkill(
+        givenModelId,
+        givenOccupationId,
+        givenSkillId,
+        OccupationToSkillRelationType.OPTIONAL,
+        SignallingValueLabel.NONE,
+        null
+      );
+
+      expect(result).toMatchObject({
+        id: givenSkillId,
+        relationType: OccupationToSkillRelationType.OPTIONAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+        signallingValue: null,
+      });
+      expect(relationRepositoryMock.updateRelation).toHaveBeenCalledWith(givenModelId, {
+        requiringOccupationId: givenOccupationId,
+        requiringOccupationType: ObjectTypes.ESCOOccupation,
+        requiredSkillId: givenSkillId,
+        relationType: OccupationToSkillRelationType.OPTIONAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+        signallingValue: null,
+      });
+      expect(relationRepositoryMock.createMany).not.toHaveBeenCalled();
+      expect(relationRepositoryMock.relationModel.deleteMany).not.toHaveBeenCalled();
+    });
+
+    test("should throw RELATION_CODE_INCONSISTENT when updateRelation returns null", async () => {
+      const givenModelId = getMockStringId(1);
+      occupationRepositoryMock.findById.mockResolvedValue({
+        modelId: givenModelId,
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+      skillRepositoryMock.findById.mockResolvedValue({
+        modelId: givenModelId,
+      });
+      relationRepositoryMock.updateRelation.mockResolvedValue(null);
+
+      await expect(
+        service.updateSkill(
+          givenModelId,
+          getMockStringId(2),
+          getMockStringId(3),
+          OccupationToSkillRelationType.ESSENTIAL,
+          SignallingValueLabel.NONE,
+          null
+        )
+      ).rejects.toThrow(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT)
+      );
+    });
+
+    test("should throw DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION when updateRelation fails with non-validation error", async () => {
+      const givenModelId = getMockStringId(1);
+      occupationRepositoryMock.findById.mockResolvedValue({
+        modelId: givenModelId,
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+      skillRepositoryMock.findById.mockResolvedValue({
+        modelId: givenModelId,
+      });
+      relationRepositoryMock.updateRelation.mockRejectedValue(new Error("Database write error"));
+
+      await expect(
+        service.updateSkill(
+          givenModelId,
+          getMockStringId(2),
+          getMockStringId(3),
+          OccupationToSkillRelationType.ESSENTIAL,
+          SignallingValueLabel.NONE,
+          null
+        )
+      ).rejects.toThrow(
+        new OccupationSkillValidationError(
+          SkillForOccupationValidationErrorCode.DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION
+        )
+      );
+    });
   });
 
   describe("addSkill", () => {

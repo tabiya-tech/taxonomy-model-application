@@ -32,7 +32,7 @@ describe("Test for occupation Parent PATCH handler", () => {
       findById: jest.Mock;
     };
     occupationHierarchy: {
-      setParent: jest.Mock;
+      replaceParent: jest.Mock;
     };
     initialize: jest.Mock;
   };
@@ -49,7 +49,7 @@ describe("Test for occupation Parent PATCH handler", () => {
         findById: jest.fn(),
       },
       occupationHierarchy: {
-        setParent: jest.fn(),
+        replaceParent: jest.fn(),
       },
       initialize: jest.fn(),
     };
@@ -104,12 +104,12 @@ describe("Test for occupation Parent PATCH handler", () => {
 
       const mockParent = getIOccupationMockData(2);
       mockParent.id = givenParentId;
-      mockServiceRegistry.occupationHierarchy.setParent.mockResolvedValue(mockParent);
+      mockServiceRegistry.occupationHierarchy.replaceParent.mockResolvedValue(mockParent);
 
       const actualResponse = await patchOccupationParentHandler(givenEvent);
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-      expect(mockServiceRegistry.occupationHierarchy.setParent).toHaveBeenCalledWith(
+      expect(mockServiceRegistry.occupationHierarchy.replaceParent).toHaveBeenCalledWith(
         givenModelId,
         givenOccupationId,
         mockChild.occupationType,
@@ -344,7 +344,7 @@ describe("Test for occupation Parent PATCH handler", () => {
       } as unknown as APIGatewayProxyEvent;
 
       mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
-      mockServiceRegistry.occupationHierarchy.setParent.mockRejectedValue(
+      mockServiceRegistry.occupationHierarchy.replaceParent.mockRejectedValue(
         new OccupationParentValidationError(ParentForOccupationValidationErrorCode.OCCUPATION_NOT_FOUND)
       );
 
@@ -373,7 +373,7 @@ describe("Test for occupation Parent PATCH handler", () => {
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
-      mockServiceRegistry.occupationHierarchy.setParent.mockRejectedValue(
+      mockServiceRegistry.occupationHierarchy.replaceParent.mockRejectedValue(
         new OccupationParentValidationError(ParentForOccupationValidationErrorCode.PARENT_NOT_FOUND)
       );
 
@@ -402,7 +402,7 @@ describe("Test for occupation Parent PATCH handler", () => {
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
-      mockServiceRegistry.occupationHierarchy.setParent.mockRejectedValue(
+      mockServiceRegistry.occupationHierarchy.replaceParent.mockRejectedValue(
         new OccupationParentValidationError(ParentForOccupationValidationErrorCode.INVALID_PARENT_TYPE)
       );
 
@@ -431,7 +431,7 @@ describe("Test for occupation Parent PATCH handler", () => {
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
-      mockServiceRegistry.occupationHierarchy.setParent.mockRejectedValue(
+      mockServiceRegistry.occupationHierarchy.replaceParent.mockRejectedValue(
         new OccupationParentValidationError(ParentForOccupationValidationErrorCode.PARENT_CHILD_CODE_INCONSISTENT)
       );
 
@@ -461,7 +461,7 @@ describe("Test for occupation Parent PATCH handler", () => {
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
-      mockServiceRegistry.occupationHierarchy.setParent.mockRejectedValue(
+      mockServiceRegistry.occupationHierarchy.replaceParent.mockRejectedValue(
         new OccupationParentValidationError(
           ParentForOccupationValidationErrorCode.DB_FAILED_TO_CREATE_OCCUPATION_PARENT
         )
@@ -493,7 +493,7 @@ describe("Test for occupation Parent PATCH handler", () => {
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
-      mockServiceRegistry.occupationHierarchy.setParent.mockRejectedValue(new Error("Generic DB error"));
+      mockServiceRegistry.occupationHierarchy.replaceParent.mockRejectedValue(new Error("Generic DB error"));
 
       const actualResponse = await patchOccupationParentHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -541,7 +541,7 @@ describe("Test for occupation Parent PATCH handler", () => {
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
-      mockServiceRegistry.occupationHierarchy.setParent.mockRejectedValue("string generic DB error");
+      mockServiceRegistry.occupationHierarchy.replaceParent.mockRejectedValue("string generic DB error");
 
       const actualResponse = await patchOccupationParentHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);

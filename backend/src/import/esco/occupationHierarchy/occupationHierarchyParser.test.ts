@@ -88,6 +88,7 @@ describe("test parseOccupationHierarchy from", () => {
         occupationModel: undefined as never,
         hierarchyModel: undefined as never,
         findAll: jest.fn(),
+        replaceParent: jest.fn().mockResolvedValue(null),
         createMany: jest
           .fn()
           .mockImplementation(

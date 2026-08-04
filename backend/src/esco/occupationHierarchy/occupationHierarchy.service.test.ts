@@ -22,9 +22,7 @@ describe("OccupationHierarchyService Unit Tests", () => {
   };
   let occupationHierarchyRepositoryMock: {
     createMany: jest.Mock;
-    hierarchyModel: {
-      deleteMany: jest.Mock;
-    };
+    replaceParent: jest.Mock;
   };
 
   let service: OccupationHierarchyService;
@@ -40,9 +38,7 @@ describe("OccupationHierarchyService Unit Tests", () => {
     };
     occupationHierarchyRepositoryMock = {
       createMany: jest.fn(),
-      hierarchyModel: {
-        deleteMany: jest.fn().mockResolvedValue({}),
-      },
+      replaceParent: jest.fn(),
     };
 
     service = new OccupationHierarchyService(
@@ -64,8 +60,15 @@ describe("OccupationHierarchyService Unit Tests", () => {
       occupationType: ObjectTypes.ESCOOccupation,
       modelId: givenModelId,
     };
+    const mockChild = {
+      ...getIOccupationMockData(2),
+      _id: new mongoose.Types.ObjectId(givenChildId),
+      code: "1234.1",
+      occupationType: ObjectTypes.ESCOOccupation,
+      modelId: givenModelId,
+    };
 
-    occupationRepositoryMock.findById.mockResolvedValue(mockParent);
+    occupationRepositoryMock.findById.mockResolvedValueOnce(mockParent).mockResolvedValueOnce(mockChild);
     occupationHierarchyRepositoryMock.createMany.mockResolvedValue([{}]);
 
     const result = await service.setParent(
@@ -99,8 +102,15 @@ describe("OccupationHierarchyService Unit Tests", () => {
       groupType: ObjectTypes.ISCOGroup,
       modelId: givenModelId,
     };
+    const mockGroupChild = {
+      ...getIOccupationGroupMockData(2),
+      _id: new mongoose.Types.ObjectId(givenChildId),
+      code: "123",
+      groupType: ObjectTypes.ISCOGroup,
+      modelId: givenModelId,
+    };
 
-    occupationGroupRepositoryMock.findById.mockResolvedValue(mockGroupParent);
+    occupationGroupRepositoryMock.findById.mockResolvedValueOnce(mockGroupParent).mockResolvedValueOnce(mockGroupChild);
     occupationHierarchyRepositoryMock.createMany.mockResolvedValue([{}]);
 
     const result = await service.setParent(
@@ -123,8 +133,15 @@ describe("OccupationHierarchyService Unit Tests", () => {
   });
 
   test("should throw PARENT_CHILD_CODE_INCONSISTENT when createMany returns empty array", async () => {
-    occupationRepositoryMock.findById.mockResolvedValue({
+    occupationRepositoryMock.findById.mockResolvedValueOnce({
       modelId: getMockStringId(1),
+      code: "1234",
+      occupationType: ObjectTypes.ESCOOccupation,
+    });
+    occupationRepositoryMock.findById.mockResolvedValueOnce({
+      modelId: getMockStringId(1),
+      code: "1234.1",
+      occupationType: ObjectTypes.ESCOOccupation,
     });
     occupationHierarchyRepositoryMock.createMany.mockResolvedValue([]);
 
@@ -142,8 +159,15 @@ describe("OccupationHierarchyService Unit Tests", () => {
   });
 
   test("should throw DB_FAILED_TO_CREATE_OCCUPATION_PARENT when createMany fails", async () => {
-    occupationRepositoryMock.findById.mockResolvedValue({
+    occupationRepositoryMock.findById.mockResolvedValueOnce({
       modelId: getMockStringId(1),
+      code: "1234",
+      occupationType: ObjectTypes.ESCOOccupation,
+    });
+    occupationRepositoryMock.findById.mockResolvedValueOnce({
+      modelId: getMockStringId(1),
+      code: "1234.1",
+      occupationType: ObjectTypes.ESCOOccupation,
     });
     occupationHierarchyRepositoryMock.createMany.mockRejectedValue(new Error("Database write error"));
 
@@ -190,5 +214,149 @@ describe("OccupationHierarchyService Unit Tests", () => {
         ObjectTypes.ESCOOccupation
       )
     ).rejects.toThrow(new OccupationParentValidationError(ParentForOccupationValidationErrorCode.PARENT_NOT_FOUND));
+  });
+
+  test("should throw OCCUPATION_NOT_FOUND if child has wrong modelId", async () => {
+    occupationRepositoryMock.findById
+      .mockResolvedValueOnce({
+        modelId: getMockStringId(1),
+        code: "1234",
+        occupationType: ObjectTypes.ESCOOccupation,
+      })
+      .mockResolvedValueOnce({
+        modelId: getMockStringId(999),
+        code: "1234.1",
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+
+    await expect(
+      service.setParent(
+        getMockStringId(1),
+        getMockStringId(2),
+        ObjectTypes.ESCOOccupation,
+        getMockStringId(3),
+        ObjectTypes.ESCOOccupation
+      )
+    ).rejects.toThrow(new OccupationParentValidationError(ParentForOccupationValidationErrorCode.OCCUPATION_NOT_FOUND));
+    expect(occupationHierarchyRepositoryMock.createMany).not.toHaveBeenCalled();
+  });
+
+  test("should throw PARENT_CHILD_CODE_INCONSISTENT before writing when codes are inconsistent", async () => {
+    occupationRepositoryMock.findById
+      .mockResolvedValueOnce({
+        modelId: getMockStringId(1),
+        code: "1234",
+        occupationType: ObjectTypes.ESCOOccupation,
+      })
+      .mockResolvedValueOnce({
+        modelId: getMockStringId(1),
+        code: "5678.1",
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+
+    await expect(
+      service.setParent(
+        getMockStringId(1),
+        getMockStringId(2),
+        ObjectTypes.ESCOOccupation,
+        getMockStringId(3),
+        ObjectTypes.ESCOOccupation
+      )
+    ).rejects.toThrow(
+      new OccupationParentValidationError(ParentForOccupationValidationErrorCode.PARENT_CHILD_CODE_INCONSISTENT)
+    );
+    expect(occupationHierarchyRepositoryMock.createMany).not.toHaveBeenCalled();
+  });
+
+  test("should replace parent after validating without deleting the existing relationship", async () => {
+    const givenModelId = getMockStringId(1);
+    const givenChildId = getMockStringId(2);
+    const givenParentId = getMockStringId(3);
+    const mockParent = {
+      ...getIOccupationMockData(3),
+      code: "1234",
+      occupationType: ObjectTypes.ESCOOccupation,
+      modelId: givenModelId,
+    };
+    const mockChild = {
+      ...getIOccupationMockData(2),
+      code: "1234.1",
+      occupationType: ObjectTypes.ESCOOccupation,
+      modelId: givenModelId,
+    };
+    occupationRepositoryMock.findById.mockResolvedValueOnce(mockParent).mockResolvedValueOnce(mockChild);
+    occupationHierarchyRepositoryMock.replaceParent.mockResolvedValue({});
+
+    const result = await service.replaceParent(
+      givenModelId,
+      givenChildId,
+      ObjectTypes.ESCOOccupation,
+      givenParentId,
+      ObjectTypes.ESCOOccupation
+    );
+
+    expect(result).toEqual(mockParent);
+    expect(occupationHierarchyRepositoryMock.replaceParent).toHaveBeenCalledWith(givenModelId, {
+      parentId: givenParentId,
+      parentType: ObjectTypes.ESCOOccupation,
+      childId: givenChildId,
+      childType: ObjectTypes.ESCOOccupation,
+    });
+  });
+
+  test("should throw PARENT_CHILD_CODE_INCONSISTENT when replaceParent returns null", async () => {
+    const givenModelId = getMockStringId(1);
+    occupationRepositoryMock.findById
+      .mockResolvedValueOnce({
+        modelId: givenModelId,
+        code: "1234",
+        occupationType: ObjectTypes.ESCOOccupation,
+      })
+      .mockResolvedValueOnce({
+        modelId: givenModelId,
+        code: "1234.1",
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+    occupationHierarchyRepositoryMock.replaceParent.mockResolvedValue(null);
+
+    await expect(
+      service.replaceParent(
+        givenModelId,
+        getMockStringId(2),
+        ObjectTypes.ESCOOccupation,
+        getMockStringId(3),
+        ObjectTypes.ESCOOccupation
+      )
+    ).rejects.toThrow(
+      new OccupationParentValidationError(ParentForOccupationValidationErrorCode.PARENT_CHILD_CODE_INCONSISTENT)
+    );
+  });
+
+  test("should throw DB_FAILED_TO_CREATE_OCCUPATION_PARENT when replaceParent fails", async () => {
+    const givenModelId = getMockStringId(1);
+    occupationRepositoryMock.findById
+      .mockResolvedValueOnce({
+        modelId: givenModelId,
+        code: "1234",
+        occupationType: ObjectTypes.ESCOOccupation,
+      })
+      .mockResolvedValueOnce({
+        modelId: givenModelId,
+        code: "1234.1",
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+    occupationHierarchyRepositoryMock.replaceParent.mockRejectedValue(new Error("Database write error"));
+
+    await expect(
+      service.replaceParent(
+        givenModelId,
+        getMockStringId(2),
+        ObjectTypes.ESCOOccupation,
+        getMockStringId(3),
+        ObjectTypes.ESCOOccupation
+      )
+    ).rejects.toThrow(
+      new OccupationParentValidationError(ParentForOccupationValidationErrorCode.DB_FAILED_TO_CREATE_OCCUPATION_PARENT)
+    );
   });
 });

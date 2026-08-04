@@ -133,7 +133,7 @@ export class OccupationSkillsPATCHController {
       const relationService = getServiceRegistry().occupationToSkillRelation;
       let transformedSkill;
       try {
-        transformedSkill = await relationService.addSkill(
+        transformedSkill = await relationService.updateSkill(
           params.modelId,
           params.id,
           payload.requiredSkillId,
