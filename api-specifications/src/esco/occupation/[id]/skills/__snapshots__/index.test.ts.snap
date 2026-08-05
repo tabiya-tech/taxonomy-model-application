@@ -794,7 +794,7 @@ exports[`Test the Occupation Skills Instance Detail module The export module mat
                 "maxLength": 256,
                 "type": "string",
               },
-              "maxItems": 100,
+              "maxItems": 200,
               "minItems": 0,
               "type": "array",
               "uniqueItems": true,
