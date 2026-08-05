@@ -114,6 +114,17 @@ describe("Test for occupation Parent PATCH handler with a DB", () => {
       regulatedProfessionNote: "child regulatedProfessionNote",
     });
 
+    // Create an existing child-parent link in the DB, which the PATCH should update
+    const createdPairs = await getRepositoryRegistry().occupationHierarchy.createMany(givenModelId, [
+      {
+        parentId: givenParent.id,
+        parentType: givenParent.occupationType as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation,
+        childId: givenChild.id,
+        childType: givenChild.occupationType as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation,
+      },
+    ]);
+    expect(createdPairs).toHaveLength(1);
+
     const payload = {
       id: givenParent.id,
       objectType: ObjectTypes.ESCOOccupation,

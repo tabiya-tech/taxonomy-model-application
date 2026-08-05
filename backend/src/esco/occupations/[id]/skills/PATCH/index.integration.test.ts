@@ -12,6 +12,7 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { SignallingValueLabel } from "esco/common/objectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
@@ -112,6 +113,19 @@ describe("Test for occupation Skills PATCH handler with a DB", () => {
       reuseLevel: ReuseLevel.CrossSector,
       skillType: SkillType.Knowledge,
     });
+
+    // Create an existing relation in the DB, which the PATCH should update
+    const createdRelations = await getRepositoryRegistry().occupationToSkillRelation.createMany(givenModelId, [
+      {
+        requiringOccupationId: givenChild.id,
+        requiringOccupationType: givenChild.occupationType as ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation,
+        requiredSkillId: givenSkill.id,
+        relationType: OccupationAPISpecs.Enums.OccupationToSkillRelationType.OPTIONAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+        signallingValue: null,
+      },
+    ]);
+    expect(createdRelations).toHaveLength(1);
 
     // Now PATCH relation to ESSENTIAL
     const payload = {
