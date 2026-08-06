@@ -4,6 +4,7 @@ import SkillTypes from "../../_shared/types";
 
 import GETSkillOccupationsOperation from "./GET";
 import POSTSkillOccupationsOperation from "./POST";
+import PATCHSkillOccupationsOperation from "./PATCH";
 
 namespace SkillOccupationsAPISpecs {
   export import Constants = SkillConstants;
@@ -12,6 +13,7 @@ namespace SkillOccupationsAPISpecs {
 
   export import GET = GETSkillOccupationsOperation;
   export import POST = POSTSkillOccupationsOperation;
+  export import PATCH = PATCHSkillOccupationsOperation;
 }
 
 export default SkillOccupationsAPISpecs;
