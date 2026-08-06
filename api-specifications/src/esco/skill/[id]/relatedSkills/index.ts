@@ -4,6 +4,7 @@ import SkillTypes from "../../_shared/types";
 
 import GETRelatedSkillsOperation from "./GET";
 import POSTRelatedSkillsOperation from "./POST";
+import PATCHRelatedSkillsOperation from "./PATCH";
 
 namespace SkillRelatedSkillsAPISpecs {
   export import Constants = SkillConstants;
@@ -12,6 +13,7 @@ namespace SkillRelatedSkillsAPISpecs {
 
   export import GET = GETRelatedSkillsOperation;
   export import POST = POSTRelatedSkillsOperation;
+  export import PATCH = PATCHRelatedSkillsOperation;
 }
 
 export default SkillRelatedSkillsAPISpecs;

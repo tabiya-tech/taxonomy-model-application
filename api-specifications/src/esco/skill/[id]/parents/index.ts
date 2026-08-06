@@ -4,6 +4,7 @@ import SkillTypes from "../../_shared/types";
 
 import GETSkillParentsOperation from "./GET";
 import POSTSkillParentsOperation from "./POST";
+import PATCHSkillParentsOperation from "./PATCH";
 
 namespace SkillParentsAPISpecs {
   export import Constants = SkillConstants;
@@ -12,6 +13,7 @@ namespace SkillParentsAPISpecs {
 
   export import GET = GETSkillParentsOperation;
   export import POST = POSTSkillParentsOperation;
+  export import PATCH = PATCHSkillParentsOperation;
 }
 
 export default SkillParentsAPISpecs;
