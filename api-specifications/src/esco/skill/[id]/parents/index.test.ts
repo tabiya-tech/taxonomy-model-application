@@ -6,6 +6,8 @@ describe("Test the Skill Parents module", () => {
 
     expect(module.default.GET.Schemas.Response.Payload).toBeDefined();
     expect(module.default.POST.Schemas.Response.Payload).toBeDefined();
+    expect(module.default.PATCH.Schemas.Request.Payload).toBeDefined();
+    expect(module.default.PATCH.Schemas.Response.Payload).toBeDefined();
     expect(module.default.Constants).toBeDefined();
     expect(module.default.Enums).toBeDefined();
   });
