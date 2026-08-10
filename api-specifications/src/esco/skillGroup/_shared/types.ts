@@ -153,6 +153,24 @@ namespace SkillGroupTypes {
     }
   }
 
+  export namespace Detail.PUT {
+    export namespace Request {
+      export type Payload = ISkillGroupRequest;
+    }
+    export namespace Response {
+      export type Payload = ISkillGroupResponse;
+    }
+  }
+
+  export namespace Detail.PATCH {
+    export namespace Request {
+      export type Payload = Partial<ISkillGroupRequest>;
+    }
+    export namespace Response {
+      export type Payload = ISkillGroupResponse;
+    }
+  }
+
   export namespace GET {
     export namespace Response {
       export type SkillGroupItem = ISkillGroupResponse;
