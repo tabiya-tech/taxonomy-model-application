@@ -390,6 +390,34 @@ describe("SkillHierarchyService", () => {
       );
     });
 
+    test("should throw PARENT_CHILD_CODE_INCONSISTENT if the child is set as its own parent", async () => {
+      // GIVEN that a taxonomy model exists
+      const modelId = getMockStringId(1);
+      // AND a child skill exists
+      const childId = getMockStringId(2);
+
+      const mockChild = getISkillMockData(1) as ISkill;
+      mockChild.id = childId;
+      mockChild.modelId = modelId;
+      mockSkillRepository.findById.mockResolvedValue(mockChild);
+
+      // WHEN an attempt is made to set the child as its own parent
+      const actualResultPromise = skillHierarchyService.setParent(
+        modelId,
+        childId,
+        ObjectTypes.Skill,
+        childId,
+        ObjectTypes.Skill
+      );
+
+      // THEN expect a validation error indicating the relationship is inconsistent
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillParentValidationError(ParentForSkillValidationErrorCode.PARENT_CHILD_CODE_INCONSISTENT)
+      );
+      // AND expect the hierarchy repository not to be called
+      expect(mockSkillHierarchyRepository.createMany).not.toHaveBeenCalled();
+    });
+
     it("should throw DB_FAILED_TO_CREATE_SKILL_PARENT if repository throws unknown error", async () => {
       // GIVEN that a taxonomy model exists
       const modelId = getMockStringId(1);
@@ -517,18 +545,21 @@ describe("SkillHierarchyService", () => {
     });
 
     test("should successfully update the parent of a SkillGroup child", async () => {
-      // GIVEN a skillGroup child and a new parent skill exist in the model
+      // GIVEN a skillGroup child and a new skillGroup parent exist in the model
       const mockChild = getISkillGroupMockData(1) as ISkillGroup;
       mockChild.id = childId;
       mockChild.modelId = modelId;
 
-      const mockParent = getISkillMockData(2) as ISkill;
+      const mockParent = getISkillGroupMockData(2) as ISkillGroup;
       mockParent.id = parentId;
       mockParent.modelId = modelId;
 
-      // AND the child is retrieved from the skillGroup repository
-      mockSkillGroupRepository.findById.mockResolvedValue(mockChild);
-      mockSkillRepository.findById.mockResolvedValue(mockParent);
+      // AND the child and the parent are retrieved from the skillGroup repository
+      mockSkillGroupRepository.findById.mockImplementation((id: string) => {
+        if (id === childId) return Promise.resolve(mockChild);
+        if (id === parentId) return Promise.resolve(mockParent);
+        return Promise.resolve(null);
+      });
 
       mockSkillHierarchyRepository.updateParent.mockResolvedValue({
         id: getMockStringId(10),
@@ -536,9 +567,9 @@ describe("SkillHierarchyService", () => {
         childId,
         parentId,
         childType: ObjectTypes.SkillGroup,
-        parentType: ObjectTypes.Skill,
+        parentType: ObjectTypes.SkillGroup,
         childDocModel: MongooseModelName.SkillGroup,
-        parentDocModel: MongooseModelName.Skill,
+        parentDocModel: MongooseModelName.SkillGroup,
         createdAt: new Date(),
         updatedAt: new Date(),
       } as ISkillHierarchyPair);
@@ -549,14 +580,14 @@ describe("SkillHierarchyService", () => {
         childId,
         ObjectTypes.SkillGroup,
         parentId,
-        ObjectTypes.Skill
+        ObjectTypes.SkillGroup
       );
 
       // THEN expect the new parent to be returned
       expect(result).toEqual(mockParent);
       expect(mockSkillHierarchyRepository.updateParent).toHaveBeenCalledWith(modelId, {
         parentId,
-        parentType: ObjectTypes.Skill,
+        parentType: ObjectTypes.SkillGroup,
         childId,
         childType: ObjectTypes.SkillGroup,
       } as INewSkillHierarchyPairSpec);
@@ -680,6 +711,59 @@ describe("SkillHierarchyService", () => {
       await expect(actualResultPromise).rejects.toThrow(
         new SkillParentValidationError(ParentForSkillValidationErrorCode.DB_FAILED_TO_UPDATE_SKILL_PARENT_RELATION)
       );
+    });
+
+    test("should throw PARENT_CHILD_CODE_INCONSISTENT if the child is set as its own parent", async () => {
+      // GIVEN a child skill exists in the model
+      const mockChild = getISkillMockData(1) as ISkill;
+      mockChild.id = childId;
+      mockChild.modelId = modelId;
+      mockSkillRepository.findById.mockResolvedValue(mockChild);
+
+      // WHEN an attempt is made to set the child as its own parent
+      const actualResultPromise = skillHierarchyService.updateParent(
+        modelId,
+        childId,
+        ObjectTypes.Skill,
+        childId,
+        ObjectTypes.Skill
+      );
+
+      // THEN expect a validation error indicating the relationship is inconsistent
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillParentValidationError(ParentForSkillValidationErrorCode.PARENT_CHILD_CODE_INCONSISTENT)
+      );
+      // AND expect the hierarchy repository not to be called
+      expect(mockSkillHierarchyRepository.updateParent).not.toHaveBeenCalled();
+    });
+
+    test("should throw PARENT_CHILD_CODE_INCONSISTENT if the relationship pair types are invalid", async () => {
+      // GIVEN a skillGroup child and a skill parent exist in the model
+      const mockChild = getISkillGroupMockData(1) as ISkillGroup;
+      mockChild.id = childId;
+      mockChild.modelId = modelId;
+      mockSkillGroupRepository.findById.mockResolvedValue(mockChild);
+
+      const mockParent = getISkillMockData(2) as ISkill;
+      mockParent.id = parentId;
+      mockParent.modelId = modelId;
+      mockSkillRepository.findById.mockResolvedValue(mockParent);
+
+      // WHEN an attempt is made to set a skill as the parent of a skillGroup
+      const actualResultPromise = skillHierarchyService.updateParent(
+        modelId,
+        childId,
+        ObjectTypes.SkillGroup,
+        parentId,
+        ObjectTypes.Skill
+      );
+
+      // THEN expect a validation error indicating the relationship is inconsistent
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillParentValidationError(ParentForSkillValidationErrorCode.PARENT_CHILD_CODE_INCONSISTENT)
+      );
+      // AND expect the hierarchy repository not to be called
+      expect(mockSkillHierarchyRepository.updateParent).not.toHaveBeenCalled();
     });
   });
 });
