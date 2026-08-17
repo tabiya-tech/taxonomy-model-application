@@ -14,6 +14,7 @@ import {
   SkillHierarchyChildType,
   INewSkillHierarchyPairSpec,
 } from "esco/skillHierarchy/skillHierarchy.types";
+import { isNewSkillHierarchyPairSpecValid } from "esco/skillHierarchy/skillHierarchyValidation";
 
 export class SkillHierarchyService implements ISkillHierarchyService {
   private readonly skillRepository: ISkillRepository;
@@ -30,6 +31,39 @@ export class SkillHierarchyService implements ISkillHierarchyService {
     this.skillHierarchyRepository = skillHierarchyRepository;
   }
 
+  private async findEntityByType(
+    id: string,
+    type: SkillHierarchyParentType | SkillHierarchyChildType
+  ): Promise<ISkill | ISkillGroup | null> {
+    if (type === ObjectTypes.SkillGroup) {
+      return this.skillGroupRepository.findById(id);
+    }
+    return this.skillRepository.findById(id);
+  }
+
+  private async validateParentChild(modelId: string, spec: INewSkillHierarchyPairSpec): Promise<ISkill | ISkillGroup> {
+    const parentEntity = await this.findEntityByType(spec.parentId, spec.parentType);
+    if (!parentEntity || parentEntity.modelId !== modelId) {
+      throw new SkillParentValidationError(ParentForSkillValidationErrorCode.PARENT_NOT_FOUND);
+    }
+
+    const childEntity = await this.findEntityByType(spec.childId, spec.childType);
+    if (!childEntity || childEntity.modelId !== modelId) {
+      throw new SkillParentValidationError(ParentForSkillValidationErrorCode.SKILL_NOT_FOUND);
+    }
+
+    const existingIds = new Map<string, ObjectTypes[]>([
+      [spec.parentId, [spec.parentType]],
+      [spec.childId, [spec.childType]],
+    ]);
+
+    if (!isNewSkillHierarchyPairSpecValid(spec, existingIds)) {
+      throw new SkillParentValidationError(ParentForSkillValidationErrorCode.PARENT_CHILD_CODE_INCONSISTENT);
+    }
+
+    return parentEntity;
+  }
+
   async setParent(
     modelId: string,
     childId: string,
@@ -38,34 +72,14 @@ export class SkillHierarchyService implements ISkillHierarchyService {
     parentType: SkillHierarchyParentType
   ): Promise<ISkill | ISkillGroup> {
     try {
-      let parentEntity: ISkill | ISkillGroup | null = null;
-      if (parentType === ObjectTypes.SkillGroup) {
-        parentEntity = await this.skillGroupRepository.findById(parentId);
-      } else {
-        parentEntity = await this.skillRepository.findById(parentId);
-      }
-
-      if (!parentEntity || parentEntity.modelId !== modelId) {
-        throw new SkillParentValidationError(ParentForSkillValidationErrorCode.PARENT_NOT_FOUND);
-      }
-
-      let childEntity: ISkill | ISkillGroup | null = null;
-      if (childType === ObjectTypes.SkillGroup) {
-        childEntity = await this.skillGroupRepository.findById(childId);
-      } else {
-        childEntity = await this.skillRepository.findById(childId);
-      }
-
-      if (!childEntity || childEntity.modelId !== modelId) {
-        throw new SkillParentValidationError(ParentForSkillValidationErrorCode.SKILL_NOT_FOUND);
-      }
-
       const spec: INewSkillHierarchyPairSpec = {
         parentId,
         parentType,
         childId,
         childType,
       };
+
+      const parentEntity = await this.validateParentChild(modelId, spec);
 
       const createdPairs = await this.skillHierarchyRepository.createMany(modelId, [spec]);
 
@@ -88,34 +102,14 @@ export class SkillHierarchyService implements ISkillHierarchyService {
     parentType: SkillHierarchyParentType
   ): Promise<ISkill | ISkillGroup | null> {
     try {
-      let parentEntity: ISkill | ISkillGroup | null = null;
-      if (parentType === ObjectTypes.SkillGroup) {
-        parentEntity = await this.skillGroupRepository.findById(parentId);
-      } else {
-        parentEntity = await this.skillRepository.findById(parentId);
-      }
-
-      if (!parentEntity || parentEntity.modelId !== modelId) {
-        throw new SkillParentValidationError(ParentForSkillValidationErrorCode.PARENT_NOT_FOUND);
-      }
-
-      let childEntity: ISkill | ISkillGroup | null = null;
-      if (childType === ObjectTypes.SkillGroup) {
-        childEntity = await this.skillGroupRepository.findById(childId);
-      } else {
-        childEntity = await this.skillRepository.findById(childId);
-      }
-
-      if (!childEntity || childEntity.modelId !== modelId) {
-        throw new SkillParentValidationError(ParentForSkillValidationErrorCode.SKILL_NOT_FOUND);
-      }
-
       const spec: INewSkillHierarchyPairSpec = {
         parentId,
         parentType,
         childId,
         childType,
       };
+
+      const parentEntity = await this.validateParentChild(modelId, spec);
 
       const updatedPair = await this.skillHierarchyRepository.updateParent(modelId, spec);
 
