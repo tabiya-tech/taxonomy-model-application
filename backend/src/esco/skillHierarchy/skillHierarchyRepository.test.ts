@@ -823,6 +823,89 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
     );
   });
 
+  describe("Test updateParent()", () => {
+    test("should return null when no existing pair exists (no upsert)", async () => {
+      // GIVEN a valid modelId, a skillGroup and a skill exist in the database
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroup = await repositoryRegistry.skillGroup.create(
+        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+      );
+      const givenSkill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSpec: INewSkillHierarchyPairSpec = {
+        parentId: givenSkillGroup.id,
+        parentType: ObjectTypes.SkillGroup,
+        childId: givenSkill.id,
+        childType: ObjectTypes.Skill,
+      };
+      // AND no prior hierarchy pair exists for this child
+
+      // WHEN updateParent is called without a pre-existing pair
+      const actualResult = await repository.updateParent(givenModelId, givenSpec);
+
+      // THEN expect null to be returned (no upsert)
+      expect(actualResult).toBeNull();
+      // AND no record to have been created in the database
+      const persistedCount = await repository.hierarchyModel.countDocuments({ modelId: givenModelId }).exec();
+      expect(persistedCount).toBe(0);
+    });
+
+    test("should update the parent of an existing hierarchy pair", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
+        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+      );
+      const givenSkillGroup_2 = await repositoryRegistry.skillGroup.create(
+        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_2")
+      );
+      const givenSkill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSpec: INewSkillHierarchyPairSpec = {
+        parentId: givenSkillGroup_1.id,
+        parentType: ObjectTypes.SkillGroup,
+        childId: givenSkill.id,
+        childType: ObjectTypes.Skill,
+      };
+      await repository.createMany(givenModelId, [givenSpec]);
+
+      const actualResult = await repository.updateParent(givenModelId, {
+        ...givenSpec,
+        parentId: givenSkillGroup_2.id,
+      });
+      const actualPersisted = await repository.hierarchyModel.find({ modelId: givenModelId }).exec();
+
+      expect(actualResult?.parentId.toString()).toEqual(givenSkillGroup_2.id);
+      expect(actualPersisted).toHaveLength(1);
+      expect(actualPersisted[0].parentId.toString()).toEqual(givenSkillGroup_2.id);
+    });
+
+    test("should throw for invalid modelId", async () => {
+      await expect(
+        repository.updateParent("not-a-model-id", {
+          parentId: getMockStringId(1),
+          parentType: ObjectTypes.SkillGroup,
+          childId: getMockStringId(2),
+          childType: ObjectTypes.Skill,
+        })
+      ).rejects.toThrow("Invalid modelId: not-a-model-id");
+    });
+
+    test("should return null when update returns no document", async () => {
+      const mockExec = jest.fn().mockResolvedValue(null);
+      const mockFindOneAndUpdate = jest.spyOn(repository.hierarchyModel, "findOneAndUpdate");
+      // @ts-ignore
+      mockFindOneAndUpdate.mockReturnValue({ exec: mockExec });
+
+      const actualResult = await repository.updateParent(getMockStringId(1), {
+        parentId: getMockStringId(2),
+        parentType: ObjectTypes.SkillGroup,
+        childId: getMockStringId(3),
+        childType: ObjectTypes.Skill,
+      });
+
+      expect(actualResult).toBeNull();
+      mockFindOneAndUpdate.mockRestore();
+    });
+  });
+
   describe("Test findAll()", () => {
     test("should find all skillHierarchies in the given model", async () => {
       // GIVEN some modelId

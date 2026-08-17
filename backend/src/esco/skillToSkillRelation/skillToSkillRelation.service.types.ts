@@ -6,6 +6,7 @@ export enum SkillToSkillRelationValidationErrorCode {
   RELATED_SKILL_NOT_FOUND = "RELATED_SKILL_NOT_FOUND",
   RELATION_CODE_INCONSISTENT = "RELATION_CODE_INCONSISTENT",
   DB_FAILED_TO_CREATE_RELATION = "DB_FAILED_TO_CREATE_RELATION",
+  DB_FAILED_TO_UPDATE_SKILL_RELATION = "DB_FAILED_TO_UPDATE_SKILL_RELATION",
 }
 
 export class SkillToSkillRelationValidationError extends Error {
@@ -34,5 +35,23 @@ export interface ISkillToSkillRelationService {
     requiringSkillId: string,
     requiredSkillId: string,
     relationType: SkillToSkillRelationType
+  ): Promise<SkillToSkillReferenceWithRelationType<ISkill>>;
+
+  /**
+   * Updates the relation between two skills.
+   *
+   * @param modelId - The ID of the model.
+   * @param requiringSkillId - The ID of the skill that requires the other skill.
+   * @param requiredSkillId - The ID of the required skill.
+   * @param relationType - The type of relation (e.g., essential, optional). If not provided,
+   * the existing relation type of the relation is preserved.
+   * @returns A promise that resolves to the populated related skill with the resulting relation type.
+   * @throws {SkillToSkillRelationValidationError} If validation fails or DB operation fails.
+   */
+  updateRelatedSkill(
+    modelId: string,
+    requiringSkillId: string,
+    requiredSkillId: string,
+    relationType?: SkillToSkillRelationType
   ): Promise<SkillToSkillReferenceWithRelationType<ISkill>>;
 }

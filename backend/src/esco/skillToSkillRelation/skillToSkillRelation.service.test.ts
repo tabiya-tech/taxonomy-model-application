@@ -16,7 +16,9 @@ import { ISkillToSkillRelationRepository } from "./skillToSkillRelationRepositor
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 
 type MockSkillRepository = jest.Mocked<Pick<ISkillRepository, "findById">>;
-type MockSkillToSkillRelationRepository = jest.Mocked<Pick<ISkillToSkillRelationRepository, "createMany">>;
+type MockSkillToSkillRelationRepository = jest.Mocked<
+  Pick<ISkillToSkillRelationRepository, "createMany" | "updateRelation" | "findRelation">
+>;
 
 describe("SkillToSkillRelationService", () => {
   let skillToSkillRelationService: SkillToSkillRelationService;
@@ -29,6 +31,8 @@ describe("SkillToSkillRelationService", () => {
     };
     mockSkillToSkillRelationRepository = {
       createMany: jest.fn(),
+      updateRelation: jest.fn(),
+      findRelation: jest.fn(),
     };
 
     skillToSkillRelationService = new SkillToSkillRelationService(
@@ -340,6 +344,208 @@ describe("SkillToSkillRelationService", () => {
       // THEN expect an error indicating the database failed to create the relation
       await expect(actualResultPromise).rejects.toThrow(
         new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.DB_FAILED_TO_CREATE_RELATION)
+      );
+    });
+  });
+
+  describe("updateRelatedSkill", () => {
+    const givenModelId = getMockStringId(1);
+    const givenRequiringSkillId = getMockStringId(2);
+    const givenRequiredSkillId = getMockStringId(3);
+
+    function givenSkillsExist() {
+      const givenMockRequiringSkill = getISkillMockData(1) as ISkill;
+      givenMockRequiringSkill.id = givenRequiringSkillId;
+      givenMockRequiringSkill.modelId = givenModelId;
+
+      const givenMockRequiredSkill = getISkillMockData(2) as ISkill;
+      givenMockRequiredSkill.id = givenRequiredSkillId;
+      givenMockRequiredSkill.modelId = givenModelId;
+
+      mockSkillRepository.findById.mockImplementation((id: string) => {
+        if (id === givenRequiringSkillId) return Promise.resolve(givenMockRequiringSkill);
+        if (id === givenRequiredSkillId) return Promise.resolve(givenMockRequiredSkill);
+        return Promise.resolve(null);
+      });
+      return { givenMockRequiredSkill };
+    }
+
+    function givenRelationExists(relationType: SkillToSkillRelationType) {
+      mockSkillToSkillRelationRepository.updateRelation.mockResolvedValue({
+        id: getMockStringId(10),
+        modelId: givenModelId,
+        requiringSkillId: givenRequiringSkillId,
+        requiringSkillDocModel: MongooseModelName.Skill,
+        requiredSkillId: givenRequiredSkillId,
+        requiredSkillDocModel: MongooseModelName.Skill,
+        relationType: relationType,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as ISkillToSkillRelationPair);
+    }
+
+    test("should successfully update the relation type of a related skill", async () => {
+      // GIVEN both skills exist
+      const { givenMockRequiredSkill } = givenSkillsExist();
+      // AND an existing relation between them
+      givenRelationExists(SkillToSkillRelationType.OPTIONAL);
+      const givenRelationType = SkillToSkillRelationType.ESSENTIAL;
+
+      // WHEN the relation is updated with a new relation type
+      const actualResult = await skillToSkillRelationService.updateRelatedSkill(
+        givenModelId,
+        givenRequiringSkillId,
+        givenRequiredSkillId,
+        givenRelationType
+      );
+
+      // THEN expect the populated related skill with the new relation type to be returned
+      expect(actualResult).toEqual({ ...givenMockRequiredSkill, relationType: givenRelationType });
+      // AND expect the repository to have been called to update the relation
+      expect(mockSkillToSkillRelationRepository.updateRelation).toHaveBeenCalledWith(givenModelId, {
+        requiringSkillId: givenRequiringSkillId,
+        requiredSkillId: givenRequiredSkillId,
+        relationType: givenRelationType,
+      } as INewSkillToSkillPairSpec);
+      // AND expect findRelation not to have been called to resolve the relation type
+      expect(mockSkillToSkillRelationRepository.findRelation).not.toHaveBeenCalled();
+    });
+
+    test("should preserve the existing relation type when none is provided", async () => {
+      // GIVEN both skills exist
+      const { givenMockRequiredSkill } = givenSkillsExist();
+      // AND an existing relation with a given relation type
+      const givenExistingRelationType = SkillToSkillRelationType.OPTIONAL;
+      mockSkillToSkillRelationRepository.findRelation.mockResolvedValue({
+        id: getMockStringId(10),
+        modelId: givenModelId,
+        requiringSkillId: givenRequiringSkillId,
+        requiringSkillDocModel: MongooseModelName.Skill,
+        requiredSkillId: givenRequiredSkillId,
+        requiredSkillDocModel: MongooseModelName.Skill,
+        relationType: givenExistingRelationType,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as ISkillToSkillRelationPair);
+      givenRelationExists(givenExistingRelationType);
+
+      // WHEN the relation is updated without providing a relation type
+      const actualResult = await skillToSkillRelationService.updateRelatedSkill(
+        givenModelId,
+        givenRequiringSkillId,
+        givenRequiredSkillId
+      );
+
+      // THEN expect the populated related skill with the preserved relation type to be returned
+      expect(actualResult).toEqual({ ...givenMockRequiredSkill, relationType: givenExistingRelationType });
+      // AND expect the repository to have been called with the preserved relation type
+      expect(mockSkillToSkillRelationRepository.updateRelation).toHaveBeenCalledWith(givenModelId, {
+        requiringSkillId: givenRequiringSkillId,
+        requiredSkillId: givenRequiredSkillId,
+        relationType: givenExistingRelationType,
+      } as INewSkillToSkillPairSpec);
+    });
+
+    test("should throw SKILL_NOT_FOUND if requiring skill does not exist", async () => {
+      // GIVEN the requiring skill cannot be found in the database
+      mockSkillRepository.findById.mockResolvedValue(null);
+
+      // WHEN an attempt is made to update the related skill
+      const actualResultPromise = skillToSkillRelationService.updateRelatedSkill(
+        givenModelId,
+        givenRequiringSkillId,
+        givenRequiredSkillId,
+        SkillToSkillRelationType.ESSENTIAL
+      );
+
+      // THEN expect an error indicating the requiring skill was not found
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.SKILL_NOT_FOUND)
+      );
+    });
+
+    test("should throw RELATED_SKILL_NOT_FOUND if required skill does not exist", async () => {
+      // GIVEN the requiring skill exists but the required skill does not
+      const givenMockRequiringSkill = getISkillMockData(1) as ISkill;
+      givenMockRequiringSkill.id = givenRequiringSkillId;
+      givenMockRequiringSkill.modelId = givenModelId;
+      mockSkillRepository.findById.mockImplementation((id: string) => {
+        if (id === givenRequiringSkillId) return Promise.resolve(givenMockRequiringSkill);
+        return Promise.resolve(null);
+      });
+
+      // WHEN an attempt is made to update the related skill
+      const actualResultPromise = skillToSkillRelationService.updateRelatedSkill(
+        givenModelId,
+        givenRequiringSkillId,
+        givenRequiredSkillId,
+        SkillToSkillRelationType.ESSENTIAL
+      );
+
+      // THEN expect an error indicating the required skill was not found
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.RELATED_SKILL_NOT_FOUND)
+      );
+    });
+
+    test("should throw RELATION_CODE_INCONSISTENT if no relation exists and no relation type is provided", async () => {
+      // GIVEN both skills exist
+      givenSkillsExist();
+      // AND no existing relation between them
+      mockSkillToSkillRelationRepository.findRelation.mockResolvedValue(null);
+
+      // WHEN an attempt is made to update the related skill without a relation type
+      const actualResultPromise = skillToSkillRelationService.updateRelatedSkill(
+        givenModelId,
+        givenRequiringSkillId,
+        givenRequiredSkillId
+      );
+
+      // THEN expect an error indicating the relation code is inconsistent
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.RELATION_CODE_INCONSISTENT)
+      );
+    });
+
+    test("should throw RELATION_CODE_INCONSISTENT if the relation update returns no document", async () => {
+      // GIVEN both skills exist
+      givenSkillsExist();
+      // AND the repository returns no updated relation
+      mockSkillToSkillRelationRepository.updateRelation.mockResolvedValue(null);
+
+      // WHEN an attempt is made to update the related skill
+      const actualResultPromise = skillToSkillRelationService.updateRelatedSkill(
+        givenModelId,
+        givenRequiringSkillId,
+        givenRequiredSkillId,
+        SkillToSkillRelationType.ESSENTIAL
+      );
+
+      // THEN expect an error indicating the relation code is inconsistent
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.RELATION_CODE_INCONSISTENT)
+      );
+    });
+
+    test("should throw DB_FAILED_TO_UPDATE_SKILL_RELATION if repository throws unknown error", async () => {
+      // GIVEN both skills exist
+      givenSkillsExist();
+      // AND the relation repository throws an unexpected error during update
+      mockSkillToSkillRelationRepository.updateRelation.mockRejectedValue(new Error("DB Error"));
+
+      // WHEN an attempt is made to update the related skill
+      const actualResultPromise = skillToSkillRelationService.updateRelatedSkill(
+        givenModelId,
+        givenRequiringSkillId,
+        givenRequiredSkillId,
+        SkillToSkillRelationType.ESSENTIAL
+      );
+
+      // THEN expect an error indicating the database failed to update the relation
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillToSkillRelationValidationError(
+          SkillToSkillRelationValidationErrorCode.DB_FAILED_TO_UPDATE_SKILL_RELATION
+        )
       );
     });
   });

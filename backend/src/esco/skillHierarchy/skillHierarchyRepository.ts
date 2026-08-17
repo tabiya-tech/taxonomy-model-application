@@ -27,6 +27,15 @@ export interface ISkillHierarchyRepository {
   createMany(modelId: string, newSkillHierarchyPairSpecs: INewSkillHierarchyPairSpec[]): Promise<ISkillHierarchyPair[]>;
 
   /**
+   * Updates the parent of an existing SkillHierarchyPair entry. The pair is matched by the child.
+   * @param {string} modelId - The modelId of the model the pair belongs to.
+   * @param {INewSkillHierarchyPairSpec} spec - The specification of the pair to update.
+   * @return {Promise<ISkillHierarchyPair | null>} - A Promise that resolves to the updated pair,
+   * or null if no existing pair matches the child.
+   */
+  updateParent(modelId: string, spec: INewSkillHierarchyPairSpec): Promise<ISkillHierarchyPair | null>;
+
+  /**
    * Returns all SkillHierarchyPair entries as a stream. The entries are transformed to objects (via the .toObject()).
    * @param {string} modelId - The modelId of the skills.
    * @return {Readable} - A Readable stream of ISkillHierarchyPair
@@ -124,6 +133,31 @@ export class SkillHierarchyRepository implements ISkillHierarchyRepository {
       );
     }
     return newHierarchyDocs.map((pair) => pair.toObject());
+  }
+
+  async updateParent(modelId: string, spec: INewSkillHierarchyPairSpec): Promise<ISkillHierarchyPair | null> {
+    if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
+
+    const updatedPair = await this.hierarchyModel
+      .findOneAndUpdate(
+        {
+          modelId: { $eq: modelId },
+          childId: { $eq: spec.childId },
+          childType: { $eq: spec.childType },
+        },
+        {
+          $set: {
+            ...spec,
+            modelId,
+            parentDocModel: getModelName(spec.parentType),
+            childDocModel: getModelName(spec.childType),
+          },
+        },
+        { new: true, runValidators: true }
+      )
+      .exec();
+
+    return updatedPair?.toObject() ?? null;
   }
 
   findAll(modelId: string): Readable {

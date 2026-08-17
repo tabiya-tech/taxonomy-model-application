@@ -32,6 +32,7 @@ function setupSkillHierarchyRepositoryMock(findAllImpl: () => Readable) {
     skillModel: undefined as never,
     skillGroupModel: undefined as never,
     createMany: jest.fn().mockResolvedValue(null),
+    updateParent: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
   };
   SkillHierarchyRepositorySpy.mockReturnValue(mockSkillHierarchyRepository);

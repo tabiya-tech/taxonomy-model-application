@@ -401,6 +401,121 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     );
   });
 
+  describe("Test updateRelation()", () => {
+    test("should return null when no existing record exists (no upsert)", async () => {
+      // GIVEN a valid modelId and two skills exist in the database
+      const givenModelId = getMockStringId(1);
+      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+      const givenSpec: INewSkillToSkillPairSpec = {
+        requiringSkillId: givenSkill_1.id,
+        requiredSkillId: givenSkill_2.id,
+        relationType: SkillToSkillRelationType.ESSENTIAL,
+      };
+      // AND no prior relation record exists for this skill pair
+
+      // WHEN updateRelation is called without a pre-existing record
+      const actualResult = await repository.updateRelation(givenModelId, givenSpec);
+
+      // THEN expect null to be returned (no upsert)
+      expect(actualResult).toBeNull();
+      // AND no record to have been created in the database
+      const persistedCount = await repository.relationModel.countDocuments({ modelId: givenModelId }).exec();
+      expect(persistedCount).toBe(0);
+    });
+
+    test("should update an existing skill to skill relation", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+      const givenSpec: INewSkillToSkillPairSpec = {
+        requiringSkillId: givenSkill_1.id,
+        requiredSkillId: givenSkill_2.id,
+        relationType: SkillToSkillRelationType.OPTIONAL,
+      };
+      await repository.createMany(givenModelId, [givenSpec]);
+
+      const actualResult = await repository.updateRelation(givenModelId, {
+        ...givenSpec,
+        relationType: SkillToSkillRelationType.ESSENTIAL,
+      });
+      const actualPersisted = await repository.relationModel.find({ modelId: givenModelId }).exec();
+
+      expect(actualResult?.relationType).toEqual(SkillToSkillRelationType.ESSENTIAL);
+      expect(actualPersisted).toHaveLength(1);
+      expect(actualPersisted[0].relationType).toEqual(SkillToSkillRelationType.ESSENTIAL);
+    });
+
+    test("should throw for invalid modelId", async () => {
+      await expect(
+        repository.updateRelation("not-a-model-id", {
+          requiringSkillId: getMockStringId(1),
+          requiredSkillId: getMockStringId(2),
+          relationType: SkillToSkillRelationType.ESSENTIAL,
+        })
+      ).rejects.toThrow("Invalid modelId: not-a-model-id");
+    });
+
+    test("should return null when update returns no document", async () => {
+      const mockExec = jest.fn().mockResolvedValue(null);
+      const mockFindOneAndUpdate = jest.spyOn(repository.relationModel, "findOneAndUpdate");
+      // @ts-ignore
+      mockFindOneAndUpdate.mockReturnValue({ exec: mockExec });
+
+      const actualResult = await repository.updateRelation(getMockStringId(1), {
+        requiringSkillId: getMockStringId(2),
+        requiredSkillId: getMockStringId(3),
+        relationType: SkillToSkillRelationType.ESSENTIAL,
+      });
+
+      expect(actualResult).toBeNull();
+      mockFindOneAndUpdate.mockRestore();
+    });
+  });
+
+  describe("Test findRelation()", () => {
+    test("should find an existing relation for the given skill pair", async () => {
+      // GIVEN a valid modelId and a relation exists between two skills
+      const givenModelId = getMockStringId(1);
+      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+      const givenSpec: INewSkillToSkillPairSpec = {
+        requiringSkillId: givenSkill_1.id,
+        requiredSkillId: givenSkill_2.id,
+        relationType: SkillToSkillRelationType.ESSENTIAL,
+      };
+      await repository.createMany(givenModelId, [givenSpec]);
+
+      // WHEN finding the relation for the given skill pair
+      const actualResult = await repository.findRelation(givenModelId, givenSkill_1.id, givenSkill_2.id);
+
+      // THEN expect the relation to be returned with the expected values
+      expect(actualResult).toEqual(
+        expect.objectContaining({
+          ...givenSpec,
+          modelId: givenModelId,
+          id: expect.any(String),
+        })
+      );
+    });
+
+    test("should return null when no relation exists for the given skill pair", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+
+      const actualResult = await repository.findRelation(givenModelId, givenSkill_1.id, givenSkill_2.id);
+
+      expect(actualResult).toBeNull();
+    });
+
+    test("should throw for invalid modelId", async () => {
+      await expect(repository.findRelation("not-a-model-id", getMockStringId(1), getMockStringId(2))).rejects.toThrow(
+        "Invalid modelId: not-a-model-id"
+      );
+    });
+  });
+
   describe("Test findAll()", () => {
     test("should find all skillToSkills relations in the given model", async () => {
       // GIVEN some modelId

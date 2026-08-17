@@ -31,6 +31,8 @@ function setupSkillToSkillRelationRepositoryMock(findAllImpl: () => Readable) {
     relationModel: undefined as never,
     skillModel: undefined as never,
     createMany: jest.fn().mockResolvedValue(null),
+    updateRelation: jest.fn().mockResolvedValue(null),
+    findRelation: jest.fn().mockResolvedValue(null),
     findAll: jest.fn().mockImplementationOnce(findAllImpl),
   };
   SkillToSkillRelationRepositorySpy.mockReturnValue(mockSkillToSkillRelationRepository);

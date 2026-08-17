@@ -596,4 +596,122 @@ describe("OccupationToSkillRelationService Unit Tests", () => {
       );
     });
   });
+
+  describe("updateOccupation", () => {
+    test("should update an existing occupation requirement relation of a skill", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenSkillId = getMockStringId(3);
+      const mockOccupation = {
+        ...getIOccupationMockData(2),
+        id: givenOccupationId,
+        modelId: givenModelId,
+        occupationType: ObjectTypes.ESCOOccupation,
+      };
+      const mockSkill = {
+        ...getISkillMockData(3),
+        id: givenSkillId,
+        modelId: givenModelId,
+      };
+      occupationRepositoryMock.findById.mockResolvedValue(mockOccupation);
+      skillRepositoryMock.findById.mockResolvedValue(mockSkill);
+      relationRepositoryMock.updateRelation.mockResolvedValue({});
+
+      const result = await service.updateOccupation(
+        givenModelId,
+        givenSkillId,
+        givenOccupationId,
+        OccupationToSkillRelationType.OPTIONAL,
+        SignallingValueLabel.NONE,
+        null
+      );
+
+      expect(result).toMatchObject({
+        id: givenOccupationId,
+        relationType: OccupationToSkillRelationType.OPTIONAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+        signallingValue: null,
+      });
+      expect(relationRepositoryMock.updateRelation).toHaveBeenCalledWith(givenModelId, {
+        requiringOccupationId: givenOccupationId,
+        requiringOccupationType: ObjectTypes.ESCOOccupation,
+        requiredSkillId: givenSkillId,
+        relationType: OccupationToSkillRelationType.OPTIONAL,
+        signallingValueLabel: SignallingValueLabel.NONE,
+        signallingValue: null,
+      });
+      expect(relationRepositoryMock.createMany).not.toHaveBeenCalled();
+    });
+
+    test("should throw RELATION_CODE_INCONSISTENT when updateRelation returns null", async () => {
+      const givenModelId = getMockStringId(1);
+      occupationRepositoryMock.findById.mockResolvedValue({
+        modelId: givenModelId,
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+      skillRepositoryMock.findById.mockResolvedValue({
+        modelId: givenModelId,
+      });
+      relationRepositoryMock.updateRelation.mockResolvedValue(null);
+
+      await expect(
+        service.updateOccupation(
+          givenModelId,
+          getMockStringId(3),
+          getMockStringId(2),
+          OccupationToSkillRelationType.ESSENTIAL,
+          SignallingValueLabel.NONE,
+          null
+        )
+      ).rejects.toThrow(
+        new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT)
+      );
+    });
+
+    test("should throw DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION when updateRelation fails with non-validation error", async () => {
+      const givenModelId = getMockStringId(1);
+      occupationRepositoryMock.findById.mockResolvedValue({
+        modelId: givenModelId,
+        occupationType: ObjectTypes.ESCOOccupation,
+      });
+      skillRepositoryMock.findById.mockResolvedValue({
+        modelId: givenModelId,
+      });
+      relationRepositoryMock.updateRelation.mockRejectedValue(new Error("Database write error"));
+
+      await expect(
+        service.updateOccupation(
+          givenModelId,
+          getMockStringId(3),
+          getMockStringId(2),
+          OccupationToSkillRelationType.ESSENTIAL,
+          SignallingValueLabel.NONE,
+          null
+        )
+      ).rejects.toThrow(
+        new OccupationSkillValidationError(
+          SkillForOccupationValidationErrorCode.DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION
+        )
+      );
+    });
+
+    test("should throw OCCUPATION_NOT_FOUND when the occupation does not exist", async () => {
+      const givenModelId = getMockStringId(1);
+      occupationRepositoryMock.findById.mockResolvedValue(null);
+      skillRepositoryMock.findById.mockResolvedValue({
+        modelId: givenModelId,
+      });
+
+      await expect(
+        service.updateOccupation(
+          givenModelId,
+          getMockStringId(3),
+          getMockStringId(2),
+          OccupationToSkillRelationType.ESSENTIAL,
+          SignallingValueLabel.NONE,
+          null
+        )
+      ).rejects.toThrow(new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.OCCUPATION_NOT_FOUND));
+    });
+  });
 });

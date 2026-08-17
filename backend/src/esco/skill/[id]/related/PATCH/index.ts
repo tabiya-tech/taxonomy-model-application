@@ -1,0 +1,192 @@
+import { APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
+import { errorResponse, responseJSON, StatusCodes } from "server/httpUtils";
+import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
+import AuthAPISpecs from "api-specifications/auth";
+import SkillAPISpecs from "api-specifications/esco/skill";
+import { buildRelatedResponse } from "./response";
+import { parseAndValidatePATCHRequest } from "./request";
+import { getResourcesBaseUrl } from "server/config/config";
+import { Routes } from "routes.constant";
+import { RoleRequired } from "auth/authorizer";
+import { ModelForSkillValidationErrorCode } from "esco/skill/_shared/skill.types";
+import errorLoggerInstance from "common/errorLogger/errorLogger";
+import { extractAndValidateIdParams } from "../../../_shared/params";
+import {
+  SkillToSkillRelationValidationErrorCode,
+  SkillToSkillRelationValidationError,
+} from "esco/skillToSkillRelation/skillToSkillRelation.service.types";
+
+export class SkillRelatedPATCHController {
+  /**
+   * @openapi
+   *
+   * /models/{modelId}/skills/{id}/related:
+   *   patch:
+   *    operationId: PATCHSkillRelatedById
+   *    tags:
+   *      - skills
+   *    summary: Update a related skill relation.
+   *    description: Update the relation between two skills in a specific taxonomy model.
+   *    security:
+   *      - api_key: []
+   *      - jwt_auth: []
+   *    parameters:
+   *      - in: path
+   *        name: modelId
+   *        required: true
+   *        schema:
+   *          $ref: '#/components/schemas/SkillRequestParamSchemaGET/properties/modelId'
+   *      - in: path
+   *        name: id
+   *        required: true
+   *        schema:
+   *          type: string
+   *          description: The unique ID of the requiring skill.
+   *    requestBody:
+   *       content:
+   *         application/json:
+   *           schema:
+   *              $ref: '#/components/schemas/SkillRelatedRequestSchemaPATCH'
+   *       required: true
+   *    responses:
+   *      '200':
+   *        description: Successfully updated the related skill relation.
+   *        content:
+   *          application/json:
+   *            schema:
+   *               $ref: '#/components/schemas/SkillRelatedResponseSchemaPATCH'
+   *      '400':
+   *        description: |
+   *          Failed to update the related skill relation. Additional information can be found in the response body.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/PATCHSkillRelated400ErrorSchema'
+   *      '401':
+   *        $ref: '#/components/responses/UnAuthorizedResponse'
+   *      '403':
+   *        $ref: '#/components/responses/ForbiddenResponse'
+   *      '404':
+   *        description: Skill or model not found.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/PATCHSkillRelated404ErrorSchema'
+   *      '500':
+   *        description: |
+   *          The server encountered an unexpected condition.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/All500ResponseSchema'
+   *
+   */
+  @RoleRequired(AuthAPISpecs.Enums.TabiyaRoles.MODEL_MANAGER)
+  async patch(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+    try {
+      // 1. Parse and validate path parameters
+      const params = extractAndValidateIdParams(event, Routes.SKILL_RELATED_ROUTE);
+      if ("statusCode" in params) {
+        return params;
+      }
+
+      // 2. Parse and validate request body
+      const parsedRequestResult = parseAndValidatePATCHRequest(event);
+      if ("statusCode" in parsedRequestResult) {
+        return parsedRequestResult;
+      }
+      const payload = parsedRequestResult;
+
+      // 3. Validate model state (exists & is not released)
+      const service = getServiceRegistry().skill;
+      const validationResult = await service.validateModelForSkill(params.modelId);
+      if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+        return errorResponse(
+          StatusCodes.NOT_FOUND,
+          SkillAPISpecs.Skill.RelatedSkills.PATCH.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          "Model not found",
+          `No model found with id: ${params.modelId}`
+        );
+      }
+      if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+        return errorResponse(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          SkillAPISpecs.Skill.RelatedSkills.PATCH.Errors.Status500.ErrorCodes.DB_FAILED_TO_UPDATE_SKILL_RELATION,
+          "Failed to fetch the model details from the DB",
+          ""
+        );
+      }
+      if (validationResult === ModelForSkillValidationErrorCode.MODEL_IS_RELEASED) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          SkillAPISpecs.Skill.RelatedSkills.PATCH.Errors.Status400.ErrorCodes.MODEL_IS_RELEASED,
+          "Cannot modify a released model",
+          ""
+        );
+      }
+
+      // 4. Delegate to Service layer
+      const skillToSkillRelationService = getServiceRegistry().skillToSkillRelation;
+
+      const skillWithRelation = await skillToSkillRelationService.updateRelatedSkill(
+        params.modelId,
+        params.id,
+        payload.requiredSkillId,
+        payload.relationType
+      );
+
+      return responseJSON(StatusCodes.OK, buildRelatedResponse(skillWithRelation, getResourcesBaseUrl()));
+    } catch (error: unknown) {
+      console.error("Failed to update related skill relation:", error);
+
+      if (error instanceof SkillToSkillRelationValidationError) {
+        switch (error.code) {
+          case SkillToSkillRelationValidationErrorCode.SKILL_NOT_FOUND:
+            return errorResponse(
+              StatusCodes.NOT_FOUND,
+              SkillAPISpecs.Skill.RelatedSkills.PATCH.Errors.Status404.ErrorCodes.SKILL_NOT_FOUND,
+              "Requiring skill not found",
+              ""
+            );
+          case SkillToSkillRelationValidationErrorCode.RELATED_SKILL_NOT_FOUND:
+            return errorResponse(
+              StatusCodes.NOT_FOUND,
+              SkillAPISpecs.Skill.RelatedSkills.PATCH.Errors.Status404.ErrorCodes.REQUIRED_SKILL_NOT_FOUND,
+              "Required skill not found",
+              ""
+            );
+          case SkillToSkillRelationValidationErrorCode.RELATION_CODE_INCONSISTENT:
+            return errorResponse(
+              StatusCodes.BAD_REQUEST,
+              SkillAPISpecs.Skill.RelatedSkills.PATCH.Errors.Status400.ErrorCodes.RELATION_CODE_INCONSISTENT,
+              "Relation code inconsistent",
+              ""
+            );
+          case SkillToSkillRelationValidationErrorCode.DB_FAILED_TO_UPDATE_SKILL_RELATION:
+            return errorResponse(
+              StatusCodes.INTERNAL_SERVER_ERROR,
+              SkillAPISpecs.Skill.RelatedSkills.PATCH.Errors.Status500.ErrorCodes.DB_FAILED_TO_UPDATE_SKILL_RELATION,
+              "Failed to update related skill relation in the DB",
+              ""
+            );
+        }
+      }
+
+      errorLoggerInstance.logError(
+        "Failed to update related skill relation in the DB",
+        error instanceof Error ? error.name : "Unknown error"
+      );
+      return errorResponse(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        SkillAPISpecs.Skill.RelatedSkills.PATCH.Errors.Status500.ErrorCodes.DB_FAILED_TO_UPDATE_SKILL_RELATION,
+        "Failed to update related skill relation in the DB",
+        ""
+      );
+    }
+  }
+}
+
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  return new SkillRelatedPATCHController().patch(event);
+};

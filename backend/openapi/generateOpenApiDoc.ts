@@ -129,6 +129,12 @@ delete Skill.Skill.RelatedSkills.GET.Schemas.Response.Payload.$id;
 delete Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload.$id;
 delete Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload.$id;
 delete Skill.Skill.RelatedSkills.POST.Schemas.Response.Payload.$id;
+delete Skill.Skill.RelatedSkills.PATCH.Schemas.Request.Payload.$id;
+delete Skill.Skill.RelatedSkills.PATCH.Schemas.Response.Payload.$id;
+delete Skill.Skill.Parents.PATCH.Schemas.Request.Payload.$id;
+delete Skill.Skill.Parents.PATCH.Schemas.Response.Payload.$id;
+delete Skill.Skill.Occupations.PATCH.Schemas.Request.Payload.$id;
+delete Skill.Skill.Occupations.PATCH.Schemas.Response.Payload.$id;
 delete Skill.Skill.History.GET.Schemas.Response.Payload.$id;
 delete Skill.Skill.PUT.Schemas.Request.Payload.$id;
 delete Skill.Skill.PUT.Schemas.Response.Payload.$id;
@@ -467,6 +473,43 @@ function getOpenAPISpecification(
             404,
             Object.values(Skill.GET.Errors.Status404.RelatedSkills.ErrorCodes)
           ),
+          // PATCH Skill relation error schemas
+          PATCHSkillParents400ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "SkillParents",
+            400,
+            Object.values(Skill.Skill.Parents.PATCH.Errors.Status400.ErrorCodes)
+          ),
+          PATCHSkillParents404ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "SkillParents",
+            404,
+            Object.values(Skill.Skill.Parents.PATCH.Errors.Status404.ErrorCodes)
+          ),
+          PATCHSkillOccupations400ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "SkillOccupations",
+            400,
+            Object.values(Skill.Skill.Occupations.PATCH.Errors.Status400.ErrorCodes)
+          ),
+          PATCHSkillOccupations404ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "SkillOccupations",
+            404,
+            Object.values(Skill.Skill.Occupations.PATCH.Errors.Status404.ErrorCodes)
+          ),
+          PATCHSkillRelated400ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "SkillRelated",
+            400,
+            Object.values(Skill.Skill.RelatedSkills.PATCH.Errors.Status400.ErrorCodes)
+          ),
+          PATCHSkillRelated404ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "SkillRelated",
+            404,
+            Object.values(Skill.Skill.RelatedSkills.PATCH.Errors.Status404.ErrorCodes)
+          ),
           // PUT/PATCH Skill-specific error schemas
           PUTSkill400ErrorSchema: APIError.Schemas.getPayload(
             "PUT",
@@ -604,16 +647,22 @@ function getOpenAPISpecification(
           SkillParentsResponseSchemaGET: Skill.Skill.Parents.GET.Schemas.Response.Payload,
           SkillParentsRequestSchemaPOST: Skill.Skill.Parents.POST.Schemas.Request.Payload,
           SkillParentsResponseSchemaPOST: Skill.Skill.Parents.POST.Schemas.Response.Payload,
+          SkillParentsRequestSchemaPATCH: Skill.Skill.Parents.PATCH.Schemas.Request.Payload,
+          SkillParentsResponseSchemaPATCH: Skill.Skill.Parents.PATCH.Schemas.Response.Payload,
           SkillParentsRequestQueryParamSchemaGET: Skill.Skill.Parents.GET.Schemas.Request.Query.Payload,
           SkillChildrenResponseSchemaGET: Skill.Skill.Children.GET.Schemas.Response.Payload,
           SkillChildrenRequestQueryParamSchemaGET: Skill.Skill.Children.GET.Schemas.Request.Query.Payload,
           SkillOccupationsResponseSchemaGET: Skill.Skill.Occupations.GET.Schemas.Response.Payload,
           SkillOccupationsResponseSchemaPOST: Skill.Skill.Occupations.POST.Schemas.Response.Payload,
           SkillOccupationsRequestSchemaPOST: Skill.Skill.Occupations.POST.Schemas.Request.Payload,
+          SkillOccupationsRequestSchemaPATCH: Skill.Skill.Occupations.PATCH.Schemas.Request.Payload,
+          SkillOccupationsResponseSchemaPATCH: Skill.Skill.Occupations.PATCH.Schemas.Response.Payload,
           SkillOccupationsRequestQueryParamSchemaGET: Skill.Skill.Occupations.GET.Schemas.Request.Query.Payload,
           SkillRelatedResponseSchemaGET: Skill.Skill.RelatedSkills.GET.Schemas.Response.Payload,
           SkillRelatedRequestSchemaPOST: Skill.Skill.RelatedSkills.POST.Schemas.Request.Payload,
           SkillRelatedResponseSchemaPOST: Skill.Skill.RelatedSkills.POST.Schemas.Response.Payload,
+          SkillRelatedRequestSchemaPATCH: Skill.Skill.RelatedSkills.PATCH.Schemas.Request.Payload,
+          SkillRelatedResponseSchemaPATCH: Skill.Skill.RelatedSkills.PATCH.Schemas.Response.Payload,
           SkillRelatedRequestQueryParamSchemaGET: Skill.Skill.RelatedSkills.GET.Schemas.Request.Query.Payload,
           OccupationGroupResponseSchemaGETHistory: OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload,
           OccupationResponseSchemaGETHistory: Occupation.Occupation.History.GET.Schemas.Response.Payload,

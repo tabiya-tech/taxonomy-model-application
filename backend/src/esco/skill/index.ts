@@ -10,11 +10,14 @@ import { handler as putByIdHandler } from "./[id]/PUT";
 import { handler as patchByIdHandler } from "./[id]/PATCH";
 import { handler as getParentsHandler } from "./[id]/parents/GET";
 import { handler as postParentsHandler } from "./[id]/parents/POST";
+import { handler as patchParentsHandler } from "./[id]/parents/PATCH";
 import { handler as getChildrenHandler } from "./[id]/children/GET";
 import { handler as getOccupationsHandler } from "./[id]/occupations/GET";
 import { handler as postOccupationsHandler } from "./[id]/occupations/POST";
+import { handler as patchOccupationsHandler } from "./[id]/occupations/PATCH";
 import { handler as getRelatedHandler } from "./[id]/related/GET";
 import { handler as postRelatedHandler } from "./[id]/related/POST";
+import { handler as patchRelatedHandler } from "./[id]/related/PATCH";
 import { handler as getHistoryHandler } from "./[id]/history/GET";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
@@ -54,7 +57,13 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
     }
   } else if (event?.httpMethod === HTTP_VERBS.PATCH) {
     const pathToMatch = event.path || "";
-    if (pathToRegexp(Routes.SKILL_ROUTE).regexp.exec(pathToMatch)) {
+    if (pathToRegexp(Routes.SKILL_PARENTS_ROUTE).regexp.exec(pathToMatch)) {
+      return patchParentsHandler(event);
+    } else if (pathToRegexp(Routes.SKILL_OCCUPATIONS_ROUTE).regexp.exec(pathToMatch)) {
+      return patchOccupationsHandler(event);
+    } else if (pathToRegexp(Routes.SKILL_RELATED_ROUTE).regexp.exec(pathToMatch)) {
+      return patchRelatedHandler(event);
+    } else if (pathToRegexp(Routes.SKILL_ROUTE).regexp.exec(pathToMatch)) {
       return patchByIdHandler(event);
     }
   }

@@ -210,4 +210,30 @@ export class OccupationToSkillRelationService implements IOccupationToSkillRelat
       );
     }
   }
+
+  async updateOccupation(
+    modelId: string,
+    requiredSkillId: string,
+    requiringOccupationId: string,
+    relationType: OccupationToSkillRelationType,
+    signallingValueLabel: SignallingValueLabel,
+    signallingValue: number | null
+  ): Promise<IOccupationWithRelation> {
+    try {
+      const { occupation } = await this.validateAndUpdateRelation(
+        modelId,
+        requiringOccupationId,
+        requiredSkillId,
+        relationType,
+        signallingValueLabel,
+        signallingValue
+      );
+      return { ...occupation, relationType, signallingValue, signallingValueLabel };
+    } catch (error: unknown) {
+      if (error instanceof OccupationSkillValidationError) throw error;
+      throw new OccupationSkillValidationError(
+        SkillForOccupationValidationErrorCode.DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION
+      );
+    }
+  }
 }

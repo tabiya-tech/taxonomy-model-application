@@ -260,6 +260,18 @@ ajvInstance.addSchema(
   SkillAPISpecs.Skill.RelatedSkills.POST.Schemas.Request.Payload.$id
 );
 ajvInstance.addSchema(
+  SkillAPISpecs.Skill.RelatedSkills.PATCH.Schemas.Request.Payload,
+  SkillAPISpecs.Skill.RelatedSkills.PATCH.Schemas.Request.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Skill.Parents.PATCH.Schemas.Request.Payload,
+  SkillAPISpecs.Skill.Parents.PATCH.Schemas.Request.Payload.$id
+);
+ajvInstance.addSchema(
+  SkillAPISpecs.Skill.Occupations.PATCH.Schemas.Request.Payload,
+  SkillAPISpecs.Skill.Occupations.PATCH.Schemas.Request.Payload.$id
+);
+ajvInstance.addSchema(
   ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload,
   ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload.$id
 );

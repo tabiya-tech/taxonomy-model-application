@@ -67,6 +67,7 @@ describe("test parseSkillHierarchy from", () => {
         hierarchyModel: undefined as never,
         skillGroupModel: undefined as never,
         findAll: jest.fn(),
+        updateParent: jest.fn(),
         createMany: jest
           .fn()
           .mockImplementation(
