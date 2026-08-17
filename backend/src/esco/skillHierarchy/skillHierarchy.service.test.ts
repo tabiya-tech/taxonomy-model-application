@@ -14,7 +14,7 @@ import { ISkillHierarchyRepository } from "./skillHierarchyRepository";
 
 type MockSkillRepository = jest.Mocked<Pick<ISkillRepository, "findById">>;
 type MockSkillGroupRepository = jest.Mocked<Pick<ISkillGroupRepository, "findById">>;
-type MockSkillHierarchyRepository = jest.Mocked<Pick<ISkillHierarchyRepository, "createMany">>;
+type MockSkillHierarchyRepository = jest.Mocked<Pick<ISkillHierarchyRepository, "createMany" | "updateParent">>;
 
 describe("SkillHierarchyService", () => {
   let skillHierarchyService: SkillHierarchyService;
@@ -31,6 +31,7 @@ describe("SkillHierarchyService", () => {
     };
     mockSkillHierarchyRepository = {
       createMany: jest.fn(),
+      updateParent: jest.fn(),
     };
 
     skillHierarchyService = new SkillHierarchyService(
@@ -427,6 +428,257 @@ describe("SkillHierarchyService", () => {
       // THEN expect a validation error indicating the database failed to create the parent relationship
       await expect(actualResultPromise).rejects.toThrow(
         new SkillParentValidationError(ParentForSkillValidationErrorCode.DB_FAILED_TO_CREATE_SKILL_PARENT)
+      );
+    });
+  });
+
+  describe("updateParent", () => {
+    const modelId = getMockStringId(1);
+    const childId = getMockStringId(2);
+    const parentId = getMockStringId(3);
+
+    function givenEntitiesExist(parent: ISkill | ISkillGroup) {
+      const mockChild = getISkillMockData(1) as ISkill;
+      mockChild.id = childId;
+      mockChild.modelId = modelId;
+
+      parent.id = parentId;
+      parent.modelId = modelId;
+
+      mockSkillRepository.findById.mockImplementation((id: string) => {
+        if (id === childId) return Promise.resolve(mockChild);
+        if (id === parentId) return Promise.resolve(parent as ISkill);
+        return Promise.resolve(null);
+      });
+
+      mockSkillHierarchyRepository.updateParent.mockResolvedValue({
+        id: getMockStringId(10),
+        modelId,
+        childId,
+        parentId,
+        childType: ObjectTypes.Skill,
+        parentType: ObjectTypes.Skill,
+        childDocModel: MongooseModelName.Skill,
+        parentDocModel: MongooseModelName.Skill,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as ISkillHierarchyPair);
+
+      return parent;
+    }
+
+    test("should successfully update a Skill parent", async () => {
+      // GIVEN a child skill and a new parent skill exist in the model
+      const mockParent = givenEntitiesExist(getISkillMockData(2) as ISkill);
+
+      // WHEN an attempt is made to update the parent of the child skill
+      const result = await skillHierarchyService.updateParent(
+        modelId,
+        childId,
+        ObjectTypes.Skill,
+        parentId,
+        ObjectTypes.Skill
+      );
+
+      // THEN expect the new parent to be returned
+      expect(result).toEqual(mockParent);
+      // AND expect the hierarchy repository to be called to update the relationship
+      expect(mockSkillHierarchyRepository.updateParent).toHaveBeenCalledWith(modelId, {
+        parentId,
+        parentType: ObjectTypes.Skill,
+        childId,
+        childType: ObjectTypes.Skill,
+      } as INewSkillHierarchyPairSpec);
+    });
+
+    test("should successfully update a SkillGroup parent", async () => {
+      // GIVEN a child skill and a new skillGroup parent exist in the model
+      const mockParent = givenEntitiesExist(getISkillGroupMockData(2) as ISkillGroup);
+      // AND the parent is retrieved from the skillGroup repository
+      mockSkillGroupRepository.findById.mockResolvedValue(mockParent as unknown as ISkillGroup);
+
+      // WHEN an attempt is made to update the parent of the child skill
+      const result = await skillHierarchyService.updateParent(
+        modelId,
+        childId,
+        ObjectTypes.Skill,
+        parentId,
+        ObjectTypes.SkillGroup
+      );
+
+      // THEN expect the new skillGroup parent to be returned
+      expect(result).toEqual(mockParent);
+      expect(mockSkillHierarchyRepository.updateParent).toHaveBeenCalledWith(modelId, {
+        parentId,
+        parentType: ObjectTypes.SkillGroup,
+        childId,
+        childType: ObjectTypes.Skill,
+      } as INewSkillHierarchyPairSpec);
+    });
+
+    test("should successfully update the parent of a SkillGroup child", async () => {
+      // GIVEN a skillGroup child and a new parent skill exist in the model
+      const mockChild = getISkillGroupMockData(1) as ISkillGroup;
+      mockChild.id = childId;
+      mockChild.modelId = modelId;
+
+      const mockParent = getISkillMockData(2) as ISkill;
+      mockParent.id = parentId;
+      mockParent.modelId = modelId;
+
+      // AND the child is retrieved from the skillGroup repository
+      mockSkillGroupRepository.findById.mockResolvedValue(mockChild);
+      mockSkillRepository.findById.mockResolvedValue(mockParent);
+
+      mockSkillHierarchyRepository.updateParent.mockResolvedValue({
+        id: getMockStringId(10),
+        modelId,
+        childId,
+        parentId,
+        childType: ObjectTypes.SkillGroup,
+        parentType: ObjectTypes.Skill,
+        childDocModel: MongooseModelName.SkillGroup,
+        parentDocModel: MongooseModelName.Skill,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as ISkillHierarchyPair);
+
+      // WHEN an attempt is made to update the parent of the skillGroup child
+      const result = await skillHierarchyService.updateParent(
+        modelId,
+        childId,
+        ObjectTypes.SkillGroup,
+        parentId,
+        ObjectTypes.Skill
+      );
+
+      // THEN expect the new parent to be returned
+      expect(result).toEqual(mockParent);
+      expect(mockSkillHierarchyRepository.updateParent).toHaveBeenCalledWith(modelId, {
+        parentId,
+        parentType: ObjectTypes.Skill,
+        childId,
+        childType: ObjectTypes.SkillGroup,
+      } as INewSkillHierarchyPairSpec);
+    });
+
+    test("should return null if no existing parent relation exists for the child", async () => {
+      // GIVEN a child skill and a parent exist in the model
+      givenEntitiesExist(getISkillMockData(2) as ISkill);
+      // AND no existing hierarchy pair exists for the child
+      mockSkillHierarchyRepository.updateParent.mockResolvedValue(null);
+
+      // WHEN an attempt is made to update the parent of the child skill
+      const result = await skillHierarchyService.updateParent(
+        modelId,
+        childId,
+        ObjectTypes.Skill,
+        parentId,
+        ObjectTypes.Skill
+      );
+
+      // THEN expect null to be returned
+      expect(result).toBeNull();
+    });
+
+    test("should throw PARENT_NOT_FOUND if the parent does not exist", async () => {
+      // GIVEN a child skill exists but no parent is found
+      const mockChild = getISkillMockData(1) as ISkill;
+      mockChild.id = childId;
+      mockChild.modelId = modelId;
+      mockSkillRepository.findById.mockImplementation((id: string) => {
+        if (id === childId) return Promise.resolve(mockChild);
+        return Promise.resolve(null);
+      });
+
+      // WHEN an attempt is made to update the parent of the child skill
+      const actualResultPromise = skillHierarchyService.updateParent(
+        modelId,
+        childId,
+        ObjectTypes.Skill,
+        parentId,
+        ObjectTypes.Skill
+      );
+
+      // THEN expect a validation error indicating the parent was not found
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillParentValidationError(ParentForSkillValidationErrorCode.PARENT_NOT_FOUND)
+      );
+    });
+
+    test("should throw SKILL_NOT_FOUND if the child does not exist", async () => {
+      // GIVEN a parent exists but no child is found
+      const mockParent = getISkillMockData(2) as ISkill;
+      mockParent.id = parentId;
+      mockParent.modelId = modelId;
+      mockSkillRepository.findById.mockImplementation((id: string) => {
+        if (id === parentId) return Promise.resolve(mockParent);
+        return Promise.resolve(null);
+      });
+
+      // WHEN an attempt is made to update the parent of the child skill
+      const actualResultPromise = skillHierarchyService.updateParent(
+        modelId,
+        childId,
+        ObjectTypes.Skill,
+        parentId,
+        ObjectTypes.Skill
+      );
+
+      // THEN expect a validation error indicating the child skill was not found
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillParentValidationError(ParentForSkillValidationErrorCode.SKILL_NOT_FOUND)
+      );
+    });
+
+    test("should throw PARENT_NOT_FOUND if the parent belongs to a different model", async () => {
+      // GIVEN a child skill exists in the model
+      const mockChild = getISkillMockData(1) as ISkill;
+      mockChild.id = childId;
+      mockChild.modelId = modelId;
+      // AND a parent exists but belongs to a different model
+      const mockParent = getISkillMockData(2) as ISkill;
+      mockParent.id = parentId;
+      mockParent.modelId = getMockStringId(4);
+      mockSkillRepository.findById.mockImplementation((id: string) => {
+        if (id === childId) return Promise.resolve(mockChild);
+        if (id === parentId) return Promise.resolve(mockParent);
+        return Promise.resolve(null);
+      });
+
+      // WHEN an attempt is made to update the parent of the child skill
+      const actualResultPromise = skillHierarchyService.updateParent(
+        modelId,
+        childId,
+        ObjectTypes.Skill,
+        parentId,
+        ObjectTypes.Skill
+      );
+
+      // THEN expect a validation error indicating the parent was not found
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillParentValidationError(ParentForSkillValidationErrorCode.PARENT_NOT_FOUND)
+      );
+    });
+
+    test("should throw DB_FAILED_TO_UPDATE_SKILL_PARENT_RELATION if repository throws unknown error", async () => {
+      // GIVEN a child skill and a parent exist in the model
+      givenEntitiesExist(getISkillMockData(2) as ISkill);
+      // AND the hierarchy database throws an unexpected error during update
+      mockSkillHierarchyRepository.updateParent.mockRejectedValue(new Error("DB Error"));
+
+      // WHEN an attempt is made to update the parent of the child skill
+      const actualResultPromise = skillHierarchyService.updateParent(
+        modelId,
+        childId,
+        ObjectTypes.Skill,
+        parentId,
+        ObjectTypes.Skill
+      );
+
+      // THEN expect a validation error indicating the database failed to update the parent relationship
+      await expect(actualResultPromise).rejects.toThrow(
+        new SkillParentValidationError(ParentForSkillValidationErrorCode.DB_FAILED_TO_UPDATE_SKILL_PARENT_RELATION)
       );
     });
   });

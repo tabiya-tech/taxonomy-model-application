@@ -32,6 +32,29 @@ export interface ISkillToSkillRelationRepository {
   ): Promise<ISkillToSkillRelationPair[]>;
 
   /**
+   * Updates an existing SkillToSkillRelation entry. The relation is matched by the requiring and required skill pair.
+   * @param {string} modelId - The modelId of the model the relation belongs to.
+   * @param {INewSkillToSkillPairSpec} spec - The specification of the relation to update.
+   * @return {Promise<ISkillToSkillRelationPair | null>} - A Promise that resolves to the updated relation,
+   * or null if no existing relation matches the pair.
+   */
+  updateRelation(modelId: string, spec: INewSkillToSkillPairSpec): Promise<ISkillToSkillRelationPair | null>;
+
+  /**
+   * Finds an existing SkillToSkillRelation entry by the requiring and required skill pair.
+   * @param {string} modelId - The modelId of the model the relation belongs to.
+   * @param {string} requiringSkillId - The ID of the requiring skill.
+   * @param {string} requiredSkillId - The ID of the required skill.
+   * @return {Promise<ISkillToSkillRelationPair | null>} - A Promise that resolves to the relation,
+   * or null if no relation matches the pair.
+   */
+  findRelation(
+    modelId: string,
+    requiringSkillId: string,
+    requiredSkillId: string
+  ): Promise<ISkillToSkillRelationPair | null>;
+
+  /**
    * Returns all SkillToSkillRelation entries as a stream. The entries are transformed to objects (via the .toObject()).
    * @param {string} modelId - The modelId of the occupations.
    * @return {Readable} - A Readable stream of ISkillToSkillRelationPairs
@@ -103,6 +126,49 @@ export class SkillToSkillRelationRepository implements ISkillToSkillRelationRepo
       );
     }
     return newRelationsDocs.map((pair) => pair.toObject());
+  }
+
+  async updateRelation(modelId: string, spec: INewSkillToSkillPairSpec): Promise<ISkillToSkillRelationPair | null> {
+    if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
+
+    const updatedRelation = await this.relationModel
+      .findOneAndUpdate(
+        {
+          modelId: { $eq: modelId },
+          requiringSkillId: { $eq: spec.requiringSkillId },
+          requiredSkillId: { $eq: spec.requiredSkillId },
+        },
+        {
+          $set: {
+            ...spec,
+            modelId,
+            requiringSkillDocModel: this.skillModel.modelName,
+            requiredSkillDocModel: this.skillModel.modelName,
+          },
+        },
+        { new: true, runValidators: true }
+      )
+      .exec();
+
+    return updatedRelation?.toObject() ?? null;
+  }
+
+  async findRelation(
+    modelId: string,
+    requiringSkillId: string,
+    requiredSkillId: string
+  ): Promise<ISkillToSkillRelationPair | null> {
+    if (!mongoose.Types.ObjectId.isValid(modelId)) throw new Error(`Invalid modelId: ${modelId}`);
+
+    const relation = await this.relationModel
+      .findOne({
+        modelId: { $eq: modelId },
+        requiringSkillId: { $eq: requiringSkillId },
+        requiredSkillId: { $eq: requiredSkillId },
+      })
+      .exec();
+
+    return relation?.toObject() ?? null;
   }
 
   findAll(modelId: string): Readable {

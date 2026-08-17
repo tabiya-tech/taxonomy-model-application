@@ -79,4 +79,54 @@ export class SkillHierarchyService implements ISkillHierarchyService {
       throw new SkillParentValidationError(ParentForSkillValidationErrorCode.DB_FAILED_TO_CREATE_SKILL_PARENT);
     }
   }
+
+  async updateParent(
+    modelId: string,
+    childId: string,
+    childType: SkillHierarchyChildType,
+    parentId: string,
+    parentType: SkillHierarchyParentType
+  ): Promise<ISkill | ISkillGroup | null> {
+    try {
+      let parentEntity: ISkill | ISkillGroup | null = null;
+      if (parentType === ObjectTypes.SkillGroup) {
+        parentEntity = await this.skillGroupRepository.findById(parentId);
+      } else {
+        parentEntity = await this.skillRepository.findById(parentId);
+      }
+
+      if (!parentEntity || parentEntity.modelId !== modelId) {
+        throw new SkillParentValidationError(ParentForSkillValidationErrorCode.PARENT_NOT_FOUND);
+      }
+
+      let childEntity: ISkill | ISkillGroup | null = null;
+      if (childType === ObjectTypes.SkillGroup) {
+        childEntity = await this.skillGroupRepository.findById(childId);
+      } else {
+        childEntity = await this.skillRepository.findById(childId);
+      }
+
+      if (!childEntity || childEntity.modelId !== modelId) {
+        throw new SkillParentValidationError(ParentForSkillValidationErrorCode.SKILL_NOT_FOUND);
+      }
+
+      const spec: INewSkillHierarchyPairSpec = {
+        parentId,
+        parentType,
+        childId,
+        childType,
+      };
+
+      const updatedPair = await this.skillHierarchyRepository.updateParent(modelId, spec);
+
+      if (!updatedPair) {
+        return null;
+      }
+
+      return parentEntity;
+    } catch (error: unknown) {
+      if (error instanceof SkillParentValidationError) throw error;
+      throw new SkillParentValidationError(ParentForSkillValidationErrorCode.DB_FAILED_TO_UPDATE_SKILL_PARENT_RELATION);
+    }
+  }
 }

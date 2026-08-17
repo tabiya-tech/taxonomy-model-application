@@ -67,4 +67,24 @@ export interface IOccupationToSkillRelationService {
     signallingValueLabel: SignallingValueLabel,
     signallingValue: number | null
   ): Promise<IOccupationWithRelation>;
+
+  /**
+   * Updates an occupation requirement relation of a skill.
+   *
+   * @param {string} modelId - The modelId of the taxonomy model.
+   * @param {string} requiredSkillId - The ID of the required skill.
+   * @param {string} requiringOccupationId - The ID of the requiring occupation.
+   * @param {OccupationToSkillRelationType} relationType - The relationship type.
+   * @param {SignallingValueLabel} signallingValueLabel - The signalling value label.
+   * @param {number | null} signallingValue - The signalling value.
+   * @return {Promise<IOccupationWithRelation>} - A Promise that resolves to the updated occupation with relationship metadata.
+   */
+  updateOccupation(
+    modelId: string,
+    requiredSkillId: string,
+    requiringOccupationId: string,
+    relationType: OccupationToSkillRelationType,
+    signallingValueLabel: SignallingValueLabel,
+    signallingValue: number | null
+  ): Promise<IOccupationWithRelation>;
 }

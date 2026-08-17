@@ -199,7 +199,7 @@ describe("test the transformation of the ISkill -> ISkillResponse", () => {
       objectType: SkillAPISpecs.Enums.OccupationObjectTypes.ESCOOccupation,
       relationType: null,
       signallingValue: null,
-      signallingValueLabel: null,
+      signallingValueLabel: SkillAPISpecs.Enums.SignallingValueLabel.NONE,
       isLocalized: false,
     });
   });
@@ -446,6 +446,8 @@ describe("Detailed mapping tests", () => {
       { input: "low", expected: SkillAPISpecs.Enums.SignallingValueLabel.LOW },
       { input: "medium", expected: SkillAPISpecs.Enums.SignallingValueLabel.MEDIUM },
       { input: "high", expected: SkillAPISpecs.Enums.SignallingValueLabel.HIGH },
+      { input: "", expected: SkillAPISpecs.Enums.SignallingValueLabel.NONE },
+      { input: "none", expected: SkillAPISpecs.Enums.SignallingValueLabel.NONE },
       { input: "foo", expected: null },
     ];
 

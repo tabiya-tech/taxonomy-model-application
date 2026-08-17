@@ -62,4 +62,69 @@ export class SkillToSkillRelationService implements ISkillToSkillRelationService
       );
     }
   }
+
+  async updateRelatedSkill(
+    modelId: string,
+    requiringSkillId: string,
+    requiredSkillId: string,
+    relationType?: SkillToSkillRelationType
+  ): Promise<ISkill & { relationType: SkillToSkillRelationType }> {
+    try {
+      // 1. Fetch the requiring skill
+      const requiringSkill = await this.skillRepository.findById(requiringSkillId);
+      if (!requiringSkill || requiringSkill.modelId !== modelId) {
+        throw new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.SKILL_NOT_FOUND);
+      }
+
+      // 2. Fetch the required skill
+      const requiredSkill = await this.skillRepository.findById(requiredSkillId);
+      if (!requiredSkill || requiredSkill.modelId !== modelId) {
+        throw new SkillToSkillRelationValidationError(SkillToSkillRelationValidationErrorCode.RELATED_SKILL_NOT_FOUND);
+      }
+
+      // 3. Resolve the relation type, preserving the existing one when not provided
+      let resolvedRelationType = relationType;
+      if (resolvedRelationType === undefined) {
+        const existingRelation = await this.skillToSkillRelationRepository.findRelation(
+          modelId,
+          requiringSkillId,
+          requiredSkillId
+        );
+        if (!existingRelation) {
+          throw new SkillToSkillRelationValidationError(
+            SkillToSkillRelationValidationErrorCode.RELATION_CODE_INCONSISTENT
+          );
+        }
+        resolvedRelationType = existingRelation.relationType;
+      }
+
+      // 4. Update the relationship
+      const newRelationSpec: INewSkillToSkillPairSpec = {
+        requiringSkillId: requiringSkillId,
+        requiredSkillId: requiredSkillId,
+        relationType: resolvedRelationType,
+      };
+
+      const updatedRelation = await this.skillToSkillRelationRepository.updateRelation(modelId, newRelationSpec);
+
+      if (!updatedRelation) {
+        throw new SkillToSkillRelationValidationError(
+          SkillToSkillRelationValidationErrorCode.RELATION_CODE_INCONSISTENT
+        );
+      }
+
+      // 5. Return the populated entity
+      return {
+        ...requiredSkill,
+        relationType: resolvedRelationType,
+      };
+    } catch (error: unknown) {
+      if (error instanceof SkillToSkillRelationValidationError) {
+        throw error;
+      }
+      throw new SkillToSkillRelationValidationError(
+        SkillToSkillRelationValidationErrorCode.DB_FAILED_TO_UPDATE_SKILL_RELATION
+      );
+    }
+  }
 }

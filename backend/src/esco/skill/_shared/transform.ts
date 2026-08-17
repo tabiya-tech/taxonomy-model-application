@@ -131,6 +131,9 @@ function mapSignallingValueLabel(label: string): SkillAPISpecs.Enums.SignallingV
       return SkillAPISpecs.Enums.SignallingValueLabel.MEDIUM;
     case "high":
       return SkillAPISpecs.Enums.SignallingValueLabel.HIGH;
+    case "":
+    case "none":
+      return SkillAPISpecs.Enums.SignallingValueLabel.NONE;
     default:
       return null;
   }

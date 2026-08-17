@@ -12,11 +12,14 @@ import * as putByIdModule from "./[id]/PUT/index";
 import * as patchByIdModule from "./[id]/PATCH/index";
 import * as getParentsModule from "./[id]/parents/GET/index";
 import * as postParentsModule from "./[id]/parents/POST/index";
+import * as patchParentsModule from "./[id]/parents/PATCH/index";
 import * as getChildrenModule from "./[id]/children/GET/index";
 import * as getOccupationsModule from "./[id]/occupations/GET/index";
 import * as postOccupationsModule from "./[id]/occupations/POST/index";
+import * as patchOccupationsModule from "./[id]/occupations/PATCH/index";
 import * as getRelatedModule from "./[id]/related/GET/index";
 import * as postRelatedModule from "./[id]/related/POST/index";
+import * as patchRelatedModule from "./[id]/related/PATCH/index";
 import * as getHistoryModule from "./[id]/history/GET/index";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
@@ -202,6 +205,48 @@ describe("Test for skill router handler", () => {
     const givenEvent = {
       httpMethod: HTTP_VERBS.PATCH,
       path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}`,
+    };
+    await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("handler should route PATCH /parents to patchParentsHandler", async () => {
+    const spy = jest.spyOn(patchParentsModule, "handler").mockResolvedValue({
+      statusCode: StatusCodes.OK,
+      body: "",
+    } as APIGatewayProxyResult);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PATCH,
+      path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/parents`,
+    };
+    await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("handler should route PATCH /occupations to patchOccupationsHandler", async () => {
+    const spy = jest.spyOn(patchOccupationsModule, "handler").mockResolvedValue({
+      statusCode: StatusCodes.OK,
+      body: "",
+    } as APIGatewayProxyResult);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PATCH,
+      path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/occupations`,
+    };
+    await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("handler should route PATCH /related to patchRelatedHandler", async () => {
+    const spy = jest.spyOn(patchRelatedModule, "handler").mockResolvedValue({
+      statusCode: StatusCodes.OK,
+      body: "",
+    } as APIGatewayProxyResult);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PATCH,
+      path: `/models/${getMockStringId(1)}/skills/${getMockStringId(2)}/related`,
     };
     await skillHandler(givenEvent as unknown as APIGatewayProxyEvent);
     expect(spy).toHaveBeenCalled();
