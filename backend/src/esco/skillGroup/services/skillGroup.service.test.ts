@@ -12,6 +12,8 @@ import {
   ISkillGroup,
   ISkillGroupChild,
   ISkillGroupReference,
+  IPartialUpdateSkillGroupSpec,
+  IUpdateSkillGroupSpec,
 } from "../_shared/skillGroup.types";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import { ISkillHierarchyRepository } from "esco/skillHierarchy/skillHierarchyRepository";
@@ -61,6 +63,8 @@ describe("Test the SkillGroupService", () => {
       findParents: jest.fn(),
       findChildren: jest.fn(),
       findHistoryReferencesByUUIDs: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as unknown as jest.Mocked<ISkillGroupRepository>;
 
     mockSkillHierarchyRepository = {
@@ -788,6 +792,194 @@ describe("Test the SkillGroupService", () => {
         expect(actual.nextCursor).toBeNull();
         expect(actual.items).toHaveLength(2);
       });
+    });
+  });
+
+  describe("update", () => {
+    test("should call repository.update with the given id, modelId and spec when model validation passes", async () => {
+      // GIVEN an id, modelId and a full update spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IUpdateSkillGroupSpec = {
+        originUri: "https://example.com",
+        code: getTestSkillGroupCode(100),
+        preferredLabel: getRandomString(10),
+        altLabels: [getRandomString(5)],
+        description: getRandomString(20),
+        scopeNote: getRandomString(30),
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+      };
+      // AND the model validation passes
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      // AND the repository returns an updated skill group
+      const expectedSkillGroup: ISkillGroup = {
+        ...givenSpec,
+        id: givenId,
+        UUID: getRandomString(10),
+        parents: [],
+        children: [],
+        importId: "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      mockRepository.update.mockResolvedValue(expectedSkillGroup);
+
+      // WHEN calling service.update
+      const actual = await service.update(givenId, givenModelId, givenSpec);
+
+      // THEN expect repository.update to have been called with the given parameters
+      expect(mockRepository.update).toHaveBeenCalledWith(givenId, givenModelId, givenSpec);
+      // AND expect the returned skill group
+      expect(actual).toEqual(expectedSkillGroup);
+    });
+
+    test("should return null if repository.update returns null", async () => {
+      // GIVEN an id, modelId and spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IUpdateSkillGroupSpec = {
+        originUri: "https://example.com",
+        code: getTestSkillGroupCode(100),
+        preferredLabel: getRandomString(10),
+        altLabels: [getRandomString(5)],
+        description: getRandomString(20),
+        scopeNote: getRandomString(30),
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+      };
+      // AND the model validation passes
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      // AND the repository returns null (not found)
+      mockRepository.update.mockResolvedValue(null);
+
+      // WHEN calling service.update
+      const actual = await service.update(givenId, givenModelId, givenSpec);
+
+      // THEN expect null to be returned
+      expect(actual).toBeNull();
+    });
+
+    test("should throw SkillGroupModelValidationError when model validation fails", async () => {
+      // GIVEN an id, modelId and spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IUpdateSkillGroupSpec = {
+        originUri: "https://example.com",
+        code: getTestSkillGroupCode(100),
+        preferredLabel: getRandomString(10),
+        altLabels: [getRandomString(5)],
+        description: getRandomString(20),
+        scopeNote: getRandomString(30),
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+      };
+      // AND the model validation fails (model not found)
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue(null),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      // WHEN calling service.update
+      // THEN expect it to throw
+      await expect(service.update(givenId, givenModelId, givenSpec)).rejects.toThrow(SkillGroupModelValidationError);
+    });
+  });
+
+  describe("patch", () => {
+    test("should call repository.patch with the given id, modelId and spec when model validation passes", async () => {
+      // GIVEN an id, modelId and a partial update spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IPartialUpdateSkillGroupSpec = {
+        preferredLabel: getRandomString(10),
+        description: getRandomString(20),
+      };
+      // AND the model validation passes
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      // AND the repository returns a patched skill group
+      const expectedSkillGroup: ISkillGroup = {
+        ...getISkillGroupMockData(1, givenModelId),
+        id: givenId,
+        preferredLabel: givenSpec.preferredLabel!,
+        description: givenSpec.description!,
+      };
+      mockRepository.patch.mockResolvedValue(expectedSkillGroup);
+
+      // WHEN calling service.patch
+      const actual = await service.patch(givenId, givenModelId, givenSpec);
+
+      // THEN expect repository.patch to have been called with the given parameters
+      expect(mockRepository.patch).toHaveBeenCalledWith(givenId, givenModelId, givenSpec);
+      // AND expect the returned skill group
+      expect(actual).toEqual(expectedSkillGroup);
+    });
+
+    test("should return null if repository.patch returns null", async () => {
+      // GIVEN an id, modelId and spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IPartialUpdateSkillGroupSpec = {
+        preferredLabel: getRandomString(10),
+      };
+      // AND the model validation passes
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      // AND the repository returns null (not found)
+      mockRepository.patch.mockResolvedValue(null);
+
+      // WHEN calling service.patch
+      const actual = await service.patch(givenId, givenModelId, givenSpec);
+
+      // THEN expect null to be returned
+      expect(actual).toBeNull();
+    });
+
+    test("should throw SkillGroupModelValidationError when model validation fails", async () => {
+      // GIVEN an id, modelId and spec
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IPartialUpdateSkillGroupSpec = {
+        preferredLabel: getRandomString(10),
+      };
+      // AND the model validation fails (model not found)
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue(null),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      // WHEN calling service.patch
+      // THEN expect it to throw
+      await expect(service.patch(givenId, givenModelId, givenSpec)).rejects.toThrow(SkillGroupModelValidationError);
     });
   });
 

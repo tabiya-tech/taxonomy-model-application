@@ -43,6 +43,8 @@ function setupSkillGroupRepositoryMock(findAllImpl: () => Readable) {
     findParents: jest.fn().mockResolvedValue([]),
     findChildren: jest.fn().mockResolvedValue([]),
     findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),
+    update: jest.fn().mockResolvedValue(null),
+    patch: jest.fn().mockResolvedValue(null),
     setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
     setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
   };

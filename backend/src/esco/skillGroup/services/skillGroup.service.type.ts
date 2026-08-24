@@ -5,6 +5,8 @@ import {
   ISkillGroupChild,
   ISkillGroupReference,
   ModelForSkillGroupValidationErrorCode,
+  IPartialUpdateSkillGroupSpec,
+  IUpdateSkillGroupSpec,
 } from "../_shared/skillGroup.types";
 import { IModelInfoReference } from "modelInfo/modelInfo.types";
 import { EmbeddableField } from "embeddings/service/types";
@@ -86,6 +88,28 @@ export interface ISkillGroupService {
   ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }>;
 
   validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null>;
+
+  /**
+   * Fully replaces the mutable fields of a SkillGroup (PUT semantics).
+   * Validates that the model exists and is not released before updating.
+   *
+   * @param {string} id - The ID of the SkillGroup to update.
+   * @param {string} modelId - The model ID the SkillGroup belongs to.
+   * @param {IUpdateSkillGroupSpec} spec - The full set of new field values.
+   * @return {Promise<ISkillGroup | null>} - The updated skill group, or null if not found.
+   */
+  update(id: string, modelId: string, spec: IUpdateSkillGroupSpec): Promise<ISkillGroup | null>;
+
+  /**
+   * Partially updates a SkillGroup (PATCH semantics).
+   * Validates that the model exists and is not released before updating.
+   *
+   * @param {string} id - The ID of the SkillGroup to update.
+   * @param {string} modelId - The model ID the SkillGroup belongs to.
+   * @param {IPartialUpdateSkillGroupSpec} spec - Only the fields to update.
+   * @return {Promise<ISkillGroup | null>} - The updated skill group, or null if not found.
+   */
+  patch(id: string, modelId: string, spec: IPartialUpdateSkillGroupSpec): Promise<ISkillGroup | null>;
 
   findParents(
     modelId: string,

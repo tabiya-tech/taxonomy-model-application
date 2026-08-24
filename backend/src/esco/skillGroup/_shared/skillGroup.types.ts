@@ -58,6 +58,22 @@ export type INewSkillGroupSpec = Omit<ISkillGroup, "id" | "UUID" | "parents" | "
  * Describes how an SkillGroup is created with the API without import action.
  */
 export type INewSkillGroupSpecWithoutImportId = Omit<INewSkillGroupSpec, "importId">;
+
+/**
+ * Describes the mutable fields for a full SkillGroup replacement (PUT).
+ * Excludes server-managed fields: id, UUID, importId, parents, children, createdAt, updatedAt.
+ */
+export type IUpdateSkillGroupSpec = Pick<
+  ISkillGroup,
+  "originUri" | "code" | "preferredLabel" | "altLabels" | "description" | "scopeNote" | "modelId" | "UUIDHistory"
+>;
+
+/**
+ * Describes the mutable fields for a partial SkillGroup update (PATCH).
+ * All fields are optional.
+ */
+export type IPartialUpdateSkillGroupSpec = Partial<IUpdateSkillGroupSpec>;
+
 /**
  * Describes how a reference to a skill group is returned from the API
  */

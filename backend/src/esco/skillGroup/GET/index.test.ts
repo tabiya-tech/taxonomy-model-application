@@ -3,7 +3,7 @@ import ErrorAPISpecs from "api-specifications/error";
 import * as authenticatorModule from "auth/authorizer";
 import * as queryModule from "./query";
 import * as responseModule from "./response";
-import { SkillGroupListController } from "./index";
+import { SkillGroupListController, handler as exportedHandler } from "./index";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { ISkillGroupService } from "../services/skillGroup.service.type";
 import { ModelForSkillGroupValidationErrorCode, ISkillGroup } from "../_shared/skillGroup.types";
@@ -31,6 +31,7 @@ jest.mock("validator", () => ({
 
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
 const mockGetSkillGroupsPathParameters = jest.mocked(queryModule.getSkillGroupsPathParameters);
+const mockDecodeCursor = jest.mocked(queryModule.decodeCursor);
 const mockTransformPaginated = jest.mocked(responseModule.transformPaginated);
 const mockParseBooleanQueryParam = jest.mocked(parseBooleanQueryParam);
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
@@ -47,6 +48,7 @@ describe("SkillGroupListController", () => {
     jest.clearAllMocks();
     getMockGetSchema().mockReset();
     mockGetSkillGroupsPathParameters.mockReset();
+    mockDecodeCursor.mockReset();
     mockTransformPaginated.mockReset();
     mockParseBooleanQueryParam.mockReset();
     mockParseBooleanQueryParam.mockReturnValue(false);
@@ -62,6 +64,8 @@ describe("SkillGroupListController", () => {
         getHistory: jest.fn(),
         setParent: jest.fn(),
         create: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       } as ISkillGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
@@ -172,6 +176,135 @@ describe("SkillGroupListController", () => {
     expect(JSON.parse(actualResponse.body)).toEqual(transformed);
   });
 
+  function setupSearchTest() {
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.searchPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
+    mockTransformPaginated.mockReturnValue({ data: [], limit: 100, nextCursor: null } as never);
+    return mockServiceRegistry;
+  }
+
+  test("GET should accept a well-formed keyset cursor when searching and pass it verbatim to searchPaginated", async () => {
+    const mockServiceRegistry = setupSearchTest();
+
+    // GIVEN a cursor that decodes to a payload with a valid ObjectId id (keyset pagination strategy)
+    const givenCursor = "opaqueKeysetCursor";
+    mockDecodeCursor.mockReturnValue({ id: getMockStringId(2), createdAt: new Date() } as never);
+
+    // WHEN searching with a query and the well-formed keyset cursor
+    const controller = new SkillGroupListController();
+    const actualResponse = await controller.getSkillGroups(
+      buildEvent(`/models/${givenModelId}/skillGroups`, {
+        query: "data",
+        cursor: givenCursor,
+      })
+    );
+
+    // THEN expect OK and the cursor to be forwarded verbatim to the search service
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+    expect(mockServiceRegistry.skillGroup.searchPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      "data",
+      [EmbeddableField.preferredLabel],
+      givenCursor,
+      100
+    );
+  });
+
+  test("GET should accept a well-formed search cursor when searching and pass it verbatim to searchPaginated", async () => {
+    const mockServiceRegistry = setupSearchTest();
+
+    // GIVEN a cursor that is not decodable as a keyset cursor but is a valid vector-search offset cursor
+    const givenCursor = Buffer.from(JSON.stringify({ offset: 3 })).toString("base64");
+    mockDecodeCursor.mockImplementation(() => {
+      throw new Error("Not a keyset cursor");
+    });
+
+    // WHEN searching with a query and the well-formed search cursor
+    const controller = new SkillGroupListController();
+    const actualResponse = await controller.getSkillGroups(
+      buildEvent(`/models/${givenModelId}/skillGroups`, {
+        query: "data",
+        cursor: givenCursor,
+      })
+    );
+
+    // THEN expect OK and the cursor to be forwarded verbatim to the search service
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+    expect(mockServiceRegistry.skillGroup.searchPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      "data",
+      [EmbeddableField.preferredLabel],
+      givenCursor,
+      100
+    );
+  });
+
+  test("GET should accept a keyset cursor whose id is not a valid ObjectId when it is a valid search cursor", async () => {
+    const mockServiceRegistry = setupSearchTest();
+
+    // GIVEN a cursor that decodes as a keyset payload but holds an invalid ObjectId id,
+    // AND is a valid vector-search offset cursor
+    const givenCursor = Buffer.from(JSON.stringify({ offset: 0 })).toString("base64");
+    mockDecodeCursor.mockReturnValue({ id: "not-an-object-id", createdAt: new Date() } as never);
+
+    // WHEN searching with a query and this cursor
+    const controller = new SkillGroupListController();
+    const actualResponse = await controller.getSkillGroups(
+      buildEvent(`/models/${givenModelId}/skillGroups`, {
+        query: "data",
+        cursor: givenCursor,
+      })
+    );
+
+    // THEN expect OK and the cursor to be forwarded verbatim to the search service
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+    expect(mockServiceRegistry.skillGroup.searchPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      "data",
+      [EmbeddableField.preferredLabel],
+      givenCursor,
+      100
+    );
+  });
+
+  test("GET returns BAD_REQUEST when searching with an ill-formed cursor", async () => {
+    setupSearchTest();
+
+    // GIVEN a cursor that can be decoded neither as a keyset cursor nor as a search cursor
+    const givenCursor = Buffer.from(getRandomString(10)).toString("base64");
+    mockDecodeCursor.mockImplementation(() => {
+      throw new Error("Not a keyset cursor");
+    });
+
+    // WHEN searching with a query and the ill-formed cursor
+    const controller = new SkillGroupListController();
+    const actualResponse = await controller.getSkillGroups(
+      buildEvent(`/models/${givenModelId}/skillGroups`, {
+        query: "data",
+        cursor: givenCursor,
+      })
+    );
+
+    // THEN expect BAD_REQUEST with the invalid cursor error
+    expect(actualResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    const expectedErrorBody: ErrorAPISpecs.Types.GET = {
+      errorCode: ErrorAPISpecs.Constants.GET.ErrorCodes.INVALID_QUERY_PARAMETER,
+      message: "Invalid cursor parameter",
+      details: "",
+    };
+    expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+    // AND expect the search service not to have been called
+    expect(mockGetServiceRegistry().skillGroup.searchPaginated).not.toHaveBeenCalled();
+  });
+
   test("GET should return nextCursor when nextCursor is present in the paginated skill group result", async () => {
     const validatePathFunction = jest.fn().mockReturnValue(true);
     const validateQueryFunction = jest.fn().mockReturnValue(true);
@@ -218,6 +351,8 @@ describe("SkillGroupListController", () => {
       getHistory: jest.fn(),
       setParent: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -483,6 +618,8 @@ describe("SkillGroupListController", () => {
       getHistory: jest.fn(),
       setParent: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -524,6 +661,8 @@ describe("SkillGroupListController", () => {
       getHistory: jest.fn(),
       setParent: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -580,6 +719,8 @@ describe("SkillGroupListController", () => {
       findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),
+      update: jest.fn().mockResolvedValue(null),
+      patch: jest.fn().mockResolvedValue(null),
       setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
       setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
     };
@@ -625,6 +766,8 @@ describe("SkillGroupListController", () => {
       getHistory: jest.fn(),
       setParent: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -643,5 +786,26 @@ describe("SkillGroupListController", () => {
       message: "Failed to retrieve the skill groups from the DB",
       details: "",
     });
+  });
+
+  test("should return the response from the exported handler", async () => {
+    // GIVEN a valid GET request event
+    const validatePathFunction = jest.fn().mockReturnValue(true);
+    const validateQueryFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema()
+      .mockReturnValueOnce(validatePathFunction as never)
+      .mockReturnValueOnce(validateQueryFunction as never);
+    mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
+    mockTransformPaginated.mockReturnValue({ data: [], limit: 100, nextCursor: null } as never);
+
+    // WHEN calling the exported handler
+    const actualResponse = await exportedHandler(buildEvent(`/models/${givenModelId}/skillGroups`) as never);
+
+    // THEN expect the OK status
+    expect(actualResponse.statusCode).toBe(StatusCodes.OK);
   });
 });
