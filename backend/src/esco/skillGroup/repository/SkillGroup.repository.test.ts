@@ -2,6 +2,7 @@
 import "_test_utilities/consoleMock";
 
 import { getMockStringId } from "_test_utilities/mockMongoId";
+import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
@@ -15,6 +16,8 @@ import {
   ISkillGroup,
   ISkillGroupDoc,
   ISkillGroupReference,
+  IPartialUpdateSkillGroupSpec,
+  IUpdateSkillGroupSpec,
 } from "../_shared/skillGroup.types";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -1774,6 +1777,203 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.skillGroup.findHistoryReferencesByUUIDs([randomUUID()]);
+    });
+  });
+
+  describe("Test update() skill group ", () => {
+    test("should successfully update an existing SkillGroup with new values", async () => {
+      // GIVEN a SkillGroup exists in the database
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(givenModelId, "group_1");
+      const givenSkillGroup = await repository.create(givenSkillGroupSpec);
+
+      // AND new values to update
+      const givenUpdateSpec: IUpdateSkillGroupSpec = {
+        code: getTestSkillGroupCode(200),
+        preferredLabel: "Updated Label",
+        altLabels: ["updated-alt-1"],
+        description: "Updated description",
+        scopeNote: "Updated scope note",
+        originUri: "https://updated.example.com",
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+      };
+
+      // WHEN updating the SkillGroup
+      const actualUpdated = await repository.update(givenSkillGroup.id, givenModelId, givenUpdateSpec);
+
+      // THEN expect the updated SkillGroup to have the new values
+      expect(actualUpdated).not.toBeNull();
+      expect(actualUpdated!.id).toEqual(givenSkillGroup.id);
+      expect(actualUpdated!.code).toEqual(givenUpdateSpec.code);
+      expect(actualUpdated!.preferredLabel).toEqual("Updated Label");
+      expect(actualUpdated!.altLabels).toEqual(["updated-alt-1"]);
+      expect(actualUpdated!.description).toEqual("Updated description");
+      expect(actualUpdated!.scopeNote).toEqual("Updated scope note");
+      expect(actualUpdated!.originUri).toEqual("https://updated.example.com");
+      // AND expect the UUIDHistory to be replaced
+      expect(actualUpdated!.UUIDHistory).toEqual(givenUpdateSpec.UUIDHistory);
+      // AND expect the timestamps to be updated
+      expect(actualUpdated!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenSkillGroup.updatedAt.getTime());
+    });
+
+    test("should return null if the SkillGroup with the given id does not exist", async () => {
+      // GIVEN no SkillGroup with the given id exists
+      const givenModelId = getMockStringId(1);
+      const givenUpdateSpec: IUpdateSkillGroupSpec = {
+        code: getTestSkillGroupCode(100),
+        preferredLabel: "Label",
+        altLabels: [],
+        description: "Desc",
+        scopeNote: "ScopeNote",
+        originUri: "https://example.com",
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+      };
+
+      // WHEN updating a non-existent SkillGroup
+      const actualUpdated = await repository.update(getMockStringId(999), givenModelId, givenUpdateSpec);
+
+      // THEN expect null to be returned
+      expect(actualUpdated).toBeNull();
+    });
+
+    test("should return null if the given id is not a valid ObjectId", async () => {
+      // GIVEN an invalid id
+      const givenModelId = getMockStringId(1);
+      const givenUpdateSpec: IUpdateSkillGroupSpec = {
+        code: getTestSkillGroupCode(100),
+        preferredLabel: "Label",
+        altLabels: [],
+        description: "Desc",
+        scopeNote: "ScopeNote",
+        originUri: "https://example.com",
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+      };
+
+      // WHEN updating with an invalid id
+      const actualUpdated = await repository.update("invalid_id", givenModelId, givenUpdateSpec);
+
+      // THEN expect null to be returned
+      expect(actualUpdated).toBeNull();
+    });
+
+    test("should return null if the SkillGroup exists but belongs to a different model", async () => {
+      // GIVEN a SkillGroup in model A
+      const givenModelIdA = getMockStringId(1);
+      const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelIdA, "group_1"));
+
+      // WHEN updating with a different modelId
+      const givenModelIdB = getMockStringId(2);
+      const givenUpdateSpec: IUpdateSkillGroupSpec = {
+        code: getTestSkillGroupCode(100),
+        preferredLabel: "Label",
+        altLabels: [],
+        description: "Desc",
+        scopeNote: "ScopeNote",
+        originUri: "https://example.com",
+        modelId: givenModelIdB,
+        UUIDHistory: [randomUUID()],
+      };
+      const actualUpdated = await repository.update(givenSkillGroup.id, givenModelIdB, givenUpdateSpec);
+
+      // THEN expect null to be returned (no match for the given modelId)
+      expect(actualUpdated).toBeNull();
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      const givenSpec: IUpdateSkillGroupSpec = {
+        code: getTestSkillGroupCode(100),
+        preferredLabel: "Label",
+        altLabels: [],
+        description: "Desc",
+        scopeNote: "ScopeNote",
+        originUri: "https://example.com",
+        modelId: getMockStringId(1),
+        UUIDHistory: [randomUUID()],
+      };
+      return repositoryRegistry.skillGroup.update(getMockStringId(1), getMockStringId(1), givenSpec);
+    });
+  });
+
+  describe("Test patch() skill group ", () => {
+    test("should successfully patch an existing SkillGroup with partial values", async () => {
+      // GIVEN a SkillGroup exists in the database
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "group_1"));
+
+      // WHEN patching with only preferredLabel and scopeNote
+      const givenPatchSpec: IPartialUpdateSkillGroupSpec = {
+        preferredLabel: "Patched Label",
+        scopeNote: "Patched scope note",
+      };
+      const actualPatched = await repository.patch(givenSkillGroup.id, givenModelId, givenPatchSpec);
+
+      // THEN expect only the specified fields to be updated, others remain unchanged
+      expect(actualPatched).not.toBeNull();
+      expect(actualPatched!.id).toEqual(givenSkillGroup.id);
+      expect(actualPatched!.preferredLabel).toEqual("Patched Label");
+      expect(actualPatched!.scopeNote).toEqual("Patched scope note");
+      // AND expect the other fields to remain unchanged
+      expect(actualPatched!.code).toEqual(givenSkillGroup.code);
+      expect(actualPatched!.altLabels).toEqual(givenSkillGroup.altLabels);
+      expect(actualPatched!.description).toEqual(givenSkillGroup.description);
+      expect(actualPatched!.originUri).toEqual(givenSkillGroup.originUri);
+      expect(actualPatched!.UUIDHistory).toEqual(givenSkillGroup.UUIDHistory);
+      // AND expect the timestamps to be updated
+      expect(actualPatched!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenSkillGroup.updatedAt.getTime());
+    });
+
+    test("should return null if the SkillGroup with the given id does not exist", async () => {
+      // GIVEN no SkillGroup with the given id exists
+      const givenModelId = getMockStringId(1);
+      const givenPatchSpec: IPartialUpdateSkillGroupSpec = {
+        preferredLabel: "Patched Label",
+      };
+
+      // WHEN patching a non-existent SkillGroup
+      const actualPatched = await repository.patch(getMockStringId(999), givenModelId, givenPatchSpec);
+
+      // THEN expect null to be returned
+      expect(actualPatched).toBeNull();
+    });
+
+    test("should return null if the given id is not a valid ObjectId", async () => {
+      // GIVEN an invalid id
+      const givenModelId = getMockStringId(1);
+      const givenPatchSpec: IPartialUpdateSkillGroupSpec = {
+        preferredLabel: "Patched Label",
+      };
+
+      // WHEN patching with an invalid id
+      const actualPatched = await repository.patch("invalid_id", givenModelId, givenPatchSpec);
+
+      // THEN expect null to be returned
+      expect(actualPatched).toBeNull();
+    });
+
+    test("should return null if the SkillGroup exists but belongs to a different model", async () => {
+      // GIVEN a SkillGroup in model A
+      const givenModelIdA = getMockStringId(1);
+      const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelIdA, "group_1"));
+
+      // WHEN patching with a different modelId
+      const givenModelIdB = getMockStringId(2);
+      const givenPatchSpec: IPartialUpdateSkillGroupSpec = {
+        preferredLabel: "Patched Label",
+      };
+      const actualPatched = await repository.patch(givenSkillGroup.id, givenModelIdB, givenPatchSpec);
+
+      // THEN expect null to be returned (no match for the given modelId)
+      expect(actualPatched).toBeNull();
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      const givenSpec: IPartialUpdateSkillGroupSpec = {
+        preferredLabel: "Label",
+      };
+      return repositoryRegistry.skillGroup.patch(getMockStringId(1), getMockStringId(1), givenSpec);
     });
   });
 });

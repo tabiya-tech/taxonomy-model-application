@@ -70,6 +70,8 @@ describe("SkillGroupCreateController", () => {
         findChildren: jest.fn(),
         getHistory: jest.fn(),
         setParent: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       } as ISkillGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
@@ -183,6 +185,8 @@ describe("SkillGroupCreateController", () => {
       findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -252,6 +256,8 @@ describe("SkillGroupCreateController", () => {
       findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -382,6 +388,8 @@ describe("SkillGroupCreateController", () => {
       findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -574,6 +582,8 @@ describe("SkillGroupCreateController", () => {
       findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
@@ -625,6 +635,8 @@ describe("SkillGroupCreateController", () => {
       findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
       getHistory: jest.fn(),
       setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
     } as ISkillGroupService;
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;

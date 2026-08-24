@@ -10,6 +10,8 @@ import { handler as skillGroupParentsHandler } from "./[id]/parents/GET";
 import { handler as skillGroupChildrenHandler } from "./[id]/children/GET";
 import { handler as skillGroupHistoryHandler } from "./[id]/history/GET";
 import { handler as skillGroupParentsPOSTHandler } from "./[id]/parents/POST";
+import { handler as skillGroupPATCHHandler } from "./[id]/PATCH";
+import { handler as skillGroupPUTHandler } from "./[id]/PUT";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent
@@ -34,6 +36,18 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
     }
     if (pathToRegexp(Routes.SKILL_GROUP_PARENTS_ROUTE).regexp.exec(pathToMatch)) {
       return skillGroupParentsPOSTHandler(event);
+    }
+  }
+  if (event?.httpMethod === HTTP_VERBS.PATCH) {
+    const pathToMatch = event.path || "";
+    if (pathToRegexp(Routes.SKILL_GROUP_ROUTE).regexp.exec(pathToMatch)) {
+      return skillGroupPATCHHandler(event);
+    }
+  }
+  if (event?.httpMethod === HTTP_VERBS.PUT) {
+    const pathToMatch = event.path || "";
+    if (pathToRegexp(Routes.SKILL_GROUP_ROUTE).regexp.exec(pathToMatch)) {
+      return skillGroupPUTHandler(event);
     }
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;

@@ -50,6 +50,8 @@ describe("SkillGroupDetailController", () => {
         getHistory: jest.fn(),
         setParent: jest.fn(),
         create: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       } as ISkillGroupService,
     } as unknown as ServiceRegistry;
 

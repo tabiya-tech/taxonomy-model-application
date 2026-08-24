@@ -517,6 +517,8 @@ describe("Test the main async handler", () => {
         findParents: jest.fn().mockResolvedValue([]),
         findChildren: jest.fn().mockResolvedValue([]),
         findHistoryReferencesByUUIDs: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
         setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         findByIds: jest.fn().mockResolvedValue([]),

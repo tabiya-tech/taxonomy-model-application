@@ -98,6 +98,8 @@ describe("SkillGroupParentPOSTController", () => {
         searchPaginated: jest.fn(),
         validateModelForSkillGroup: jest.fn(),
         getHistory: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       } as ISkillGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);

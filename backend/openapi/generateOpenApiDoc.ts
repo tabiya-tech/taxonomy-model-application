@@ -96,6 +96,10 @@ delete SkillGroup.POST.Schemas.Response.Payload.$id;
 delete SkillGroup.GET.Schemas.Request.Param.Payload.$id;
 delete SkillGroup.GET.Schemas.Request.Query.Payload.$id;
 delete SkillGroup.GET.Schemas.Response.Payload.$id;
+delete SkillGroup.SkillGroup.PATCH.Schemas.Request.Payload.$id;
+delete SkillGroup.SkillGroup.PATCH.Schemas.Response.Payload.$id;
+delete SkillGroup.SkillGroup.PUT.Schemas.Request.Payload.$id;
+delete SkillGroup.SkillGroup.PUT.Schemas.Response.Payload.$id;
 delete SkillGroup.SkillGroup.GET.Schemas.Response.Payload.$id;
 delete SkillGroup.SkillGroup.Schemas.Request.Param.Payload.$id;
 delete SkillGroup.SkillGroup.Parent.GET.Schemas.Request.Query.Payload.$id;
@@ -396,6 +400,18 @@ function getOpenAPISpecification(
             400,
             Object.values(SkillGroup.POST.Enums.Response.Status400.ErrorCodes)
           ),
+          PATCHSkillGroup400ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "SkillGroup",
+            400,
+            Object.values(SkillGroup.SkillGroup.PATCH.Errors.Response.Status400.ErrorCodes)
+          ),
+          PUTSkillGroup400ErrorSchema: APIError.Schemas.getPayload(
+            "PUT",
+            "SkillGroup",
+            400,
+            Object.values(SkillGroup.SkillGroup.PUT.Errors.Response.Status400.ErrorCodes)
+          ),
           // Skill-specific error schemas
           POSTSkill400ErrorSchema: APIError.Schemas.getPayload(
             "POST",
@@ -582,6 +598,10 @@ function getOpenAPISpecification(
           SkillGroupResponseSchemaGETById: SkillGroup.SkillGroup.GET.Schemas.Response.Payload,
           SkillGroupParentsResponseSchemaGET: SkillGroup.SkillGroup.Parent.GET.Schemas.Response.Parents.Payload,
           SkillGroupParentsRequestQueryParamSchemaGET: SkillGroup.SkillGroup.Parent.GET.Schemas.Request.Query.Payload,
+          SkillGroupRequestSchemaPATCH: SkillGroup.SkillGroup.PATCH.Schemas.Request.Payload,
+          SkillGroupResponseSchemaPATCH: SkillGroup.SkillGroup.PATCH.Schemas.Response.Payload,
+          SkillGroupRequestSchemaPUT: SkillGroup.SkillGroup.PUT.Schemas.Request.Payload,
+          SkillGroupResponseSchemaPUT: SkillGroup.SkillGroup.PUT.Schemas.Response.Payload,
           SkillGroupChildrenResponseSchemaGET: SkillGroup.SkillGroup.Children.GET.Schemas.Response.Children.Payload,
           SkillGroupChildrenRequestQueryParamSchemaGET:
             SkillGroup.SkillGroup.Children.GET.Schemas.Request.Query.Payload,

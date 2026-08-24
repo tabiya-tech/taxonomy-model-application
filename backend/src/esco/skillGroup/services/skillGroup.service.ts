@@ -10,6 +10,8 @@ import {
   INewSkillGroupSpecWithoutImportId,
   ISkillGroup,
   ISkillGroupChild,
+  IPartialUpdateSkillGroupSpec,
+  IUpdateSkillGroupSpec,
 } from "../_shared/skillGroup.types";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import { ISkillHierarchyRepository } from "esco/skillHierarchy/skillHierarchyRepository";
@@ -197,6 +199,22 @@ export class SkillGroupService implements ISkillGroupService {
       console.error("Error validating model for skill group:", e);
       return ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
     }
+  }
+
+  async update(id: string, modelId: string, spec: IUpdateSkillGroupSpec): Promise<ISkillGroup | null> {
+    const errorCode = await this.validateModelForSkillGroup(modelId);
+    if (errorCode != null) {
+      throw new SkillGroupModelValidationError(errorCode);
+    }
+    return this.skillGroupRepository.update(id, modelId, spec);
+  }
+
+  async patch(id: string, modelId: string, spec: IPartialUpdateSkillGroupSpec): Promise<ISkillGroup | null> {
+    const errorCode = await this.validateModelForSkillGroup(modelId);
+    if (errorCode != null) {
+      throw new SkillGroupModelValidationError(errorCode);
+    }
+    return this.skillGroupRepository.patch(id, modelId, spec);
   }
 
   async findParents(

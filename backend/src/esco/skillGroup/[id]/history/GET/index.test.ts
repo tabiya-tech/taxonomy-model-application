@@ -46,6 +46,8 @@ describe("SkillGroupHistoryController", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         setParent: jest.fn(),
         create: jest.fn(),
+        update: jest.fn(),
+        patch: jest.fn(),
       } as ISkillGroupService,
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);

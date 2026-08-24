@@ -7,6 +7,8 @@ import {
   ISkillGroupChild,
   ISkillGroupDoc,
   ISkillGroupReference,
+  IPartialUpdateSkillGroupSpec,
+  IUpdateSkillGroupSpec,
 } from "../_shared/skillGroup.types";
 import {
   populateSkillGroupChildrenOptions,
@@ -106,6 +108,26 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
    * @return {Promise<ISkillGroupModelHistoryReference[]>} - The resolved reference + modelId per input UUID.
    */
   findHistoryReferencesByUUIDs(uuids: string[]): Promise<ISkillGroupModelHistoryReference[]>;
+
+  /**
+   * Fully replaces the mutable fields of a SkillGroup (PUT semantics).
+   *
+   * @param {string} id - The ID of the SkillGroup to update.
+   * @param {string} modelId - The model ID the SkillGroup belongs to.
+   * @param {IUpdateSkillGroupSpec} spec - The full set of new field values.
+   * @return {Promise<ISkillGroup | null>} - The updated skill group, or null if not found.
+   */
+  update(id: string, modelId: string, spec: IUpdateSkillGroupSpec): Promise<ISkillGroup | null>;
+
+  /**
+   * Partially updates a SkillGroup (PATCH semantics).
+   *
+   * @param {string} id - The ID of the SkillGroup to update.
+   * @param {string} modelId - The model ID the SkillGroup belongs to.
+   * @param {IPartialUpdateSkillGroupSpec} spec - Only the fields to update.
+   * @return {Promise<ISkillGroup | null>} - The updated skill group, or null if not found.
+   */
+  patch(id: string, modelId: string, spec: IPartialUpdateSkillGroupSpec): Promise<ISkillGroup | null>;
 }
 
 export class SkillGroupRepository implements ISkillGroupRepository {
@@ -523,6 +545,38 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       return result as ISkillGroupChild[];
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findChildren: findChildren failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async update(id: string, modelId: string, spec: IUpdateSkillGroupSpec): Promise<ISkillGroup | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
+      if (!doc) return null;
+      doc.set(spec);
+      await doc.save();
+      await doc.populate([populateSkillGroupParentsOptions, populateSkillGroupChildrenOptions]);
+      return doc.toObject();
+    } catch (e: unknown) {
+      const err = new Error("SkillGroupRepository.update: update failed.", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async patch(id: string, modelId: string, spec: IPartialUpdateSkillGroupSpec): Promise<ISkillGroup | null> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
+      if (!doc) return null;
+      doc.set(spec);
+      await doc.save();
+      await doc.populate([populateSkillGroupParentsOptions, populateSkillGroupChildrenOptions]);
+      return doc.toObject();
+    } catch (e: unknown) {
+      const err = new Error("SkillGroupRepository.patch: patch failed.", { cause: e });
       console.error(err);
       throw err;
     }
