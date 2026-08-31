@@ -6,6 +6,8 @@ import {
   OccupationLanguageValidationError,
   OccupationModelValidationError,
   ValidateModelResult,
+  OccupationServiceError,
+  OccupationServiceErrorCode,
 } from "./occupation.service.types";
 import { findUnsupportedLanguage, findUnsupportedLanguageInPartialSpec } from "./validateOccupationLanguages";
 import {
@@ -356,5 +358,19 @@ export class OccupationService implements IOccupationService {
     }
 
     return this.occupationRepository.patch(id, modelId, spec);
+  }
+
+  async delete(id: string, modelId: string): Promise<void> {
+    const result = await this.validateModelForOccupation(modelId);
+    if (result.errorCode != null) {
+      throw new OccupationModelValidationError(result.errorCode);
+    }
+    const success = await this.occupationRepository.delete(id, modelId);
+    if (!success) {
+      throw new OccupationServiceError(
+        OccupationServiceErrorCode.OCCUPATION_NOT_FOUND,
+        `No occupation found with id: ${id}`
+      );
+    }
   }
 }

@@ -41,6 +41,7 @@ describe("Test for occupation Detail GET handler", () => {
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         update: jest.fn(),
         patch: jest.fn(),
+        delete: jest.fn(),
         getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService,
       initialize: jest.fn(),

@@ -369,6 +369,24 @@ function getOpenAPISpecification(
             404,
             Object.values(Occupation.Occupation.PATCH.Errors.Status404.ErrorCodes)
           ),
+          DELETEOccupation400ErrorSchema: APIError.Schemas.getPayload(
+            "DELETE",
+            "Occupation",
+            400,
+            Object.values(Occupation.Occupation.DELETE.Errors.Status400.ErrorCodes)
+          ),
+          DELETEOccupation404ErrorSchema: APIError.Schemas.getPayload(
+            "DELETE",
+            "Occupation",
+            404,
+            Object.values(Occupation.Occupation.DELETE.Errors.Status404.ErrorCodes)
+          ),
+          DELETEOccupation409ErrorSchema: APIError.Schemas.getPayload(
+            "DELETE",
+            "Occupation",
+            409,
+            Object.values(Occupation.Occupation.DELETE.Errors.Status409.ErrorCodes)
+          ),
           GETSkillGroup400ErrorSchema: APIError.Schemas.getPayload("GET", "SkillGroup", 400, [
             ...(new Set([
               ...Object.values(SkillGroup.GET.Enums.Response.Status400.ErrorCodes),

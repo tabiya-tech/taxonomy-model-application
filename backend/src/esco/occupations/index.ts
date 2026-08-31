@@ -16,6 +16,7 @@ import { handler as putByIdHandler } from "./[id]/PUT/index";
 import { handler as patchByIdHandler } from "./[id]/PATCH/index";
 import { handler as patchParentHandler } from "./[id]/parent/PATCH/index";
 import { handler as patchSkillsHandler } from "./[id]/skills/PATCH/index";
+import { handler as deleteByIdHandler } from "./[id]/DELETE/index";
 
 export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> = async (
   event: APIGatewayProxyEvent
@@ -55,6 +56,11 @@ export const handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyRe
       return patchSkillsHandler(event);
     } else if (pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.exec(pathToMatch)) {
       return patchByIdHandler(event);
+    }
+  } else if (event?.httpMethod === HTTP_VERBS.DELETE) {
+    const pathToMatch = event.path || "";
+    if (pathToRegexp(Routes.OCCUPATION_ROUTE).regexp.exec(pathToMatch)) {
+      return deleteByIdHandler(event);
     }
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;

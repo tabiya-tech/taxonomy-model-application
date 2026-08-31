@@ -76,6 +76,7 @@ function setupOccupationRepositoryMock(findAllWithTranslationsImpl: () => Readab
     findSkillsForOccupation: jest.fn(),
     update: jest.fn(),
     patch: jest.fn(),
+    delete: jest.fn(),
     setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
     setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
     createManyLocalized: jest.fn().mockResolvedValue([]),
