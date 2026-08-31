@@ -9,6 +9,7 @@ import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegi
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { IOccupationRepository, SearchFilter } from "./occupation.repository";
+import { OccupationHasChildrenError } from "../services/occupation.service.types";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import {
   INewOccupationSpec,
@@ -2618,6 +2619,107 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       await expect(
         repository.patch(new mongoose.Types.ObjectId().toHexString(), getMockStringId(1), patchSpec)
       ).rejects.toThrow("OccupationRepository.patch: patch failed.");
+    });
+  });
+
+  describe("delete", () => {
+    test("should return false if id is not a valid ObjectId", async () => {
+      const actual = await repository.delete("invalid-id", getMockStringId(1));
+      expect(actual).toBe(false);
+    });
+
+    test("should return false if modelId is not a valid ObjectId", async () => {
+      const actual = await repository.delete(getMockStringId(1), "invalid-id");
+      expect(actual).toBe(false);
+    });
+
+    test("should return false if occupation does not exist", async () => {
+      const actual = await repository.delete(getMockStringId(1), getMockStringId(2));
+      expect(actual).toBe(false);
+    });
+
+    test("should throw OccupationHasChildrenError if occupation has children", async () => {
+      const modelId = getMockStringId(1);
+      const parentSpec = getSimpleNewESCOOccupationSpec(modelId, "parent_occ");
+      const parent = await repository.create(parentSpec);
+
+      const childSpec = getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_occ", parent.code);
+      const child = await repository.create(childSpec);
+
+      await repositoryRegistry.occupationHierarchy.createMany(modelId, [
+        {
+          parentType: parent.occupationType,
+          parentId: parent.id,
+          childType: child.occupationType,
+          childId: child.id,
+        },
+      ]);
+
+      await expect(repository.delete(parent.id, modelId)).rejects.toThrow(OccupationHasChildrenError);
+    });
+
+    test("should successfully delete an occupation with transaction session commit", async () => {
+      const modelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_to_delete");
+      const occupation = await repository.create(givenSpec);
+
+      const realSession = await repository.Model.db.startSession();
+      jest.spyOn(realSession, "startTransaction").mockImplementation(() => {});
+      jest.spyOn(realSession, "commitTransaction").mockResolvedValue(undefined as never);
+      jest.spyOn(realSession, "abortTransaction").mockResolvedValue(undefined as never);
+      jest.spyOn(realSession, "endSession").mockResolvedValue(undefined as never);
+
+      const startSessionSpy = jest.spyOn(repository.Model.db, "startSession").mockResolvedValueOnce(realSession);
+
+      const actual = await repository.delete(occupation.id, modelId);
+
+      expect(actual).toBe(true);
+      expect(realSession.startTransaction).toHaveBeenCalled();
+      expect(realSession.commitTransaction).toHaveBeenCalled();
+      expect(realSession.endSession).toHaveBeenCalled();
+
+      startSessionSpy.mockRestore();
+    });
+
+    test("should throw wrapped error when unexpected database error occurs", async () => {
+      const modelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_err");
+      const occupation = await repository.create(givenSpec);
+
+      const findOneSpy = jest.spyOn(repository.Model, "findOne").mockImplementationOnce(() => {
+        throw new Error("Unexpected DB failure");
+      });
+
+      await expect(repository.delete(occupation.id, modelId)).rejects.toThrow(
+        "OccupationRepository.delete: delete failed."
+      );
+
+      findOneSpy.mockRestore();
+    });
+
+    test("should rethrow non-replica-set transaction error during delete", async () => {
+      const modelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_txn_err");
+      const occupation = await repository.create(givenSpec);
+
+      const mockSession = {
+        startTransaction: jest.fn().mockImplementation(() => {
+          throw new Error("Some custom transaction error");
+        }),
+        abortTransaction: jest.fn().mockResolvedValue(undefined),
+        endSession: jest.fn().mockResolvedValue(undefined),
+        inTransaction: jest.fn().mockReturnValue(true),
+      };
+
+      const startSessionSpy = jest
+        .spyOn(repository.Model.db, "startSession")
+        .mockResolvedValueOnce(mockSession as unknown as mongoose.ClientSession);
+
+      await expect(repository.delete(occupation.id, modelId)).rejects.toThrow(
+        "OccupationRepository.delete: delete failed."
+      );
+
+      startSessionSpy.mockRestore();
     });
   });
 });

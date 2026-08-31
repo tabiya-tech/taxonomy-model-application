@@ -7,6 +7,7 @@ describe("Test the Occupation Instance module", () => {
 
     // THEN check if Schemas are defined
     expect(occupationInstanceModule.default.GET.Schemas.Request.Param.Payload).toBeDefined();
+    expect(occupationInstanceModule.default.DELETE.Schemas.Request.Param.Payload).toBeDefined();
     expect(occupationInstanceModule.default.Parent.GET.Schemas.Response.Payload).toBeDefined();
     expect(occupationInstanceModule.default.Children.GET.Schemas.Response.Payload).toBeDefined();
     expect(occupationInstanceModule.default.Skills.GET.Schemas.Response.Payload).toBeDefined();

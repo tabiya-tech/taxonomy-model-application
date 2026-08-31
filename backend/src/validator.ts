@@ -90,6 +90,10 @@ ajvInstance.addSchema(
   OccupationAPISpecs.Occupation.GET.Schemas.Request.Param.Payload.$id
 );
 ajvInstance.addSchema(
+  OccupationAPISpecs.Occupation.DELETE.Schemas.Request.Param.Payload,
+  OccupationAPISpecs.Occupation.DELETE.Schemas.Request.Param.Payload.$id
+);
+ajvInstance.addSchema(
   OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload,
   OccupationAPISpecs.Occupation.Parent.GET.Schemas.Response.Payload.$id
 );
