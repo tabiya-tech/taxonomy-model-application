@@ -6,6 +6,7 @@ import OccupationRegexes from "../_shared/regex";
 import GETOccupationByIdOperation from "./GET";
 import PUTOccupationOperation from "./PUT";
 import PATCHOccupationOperation from "./PATCH";
+import DELETEOccupationOperation from "./DELETE";
 import OccupationParentAPISpecs from "./parent";
 import OccupationChildrenAPISpecs from "./children";
 import OccupationSkillsAPISpecs from "./skills";
@@ -21,6 +22,7 @@ namespace OccupationInstanceAPISpecs {
   export import GET = GETOccupationByIdOperation;
   export import PUT = PUTOccupationOperation;
   export import PATCH = PATCHOccupationOperation;
+  export import DELETE = DELETEOccupationOperation;
 
   // Child API Paths
   export import Parent = OccupationParentAPISpecs;
