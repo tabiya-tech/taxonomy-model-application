@@ -59,7 +59,7 @@ jest.mock("@mui/material", () => {
   };
 });
 
-// mock isOnlineProvider, AuthProvider
+// mock isOnlineProvider, AuthProvider, QueryProvider
 jest.mock("src/app/providers/index.tsx", () => {
   const mIsOnlineProvider = jest
     .fn()
@@ -68,10 +68,15 @@ jest.mock("src/app/providers/index.tsx", () => {
   const mAuthProvider = jest
     .fn()
     .mockImplementation(({ children }) => <div data-testid="auth-provider-id">{children}</div>);
+
+  const mQueryProvider = jest
+    .fn()
+    .mockImplementation(({ children }) => <div data-testid="query-provider-id">{children}</div>);
   return {
     __esModule: true,
     IsOnlineProvider: mIsOnlineProvider,
     AuthProvider: mAuthProvider,
+    QueryProvider: mQueryProvider,
   };
 });
 
@@ -110,8 +115,12 @@ describe("test the application bootstrapping", () => {
       const authProviderElement = within(themeProviderElement).getByTestId("auth-provider-id");
       expect(authProviderElement).toBeInTheDocument();
 
-      // AND expect the taxonomy app to be in the DOM and to be a child of the snackbar provider
-      const taxonomyAppElement = within(snackbarProviderElement).getByTestId("tabiya-app-id");
+      // AND expect the query provider to be in the DOM and to be a child of the snackbar provider
+      const queryProviderElement = within(snackbarProviderElement).getByTestId("query-provider-id");
+      expect(queryProviderElement).toBeInTheDocument();
+
+      // AND expect the taxonomy app to be in the DOM and to be a child of the query provider
+      const taxonomyAppElement = within(queryProviderElement).getByTestId("tabiya-app-id");
       expect(taxonomyAppElement).toBeInTheDocument();
     });
   });
