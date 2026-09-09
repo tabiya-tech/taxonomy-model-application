@@ -1,5 +1,6 @@
 import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
+import { Transactional, TxContext } from "common/transactional";
 import {
   INewOccupationSpec,
   INewOccupationSpecWithoutImportId,
@@ -215,10 +216,11 @@ export interface IOccupationRepository extends IEmbeddableEntityRepository {
    *
    * @param {string} id - The unique ID of the Occupation entry.
    * @param {string} modelId - The model ID the Occupation belongs to.
+   * @param {TxContext} ctx - Supplied by the @Transactional() decorator; callers must omit it.
    * @return {Promise<boolean>} - True if deleted, false if not found.
    * Throws OccupationHasChildrenError if the occupation has child occupations.
    */
-  delete(id: string, modelId: string): Promise<boolean>;
+  delete(id: string, modelId: string, ctx?: TxContext): Promise<boolean>;
 }
 
 export class OccupationRepository implements IOccupationRepository {
@@ -777,70 +779,47 @@ export class OccupationRepository implements IOccupationRepository {
     }
   }
 
-  async delete(id: string, modelId: string): Promise<boolean> {
+  @Transactional()
+  async delete(id: string, modelId: string, ctx: TxContext = {}): Promise<boolean> {
+    const { session } = ctx;
     try {
       if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(modelId)) return false;
       const occupationIdObj = new mongoose.Types.ObjectId(id);
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
 
-      const doc = await this.Model.findOne({ _id: occupationIdObj, modelId: modelIdObj }).exec();
+      const doc = await this.Model.findOne({ _id: occupationIdObj, modelId: modelIdObj })
+        .session(session ?? null)
+        .exec();
       if (!doc) return false;
 
       const HierarchyModel = this.Model.db.model(MongooseModelName.OccupationHierarchy);
       const RelationModel = this.Model.db.model(MongooseModelName.OccupationToSkillRelation);
 
-      // Check if occupation has children in hierarchy
       const childCount = await HierarchyModel.countDocuments({
         modelId: modelIdObj,
         parentId: occupationIdObj,
-      }).exec();
+      })
+        .session(session ?? null)
+        .exec();
 
       if (childCount > 0) {
         throw new OccupationHasChildrenError();
       }
 
-      // Perform deletion of junctions and entity
-      let session: mongoose.ClientSession | null = null;
-      try {
-        session = await this.Model.db.startSession();
-        session.startTransaction();
+      await RelationModel.deleteMany(
+        { modelId: modelIdObj, requiringOccupationId: occupationIdObj },
+        { session }
+      ).exec();
 
-        await RelationModel.deleteMany(
-          { modelId: modelIdObj, requiringOccupationId: occupationIdObj },
-          { session }
-        ).exec();
+      await HierarchyModel.deleteMany(
+        {
+          modelId: modelIdObj,
+          $or: [{ childId: occupationIdObj }, { parentId: occupationIdObj }],
+        },
+        { session }
+      ).exec();
 
-        await HierarchyModel.deleteMany(
-          {
-            modelId: modelIdObj,
-            $or: [{ childId: occupationIdObj }, { parentId: occupationIdObj }],
-          },
-          { session }
-        ).exec();
-
-        await this.Model.deleteOne({ _id: occupationIdObj, modelId: modelIdObj }, { session }).exec();
-
-        await session.commitTransaction();
-      } catch (txnError: unknown) {
-        if (session && session.inTransaction()) {
-          await session.abortTransaction();
-        }
-        const errMsg = txnError instanceof Error ? txnError.message : "";
-        if (errMsg.includes("Transaction numbers are only allowed") || errMsg.includes("replica set")) {
-          await RelationModel.deleteMany({ modelId: modelIdObj, requiringOccupationId: occupationIdObj }).exec();
-          await HierarchyModel.deleteMany({
-            modelId: modelIdObj,
-            $or: [{ childId: occupationIdObj }, { parentId: occupationIdObj }],
-          }).exec();
-          await this.Model.deleteOne({ _id: occupationIdObj, modelId: modelIdObj }).exec();
-        } else {
-          throw txnError;
-        }
-      } finally {
-        if (session) {
-          session.endSession();
-        }
-      }
+      await this.Model.deleteOne({ _id: occupationIdObj, modelId: modelIdObj }, { session }).exec();
 
       return true;
     } catch (e: unknown) {

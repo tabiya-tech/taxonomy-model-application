@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent } from "aws-lambda";
 import "_test_utilities/consoleMock";
 import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
+import { MongoMemoryReplSet } from "mongodb-memory-server";
 
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
@@ -18,18 +19,28 @@ import { ObjectTypes } from "esco/common/objectTypes";
 
 describe("Test for occupation DELETE handler with a DB", () => {
   let dbConnection: Connection | undefined;
+  let replSet: MongoMemoryReplSet;
   beforeAll(async () => {
-    const config = getTestConfiguration("OccupationDELETEHandlerTestDB");
+    // we have to use a replSet because deleting an occupation runs in a transaction
+    // and transactions are not supported in standalone mongo instances
+    replSet = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
+    const config = {
+      ...getTestConfiguration("OccupationDELETEHandlerTestDB"),
+      dbURI: replSet.getUri("OccupationDELETEHandlerTestDB"),
+    };
     const configModule = await import("server/config/config");
     jest.spyOn(configModule, "readEnvironmentConfiguration").mockReturnValue(config);
     await initOnce();
     dbConnection = getConnectionManager().getCurrentDBConnection();
-  });
+  }, 60_000);
 
   afterAll(async () => {
     if (dbConnection) {
       await dbConnection.dropDatabase();
-      await dbConnection.close();
+      await dbConnection.close(false); // do not force close as there might be pending mongo operations
+    }
+    if (replSet) {
+      await replSet.stop();
     }
   });
 
