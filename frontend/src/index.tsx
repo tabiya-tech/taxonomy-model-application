@@ -7,7 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import applicationTheme, { ThemeMode } from "./theme/applicationTheme/applicationTheme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import SnackbarProvider from "./theme/SnackbarProvider/SnackbarProvider";
-import { IsOnlineProvider, AuthProvider } from "src/app/providers";
+import { IsOnlineProvider, AuthProvider, QueryProvider } from "src/app/providers";
 import { applyBrandingFromEnv } from "src/branding/branding";
 
 // Currently the fonts are downloaded from Google via the index.css
@@ -25,7 +25,9 @@ root.render(
       <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
         <AuthProvider>
           <SnackbarProvider>
-            <App />
+            <QueryProvider>
+              <App />
+            </QueryProvider>
           </SnackbarProvider>
         </AuthProvider>
       </ThemeProvider>
