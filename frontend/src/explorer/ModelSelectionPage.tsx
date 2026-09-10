@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate, generatePath } from "react-router-dom";
 import { Box, Skeleton, Typography, useTheme } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ModelInfoService from "src/modelInfo/modelInfo.service";
-import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { useModels } from "src/modelInfo/useModels";
 import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
-import { getApiUrl } from "src/envService";
 import { ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
 import ContentLayout from "src/theme/ContentLayout/ContentLayout";
@@ -18,24 +16,17 @@ export const DATA_TEST_ID = {
   MODEL_CARD: `model-selection-page-card-${uniqueId}`,
 };
 
-const modelInfoService = new ModelInfoService(getApiUrl());
-
 const ModelSelectionPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [models, setModels] = useState<ModelInfoTypes.ModelInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: models = [], isPending: isLoading, isError, error } = useModels();
 
   useEffect(() => {
-    modelInfoService
-      .getAllModels()
-      .then(setModels)
-      .catch((e) => {
-        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
-        else console.error(e);
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
+    if (isError) {
+      if (error instanceof ServiceError) writeServiceErrorToLog(error, console.error);
+      else console.error(error);
+    }
+  }, [isError, error]);
 
   const handleModelSelect = (modelId: string) => {
     navigate(generatePath(routerPaths.EXPLORER_OCCUPATIONS, { modelId }));

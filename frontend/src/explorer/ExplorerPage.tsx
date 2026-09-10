@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, generatePath } from "react-router-dom";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material";
-import ModelInfoService from "src/modelInfo/modelInfo.service";
-import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { useModels } from "src/modelInfo/useModels";
 import ExplorerService from "src/explorer/explorer.service";
 import { ExplorerHistoryItem, ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
 import { getApiUrl } from "src/envService";
@@ -23,7 +22,6 @@ export const DATA_TEST_ID = {
   EXPLORER_PAGE: `explorer-page-${uniqueId}`,
 };
 
-const modelInfoService = new ModelInfoService(getApiUrl());
 const explorerService = new ExplorerService(getApiUrl());
 
 // Debounce so search doesn't fire a request on every keystroke.
@@ -64,8 +62,6 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   }>();
   const navigate = useNavigate();
 
-  const [models, setModels] = useState<ModelInfoTypes.ModelInfo[]>([]);
-  const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
 
@@ -78,16 +74,14 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   const [history, setHistory] = useState<{ id: string; items: ExplorerHistoryItem[] } | null>(null);
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
 
+  const { data: models = [], isPending: isLoadingModels, isError: isModelsError, error: modelsError } = useModels();
+
   useEffect(() => {
-    modelInfoService
-      .getAllModels()
-      .then(setModels)
-      .catch((e) => {
-        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
-        else console.error(e);
-      })
-      .finally(() => setIsLoadingModels(false));
-  }, []);
+    if (isModelsError) {
+      if (modelsError instanceof ServiceError) writeServiceErrorToLog(modelsError, console.error);
+      else console.error(modelsError);
+    }
+  }, [isModelsError, modelsError]);
 
   const selectedModel = models.find((m) => m.id === modelId) ?? null;
 

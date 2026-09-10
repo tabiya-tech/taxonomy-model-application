@@ -1,7 +1,7 @@
 // mute the console output
 import "src/_test_utilities/consoleMock";
 
-import ModelInfoService, { INewModelSpecification, UPDATE_INTERVAL } from "./modelInfo.service";
+import ModelInfoService, { INewModelSpecification } from "./modelInfo.service";
 import { getTestString } from "src/_test_utilities/specialCharacters";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
@@ -103,7 +103,7 @@ describe("ModelInfoService", () => {
           },
           createdAt: new Date(givenModel.createdAt),
           updatedAt: new Date(givenModel.updatedAt),
-        }); // currently we do not transform the response, so it should be the same
+        });
       });
     });
 
@@ -168,177 +168,6 @@ describe("ModelInfoService", () => {
         expect(error).toBeInstanceOf(ServiceError);
       }
     );
-  });
-
-  describe("fetchAllModelsPeriodically", () => {
-    const modelInfoService = new ModelInfoService(givenApiServerUrl);
-
-    beforeEach(() => {
-      jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    test("fetchAllModelsPeriodically() should fetch models immediately the first time and periodically after that", async () => {
-      // GIVEN that the getAllModels function will succeed and return some models
-      const givenMockModels = [{ foo: "foo" }, { bar: "bar" }]; // we do not ready care about the content of the models
-      jest.spyOn(modelInfoService, "getAllModels").mockResolvedValue(givenMockModels as any);
-
-      // AND a success callback function
-      const givenOnSuccessCallback = jest.fn();
-      // AND an error callback function
-      const givenOnErrorCallback = jest.fn();
-
-      // WHEN the fetchAllModelsPeriodically function is called with the given callbacks
-      const actualTimer = modelInfoService.fetchAllModelsPeriodically(givenOnSuccessCallback, givenOnErrorCallback);
-
-      // THEN expect to have called the getAllModels function once
-      expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(1);
-
-      // AND WHEN all pending promises have been resolved
-      await Promise.resolve(); // Resolve the promise queue
-      await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
-      // AND N times the interval has elapsed
-      const N = 3;
-      for (let i = 1; i <= N; i++) {
-        jest.advanceTimersByTime(UPDATE_INTERVAL);
-
-        // AND all pending promises have been resolved
-        await Promise.resolve(); // Resolve the promise queue
-        await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
-
-        // THEN expect getAllModels function to be called N + 1 times
-        expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(i + 1);
-        // AND expect onSuccessCallback function to be called N + 1 times with the given models
-        expect(givenOnSuccessCallback).toHaveBeenCalledTimes(i + 1);
-        expect(givenOnSuccessCallback).toHaveBeenNthCalledWith(i, givenMockModels);
-      }
-      // AND WHEN the timer is cleared
-      clearInterval(actualTimer);
-      // AND the time is advanced by the polling interval
-      jest.advanceTimersByTime(UPDATE_INTERVAL);
-      // AND all pending promises have been resolved
-      await Promise.resolve(); // Resolve the promise queue
-      await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
-
-      // THEN expect getAllModels function has not been called an additional time
-      expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(N + 1);
-      // THEN expect onSuccessCallback function has not been called an additional time with the given models
-      expect(givenOnSuccessCallback).toHaveBeenCalledTimes(N + 1);
-
-      // AND onErrorCallbackMock function to not be called
-      expect(givenOnErrorCallback).not.toHaveBeenCalled();
-    });
-
-    test("fetchAllModelsPeriodically() should call onErrorCallback whenever an error occurs otherwise call onSuccessCallback", async () => {
-      // GIVEN that the getAllModels function will fail the first time is called
-      const givenErrorOne = new Error("An error occurred 1");
-      jest.spyOn(modelInfoService, "getAllModels").mockRejectedValueOnce(givenErrorOne);
-      // AND then succeed and return some models the second it is called
-      // GIVEN that the getAllModels function will succeed and return some models
-      const givenMockModels = [{ foo: "foo" }, { bar: "bar" }]; // we do not ready care about the content of the models
-      jest.spyOn(modelInfoService, "getAllModels").mockResolvedValueOnce(givenMockModels as any);
-      // AND then fail again with the another error the third time is called
-      const givenErrorTwo = new Error("An error occurred 2");
-      jest.spyOn(modelInfoService, "getAllModels").mockRejectedValueOnce(givenErrorTwo);
-      // AND a success callback function
-      const givenOnSuccessCallback = jest.fn();
-      // AND an error callback function
-      const givenOnErrorCallback = jest.fn();
-
-      // WHEN the fetchAllModelsPeriodically function is called with the given callbacks
-      modelInfoService.fetchAllModelsPeriodically(givenOnSuccessCallback, givenOnErrorCallback);
-
-      // AND all pending promises have been resolved
-      await Promise.resolve(); // Resolve the promise queue
-      await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
-
-      // THEN expect givenOnErrorCallback function to be called with the first error
-      expect(givenOnErrorCallback).toHaveBeenNthCalledWith(1, givenErrorOne);
-
-      // AND WHEN the timer is advanced by polling internal, so that we can expect the getModel to be called 3 times
-      jest.advanceTimersByTime(UPDATE_INTERVAL);
-      // AND all pending promises have been resolved
-      await Promise.resolve(); // Resolve the promise queue
-      await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
-
-      // THEN expect the onErrorCallback function to be called
-      expect(givenOnSuccessCallback).toHaveBeenNthCalledWith(1, givenMockModels);
-
-      // AND WHEN the timer is advanced by polling internal, so that we can expect the getModel to be called 3 times
-      jest.advanceTimersByTime(UPDATE_INTERVAL);
-      // AND all pending promises have been resolved
-      await Promise.resolve(); // Resolve the promise queue
-      await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
-
-      // THEN expect givenOnErrorCallback function to be called with the second error
-      expect(givenOnErrorCallback).toHaveBeenNthCalledWith(2, givenErrorTwo);
-    });
-
-    test("fetchAllModelsPeriodically() should skip calling getModels() if it is already fetching", async () => {
-      // GIVEN that the getAllModels function will succeed and return some models only after 2 polling intervals
-      const givenMockModelsFirstCall = [{ foo: "foo" }]; // we do not ready care about the content of the models
-      jest.spyOn(modelInfoService, "getAllModels").mockImplementationOnce(() => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(givenMockModelsFirstCall as any);
-          }, UPDATE_INTERVAL * 2);
-        });
-      });
-
-      // AND then succeed and return some models the second and third call it is called
-      const givenMockModelsAfterFirstCall = [{ bar: "bar" }]; // we do not ready care about the content of the models
-      jest.spyOn(modelInfoService, "getAllModels").mockResolvedValue(givenMockModelsAfterFirstCall as any);
-
-      // AND a success callback function
-      const givenOnSuccessCallback = jest.fn();
-      // AND an error callback function
-      const givenOnErrorCallback = jest.fn();
-
-      // WHEN the fetchAllModelsPeriodically function is called with the given callbacks
-      modelInfoService.fetchAllModelsPeriodically(givenOnSuccessCallback, givenOnErrorCallback);
-      // AND the time is advanced by the polling interval
-      jest.advanceTimersByTime(UPDATE_INTERVAL);
-      // AND all pending promises have been resolved
-      await Promise.resolve(); // Resolve the promise queue
-      await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
-
-      // THEN expect getAllModels function to be called once
-      expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(1);
-      // AND expect onSuccessCallback function to be called 0 times
-      expect(givenOnSuccessCallback).toHaveBeenCalledTimes(0);
-
-      // AND when the time is advanced by the polling interval again
-      jest.advanceTimersByTime(UPDATE_INTERVAL);
-      // AND all pending promises have been resolved
-      await Promise.resolve(); // Resolve the promise queue
-      await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
-      // THEN expect getAllModels function to still have been called once
-      expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(1);
-      // AND expect onSuccessCallback function to be called 1 times with the given models
-      expect(givenOnSuccessCallback).toHaveBeenCalledTimes(1);
-      expect(givenOnSuccessCallback).toHaveBeenNthCalledWith(1, givenMockModelsFirstCall);
-
-      // AND when the time is advanced by the polling interval thereafter N times
-      const N = 3;
-      for (let i = 1; i <= N; i++) {
-        // AND when the time is advanced by the polling interval again
-        jest.advanceTimersByTime(UPDATE_INTERVAL);
-        // AND all pending promises have been resolved
-        await Promise.resolve(); // Resolve the promise queue
-        await Promise.resolve(); // Resolve the promise queue once more to to call the finally()
-        // THEN expect getAllModels function to have been called two times
-        expect(modelInfoService.getAllModels).toHaveBeenCalledTimes(i + 1);
-        // AND expect onSuccessCallback function to be called 2 times with the given models
-        expect(givenOnSuccessCallback).toHaveBeenCalledTimes(i + 1);
-        expect(givenOnSuccessCallback).toHaveBeenNthCalledWith(i + 1, givenMockModelsAfterFirstCall);
-      }
-
-      // AND onErrorCallbackMock function to not be called
-      expect(givenOnErrorCallback).not.toHaveBeenCalled();
-    });
   });
 
   describe("createModel", () => {

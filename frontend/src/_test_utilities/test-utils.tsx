@@ -5,7 +5,7 @@ import { render, renderHook, RenderHookOptions, RenderOptions } from "@testing-l
 import { ThemeProvider } from "@mui/material";
 import applicationTheme, { ThemeMode } from "src/theme/applicationTheme/applicationTheme";
 import SnackbarProvider from "src/theme/SnackbarProvider/SnackbarProvider";
-import { IsOnlineProvider } from "src/app/providers";
+import { IsOnlineProvider, QueryProvider } from "src/app/providers";
 import { AuthProvider } from "src/auth/AuthProvider";
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
@@ -13,7 +13,9 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
     <IsOnlineProvider>
       <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
         <AuthProvider>
-          <SnackbarProvider>{children}</SnackbarProvider>
+          <SnackbarProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </SnackbarProvider>
         </AuthProvider>
       </ThemeProvider>
     </IsOnlineProvider>

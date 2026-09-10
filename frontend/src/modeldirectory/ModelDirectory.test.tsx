@@ -18,12 +18,17 @@ import ModelsCardList, {
 import ModelDirectoryHeader, {
   DATA_TEST_ID as MODEL_DIRECTORY_HEADER_DATA_TEST_ID,
 } from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
-import ModelInfoService from "src/modelInfo/modelInfo.service";
+import ModelInfoService, { UPDATE_INTERVAL } from "src/modelInfo/modelInfo.service";
 import ExportService from "src/export/export.service";
 import LocalesService from "src/locale/locales.service";
 import ImportAPISpecs from "api-specifications/import";
+import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 
-import { getArrayOfRandomModelsMaxLength, getOneRandomModelMaxLength } from "./_test_utilities/mockModelData";
+import {
+  getArrayOfRandomModelsMaxLength,
+  getOneRandomModelMaxLength,
+  getOneDeterministicFakeModel,
+} from "./_test_utilities/mockModelData";
 import { getArrayOfFakeLocales } from "src/locale/_test_utilities/mockLocales";
 import LocaleAPISpecs from "api-specifications/locale";
 import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
@@ -38,13 +43,17 @@ import { ALL_USERS, authorizationTests } from "src/_test_utilities/authorization
 
 // mock the model info service, as we do not want the real service to be called during testing
 jest.mock("src/modelInfo/modelInfo.service", () => {
+  const actual = jest.requireActual("src/modelInfo/modelInfo.service");
   // Mocking the ES5 class
   const mockModelInfoService = jest.fn(); // the constructor
   mockModelInfoService.prototype.createModel = jest.fn(); // adding a mock method
   mockModelInfoService.prototype.getAllModels = jest.fn(); // adding a mock method
-  mockModelInfoService.prototype.fetchAllModelsPeriodically = jest.fn(); // adding a mock method
   mockModelInfoService.prototype.releaseModel = jest.fn(); // adding a mock method
-  return mockModelInfoService;
+  return {
+    __esModule: true,
+    default: mockModelInfoService,
+    UPDATE_INTERVAL: actual.UPDATE_INTERVAL,
+  };
 });
 
 // mock the import director service
@@ -89,6 +98,15 @@ jest.mock("src/theme/Backdrop/Backdrop", () => {
     Backdrop: mockBackDrop,
   };
 });
+
+// mock framer-motion so ContentLayout's fade-in animation renders in its final state immediately,
+// keeping the snapshot deterministic instead of capturing whatever opacity the animation is mid-way through
+jest.mock("framer-motion", () => ({
+  motion: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    div: ({ initial, animate, exit, transition, children, ...domProps }: any) => <div {...domProps}>{children}</div>,
+  },
+}));
 
 // mock the ImportModelDialog
 jest.mock("src/import/ImportModelDialog", () => {
@@ -192,6 +210,14 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Drains the microtask queue enough times for TanStack Query's internal promise chain
+// (queryFn -> retryer -> observer notify) to settle after advancing fake timers.
+async function flushPromises() {
+  for (let i = 0; i < 10; i++) {
+    await Promise.resolve();
+  }
+}
+
 function getTestImportData(): ImportData {
   // model name
   const name = "My Model";
@@ -225,7 +251,7 @@ describe("ModelDirectory", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useRealTimers();
-    ModelInfoService.prototype.fetchAllModelsPeriodically = jest.fn();
+    ModelInfoService.prototype.getAllModels = jest.fn().mockResolvedValue([]);
     LocalesService.prototype.getLocales = jest.fn();
   });
 
@@ -259,12 +285,10 @@ describe("ModelDirectory", () => {
     );
 
     test("ModelDirectory initial render tests", async () => {
-      // GIVEN the model info service fetchPeriodically will resolve with some data and call the callback provided by the modeldirectory with that data
-      const givenMockData = ["foo"] as any;
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-        onSuccess(givenMockData);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      // GIVEN the model info service will resolve with some data
+      // (deterministic fixture data, since this test asserts a snapshot)
+      const givenMockData = [getOneDeterministicFakeModel(1)];
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValue(givenMockData);
 
       // WHEN the ModelDirectory is mounted
       render(<ModelDirectory />);
@@ -315,12 +339,11 @@ describe("ModelDirectory", () => {
       // AND WHEN the ModelInfoService resolves
       await waitFor(() => {
         // THEN expect the ModelInfoService to have been called
-        expect(ModelInfoService.prototype.fetchAllModelsPeriodically).toHaveBeenCalled();
+        expect(ModelInfoService.prototype.getAllModels).toHaveBeenCalled();
       });
       // AND the ModelsCardList should re-render with the resolved data and the loading prop should be set to false
       await waitFor(() => {
-        expect(ModelsCardList).toHaveBeenNthCalledWith(
-          2,
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
           {
             models: givenMockData,
             isLoading: false,
@@ -339,178 +362,110 @@ describe("ModelDirectory", () => {
       expect(console.warn).not.toHaveBeenCalled();
     });
 
-    test("should re-render the card list when new models are fetched", async () => {
+    test("should keep polling every UPDATE_INTERVAL while a model has an active import or export process", async () => {
       jest.useFakeTimers();
-      // GIVEN the model info service fetchPeriodically will resolve with each time with new data
-      let counter = 0;
-      const callback = jest.fn();
-      callback.mockImplementation((onSuccess, _) => {
-        counter++;
-        const givenMockData = ["foo" + counter] as any;
-        onSuccess(givenMockData);
-      });
-
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-        return setInterval(() => callback(onSuccess, _), 1000);
-      });
+      // GIVEN a model with an import currently running
+      const givenRunningModel = getOneRandomModelMaxLength();
+      givenRunningModel.importProcessState = {
+        ...givenRunningModel.importProcessState,
+        status: ImportProcessStateAPISpecs.Enums.Status.RUNNING,
+      };
+      const getAllModelsSpy = jest
+        .spyOn(ModelInfoService.prototype, "getAllModels")
+        .mockResolvedValue([givenRunningModel]);
 
       // WHEN the ModelDirectory is mounted
       render(<ModelDirectory />);
 
-      // The ModelsCardList should be rendered with the default props
-      expect(ModelsCardList).toHaveBeenNthCalledWith(
-        1,
-        {
-          models: [],
-          isLoading: true,
-          notifyOnExport: expect.any(Function),
-          notifyOnExplore: expect.any(Function),
-          notifyOnShowModelDetails: expect.any(Function),
-          notifyOnRelease: expect.any(Function),
-        },
-        {}
-      );
-      // AND the ModelsCardList should be rendered succeeds at first
-      act(() => {
-        jest.advanceTimersToNextTimer();
+      // THEN expect the initial fetch to have happened
+      await act(async () => {
+        await flushPromises();
       });
+      expect(getAllModelsSpy).toHaveBeenCalledTimes(1);
 
-      await waitFor(() => {
-        expect(ModelsCardList).toHaveBeenNthCalledWith(
-          2,
-          {
-            models: ["foo1"],
-            isLoading: false,
-            notifyOnExport: expect.any(Function),
-            notifyOnExplore: expect.any(Function),
-            notifyOnShowModelDetails: expect.any(Function),
-            notifyOnRelease: expect.any(Function),
-          },
-          {}
-        );
+      // AND WHEN UPDATE_INTERVAL elapses
+      await act(async () => {
+        jest.advanceTimersByTime(UPDATE_INTERVAL);
+        await flushPromises();
       });
-      act(() => {
-        jest.advanceTimersToNextTimer();
+      // THEN expect another fetch to have been triggered, because a process is still active
+      expect(getAllModelsSpy).toHaveBeenCalledTimes(2);
+
+      // AND WHEN UPDATE_INTERVAL elapses again
+      await act(async () => {
+        jest.advanceTimersByTime(UPDATE_INTERVAL);
+        await flushPromises();
       });
-      await waitFor(() => {
-        expect(ModelsCardList).toHaveBeenNthCalledWith(
-          3,
-          {
-            models: ["foo2"],
-            isLoading: false,
-            notifyOnExport: expect.any(Function),
-            notifyOnExplore: expect.any(Function),
-            notifyOnShowModelDetails: expect.any(Function),
-            notifyOnRelease: expect.any(Function),
-          },
-          {}
-        );
-      });
-      // AND expect the ModelDirectory to match the snapshot
-      expect(screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE)).toMatchSnapshot();
+      // THEN expect a third fetch to have been triggered
+      expect(getAllModelsSpy).toHaveBeenCalledTimes(3);
       // AND finally expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();
     });
 
-    test("should not re-render the card list when the models fetched are the same as the previous", async () => {
+    test("should stop polling once no model has an active import or export process", async () => {
       jest.useFakeTimers();
-      // GIVEN the model info service fetchPeriodically will resolve with each time with the same data
-      const callback = jest.fn();
-      callback.mockImplementation((onSuccess, _) => {
-        const givenMockData = ["foo"] as any;
-        onSuccess(givenMockData);
-      });
-
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-        return setInterval(() => callback(onSuccess, _), 1000);
-      });
+      // GIVEN a model with an import currently running and no active exports
+      const givenRunningModel = getOneRandomModelMaxLength();
+      givenRunningModel.importProcessState = {
+        ...givenRunningModel.importProcessState,
+        status: ImportProcessStateAPISpecs.Enums.Status.RUNNING,
+      };
+      givenRunningModel.exportProcessState = [];
+      const givenCompletedModel = {
+        ...givenRunningModel,
+        importProcessState: {
+          ...givenRunningModel.importProcessState,
+          status: ImportProcessStateAPISpecs.Enums.Status.COMPLETED,
+        },
+      };
+      const getAllModelsSpy = jest
+        .spyOn(ModelInfoService.prototype, "getAllModels")
+        .mockResolvedValueOnce([givenRunningModel])
+        .mockResolvedValue([givenCompletedModel]);
 
       // WHEN the ModelDirectory is mounted
       render(<ModelDirectory />);
 
-      // The ModelsCardList should be rendered with the default props
-      expect(ModelsCardList).toHaveBeenNthCalledWith(
-        1,
+      // THEN expect the initial fetch to have happened
+      await act(async () => {
+        await flushPromises();
+      });
+      expect(getAllModelsSpy).toHaveBeenCalledTimes(1);
+
+      // AND WHEN UPDATE_INTERVAL elapses, the import has since completed
+      await act(async () => {
+        jest.advanceTimersByTime(UPDATE_INTERVAL);
+        await flushPromises();
+      });
+      expect(getAllModelsSpy).toHaveBeenCalledTimes(2);
+      expect(ModelsCardList).toHaveBeenLastCalledWith(
         {
-          models: [],
-          isLoading: true,
+          models: [givenCompletedModel],
+          isLoading: false,
           notifyOnExport: expect.any(Function),
           notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
           notifyOnRelease: expect.any(Function),
         },
-        {}
+        expect.anything()
       );
 
-      // AND the ModelsCardList should be rendered with the data returned by the ModelInfoService
-      act(() => {
-        jest.advanceTimersToNextTimer();
-      });
-
-      await waitFor(() => {
-        expect(callback).toHaveBeenCalledTimes(1);
-      });
-      await waitFor(() => {
-        expect(ModelsCardList).toHaveBeenNthCalledWith(
-          2,
-          {
-            models: ["foo"],
-            isLoading: false,
-            notifyOnExport: expect.any(Function),
-            notifyOnExplore: expect.any(Function),
-            notifyOnShowModelDetails: expect.any(Function),
-            notifyOnRelease: expect.any(Function),
-          },
-          {}
-        );
-      });
-
-      // AND the ModelsCardList should not be re-rendered when the ModelInfoService returns the same data
-
-      //  let the timer run and to fetch the data again
-      act(() => {
-        jest.advanceTimersToNextTimer();
-      });
-      await waitFor(() => {
-        expect(callback).toHaveBeenCalledTimes(2);
-      });
-      //  let the timer run and to fetch the data again
-      //  this time new data is returned
-      callback.mockImplementationOnce((onSuccess, _) => {
-        const givenMockData = ["bar"] as any;
-        onSuccess(givenMockData);
-      });
-      act(() => {
-        jest.advanceTimersToNextTimer();
-      });
-      await waitFor(() => {
-        expect(callback).toHaveBeenCalledTimes(3);
-      });
-      // now the ModelsCardList should be re-rendered with the new data for a total of 3 times ( it was not re-rendered when the same data was returned)
-      await waitFor(() => {
-        expect(ModelsCardList).toHaveBeenNthCalledWith(
-          3,
-          {
-            models: ["bar"],
-            isLoading: false,
-            notifyOnExport: expect.any(Function),
-            notifyOnExplore: expect.any(Function),
-            notifyOnShowModelDetails: expect.any(Function),
-            notifyOnRelease: expect.any(Function),
-          },
-          {}
-        );
-      });
+      // AND WHEN more time passes, one UPDATE_INTERVAL at a time
+      for (let i = 0; i < 3; i++) {
+        await act(async () => {
+          jest.advanceTimersByTime(UPDATE_INTERVAL);
+          await flushPromises();
+        });
+      }
+      // THEN expect no further fetch to have been triggered, because no process remains active
+      expect(getAllModelsSpy).toHaveBeenCalledTimes(2);
     });
 
     test("should show the error message when data fetching fails while the card list is loading for the first time", async () => {
       // GIVEN the model info service will fail with some error
       const givenError = new Error("foo");
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((_, onError) => {
-        onError(givenError);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockRejectedValue(givenError);
 
       // WHEN the ModelDirectory is mounted
       render(<ModelDirectory />);
@@ -519,7 +474,8 @@ describe("ModelDirectory", () => {
       const modelsCardList = screen.getByTestId(MODELS_CARD_LIST_DATA_TEST_ID.MODELS_CARD_LIST);
       expect(modelsCardList).toBeInTheDocument();
       // AND the ModelsCardList should receive the correct default props.
-      expect(ModelsCardList).toHaveBeenCalledWith(
+      expect(ModelsCardList).toHaveBeenNthCalledWith(
+        1,
         {
           models: [],
           isLoading: true,
@@ -532,10 +488,14 @@ describe("ModelDirectory", () => {
       );
 
       // AND WHEN the ModelInfoService fails
-      await waitFor(() => {
-        // THEN expect getUserFriendlyErrorMessage to have been called with the error
-        expect(mockedGetUserFriendlyErrorMessage).toHaveBeenCalledWith(givenError);
-      });
+      // (query retries a few times with backoff before settling into the error state)
+      await waitFor(
+        () => {
+          // THEN expect getUserFriendlyErrorMessage to have been called with the error
+          expect(mockedGetUserFriendlyErrorMessage).toHaveBeenCalledWith(givenError);
+        },
+        { timeout: 10000 }
+      );
       await waitFor(() => {
         // AND expect a snackbar with the error message to be shown
         expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(FRIENDLY_ERROR_MESSAGE, {
@@ -544,40 +504,35 @@ describe("ModelDirectory", () => {
           preventDuplicate: true,
         });
       });
-      // AND the ModelsCardList props to remain the same
-      expect(ModelsCardList).toHaveBeenCalledWith(
+      // AND the ModelsCardList to still show no models, since none were ever fetched successfully
+      expect(ModelsCardList).toHaveBeenLastCalledWith(
         {
           models: [],
-          isLoading: true,
+          isLoading: false,
           notifyOnExport: expect.any(Function),
           notifyOnExplore: expect.any(Function),
           notifyOnShowModelDetails: expect.any(Function),
           notifyOnRelease: expect.any(Function),
         },
-        {}
+        expect.anything()
       );
-      // AND the ModelsCardList should not be re-rendered
-      expect(ModelsCardList).toHaveBeenCalledTimes(1);
       // AND finally expect no warning to have occurred
       expect(console.warn).not.toHaveBeenCalled();
-    });
+    }, 15000);
 
     test("should show the card list with the previous data and the error message when data fetching fails after it has succeed once", async () => {
-      // GIVEN the model info service will succeed and return some data then fails with some error at the second call
-      jest.useFakeTimers();
-      const givenMockData = ["foo"] as any;
-      const callback = jest.fn();
+      // GIVEN the model info service will succeed and return some data, and a process is still active so it keeps polling
+      const givenRunningModel = getOneRandomModelMaxLength();
+      givenRunningModel.importProcessState = {
+        ...givenRunningModel.importProcessState,
+        status: ImportProcessStateAPISpecs.Enums.Status.RUNNING,
+      };
+      const givenMockData = [givenRunningModel];
       const givenError = new Error("foo");
-      callback
-        .mockImplementationOnce((onSuccess, _) => {
-          onSuccess(givenMockData);
-        })
-        .mockImplementationOnce((_, onError) => {
-          onError(givenError);
-        });
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-        return setInterval(() => callback(onSuccess, _), 1000);
-      });
+      jest
+        .spyOn(ModelInfoService.prototype, "getAllModels")
+        .mockResolvedValueOnce(givenMockData)
+        .mockRejectedValue(givenError);
 
       // WHEN the ModelDirectory is mounted
       render(<ModelDirectory />);
@@ -602,14 +557,9 @@ describe("ModelDirectory", () => {
         {}
       );
       // AND WHEN the ModelInfoService succeeds at first
-      act(() => {
-        jest.advanceTimersToNextTimer();
-      });
-
       await waitFor(() => {
         // THEN expect the ModelsCardList to have been called with the correct props
-        expect(ModelsCardList).toHaveBeenNthCalledWith(
-          2,
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
           {
             models: givenMockData,
             isLoading: false,
@@ -621,15 +571,15 @@ describe("ModelDirectory", () => {
           expect.anything()
         );
       });
-      // AND WHEN the ModelInfoService fails
-      act(() => {
-        jest.advanceTimersToNextTimer();
-      });
-      // AND WHEN the ModelInfoService fails
-      await waitFor(() => {
-        // THEN expect getUserFriendlyErrorMessage to have been called with the error
-        expect(mockedGetUserFriendlyErrorMessage).toHaveBeenCalledWith(givenError);
-      });
+      // AND WHEN the next poll fails (a process is still active, so polling continued), and its retries also fail
+      // (waits out UPDATE_INTERVAL for the next poll, plus retry backoff before settling into the error state)
+      await waitFor(
+        () => {
+          // THEN expect getUserFriendlyErrorMessage to have been called with the error
+          expect(mockedGetUserFriendlyErrorMessage).toHaveBeenCalledWith(givenError);
+        },
+        { timeout: 35000 }
+      );
       await waitFor(() => {
         // THEN expect a snackbar with the error message to be shown
         expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(FRIENDLY_ERROR_MESSAGE, {
@@ -652,37 +602,32 @@ describe("ModelDirectory", () => {
       );
       // AND finally expect no warning to have occurred
       expect(console.warn).not.toHaveBeenCalled();
-    });
+    }, 40000);
 
     test("should remove error snackbar when fetch model succeeds after it has failed", async () => {
-      // GIVEN the model info service will fails with some error two times then succeed at the third call
-      jest.useFakeTimers();
-      const givenMockData = ["foo"] as any;
-      const callback = jest.fn();
+      // GIVEN the model info service will fail every time until all its retries are exhausted, then succeed
+      const givenModels = getArrayOfRandomModelsMaxLength(1);
       const givenError = new Error("foo");
-      callback
-        .mockImplementationOnce((_, onError) => {
-          onError(givenError);
-        })
-        .mockImplementationOnce((onSuccess, _) => {
-          onSuccess(givenMockData);
-        });
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementationOnce((onSuccess, _) => {
-        return setInterval(() => callback(onSuccess, _), 1000);
-      });
+      jest
+        .spyOn(ModelInfoService.prototype, "getAllModels")
+        .mockRejectedValueOnce(givenError)
+        .mockRejectedValueOnce(givenError)
+        .mockRejectedValueOnce(givenError)
+        .mockRejectedValueOnce(givenError)
+        .mockResolvedValue(givenModels);
 
       // WHEN the ModelDirectory is mounted
       render(<ModelDirectory />);
 
       // AND WHEN the ModelInfoService fails at first
-      act(() => {
-        jest.advanceTimersToNextTimer();
-      });
-
-      await waitFor(() => {
-        // THEN expect getUserFriendlyErrorMessage to have been called with the error
-        expect(mockedGetUserFriendlyErrorMessage).toHaveBeenCalledWith(givenError);
-      });
+      // (query retries a few times with backoff before settling into the error state)
+      await waitFor(
+        () => {
+          // THEN expect getUserFriendlyErrorMessage to have been called with the error
+          expect(mockedGetUserFriendlyErrorMessage).toHaveBeenCalledWith(givenError);
+        },
+        { timeout: 10000 }
+      );
       await waitFor(() => {
         // AND expect a snackbar with the error message to be shown
         expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(FRIENDLY_ERROR_MESSAGE, {
@@ -692,41 +637,29 @@ describe("ModelDirectory", () => {
         });
       });
 
-      // AND WHEN the ModelInfoService succeeds
-      act(() => {
-        jest.advanceTimersToNextTimer();
-      });
-
-      await waitFor(() => {
-        // THEN expect a snackbar with the error message to be closed
-        expect(useSnackbar().closeSnackbar).toHaveBeenCalledWith(SNACKBAR_ID.INTERNET_ERROR);
-      });
+      // AND WHEN the ModelInfoService succeeds on the next poll
+      await waitFor(
+        () => {
+          // THEN expect a snackbar with the error message to be closed
+          expect(useSnackbar().closeSnackbar).toHaveBeenCalledWith(SNACKBAR_ID.INTERNET_ERROR);
+        },
+        { timeout: 15000 }
+      );
       // AND finally expect no warning to have occurred
       expect(console.warn).not.toHaveBeenCalled();
-    });
+    }, 30000);
 
-    test("should clear all the the timers created when the ModelDirectory is unmounted", async () => {
+    test("should not fetch again after the ModelDirectory is unmounted", async () => {
       jest.useFakeTimers();
-      // GIVEN the model info service is called periodically, and it will return different data each time
-      // causing a new timer to be created each time (see the comments in the implementation in ModelDirectory.tsx)
-      let counter = 0;
-      const callback = jest.fn();
-      callback.mockImplementation((onSuccess, _) => {
-        counter++;
-        const givenMockData = ["foo" + counter] as any;
-        onSuccess(givenMockData);
-      });
-
-      const timerIds: NodeJS.Timer[] = [] as unknown as NodeJS.Timer[];
-      const fetchAllModelsPeriodicallySpy = jest
-        .spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically")
-        .mockImplementation((onSuccess, _) => {
-          const timerId = setInterval(() => callback(onSuccess, _), 1000);
-          timerIds.push(timerId);
-          return timerId;
-        });
-
-      const clearIntervalSpy = jest.spyOn(global, "clearInterval");
+      // GIVEN a model with an import currently running, so the query keeps polling while mounted
+      const givenRunningModel = getOneRandomModelMaxLength();
+      givenRunningModel.importProcessState = {
+        ...givenRunningModel.importProcessState,
+        status: ImportProcessStateAPISpecs.Enums.Status.RUNNING,
+      };
+      const getAllModelsSpy = jest
+        .spyOn(ModelInfoService.prototype, "getAllModels")
+        .mockResolvedValue([givenRunningModel]);
 
       // WHEN the ModelDirectory is mounted
       const { unmount } = render(<ModelDirectory />);
@@ -737,38 +670,21 @@ describe("ModelDirectory", () => {
       // AND  expect the ModelDirectory to be visible
       const actualModelDirectory = screen.getByTestId(MODEL_DIRECTORY_DATA_TEST_ID.MODEL_DIRECTORY_PAGE);
       expect(actualModelDirectory).toBeInTheDocument();
-      // AND expect the model info service to have been called twice (once when the component is mounted and once when the timer fires)
-      act(() => {
-        jest.advanceTimersToNextTimer();
-      });
       await waitFor(() => {
-        expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalledTimes(2);
+        expect(getAllModelsSpy).toHaveBeenCalledTimes(1);
       });
-      expect(timerIds.length).toBe(2);
-
-      // AND WHEN the model info service is called for the third time
-      act(() => {
-        jest.advanceTimersToNextTimer();
-      });
-      await waitFor(() => {
-        expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalledTimes(3);
-      });
-      // THEN expect a new timer to have been created
-      expect(timerIds.length).toBe(3);
 
       // AND WHEN the ModelDirectory is unmounted
       unmount();
       // THEN expect the ModelDirectory to not be visible
       expect(actualModelDirectory).not.toBeInTheDocument();
-      // AND expect all the timer to have been cleared
-      expect(clearIntervalSpy).toHaveBeenCalledTimes(timerIds.length);
-      timerIds.forEach((timerId) => {
-        expect(clearIntervalSpy).toHaveBeenCalledWith(timerId);
+
+      // AND WHEN time progresses well past UPDATE_INTERVAL
+      act(() => {
+        jest.advanceTimersByTime(UPDATE_INTERVAL * 3);
       });
-      // at the end of the test, the clearInterval spy otherwise the following tests will fail with the error
-      //  clearInterval is not defined
-      //  ReferenceError: clearInterval is not defined
-      clearIntervalSpy.mockRestore();
+      // THEN expect no further fetch to have been triggered, because the query was torn down on unmount
+      expect(getAllModelsSpy).toHaveBeenCalledTimes(1);
 
       // AND finally expect no errors or warning to have occurred
       expect(console.error).not.toHaveBeenCalled();
@@ -786,61 +702,45 @@ describe("ModelDirectory", () => {
         ErrorCodes.API_ERROR,
         "Service Error Message"
       );
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((_, onError) => {
-        onError(mockServiceError);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockRejectedValue(mockServiceError);
 
       // WHEN the ModelDirectory is mounted
       render(<ModelDirectory />);
       // AND the ModelInfoService fails
 
       // THEN expect a snackbar with the error message to be shown
-      await waitFor(() => {
-        expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(FRIENDLY_ERROR_MESSAGE, {
-          variant: "error",
-          key: SNACKBAR_ID.INTERNET_ERROR,
-          preventDuplicate: true,
-        });
-      });
+      // (query retries a few times with backoff before settling into the error state)
+      await waitFor(
+        () => {
+          expect(useSnackbar().enqueueSnackbar).toHaveBeenCalledWith(FRIENDLY_ERROR_MESSAGE, {
+            variant: "error",
+            key: SNACKBAR_ID.INTERNET_ERROR,
+            preventDuplicate: true,
+          });
+        },
+        { timeout: 10000 }
+      );
       // AND writeServiceErrorToLog to have been called
       expect(writeServiceErrorToLog).toHaveBeenCalledWith(mockServiceError, console.error);
-    });
+    }, 15000);
 
     describe("Internet status", () => {
       afterAll(() => {
         unmockBrowserIsOnLine();
       });
 
-      test("should fetch data when the internet switches from offline to online", async () => {
-        jest.useFakeTimers();
+      test("should not fetch again while offline, and resume without an extra fetch once back online if the cached data is still fresh", async () => {
         // Testing the following scenario:
-        //  (A) online -> render (fetch/Timer Clear) ->
-        //  (B) offline (Timer Clear/No Fetch) ->
-        //  (C) online (No Timer Clear/Fetch) ->
-        //  (D) offline (Timer Clear/No Fetch)"
+        //  (A) online -> render (fetch) ->
+        //  (B) offline (no fetch) ->
+        //  (C) online (no fetch, cached data is still fresh) ->
+        //  (D) offline (no fetch)
 
-        // GIVEN the model info service is called periodically, and it will return empty data each time
-        // to avoid causing a new timer to be created each time (see the comments in the implementation in ModelDirectory.tsx)
-        // This way the tests will be simpler
+        // GIVEN the model info service resolves with an empty list
+        const getAllModelsSpy = jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValue([]);
 
-        const callback = jest.fn();
-        callback.mockImplementation((onSuccess, _) => {
-          onSuccess([]);
-        });
-
-        const timerIds: NodeJS.Timer[] = [] as unknown as NodeJS.Timer[];
-        const fetchAllModelsPeriodicallySpy = jest
-          .spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically")
-          .mockImplementation((onSuccess, _) => {
-            const timerId = setInterval(() => callback(onSuccess, _), 1000);
-            timerIds.push(timerId);
-            return timerId;
-          });
-
-        const clearIntervalSpy = jest.spyOn(global, "clearInterval");
         // ----------------------------------------------
-        // (A) "online -> render expect(fetch/Timer Clear)
+        // (A) online -> render (fetch)
         // ----------------------------------------------
         // AND the internet is initially online
         mockBrowserIsOnLine(true);
@@ -848,91 +748,57 @@ describe("ModelDirectory", () => {
         // WHEN the model directory is rendered
         render(<ModelDirectory />);
 
-        // THEN expect the fetchAllModelsPeriodically to have been called
-        expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalled();
+        // THEN expect the models to have been fetched
+        await waitFor(() => {
+          expect(getAllModelsSpy).toHaveBeenCalledTimes(1);
+        });
 
         // ----------------------------------------------
-        // (B) offline expect(Timer Clear/No Fetch)
+        // (B) offline (no fetch)
         // ----------------------------------------------
 
         // AND WHEN the internet goes offline
         act(() => mockBrowserIsOnLine(false));
 
-        // THEN expect the timer from the previous fetch to have been cleared
-        await waitFor(() => {
-          expect(clearIntervalSpy).toHaveBeenNthCalledWith(1, timerIds[0]);
-        });
-        // AND if the time has progressed
-        act(() => {
-          jest.advanceTimersToNextTimer();
-        });
-        // THEN expect the fetchAllModelsPeriodically to not have been called
-        expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalledTimes(1);
+        // THEN expect no further fetch to have been triggered while offline
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        expect(getAllModelsSpy).toHaveBeenCalledTimes(1);
 
         // ----------------------------------------------
-        // (C) online expect(No Timer Clear/ Fetch)
+        // (C) online (no fetch, since the cached data is still within its stale time)
         // ----------------------------------------------
 
         // AND WHEN the internet goes online
         act(() => mockBrowserIsOnLine(true));
 
-        // THEN expect that there was not timer to clear
-        await waitFor(() => {
-          expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
-        });
-        // AND if the time has progressed
-        act(() => {
-          jest.advanceTimersToNextTimer();
-        });
-        // THEN expect the fetchAllModelsPeriodically to have been called
-        expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalledTimes(2);
+        // THEN expect no new fetch to have been triggered, since the cached data is still fresh
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        expect(getAllModelsSpy).toHaveBeenCalledTimes(1);
 
         // ----------------------------------------------
-        // (D) offline expect(Timer Clear/No Fetch)
+        // (D) offline (no fetch)
         // ----------------------------------------------
 
-        // AND WHEN the internet goes offline
+        // AND WHEN the internet goes offline again
         act(() => mockBrowserIsOnLine(false));
 
-        // THEN expect the timer from the previous fetch to have been cleared
-        await waitFor(() => {
-          expect(clearIntervalSpy).toHaveBeenNthCalledWith(2, timerIds[1]);
-        });
-        // AND if the time has progressed
-        act(() => {
-          jest.advanceTimersToNextTimer();
-        });
-        // THEN expect the fetchAllModelsPeriodically to not have been called
-        expect(fetchAllModelsPeriodicallySpy).toHaveBeenCalledTimes(2);
-
-        // at the end of the test, the clearInterval spy otherwise the following tests will fail with the error
-        //  clearInterval is not defined
-        //  ReferenceError: clearInterval is not defined
-        clearIntervalSpy.mockRestore();
+        // THEN expect no further fetch to have been triggered
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        expect(getAllModelsSpy).toHaveBeenCalledTimes(1);
       });
 
       test("when rendered is should not fetch data if the internet is offline", async () => {
-        jest.useFakeTimers();
-        // GIVEN the model info service is called periodically, and it will return empty data each time
-        // to avoid causing a new timer to be created each time (see the comments in the implementation in ModelDirectory.tsx)
-        const callback = jest.fn();
-        callback.mockImplementation((onSuccess, _) => {
-          onSuccess([]);
-        });
-
-        jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-          return setInterval(() => callback(onSuccess, _), 1000);
-        });
+        // GIVEN the model info service resolves with an empty list
+        const getAllModelsSpy = jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValue([]);
 
         // GIVEN that the internet will be offline
-
         mockBrowserIsOnLine(false);
 
         // WHEN the model directory is rendered
         render(<ModelDirectory />);
 
-        // THEN expect the fetchAllModelsPeriodically to not have been called
-        expect(ModelInfoService.prototype.fetchAllModelsPeriodically).not.toHaveBeenCalled();
+        // THEN expect getAllModels to not have been called
+        expect(getAllModelsSpy).not.toHaveBeenCalled();
         // AND the card list is rendered with the isLoading state
         expect(ModelsCardList).toHaveBeenNthCalledWith(
           1,
@@ -949,28 +815,25 @@ describe("ModelDirectory", () => {
 
         // AND WHEN the internet goes online
         act(() => mockBrowserIsOnLine(true));
-        // THEN expect the fetchAllModelsPeriodically to have been called
-        expect(ModelInfoService.prototype.fetchAllModelsPeriodically).toHaveBeenCalled();
-
-        // AND WHEN the time has progressed and the fetchAllModelsPeriodically resolves
-        act(() => {
-          jest.advanceTimersToNextTimer(); // so that the promise from the fetchAllModelsPeriodically resolves
+        // THEN expect getAllModels to have been called
+        await waitFor(() => {
+          expect(getAllModelsSpy).toHaveBeenCalled();
         });
 
-        // THEN the card list is not rendered in the isLoading state
-        //  The model is rendered three times, because offline/online notification causes it to re-render
-        //  so simply checking the last call here would do the job
-        expect(ModelsCardList).toHaveBeenLastCalledWith(
-          {
-            models: [],
-            isLoading: false,
-            notifyOnExport: expect.any(Function),
-            notifyOnExplore: expect.any(Function),
-            notifyOnShowModelDetails: expect.any(Function),
-            notifyOnRelease: expect.any(Function),
-          },
-          {}
-        );
+        // THEN the card list is eventually not rendered in the isLoading state
+        await waitFor(() => {
+          expect(ModelsCardList).toHaveBeenLastCalledWith(
+            {
+              models: [],
+              isLoading: false,
+              notifyOnExport: expect.any(Function),
+              notifyOnExplore: expect.any(Function),
+              notifyOnShowModelDetails: expect.any(Function),
+              notifyOnRelease: expect.any(Function),
+            },
+            expect.anything()
+          );
+        });
 
         // AND no error or warning to have occurred
         expect(console.error).not.toHaveBeenCalled();
@@ -1263,11 +1126,16 @@ describe("ModelDirectory", () => {
       [" has N existing models", getArrayOfRandomModelsMaxLength(3)],
     ])("should add the new model to the card list that %s", async (desc, givenExistingModels) => {
       // GIVEN the ModelDirectory is rendered with some existing models
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-        onSuccess(givenExistingModels);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValue(givenExistingModels);
       render(<ModelDirectory />);
+
+      // AND the existing models have been fetched
+      await waitFor(() => {
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
+          expect.objectContaining({ models: givenExistingModels }),
+          expect.anything()
+        );
+      });
 
       // AND the import will succeed and a new model will be created
       const givenNewModel = getOneRandomModelMaxLength();
@@ -1298,7 +1166,6 @@ describe("ModelDirectory", () => {
       const modelsCardList = screen.getByTestId(MODELS_CARD_LIST_DATA_TEST_ID.MODELS_CARD_LIST);
       expect(modelsCardList).toBeInTheDocument();
       await waitFor(() => {
-        // here we cannot assert toHaveBeenLastCalledWith as we do not know the exact lifecycle of the fetchAllModelsPeriodically callback
         expect(ModelsCardList).toHaveBeenCalledWith(
           {
             models: [givenNewModel, ...givenExistingModels],
@@ -1367,11 +1234,15 @@ describe("ModelDirectory", () => {
     test("should handle export successfully", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-        onSuccess(givenModels);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValue(givenModels);
       render(<ModelDirectory />);
+      // AND the existing models have been fetched
+      await waitFor(() => {
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
+          expect.objectContaining({ models: givenModels }),
+          expect.anything()
+        );
+      });
       // AND the export will succeed
       const givenExportedModel = givenModels[1];
       ExportService.prototype.exportModel = jest.fn().mockResolvedValueOnce(givenExportedModel);
@@ -1408,11 +1279,15 @@ describe("ModelDirectory", () => {
     test("should handle export failure", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-        onSuccess(givenModels);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValue(givenModels);
       render(<ModelDirectory />);
+      // AND the existing models have been fetched
+      await waitFor(() => {
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
+          expect.objectContaining({ models: givenModels }),
+          expect.anything()
+        );
+      });
       // AND the export will fail
       const givenExportedModel = givenModels[1];
       ExportService.prototype.exportModel = jest.fn().mockRejectedValueOnce(new Error("Export failed"));
@@ -1449,11 +1324,15 @@ describe("ModelDirectory", () => {
     test("should throw a ServiceError when export service fails to export", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-        onSuccess(givenModels);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValue(givenModels);
       render(<ModelDirectory />);
+      // AND the existing models have been fetched
+      await waitFor(() => {
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
+          expect.objectContaining({ models: givenModels }),
+          expect.anything()
+        );
+      });
       // AND the export will fail
       const givenExportedModel = givenModels[1];
       const mockServiceError = new ServiceError(
@@ -1494,11 +1373,15 @@ describe("ModelDirectory", () => {
     test("should handle release successfully and update the model in the list", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementationOnce((onSuccess, _) => {
-        onSuccess(givenModels);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValueOnce(givenModels);
       render(<ModelDirectory />);
+      // AND the existing models have been fetched
+      await waitFor(() => {
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
+          expect.objectContaining({ models: givenModels }),
+          expect.anything()
+        );
+      });
       // AND the release will succeed
       const givenModelToRelease = givenModels[1];
       const givenReleasedModel = { ...givenModelToRelease, released: true, releaseNotes: "some notes" };
@@ -1540,11 +1423,15 @@ describe("ModelDirectory", () => {
     test("should update the model properties drawer when the released model is currently shown", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementationOnce((onSuccess, _) => {
-        onSuccess(givenModels);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValueOnce(givenModels);
       render(<ModelDirectory />);
+      // AND the existing models have been fetched
+      await waitFor(() => {
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
+          expect.objectContaining({ models: givenModels }),
+          expect.anything()
+        );
+      });
       // AND the model's details drawer is currently open for that model
       const givenModelToRelease = givenModels[1];
       act(() => {
@@ -1568,11 +1455,15 @@ describe("ModelDirectory", () => {
     test("should handle release failure", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementationOnce((onSuccess, _) => {
-        onSuccess(givenModels);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValueOnce(givenModels);
       render(<ModelDirectory />);
+      // AND the existing models have been fetched
+      await waitFor(() => {
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
+          expect.objectContaining({ models: givenModels }),
+          expect.anything()
+        );
+      });
       // AND the release will fail
       const givenModelToRelease = givenModels[1];
       ModelInfoService.prototype.releaseModel = jest.fn().mockRejectedValueOnce(new Error("Release failed"));
@@ -1609,11 +1500,15 @@ describe("ModelDirectory", () => {
     test("should throw a ServiceError when the release service fails to release", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementationOnce((onSuccess, _) => {
-        onSuccess(givenModels);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValueOnce(givenModels);
       render(<ModelDirectory />);
+      // AND the existing models have been fetched
+      await waitFor(() => {
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
+          expect.objectContaining({ models: givenModels }),
+          expect.anything()
+        );
+      });
       // AND the release will fail with a ServiceError
       const givenModelToRelease = givenModels[1];
       const mockServiceError = new ServiceError(
@@ -1654,11 +1549,15 @@ describe("ModelDirectory", () => {
     test("should show modelPropertiesDrawer successfully and then hide it", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-        onSuccess(givenModels);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValue(givenModels);
       render(<ModelDirectory />);
+      // AND the existing models have been fetched
+      await waitFor(() => {
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
+          expect.objectContaining({ models: givenModels }),
+          expect.anything()
+        );
+      });
 
       // WHEN the user clicks the show details button of some model
       const givenSelectedModel = givenModels[1];
@@ -1698,11 +1597,15 @@ describe("ModelDirectory", () => {
     test("should show a snack bar when the model is not found", async () => {
       // GIVEN the ModelDirectory is rendered
       const givenModels = getArrayOfRandomModelsMaxLength(3);
-      jest.spyOn(ModelInfoService.prototype, "fetchAllModelsPeriodically").mockImplementation((onSuccess, _) => {
-        onSuccess(givenModels);
-        return 1 as unknown as NodeJS.Timer;
-      });
+      jest.spyOn(ModelInfoService.prototype, "getAllModels").mockResolvedValue(givenModels);
       render(<ModelDirectory />);
+      // AND the existing models have been fetched
+      await waitFor(() => {
+        expect(ModelsCardList).toHaveBeenLastCalledWith(
+          expect.objectContaining({ models: givenModels }),
+          expect.anything()
+        );
+      });
 
       // WHEN the user clicks the show details button of some model
       const givenSelectedModel = "non-existing-id";
