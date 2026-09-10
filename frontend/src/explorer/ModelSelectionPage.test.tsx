@@ -6,6 +6,8 @@ import { render, screen } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import ModelSelectionPage, { DATA_TEST_ID } from "./ModelSelectionPage";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
+import { MODELS_QUERY_KEY } from "src/modelInfo/useModels";
+import { queryClient } from "src/app/providers/QueryProvider";
 import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 import { routerPaths } from "src/app/routerPaths";
 
@@ -37,6 +39,8 @@ describe("ModelSelectionPage", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    // undo any per-test query-default overrides (e.g. disabling retry) so they don't leak
+    queryClient.setQueryDefaults(MODELS_QUERY_KEY, {});
   });
 
   test("should render a loading skeleton while the models are being fetched", () => {
@@ -79,7 +83,8 @@ describe("ModelSelectionPage", () => {
   });
 
   test("should render the empty state without crashing when fetching the models fails", async () => {
-    // GIVEN fetching the models will fail
+    // GIVEN fetching the models will fail, and retries are disabled
+    queryClient.setQueryDefaults(MODELS_QUERY_KEY, { retry: false });
     getAllModelsSpy.mockRejectedValue(new Error("network error"));
 
     // WHEN the page is rendered

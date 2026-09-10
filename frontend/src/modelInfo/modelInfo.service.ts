@@ -1,5 +1,5 @@
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import { getServiceErrorFactory, ServiceError } from "src/error/error";
+import { getServiceErrorFactory } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { StatusCodes } from "http-status-codes/";
 import LocaleAPISpecs from "api-specifications/locale";
@@ -39,7 +39,7 @@ type ModelInfoTypeAPISpecs =
   | PayloadItem<ModelInfoAPISpecs.Types.GET.Response.Payload>
   | ModelInfoAPISpecs.Types.POST.Response.Payload
   | ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload;
-export const UPDATE_INTERVAL = 10000; // In milliseconds
+export const UPDATE_INTERVAL = 20000; // In milliseconds
 
 export default class ModelInfoService {
   readonly modelInfoEndpointUrl: string;
@@ -196,47 +196,6 @@ export default class ModelInfoService {
     }
 
     return allModelsResponse.map(this.transform);
-  }
-
-  private _callGetAllModels(state: {
-    onSuccessCallback: (models: ModelInfoTypes.ModelInfo[]) => void;
-    onErrorCallBack: (error: ServiceError | Error) => void;
-    isFetching: boolean;
-  }) {
-    state.isFetching = true;
-    this.getAllModels()
-      .then(
-        (models) => {
-          state.onSuccessCallback(models);
-        },
-        (e: ServiceError) => {
-          state.onErrorCallBack(e);
-        }
-      )
-      .finally(() => {
-        state.isFetching = false;
-      });
-  }
-
-  public fetchAllModelsPeriodically(
-    onSuccessCallback: (models: ModelInfoTypes.ModelInfo[]) => void,
-    onErrorCallBack: (error: ServiceError | Error) => void
-  ) {
-    const state = {
-      onSuccessCallback,
-      onErrorCallBack,
-      isFetching: false,
-    };
-    this._callGetAllModels(state);
-
-    // Fetch the models periodically
-    return setInterval(() => {
-      if (state.isFetching) {
-        console.info("Skipping fetching the models, because a fetch is already in progress.");
-        return;
-      }
-      this._callGetAllModels(state);
-    }, UPDATE_INTERVAL);
   }
 
   transform(payloadItem: ModelInfoTypeAPISpecs): ModelInfoTypes.ModelInfo {

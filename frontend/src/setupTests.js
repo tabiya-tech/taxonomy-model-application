@@ -11,6 +11,14 @@ import "@testing-library/jest-dom/extend-expect";
 // learn more: https://jest-extended.jestcommunity.dev/docs/
 import "jest-extended/all";
 
+// The TanStack Query client is a module-level singleton shared across the whole app (and thus
+// across all test files that render components using it). Clear its cache after every test so
+// cached model data from one test doesn't leak into the next.
+import { queryClient } from "src/app/providers/QueryProvider";
+afterEach(() => {
+  queryClient.clear();
+});
+
 // We are mocking these modules (unist-util-visit-parents and react-markdown)
 // because they have issues when used with Jest and TypeScript
 // So are not compatible with Jest, Typescript and modern ESM.

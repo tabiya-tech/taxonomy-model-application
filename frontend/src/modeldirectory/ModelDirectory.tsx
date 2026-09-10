@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import ImportModelDialog, { CloseEvent as ImportModelDialogCloseEvent, ImportData } from "src/import/ImportModelDialog";
 import { getUserFriendlyErrorMessage, ServiceError } from "src/error/error";
 import ImportDirectorService from "src/import/importDirector.service";
@@ -8,6 +8,8 @@ import { Backdrop } from "src/theme/Backdrop/Backdrop";
 import ModelsCardList from "./components/ModelsCardList/ModelsCardList";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
+import { useModels, MODELS_QUERY_KEY } from "src/modelInfo/useModels";
+import { queryClient } from "src/app/providers/QueryProvider";
 import LocalesService from "src/locale/locales.service";
 import LocaleAPISpecs from "api-specifications/locale";
 import ModelDirectoryHeader from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
@@ -39,8 +41,6 @@ const ModelDirectory = () => {
   const navigate = useNavigate();
   const [isImportDlgOpen, setIsImportDlgOpen] = React.useState(false);
   const [isBackDropShown, setIsBackDropShown] = React.useState(false);
-  const [models, setModels] = React.useState([] as ModelInfoTypes.ModelInfo[]);
-  const [isLoadingModels, setIsLoadingModels] = React.useState(true);
   const [message, setMessage] = React.useState("");
 
   const [drawerModel, setDrawerModel] = React.useState<ModelInfoTypes.ModelInfo | null>(null);
@@ -52,6 +52,26 @@ const ModelDirectory = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const isOnline = useContext(IsOnlineContext);
+
+  const { data: models = [], isPending: isLoadingModels, isError, error } = useModels({ enabled: isOnline });
+
+  useEffect(() => {
+    if (isError) {
+      const message = getUserFriendlyErrorMessage(error);
+      enqueueSnackbar(message, {
+        variant: "error",
+        key: SNACKBAR_ID.INTERNET_ERROR,
+        preventDuplicate: true,
+      });
+      if (error instanceof ServiceError) {
+        writeServiceErrorToLog(error, console.error);
+      } else {
+        console.error(error);
+      }
+    } else {
+      closeSnackbar(SNACKBAR_ID.INTERNET_ERROR);
+    }
+  }, [isError, error, enqueueSnackbar, closeSnackbar]);
 
   const showImportDialog = (b: boolean) => {
     setIsImportDlgOpen(b);
@@ -98,63 +118,6 @@ const ModelDirectory = () => {
     navigate(generatePath(routerPaths.EXPLORER_OCCUPATIONS, { modelId }));
   };
 
-  function modelArraysAreEqual(m1: ModelInfoTypes.ModelInfo[], m2: ModelInfoTypes.ModelInfo[]) {
-    if (m1.length !== m2.length) {
-      return false; // Different lengths, not equal
-    }
-
-    for (let i = 0; i < m1.length; i++) {
-      const obj1 = m1[i];
-      const obj2 = m2[i];
-      if (JSON.stringify(obj1) !== JSON.stringify(obj2)) {
-        return false; // Objects are not equal
-      }
-    }
-
-    return true; // Arrays are equal
-  }
-
-  const handleModelInfoFetch = useCallback(() => {
-    if (isOnline) {
-      return modelInfoService.fetchAllModelsPeriodically(
-        (fetchedModels) => {
-          if (!modelArraysAreEqual(fetchedModels, models)) {
-            setModels(fetchedModels);
-          }
-          setIsLoadingModels(false);
-          closeSnackbar(SNACKBAR_ID.INTERNET_ERROR);
-        },
-        (e) => {
-          const message = getUserFriendlyErrorMessage(e);
-          enqueueSnackbar(message, {
-            variant: "error",
-            key: SNACKBAR_ID.INTERNET_ERROR,
-            preventDuplicate: true,
-          });
-          if (e instanceof ServiceError) {
-            writeServiceErrorToLog(e, console.error);
-          } else {
-            console.error(e);
-          }
-        }
-      );
-    }
-    // It is important to pass models as a dependency otherwise the callback will always
-    // use the initial value of models, which is [], and the modelArrayAreEqual will always return false
-    // this has the side effect that when the models are updated, the callback is created again.
-    // This is not a problem because the useEffect is designed to handle this,
-    // by clearing the interval when the component is unmounted and also when the interval is recreated
-  }, [models, enqueueSnackbar, closeSnackbar, isOnline]);
-
-  useEffect(() => {
-    const timerId = handleModelInfoFetch();
-    return () => {
-      if (timerId) {
-        clearInterval(timerId);
-      }
-    };
-  }, [handleModelInfoFetch]);
-
   const handleOnImportDialogClose = async (event: ImportModelDialogCloseEvent) => {
     showImportDialog(false);
     if (event.name === "IMPORT") {
@@ -174,7 +137,10 @@ const ModelDirectory = () => {
         enqueueSnackbar(`The model '${importData.name}' import has started.`, {
           variant: "success",
         });
-        setModels([newModel, ...models]);
+        queryClient.setQueryData(MODELS_QUERY_KEY, (previousModels: ModelInfoTypes.ModelInfo[] = []) => [
+          newModel,
+          ...previousModels,
+        ]);
       } catch (e) {
         enqueueSnackbar(`The model '${importData.name}' import could not be started. Please try again.`, {
           variant: "error",
@@ -200,6 +166,8 @@ const ModelDirectory = () => {
         variant: "success",
         preventDuplicate: true,
       });
+      // exportModel doesn't return the updated model, so refetch to pick up its new process state and resume polling
+      await queryClient.refetchQueries({ queryKey: MODELS_QUERY_KEY });
     } catch (e) {
       enqueueSnackbar(`The model '${modelName}' export could not be started. Please try again.`, {
         variant: "error",
@@ -221,7 +189,9 @@ const ModelDirectory = () => {
     const modelName = models.find((model) => model.id === modelId)?.name;
     try {
       const updatedModel = await modelInfoService.releaseModel(modelId, releaseNotes);
-      setModels(models.map((model) => (model.id === modelId ? updatedModel : model)));
+      queryClient.setQueryData(MODELS_QUERY_KEY, (previousModels: ModelInfoTypes.ModelInfo[] = []) =>
+        previousModels.map((model) => (model.id === modelId ? updatedModel : model))
+      );
       if (drawerModel?.id === modelId) {
         setDrawerModel(updatedModel);
       }

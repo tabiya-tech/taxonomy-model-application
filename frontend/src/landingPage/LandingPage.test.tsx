@@ -1,7 +1,7 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { act, render, screen, waitFor } from "src/_test_utilities/test-utils";
+import { render, screen, waitFor } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import LandingPage, { DATA_TEST_ID } from "./LandingPage";
 import { routerPaths } from "src/app/routerPaths";
@@ -106,12 +106,11 @@ describe("Testing LandingPage component", () => {
     render(<LandingPage />);
 
     // THEN expect the button not to promise more than the one taxonomy
-    await act(async () => {
-      await Promise.resolve();
+    await waitFor(() => {
+      expect(screen.getByTestId(DATA_TEST_ID.LANDING_PAGE_BROWSE_TAXONOMIES_BUTTON)).toHaveTextContent(
+        "Browse taxonomies"
+      );
     });
-    expect(screen.getByTestId(DATA_TEST_ID.LANDING_PAGE_BROWSE_TAXONOMIES_BUTTON)).toHaveTextContent(
-      "Browse taxonomies"
-    );
   });
 
   test("should navigate to the API docs when 'Read the API docs' is clicked", async () => {
