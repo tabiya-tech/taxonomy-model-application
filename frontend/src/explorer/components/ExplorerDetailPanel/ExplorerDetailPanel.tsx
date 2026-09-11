@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { Typography, Divider, Skeleton, Tabs, Tab, Chip, useTheme } from "@mui/material";
 import { alpha, Theme } from "@mui/material/styles";
@@ -49,7 +49,10 @@ type ExplorerDetailPanelProps = {
   isLoading?: boolean;
   history?: ExplorerHistoryItem[] | null;
   isHistoryLoading?: boolean;
+  onHistoryTabOpen?: () => void;
 };
+
+const HISTORY_TAB_INDEX = 3;
 
 const GROUP_OBJECT_TYPES = new Set([ObjectType.ISCOGroup, ObjectType.LocalGroup, ObjectType.SkillGroup]);
 
@@ -377,9 +380,22 @@ const ExplorerDetailPanel = ({
   isLoading = false,
   history,
   isHistoryLoading = false,
+  onHistoryTabOpen,
 }: Readonly<ExplorerDetailPanelProps>) => {
   const [activeTab, setActiveTab] = useState(0);
   const theme = useTheme();
+
+  // Reset to the Definition tab whenever a different item is selected, so a stale tab view isn't shown.
+  useEffect(() => {
+    setActiveTab(0);
+  }, [item?.id, item?.objectType]);
+
+  const handleTabChange = (_: unknown, newTab: number) => {
+    setActiveTab(newTab);
+    if (newTab === HISTORY_TAB_INDEX) {
+      onHistoryTabOpen?.();
+    }
+  };
 
   if (isLoading) {
     return <DetailSkeleton />;
@@ -446,7 +462,7 @@ const ExplorerDetailPanel = ({
       <Divider />
       <Tabs
         value={activeTab}
-        onChange={(_, v) => setActiveTab(v)}
+        onChange={handleTabChange}
         variant="scrollable"
         scrollButtons="auto"
         allowScrollButtonsMobile

@@ -405,5 +405,46 @@ describe("ExplorerDetailPanel", () => {
       expect(console.error).not.toHaveBeenCalled();
       expect(console.warn).not.toHaveBeenCalled();
     });
+
+    test("should call onHistoryTabOpen when the History tab is opened", async () => {
+      // GIVEN a rendered item with an onHistoryTabOpen callback
+      const givenOnHistoryTabOpen = jest.fn();
+      render(<ExplorerDetailPanel item={givenGroupItem} history={[]} onHistoryTabOpen={givenOnHistoryTabOpen} />);
+      expect(givenOnHistoryTabOpen).not.toHaveBeenCalled();
+
+      // WHEN the user opens the History tab
+      await clickTab("History");
+
+      // THEN expect the callback to have been called
+      expect(givenOnHistoryTabOpen).toHaveBeenCalledTimes(1);
+    });
+
+    test("should not call onHistoryTabOpen when a different tab is opened", async () => {
+      // GIVEN a rendered item with an onHistoryTabOpen callback
+      const givenOnHistoryTabOpen = jest.fn();
+      render(<ExplorerDetailPanel item={givenGroupItem} history={[]} onHistoryTabOpen={givenOnHistoryTabOpen} />);
+
+      // WHEN the user opens the Details tab
+      await clickTab("Details");
+
+      // THEN expect the callback to not have been called
+      expect(givenOnHistoryTabOpen).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("tab reset on item change", () => {
+    test("should reset back to the Definition tab when a different item is selected", async () => {
+      // GIVEN the panel is showing a different item's History tab
+      const { rerender } = render(<ExplorerDetailPanel item={givenGroupItem} history={[]} />);
+      await clickTab("History");
+      expect(screen.getByRole("tab", { name: "History", selected: true })).toBeInTheDocument();
+
+      // WHEN a different item is selected
+      rerender(<ExplorerDetailPanel item={givenOccupationItem} history={[]} />);
+
+      // THEN expect the panel to show the Definition tab again, rather than staying on History
+      expect(screen.getByRole("tab", { name: "Definition", selected: true })).toBeInTheDocument();
+      expect(screen.getByText(givenOccupationItem.definition as string)).toBeInTheDocument();
+    });
   });
 });
