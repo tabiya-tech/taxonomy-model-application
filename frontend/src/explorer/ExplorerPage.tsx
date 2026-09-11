@@ -1,11 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, generatePath } from "react-router-dom";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material";
 import { useModels } from "src/modelInfo/useModels";
-import ExplorerService from "src/explorer/explorer.service";
-import { ExplorerHistoryItem, ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
-import { getApiUrl } from "src/envService";
+import { ObjectType } from "src/explorer/explorer.types";
+import {
+  useExplorerChildren,
+  useExplorerItemDetail,
+  useExplorerItemHistory,
+  useExplorerTree,
+} from "src/explorer/useExplorerQueries";
 import { ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
 import { getLatestSuccessfulExport } from "src/modeldirectory/components/ModelsCardList/components/VersionRow/VersionRow";
@@ -22,8 +26,6 @@ export const DATA_TEST_ID = {
   EXPLORER_PAGE: `explorer-page-${uniqueId}`,
 };
 
-const explorerService = new ExplorerService(getApiUrl());
-
 // Debounce so search doesn't fire a request on every keystroke.
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -38,15 +40,17 @@ const findItemById = (items: ExplorerTreeItem[], id: string): ExplorerTreeItem |
   return undefined;
 };
 
-const replaceItemInTree = (
+// Attaches each expanded node's cached children (if loaded) into the base tree for display,
+// without mutating any query cache data.
+const mergeChildrenIntoTree = (
   items: ExplorerTreeItem[],
-  id: string,
-  updater: (item: ExplorerTreeItem) => ExplorerTreeItem
+  childrenByItemId: Map<string, { data?: ExplorerTreeItem[]; isLoading: boolean }>
 ): ExplorerTreeItem[] =>
   items.map((item) => {
-    if (item.id === id) return updater(item);
-    if (item.children) return { ...item, children: replaceItemInTree(item.children, id, updater) };
-    return item;
+    const expanded = childrenByItemId.get(item.id);
+    if (!expanded) return item;
+    const children = expanded.data ? mergeChildrenIntoTree(expanded.data, childrenByItemId) : item.children;
+    return { ...item, isLoadingChildren: expanded.isLoading, children };
   });
 
 type ExplorerPageProps = {
@@ -64,15 +68,8 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
 
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
-
-  const [treeItems, setTreeItems] = useState<ExplorerTreeItem[]>([]);
-  const [isTreeLoading, setIsTreeLoading] = useState(true);
-
-  const [detail, setDetail] = useState<ExplorerItemDetail | null>(null);
-  const [isDetailLoading, setIsDetailLoading] = useState(false);
-
-  const [history, setHistory] = useState<{ id: string; items: ExplorerHistoryItem[] } | null>(null);
-  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<ExplorerTreeItem[]>([]);
+  const [historyTabOpenedForItemId, setHistoryTabOpenedForItemId] = useState<string | null>(null);
 
   const { data: models = [], isPending: isLoadingModels, isError: isModelsError, error: modelsError } = useModels();
 
@@ -92,67 +89,85 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
 
   const trimmedSearchValue = debouncedSearchValue.trim();
 
+  const {
+    data: rootTreeItems = [],
+    isPending: isTreeLoading,
+    isError: isTreeError,
+    error: treeError,
+  } = useExplorerTree(modelId, initialTab, trimmedSearchValue);
+
   useEffect(() => {
-    if (!modelId) {
-      setTreeItems([]);
-      return;
+    if (isTreeError) {
+      if (treeError instanceof ServiceError) writeServiceErrorToLog(treeError, console.error);
+      else console.error(treeError);
     }
-    let cancelled = false;
-    // Search results come back already ordered by relevance; root items are sorted so local groups come last.
-    const searchTreeItems = () =>
-      initialTab === "occupations"
-        ? explorerService.searchOccupations(modelId, trimmedSearchValue)
-        : explorerService.searchSkills(modelId, trimmedSearchValue);
-    const localGroupsLast = (items: ExplorerTreeItem[]) => [
-      ...items.filter((item) => item.objectType !== ObjectType.LocalGroup),
-      ...items.filter((item) => item.objectType === ObjectType.LocalGroup),
-    ];
-    const loadTreeItems = async () => {
-      setIsTreeLoading(true);
-      setTreeItems([]);
-      try {
-        if (trimmedSearchValue) {
-          const items = await searchTreeItems();
-          if (cancelled) return;
-          setTreeItems(items);
-        } else {
-          const items = await explorerService.getRootItems(modelId, initialTab);
-          if (cancelled) return;
-          setTreeItems(localGroupsLast(items));
-        }
-      } catch (e) {
-        if (cancelled) return;
-        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
-        else console.error(e);
-        setTreeItems([]);
-      } finally {
-        if (!cancelled) setIsTreeLoading(false);
-      }
-    };
-    void loadTreeItems();
-    return () => {
-      cancelled = true;
-    };
+  }, [isTreeError, treeError]);
+
+  // Expanded nodes reset whenever the tab or search changes, since they refer to a tree that no
+  // longer exists once its root/search results are replaced.
+  useEffect(() => {
+    setExpandedItems([]);
   }, [modelId, initialTab, trimmedSearchValue]);
+
+  const childrenResults = useExplorerChildren(modelId, expandedItems);
+
+  const childrenByItemId = useMemo(() => {
+    const map = new Map<string, { data?: ExplorerTreeItem[]; isLoading: boolean }>();
+    expandedItems.forEach((item, index) => {
+      const result = childrenResults[index];
+      if (result) map.set(item.id, { data: result.data, isLoading: result.isPending });
+    });
+    return map;
+  }, [expandedItems, childrenResults]);
+
+  // useQueries returns a new array on every render, so this only re-runs the log when the actual
+  // set of errored children queries changes, rather than on every unrelated re-render.
+  const childrenErrorsKey = childrenResults
+    .map((result, index) => (result.isError ? `${expandedItems[index]?.id}:${result.error}` : ""))
+    .join("|");
+  useEffect(() => {
+    childrenResults.forEach((result) => {
+      if (result.isError) {
+        if (result.error instanceof ServiceError) writeServiceErrorToLog(result.error, console.error);
+        else console.error(result.error);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [childrenErrorsKey]);
+
+  const treeItems = useMemo(
+    () => mergeChildrenIntoTree(rootTreeItems, childrenByItemId),
+    [rootTreeItems, childrenByItemId]
+  );
 
   const handleExpandItem = (item: ExplorerTreeItem) => {
     if (!modelId) return;
-    setTreeItems((prev) => replaceItemInTree(prev, item.id, (i) => ({ ...i, isLoadingChildren: true })));
-    explorerService
-      .getChildren(modelId, item)
-      .then((children) => {
-        setTreeItems((prev) => replaceItemInTree(prev, item.id, (i) => ({ ...i, children, isLoadingChildren: false })));
-      })
-      .catch((e) => {
-        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
-        else console.error(e);
-        setTreeItems((prev) => replaceItemInTree(prev, item.id, (i) => ({ ...i, isLoadingChildren: false })));
-      });
+    setExpandedItems((prev) => (prev.some((expanded) => expanded.id === item.id) ? prev : [...prev, item]));
   };
 
   const selectedItemId = (initialTab === "occupations" ? occupationId : skillId) ?? treeItems[0]?.id;
 
   const selectedTreeItem = selectedItemId ? findItemById(treeItems, selectedItemId) : null;
+
+  useEffect(() => {
+    setHistoryTabOpenedForItemId(null);
+  }, [selectedItemId]);
+
+  const {
+    data: detail,
+    isPending: isDetailPending,
+    isError: isDetailError,
+    error: detailError,
+  } = useExplorerItemDetail(modelId, selectedTreeItem ?? null);
+  const isDetailLoading = !!selectedTreeItem && isDetailPending;
+
+  useEffect(() => {
+    if (isDetailError) {
+      if (detailError instanceof ServiceError) writeServiceErrorToLog(detailError, console.error);
+      else console.error(detailError);
+    }
+  }, [isDetailError, detailError]);
+
   // Only spread detail when it belongs to the currently selected item to avoid
   // showing stale data from a previous selection before the new fetch completes.
   const matchingDetail = detail?.id === selectedTreeItem?.id ? detail : null;
@@ -166,55 +181,25 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
       }
     : null;
 
-  const treeItemsRef = useRef(treeItems);
-  treeItemsRef.current = treeItems;
+  const isHistoryTabOpened = !!selectedItemId && historyTabOpenedForItemId === selectedItemId;
+  const {
+    data: history,
+    isPending: isHistoryPending,
+    isError: isHistoryError,
+    error: historyError,
+  } = useExplorerItemHistory(modelId, selectedTreeItem ?? null, isHistoryTabOpened);
+  const isHistoryLoading = isHistoryTabOpened && isHistoryPending;
 
   useEffect(() => {
-    const currentItem = selectedItemId ? findItemById(treeItemsRef.current, selectedItemId) : null;
-    if (!modelId || !currentItem) {
-      setDetail(null);
-      setIsDetailLoading(false);
-      return;
+    if (isHistoryError) {
+      if (historyError instanceof ServiceError) writeServiceErrorToLog(historyError, console.error);
+      else console.error(historyError);
     }
-    setIsDetailLoading(true);
-    explorerService
-      .getItemDetail(modelId, currentItem)
-      .then(setDetail)
-      .catch((e) => {
-        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
-        else console.error(e);
-        setDetail(null);
-      })
-      .finally(() => setIsDetailLoading(false));
-  }, [modelId, selectedItemId, isTreeLoading]);
+  }, [isHistoryError, historyError]);
 
-  useEffect(() => {
-    const currentItem = selectedItemId ? findItemById(treeItemsRef.current, selectedItemId) : null;
-    if (!modelId || !currentItem) {
-      setHistory(null);
-      setIsHistoryLoading(false);
-      return;
-    }
-    let cancelled = false;
-    setIsHistoryLoading(true);
-    explorerService
-      .getItemHistory(modelId, currentItem)
-      .then((items) => {
-        if (!cancelled) setHistory({ id: currentItem.id, items });
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        if (e instanceof ServiceError) writeServiceErrorToLog(e, console.error);
-        else console.error(e);
-        setHistory(null);
-      })
-      .finally(() => {
-        if (!cancelled) setIsHistoryLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [modelId, selectedItemId, isTreeLoading]);
+  const handleHistoryTabOpen = () => {
+    if (selectedItemId) setHistoryTabOpenedForItemId(selectedItemId);
+  };
 
   // The CSV button links directly to the model's most recent successful export (if any).
   const csvDownloadUrl = selectedModel ? getLatestSuccessfulExport(selectedModel)?.downloadUrl : undefined;
@@ -306,8 +291,9 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
                 <ExplorerDetailPanel
                   item={detailItem}
                   isLoading={isDetailLoading || (isTreeLoading && !selectedTreeItem)}
-                  history={history && history.id === selectedTreeItem?.id ? history.items : null}
+                  history={history ?? null}
                   isHistoryLoading={isHistoryLoading}
+                  onHistoryTabOpen={handleHistoryTabOpen}
                 />
               </Box>
             </Box>

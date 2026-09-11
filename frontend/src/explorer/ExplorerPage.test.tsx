@@ -13,6 +13,9 @@ import { ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
 import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 import { routerPaths } from "src/app/routerPaths";
 import { DATA_TEST_ID as EXPLORER_HEADER_DATA_TEST_ID } from "src/explorer/components/ExplorerHeader/ExplorerHeader";
+import { DATA_TEST_ID as EXPLORER_DETAIL_PANEL_DATA_TEST_ID } from "src/explorer/components/ExplorerDetailPanel/ExplorerDetailPanel";
+import { queryClient } from "src/app/providers/QueryProvider";
+import { explorerTreeQueryKey } from "src/explorer/useExplorerQueries";
 
 const givenModels = getArrayOfFakeModels(1);
 givenModels[0] = { ...givenModels[0], name: "Taxonomy for South Africa" };
@@ -100,6 +103,8 @@ describe("ExplorerPage", () => {
 
   afterEach(() => {
     jest.resetAllMocks();
+    // undo any per-test query-default overrides (e.g. disabling retry) so they don't leak
+    queryClient.setQueryDefaults(explorerTreeQueryKey(givenModelId, "occupations", ""), {});
   });
 
   test("should fetch and render the root tree items for the current model and tab", async () => {
@@ -118,8 +123,9 @@ describe("ExplorerPage", () => {
   });
 
   test("should render an empty tree without crashing when fetching the root items fails", async () => {
-    // GIVEN fetching the root items will fail
-    getRootItemsSpy.mockRejectedValueOnce(new Error("network error"));
+    // GIVEN fetching the root items will fail, and retries are disabled for this query
+    queryClient.setQueryDefaults(explorerTreeQueryKey(givenModelId, "occupations", ""), { retry: false });
+    getRootItemsSpy.mockRejectedValue(new Error("network error"));
 
     // WHEN the explorer page is rendered
     renderExplorerPage("occupations");
@@ -144,6 +150,41 @@ describe("ExplorerPage", () => {
     await waitFor(() => expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenRootGroup));
   });
 
+  test("should lazily fetch and merge a grandchild's children when a nested node is expanded", async () => {
+    // GIVEN a root group whose fetched child is itself an expandable group, and a distinct
+    // grandchild returned when that nested group's children are requested
+    const givenChildGroup: ExplorerTreeItem = {
+      id: "grp-11",
+      code: "11",
+      title: "Chief executives",
+      objectType: ObjectType.ISCOGroup,
+      hasChildren: true,
+    };
+    const givenGrandchild: ExplorerTreeItem = {
+      id: "occ-1112",
+      code: "1112",
+      title: "Senior government officials",
+      objectType: ObjectType.ESCOOccupation,
+      hasChildren: false,
+    };
+    getChildrenSpy.mockImplementation((_modelId: string, item: ExplorerTreeItem) =>
+      Promise.resolve(item.id === givenRootGroup.id ? [givenChildGroup] : [givenGrandchild])
+    );
+
+    // WHEN the explorer page is rendered and the root group is expanded
+    renderExplorerPage("occupations");
+    expect(await screen.findByText(`${givenRootGroup.code} · ${givenRootGroup.title}`)).toBeInTheDocument();
+    await userEvent.click(screen.getByText(`${givenRootGroup.code} · ${givenRootGroup.title}`));
+    expect(await screen.findByText(`${givenChildGroup.code} · ${givenChildGroup.title}`)).toBeInTheDocument();
+
+    // AND the nested child group is also expanded
+    await userEvent.click(screen.getByText(`${givenChildGroup.code} · ${givenChildGroup.title}`));
+
+    // THEN expect the grandchild's children to have been fetched and rendered too
+    await waitFor(() => expect(getChildrenSpy).toHaveBeenCalledWith(givenModelId, givenChildGroup));
+    expect(await screen.findByText(`${givenGrandchild.code} · ${givenGrandchild.title}`)).toBeInTheDocument();
+  });
+
   test("should fetch and render an item's detail when it is selected", async () => {
     // GIVEN the root items include an occupation as a directly embedded child
     getRootItemsSpy.mockResolvedValueOnce([{ ...givenRootGroup, children: [givenChildOccupation] }]);
@@ -164,14 +205,59 @@ describe("ExplorerPage", () => {
     expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation);
     // AND expect the fetched definition to be rendered
     expect(await screen.findByText(givenDetail.definition)).toBeInTheDocument();
-    // AND expect the item's model history to have been fetched for the same selected item
+    // AND expect the item's model history to NOT have been fetched automatically, only on demand
+    // when the History tab is opened
+    expect(getItemHistorySpy).not.toHaveBeenCalled();
+  });
+
+  test("should fetch an item's history only when the History tab is opened", async () => {
+    // GIVEN the root items include an occupation as a directly embedded child, and its detail has been fetched
+    getRootItemsSpy.mockResolvedValueOnce([{ ...givenRootGroup, children: [givenChildOccupation] }]);
+    render(
+      <MemoryRouter initialEntries={[`/explorer/${givenModelId}/occupations/${givenChildOccupation.id}`]}>
+        <Routes>
+          <Route path={routerPaths.EXPLORER_OCCUPATIONS_DETAIL} element={<ExplorerPage initialTab="occupations" />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    expect(await screen.findByText(givenDetail.definition)).toBeInTheDocument();
+    expect(getItemHistorySpy).not.toHaveBeenCalled();
+
+    // WHEN the user opens the History tab
+    await userEvent.click(screen.getByText("History"));
+
+    // THEN expect the item's model history to have been fetched for the selected item
     await waitFor(() => expect(getItemHistorySpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation));
   });
 
-  test("should refetch the root items when switching tabs", async () => {
-    // GIVEN the explorer page has rendered the occupations tab
+  test("should reuse cached detail when revisiting a previously viewed item", async () => {
+    // GIVEN the root items include an occupation as a directly embedded child, and both items'
+    // details have already been fetched (the group first, then the child)
+    getRootItemsSpy.mockResolvedValueOnce([{ ...givenRootGroup, children: [givenChildOccupation] }]);
     renderExplorerPage("occupations");
-    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations"));
+    expect(await screen.findByText(`${givenRootGroup.code} · ${givenRootGroup.title}`)).toBeInTheDocument();
+    await userEvent.click(screen.getByText(`${givenRootGroup.code} · ${givenRootGroup.title}`));
+    await waitFor(() =>
+      expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, expect.objectContaining({ id: givenRootGroup.id }))
+    );
+    await userEvent.click(screen.getByText(`${givenChildOccupation.code} · ${givenChildOccupation.title}`));
+    await waitFor(() => expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation));
+    expect(getItemDetailSpy).toHaveBeenCalledTimes(2);
+
+    // WHEN the user revisits the first item
+    await userEvent.click(screen.getByText(`${givenRootGroup.code} · ${givenRootGroup.title}`));
+
+    // THEN expect its detail panel to be shown again for that item, without an additional fetch
+    expect(await screen.findByTestId(EXPLORER_DETAIL_PANEL_DATA_TEST_ID.EXPLORER_DETAIL_PANEL_TITLE)).toHaveTextContent(
+      givenRootGroup.title
+    );
+    expect(getItemDetailSpy).toHaveBeenCalledTimes(2);
+  });
+
+  test("should refetch the root items when switching tabs", async () => {
+    // GIVEN the explorer page has rendered the occupations tab and finished loading
+    renderExplorerPage("occupations");
+    expect(await screen.findByText(`${givenRootGroup.code} · ${givenRootGroup.title}`)).toBeInTheDocument();
 
     // WHEN the user switches to the skills tab
     await userEvent.click(screen.getByText("Skills"));
@@ -218,7 +304,7 @@ describe("ExplorerPage", () => {
     expect(searchSkillsSpy).not.toHaveBeenCalled();
   });
 
-  test("should fall back to the root tree when the search field is cleared", async () => {
+  test("should fall back to the root tree when the search field is cleared, reusing the cached root items", async () => {
     // GIVEN the explorer page has rendered search results on the skills tab
     renderExplorerPage("skills");
     await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills"));
@@ -230,8 +316,9 @@ describe("ExplorerPage", () => {
     // WHEN the user clears the search field
     await userEvent.clear(searchInput);
 
-    // THEN expect the root items to be fetched again
-    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledTimes(2));
+    // THEN expect the root items to be shown again, reused from the cache rather than refetched
+    expect(await screen.findByText(`${givenRootGroup.code} · ${givenRootGroup.title}`)).toBeInTheDocument();
+    expect(getRootItemsSpy).toHaveBeenCalledTimes(1);
   });
 
   test("should clear the search field when switching tabs", async () => {
