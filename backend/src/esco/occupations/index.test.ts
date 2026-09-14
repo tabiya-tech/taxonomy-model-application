@@ -33,6 +33,9 @@ jest.mock("./[id]/PUT/index", () => ({
 jest.mock("./[id]/PATCH/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "PATCH" }),
 }));
+jest.mock("./[id]/DELETE/index", () => ({
+  handler: jest.fn().mockResolvedValue({ statusCode: 204, body: "DELETE" }),
+}));
 
 import { handler as getHandler } from "./GET/index";
 import { handler as postHandler } from "./POST/index";
@@ -46,6 +49,7 @@ import { handler as getSkillsHandler } from "./[id]/skills/GET/index";
 import { handler as postSkillsHandler } from "./[id]/skills/POST/index";
 import { handler as putByIdHandler } from "./[id]/PUT/index";
 import { handler as patchByIdHandler } from "./[id]/PATCH/index";
+import { handler as deleteByIdHandler } from "./[id]/DELETE/index";
 
 describe("Occupations Router", () => {
   beforeEach(() => {
@@ -147,6 +151,13 @@ describe("Occupations Router", () => {
     const response = await handler(event);
     expect(patchSkillsHandler).toHaveBeenCalledWith(event);
     expect(response.body).toBe("PATCH_SKILLS");
+  });
+
+  test("should route DELETE to deleteByIdHandler", async () => {
+    const event = { httpMethod: HTTP_VERBS.DELETE, path: "/models/1/occupations/2" } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(deleteByIdHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("DELETE");
   });
 
   test("should route PATCH to patchByIdHandler", async () => {

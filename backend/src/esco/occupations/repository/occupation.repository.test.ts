@@ -9,7 +9,8 @@ import { getRepositoryRegistry, RepositoryRegistry } from "server/repositoryRegi
 import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { IOccupationRepository, SearchFilter } from "./occupation.repository";
-import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
+import { OccupationHasChildrenError } from "../services/occupation.service.types";
+import { MongoMemoryReplSet } from "mongodb-memory-server";
 import {
   INewOccupationSpec,
   IOccupation,
@@ -135,23 +136,28 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     resetMockRandomISCOGroupCode();
   });
 
+  let replSet: MongoMemoryReplSet;
   let dbConnection: Connection;
   let repository: IOccupationRepository;
   let repositoryRegistry: RepositoryRegistry;
   beforeAll(async () => {
-    // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
-    const config = getTestConfiguration("OccupationRepositoryTestDB");
-    dbConnection = await getNewConnection(config.dbURI);
+    // we have to use a replSet because we are using transactions in the repository
+    // and transactions are not supported in standalone mongo instances
+    replSet = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
+    dbConnection = await getNewConnection(replSet.getUri("OccupationRepositoryTestDB"));
     repositoryRegistry = new RepositoryRegistry();
     await repositoryRegistry.initialize(dbConnection);
     repository = repositoryRegistry.occupation;
-  });
+  }, 60_000);
 
   afterAll(async () => {
     if (dbConnection) {
       console.log("Closing db connection");
       await dbConnection.dropDatabase();
       await dbConnection.close(false); // do not force close as there might be pending mongo operations
+    }
+    if (replSet) {
+      await replSet.stop();
     }
   });
 
@@ -2618,6 +2624,76 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       await expect(
         repository.patch(new mongoose.Types.ObjectId().toHexString(), getMockStringId(1), patchSpec)
       ).rejects.toThrow("OccupationRepository.patch: patch failed.");
+    });
+  });
+
+  describe("delete", () => {
+    test("should return false if id is not a valid ObjectId", async () => {
+      const actual = await repository.delete("invalid-id", getMockStringId(1));
+      expect(actual).toBe(false);
+    });
+
+    test("should return false if modelId is not a valid ObjectId", async () => {
+      const actual = await repository.delete(getMockStringId(1), "invalid-id");
+      expect(actual).toBe(false);
+    });
+
+    test("should return false if occupation does not exist", async () => {
+      const actual = await repository.delete(getMockStringId(1), getMockStringId(2));
+      expect(actual).toBe(false);
+    });
+
+    test("should throw OccupationHasChildrenError if occupation has children", async () => {
+      const modelId = getMockStringId(1);
+      const parentSpec = getSimpleNewESCOOccupationSpec(modelId, "parent_occ");
+      const parent = await repository.create(parentSpec);
+
+      const childSpec = getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_occ", parent.code);
+      const child = await repository.create(childSpec);
+
+      await repositoryRegistry.occupationHierarchy.createMany(modelId, [
+        {
+          parentType: parent.occupationType,
+          parentId: parent.id,
+          childType: child.occupationType,
+          childId: child.id,
+        },
+      ]);
+
+      await expect(repository.delete(parent.id, modelId)).rejects.toThrow(OccupationHasChildrenError);
+    });
+
+    test("should successfully delete an occupation with transaction session commit", async () => {
+      // GIVEN an existing occupation
+      const givenModelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(givenModelId, "occ_to_delete");
+      const givenOccupation = await repository.create(givenSpec);
+
+      // WHEN deleting the occupation
+      const actual = await repository.delete(givenOccupation.id, givenModelId);
+
+      // THEN it should return true and the occupation should be removed
+      expect(actual).toBe(true);
+      const found = await repository.findById(givenOccupation.id);
+      expect(found).toBeNull();
+    });
+
+    test("should throw wrapped error when unexpected database error occurs", async () => {
+      // GIVEN an existing occupation and a findOne that throws
+      const givenModelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(givenModelId, "occ_err");
+      const givenOccupation = await repository.create(givenSpec);
+      const findOneSpy = jest.spyOn(repository.Model, "findOne").mockImplementation(() => {
+        throw new Error("Unexpected DB failure");
+      });
+
+      // WHEN deleting the occupation
+      // THEN it should throw a wrapped error
+      await expect(repository.delete(givenOccupation.id, givenModelId)).rejects.toThrow(
+        "OccupationRepository.delete: delete failed."
+      );
+
+      findOneSpy.mockRestore();
     });
   });
 });

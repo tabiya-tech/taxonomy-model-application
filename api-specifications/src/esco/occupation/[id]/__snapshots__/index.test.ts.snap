@@ -764,6 +764,58 @@ exports[`Test the Occupation Instance module The export module matches the snaps
     "UUID_HISTORY_MAX_ITEMS": 10000,
     "UUID_HISTORY_MAX_LENGTH": 50,
   },
+  "DELETE": {
+    "Errors": {
+      "Status400": {
+        "ErrorCodes": {
+          "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+        },
+      },
+      "Status404": {
+        "ErrorCodes": {
+          "MODEL_NOT_FOUND": "MODEL_NOT_FOUND",
+          "OCCUPATION_NOT_FOUND": "OCCUPATION_NOT_FOUND",
+        },
+      },
+      "Status409": {
+        "ErrorCodes": {
+          "CANNOT_DELETE_ENTITY_WITH_CHILDREN": "CANNOT_DELETE_ENTITY_WITH_CHILDREN",
+        },
+      },
+      "Status500": {
+        "ErrorCodes": {
+          "DB_FAILED_TO_DELETE_OCCUPATION": "DB_FAILED_TO_DELETE_OCCUPATION",
+        },
+      },
+    },
+    "Schemas": {
+      "Request": {
+        "Param": {
+          "Payload": {
+            "$id": "/components/schemas/OccupationRequestByIdParamSchemaDELETE",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "description": "The id of the occupation. It can be used to retrieve the occupation from the server.",
+                "pattern": "^[0-9a-f]{24}$",
+                "type": "string",
+              },
+              "modelId": {
+                "description": "The identifier of the model for occupation.",
+                "pattern": "^[0-9a-f]{24}$",
+                "type": "string",
+              },
+            },
+            "required": [
+              "modelId",
+              "id",
+            ],
+            "type": "object",
+          },
+        },
+      },
+    },
+  },
   "Enums": {
     "OccupationToSkillRelationType": {
       "ESSENTIAL": "essential",
