@@ -5,6 +5,7 @@ import LanguageConfigSchema from "./schema";
 import LanguageTypes from "./types";
 import LanguageConstants from "./constants";
 import LanguageHelpers from "./helpers";
+import { getTranslatedStringArraySchema, getTranslatedStringSchema } from "./translatedString";
 
 /**
  * This module should be imported in the following way
@@ -14,10 +15,12 @@ import LanguageHelpers from "./helpers";
  And the general pattern is LanguageAPISpecs.{Constants/Types/Schemas/Helpers}
 
  The registry is bundled, it is not fetched at runtime. See ./README.md for the checklist of adding a language.
- */
+*/
 
 namespace LanguageSchemas {
   export const Payload = LanguageConfigSchema;
+  export const getTranslatedString = getTranslatedStringSchema;
+  export const getTranslatedStringArray = getTranslatedStringArraySchema;
 }
 
 namespace LanguageAPISpecs {

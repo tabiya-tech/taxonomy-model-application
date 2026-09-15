@@ -88,10 +88,10 @@ describe("Test the Language Constants", () => {
     );
   });
 
-  describe("Test the FALL_BACK_LANGUAGE", () => {
+  describe("Test the FALLBACK_LANGUAGE", () => {
     test("the fall back language should be english", () => {
       // GIVEN the fall back language
-      const givenFallBackLanguage = LanguageConstants.FALL_BACK_LANGUAGE;
+      const givenFallBackLanguage = LanguageConstants.FALLBACK_LANGUAGE;
       // AND the short code the platform falls back to
       const expectedShortCode = "en";
 
@@ -104,7 +104,7 @@ describe("Test the Language Constants", () => {
 
     test("the fall back language should be an entry of the registry", () => {
       // GIVEN the fall back language
-      const givenFallBackLanguage = LanguageConstants.FALL_BACK_LANGUAGE;
+      const givenFallBackLanguage = LanguageConstants.FALLBACK_LANGUAGE;
 
       // WHEN the registry is searched for the fall back language
       const actualLanguages = LanguageConstants.Languages;

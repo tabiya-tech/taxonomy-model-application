@@ -14,7 +14,10 @@ describe("Test the language module", () => {
     expect(languageModule.default.Constants.CSV_SUFFIX_MAX_LENGTH).toBeDefined();
     // AND check if the registry is defined in it
     expect(languageModule.default.Constants.Languages).toBeDefined();
-    expect(languageModule.default.Constants.FALL_BACK_LANGUAGE).toBeDefined();
+    expect(languageModule.default.Constants.FALLBACK_LANGUAGE).toBeDefined();
+    // AND check if the translated string schema factories are defined in it
+    expect(languageModule.default.Schemas.getTranslatedString).toBeDefined();
+    expect(languageModule.default.Schemas.getTranslatedStringArray).toBeDefined();
     // AND check if the helpers are defined in it
     expect(languageModule.default.Helpers.getLanguageByShortCode).toBeDefined();
     expect(languageModule.default.Helpers.getLanguageByCsvSuffix).toBeDefined();
