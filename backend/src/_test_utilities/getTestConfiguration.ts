@@ -18,5 +18,6 @@ export function getTestConfiguration(dbname: string): IConfiguration {
     geminiEmbeddingModel: "text-embedding-004",
     embeddingsQueueUrl: "https://sqs.foo.amazonaws.com/123456789012/test-embeddings-queue",
     embeddingsQueueRegion: "foo",
+    fallbackLanguage: "en",
   };
 }

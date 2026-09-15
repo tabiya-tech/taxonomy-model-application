@@ -69,7 +69,7 @@ namespace LanguageConstants {
    *
    * It is an entry of the registry, not a copy of one.
    */
-  export const FALL_BACK_LANGUAGE = ENGLISH;
+  export const FALLBACK_LANGUAGE = ENGLISH;
 }
 
 export default LanguageConstants;

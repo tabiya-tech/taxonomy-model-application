@@ -93,7 +93,7 @@ describe("Test the Language Helpers", () => {
 
     test("should return true for the short code of the fall back language", () => {
       // GIVEN the short code of the fall back language
-      const givenShortCode = LanguageConstants.FALL_BACK_LANGUAGE.shortCode;
+      const givenShortCode = LanguageConstants.FALLBACK_LANGUAGE.shortCode;
 
       // WHEN the short code is checked
       const actualIsSupported = LanguageHelpers.isSupportedLanguage(givenShortCode);

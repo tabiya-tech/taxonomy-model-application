@@ -1,4 +1,5 @@
 import * as process from "process";
+import LanguageAPISpecs from "api-specifications/language";
 
 export const ENV_VAR_NAMES = {
   MONGODB_URI: "MONGODB_URI",
@@ -16,6 +17,7 @@ export const ENV_VAR_NAMES = {
   GEMINI_EMBEDDING_MODEL: "GEMINI_EMBEDDING_MODEL",
   EMBEDDINGS_QUEUE_URL: "EMBEDDINGS_QUEUE_URL",
   EMBEDDINGS_QUEUE_REGION: "EMBEDDINGS_QUEUE_REGION",
+  FALLBACK_LANGUAGE: "FALLBACK_LANGUAGE",
 };
 
 export interface IConfiguration {
@@ -34,6 +36,7 @@ export interface IConfiguration {
   geminiEmbeddingModel: string;
   embeddingsQueueUrl: string;
   embeddingsQueueRegion: string;
+  fallbackLanguage: string;
 }
 export function readEnvironmentConfiguration(): IConfiguration {
   return {
@@ -53,6 +56,8 @@ export function readEnvironmentConfiguration(): IConfiguration {
     geminiEmbeddingModel: process.env[ENV_VAR_NAMES.GEMINI_EMBEDDING_MODEL] ?? "",
     embeddingsQueueUrl: process.env[ENV_VAR_NAMES.EMBEDDINGS_QUEUE_URL] ?? "",
     embeddingsQueueRegion: process.env[ENV_VAR_NAMES.EMBEDDINGS_QUEUE_REGION] ?? "",
+    fallbackLanguage:
+      process.env[ENV_VAR_NAMES.FALLBACK_LANGUAGE] ?? LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode,
   };
 }
 
@@ -123,4 +128,11 @@ export function getEmbeddingsQueueUrl() {
 
 export function getEmbeddingsQueueRegion() {
   return _configuration?.embeddingsQueueRegion ?? "";
+}
+
+export function getFallbackLanguage() {
+  const configuredFallbackLanguage = _configuration?.fallbackLanguage ?? "";
+  return configuredFallbackLanguage.trim().length > 0
+    ? configuredFallbackLanguage
+    : LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
 }

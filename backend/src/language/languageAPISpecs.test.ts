@@ -13,7 +13,7 @@ describe("Test the language registry as it is consumed by the backend", () => {
     // WHEN the module is inspected
     // THEN expect the registry, the fall back language, the schema and the helpers to be available
     expect(givenLanguageAPISpecs.Constants.Languages).toBeDefined();
-    expect(givenLanguageAPISpecs.Constants.FALL_BACK_LANGUAGE).toBeDefined();
+    expect(givenLanguageAPISpecs.Constants.FALLBACK_LANGUAGE).toBeDefined();
     expect(givenLanguageAPISpecs.Schemas.Payload).toBeDefined();
     expect(givenLanguageAPISpecs.Helpers.getLanguageByShortCode).toBeDefined();
     expect(givenLanguageAPISpecs.Helpers.getLanguageByCsvSuffix).toBeDefined();
@@ -35,7 +35,7 @@ describe("Test the language registry as it is consumed by the backend", () => {
 
   test("the fall back language should be an entry of the registry", () => {
     // GIVEN the fall back language
-    const givenFallBackLanguage = LanguageAPISpecs.Constants.FALL_BACK_LANGUAGE;
+    const givenFallBackLanguage = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE;
 
     // WHEN the registry is searched for the fall back language
     const actualLanguages = LanguageAPISpecs.Constants.Languages;
@@ -69,7 +69,7 @@ describe("Test the language registry as it is consumed by the backend", () => {
 
   test("the language lookups should resolve a language of the registry by its short code and by its CSV suffix", () => {
     // GIVEN a language of the registry
-    const givenLanguage = LanguageAPISpecs.Constants.FALL_BACK_LANGUAGE;
+    const givenLanguage = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE;
 
     // WHEN the language is looked up by its short code and by its CSV suffix
     const actualLanguageByShortCode = LanguageAPISpecs.Helpers.getLanguageByShortCode(givenLanguage.shortCode);
