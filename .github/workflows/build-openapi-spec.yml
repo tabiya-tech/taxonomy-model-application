@@ -1,0 +1,30 @@
+name: Build OpenAPI Spec
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: Build OpenAPI Spec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20.x
+          cache: 'yarn'
+          cache-dependency-path: backend/yarn.lock
+      - name: Install dependencies
+        run: yarn install
+        working-directory: backend
+      - name: Generate OpenAPI spec
+        run: yarn run generate:openapi
+        working-directory: backend
+      - name: Archive OpenAPI spec
+        uses: actions/upload-artifact@v6
+        with:
+          name: openapi.spec.json
+          path: backend/build/openapi/tabiya-api.json
+          retention-days: 1
