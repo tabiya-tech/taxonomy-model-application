@@ -2,10 +2,10 @@ import { Typography, useTheme } from "@mui/material";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import React, { PropsWithChildren } from "react";
 import Box from "@mui/material/Box";
-import ExportProcessStateEnums from "api-specifications/exportProcessState/enums";
 import HelpTip from "src/theme/HelpTip/HelpTip";
 import PropertyFieldLayout from "src/theme/PropertyFieldLayout/PropertyFieldLayout";
 import ExportProcessStateIcon from "src/modeldirectory/components/ExportProcessStateIcon/ExportProcessStateIcon";
+import { EXPORT_PROCESS_STATUS } from "src/api-types";
 
 interface ExportStatusPropertyFieldProps {
   exportProcessState: ModelInfoTypes.ExportProcessState;
@@ -54,14 +54,14 @@ const Message = (props: Readonly<{ exportProcessState: ModelInfoTypes.ExportProc
   const { status, result } = props.exportProcessState;
 
   switch (status) {
-    case ExportProcessStateEnums.Status.PENDING:
+    case EXPORT_PROCESS_STATUS.PENDING:
       return (
         <TypographyComponent>
           Pending
           <HelpTip data-testid={DATA_TEST_ID.HELP_TIP_PENDING}>{HELP_TIP_TEXT.PENDING}</HelpTip>
         </TypographyComponent>
       );
-    case ExportProcessStateEnums.Status.RUNNING:
+    case EXPORT_PROCESS_STATUS.RUNNING:
       return (
         <TypographyComponent>
           Running
@@ -69,7 +69,7 @@ const Message = (props: Readonly<{ exportProcessState: ModelInfoTypes.ExportProc
         </TypographyComponent>
       );
 
-    case ExportProcessStateEnums.Status.COMPLETED:
+    case EXPORT_PROCESS_STATUS.COMPLETED:
       if (!result.errored && !result.exportErrors && !result.exportWarnings) {
         return (
           <TypographyComponent>

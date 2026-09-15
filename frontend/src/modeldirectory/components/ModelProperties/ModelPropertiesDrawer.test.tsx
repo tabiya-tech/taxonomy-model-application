@@ -1,6 +1,6 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
+import { IMPORT_PROCESS_STATUS } from "src/api-types";
 import ModelPropertiesDrawer, {
   CloseEventName,
   DATA_TEST_ID as MODEL_PROPERTIES_DRAWER_DATA_TEST_ID,
@@ -60,7 +60,7 @@ const testModel: ModelInfoTypes.ModelInfo = {
   exportProcessState: [],
   importProcessState: {
     id: "",
-    status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
+    status: IMPORT_PROCESS_STATUS.PENDING,
     result: {
       errored: false,
       parsingErrors: false,

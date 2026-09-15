@@ -3,11 +3,11 @@ import "src/_test_utilities/consoleMock";
 
 import HelpTip from "src/theme/HelpTip/HelpTip";
 import ExportStatusPropertyField, { HELP_TIP_TEXT } from "./ExportStatusPropertyField";
-import ExportProcessStateEnums from "api-specifications/exportProcessState/enums";
 import { v4 as uuid } from "uuid";
 import { render, screen } from "src/_test_utilities/test-utils";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { DATA_TEST_ID as ICON_DATA_TEST_ID } from "src/modeldirectory/components/ExportProcessStateIcon/ExportProcessStateIcon";
+import { EXPORT_PROCESS_STATUS } from "src/api-types";
 
 import ExportProcessState = ModelInfoTypes.ExportProcessState;
 
@@ -25,7 +25,7 @@ const cases = [
   {
     name: "Pending",
     state: {
-      status: ExportProcessStateEnums.Status.PENDING,
+      status: EXPORT_PROCESS_STATUS.PENDING,
       result: {
         errored: false,
         exportErrors: false,
@@ -39,7 +39,7 @@ const cases = [
   {
     name: "Running",
     state: {
-      status: ExportProcessStateEnums.Status.RUNNING,
+      status: EXPORT_PROCESS_STATUS.RUNNING,
       result: {
         errored: false,
         exportErrors: false,
@@ -53,7 +53,7 @@ const cases = [
   {
     name: "Completed",
     state: {
-      status: ExportProcessStateEnums.Status.COMPLETED,
+      status: EXPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         exportErrors: false,
@@ -67,7 +67,7 @@ const cases = [
   {
     name: "Completed With Critical Errors",
     state: {
-      status: ExportProcessStateEnums.Status.COMPLETED,
+      status: EXPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: true,
         exportErrors: false,
@@ -81,7 +81,7 @@ const cases = [
   {
     name: "Completed With Export Errors",
     state: {
-      status: ExportProcessStateEnums.Status.COMPLETED,
+      status: EXPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         exportErrors: true,
@@ -95,7 +95,7 @@ const cases = [
   {
     name: "Completed With Export Warnings",
     state: {
-      status: ExportProcessStateEnums.Status.COMPLETED,
+      status: EXPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         exportErrors: false,
@@ -109,7 +109,7 @@ const cases = [
   {
     name: "Completed With Export Errors and Export Warnings",
     state: {
-      status: ExportProcessStateEnums.Status.COMPLETED,
+      status: EXPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         exportErrors: true,

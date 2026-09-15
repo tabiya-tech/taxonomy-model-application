@@ -11,13 +11,14 @@ import PresignedService from "./presigned.service";
 import addFormats from "ajv-formats";
 import { setupAPIServiceSpy } from "src/_test_utilities/fetchSpy";
 import PresignedAPISpecs from "api-specifications/presigned";
+import { PresignedSchema } from "src/api-types";
 
 const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
 addFormats(ajv);
 const validateResponse = ajv.compile(PresignedAPISpecs.Schemas.GET.Response.Payload);
 
-function getPresignedMockResponse(): PresignedAPISpecs.Types.GET.Response.Payload {
-  const givenResponse: PresignedAPISpecs.Types.GET.Response.Payload = {
+function getPresignedMockResponse(): PresignedSchema {
+  const givenResponse: PresignedSchema = {
     url: "https://somedomain/somepath",
     fields: [
       { name: "someName", value: "someValue" },
@@ -55,7 +56,7 @@ describe("Test the service", () => {
     // GIVEN an api server url
     const givenApiServerUrl = "/path/to/api";
     // AND the presigned REST API will respond with OK and some newly created presigned data
-    const givenResponse: PresignedAPISpecs.Types.GET.Response.Payload = getPresignedMockResponse();
+    const givenResponse: PresignedSchema = getPresignedMockResponse();
     const fetchSpy = setupAPIServiceSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
 
     // WHEN the getPresignedPost function is called

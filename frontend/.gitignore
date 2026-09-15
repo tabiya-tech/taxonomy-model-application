@@ -27,3 +27,6 @@ yarn-error.log*
 
 public/data/env.json
 public/data/env.js
+
+# generated from ../backend/build/openapi/tabiya-api.json, see "generate:api-types"
+src/api-types/schema.d.ts

@@ -44,9 +44,13 @@ jobs:
       - name: Build
         run: yarn run build
         working-directory: backend
-      - name: Generate OpenAPI
+      - name: Download OpenAPI spec
+        uses: actions/download-artifact@v6
+        with:
+          name: openapi.spec.json
+          path: backend/build/openapi/
+      - name: Generate Swagger and Redoc docs
         run: |
-          yarn run generate:openapi
           yarn run generate:swagger
           yarn run generate:redoc
         working-directory: backend

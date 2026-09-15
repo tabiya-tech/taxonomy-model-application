@@ -47,6 +47,14 @@ jobs:
       - name: Install dependencies
         run: yarn install
         working-directory: frontend
+      - name: Download OpenAPI spec
+        uses: actions/download-artifact@v6
+        with:
+          name: openapi.spec.json
+          path: backend/build/openapi/
+      - name: Generate API types
+        run: yarn run generate:api-types
+        working-directory: frontend
       - name: Set Version Info
         id: setVersionInfo
         # see https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
@@ -88,6 +96,14 @@ jobs:
       - name: Install dependencies
         run: yarn install
         working-directory: frontend
+      - name: Download OpenAPI spec
+        uses: actions/download-artifact@v6
+        with:
+          name: openapi.spec.json
+          path: backend/build/openapi/
+      - name: Generate API types
+        run: yarn run generate:api-types
+        working-directory: frontend
       - name: Test
         run: yarn run test
         working-directory: frontend
@@ -117,6 +133,14 @@ jobs:
           # restore-keys: playwright-browsers-${{ runner.os }}-
       - name: Install dependencies
         run: yarn install
+        working-directory: frontend
+      - name: Download OpenAPI spec
+        uses: actions/download-artifact@v6
+        with:
+          name: openapi.spec.json
+          path: backend/build/openapi/
+      - name: Generate API types
+        run: yarn run generate:api-types
         working-directory: frontend
       - name: Accessibility Tests
         run: |

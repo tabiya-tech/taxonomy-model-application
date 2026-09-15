@@ -1,8 +1,8 @@
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { CheckCircle, Circle, ErrorOutline, WatchLater } from "@mui/icons-material";
 import * as React from "react";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { PulsatingIcon } from "src/theme/PulsatingIcon/PulsatingIcon";
+import { IMPORT_PROCESS_STATUS } from "src/api-types";
 
 const uniqueId = "bae86ed9-33bf-4492-a0e2-f9c8bd112bae";
 export const DATA_TEST_ID = {
@@ -19,9 +19,9 @@ export type ImportStatusIconProps = {
 
 export default function ImportProcessStateIcon(props: Readonly<ImportStatusIconProps>) {
   switch (props?.importProcessState?.status) {
-    case ImportProcessStateAPISpecs.Enums.Status.PENDING:
+    case IMPORT_PROCESS_STATUS.PENDING:
       return <WatchLater titleAccess="Pending" color="info" data-testid={DATA_TEST_ID.ICON_STATUS_PENDING} />;
-    case ImportProcessStateAPISpecs.Enums.Status.RUNNING:
+    case IMPORT_PROCESS_STATUS.RUNNING:
       return (
         <PulsatingIcon
           icon={Circle}
@@ -30,7 +30,7 @@ export default function ImportProcessStateIcon(props: Readonly<ImportStatusIconP
           data-testid={DATA_TEST_ID.ICON_STATUS_RUNNING}
         />
       );
-    case ImportProcessStateAPISpecs.Enums.Status.COMPLETED: {
+    case IMPORT_PROCESS_STATUS.COMPLETED: {
       const result = props.importProcessState.result;
       if (result.errored || result.parsingErrors || result.parsingWarnings) {
         let title = "";

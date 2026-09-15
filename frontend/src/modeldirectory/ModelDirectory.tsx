@@ -11,7 +11,7 @@ import ModelInfoService from "src/modelInfo/modelInfo.service";
 import { useModels, MODELS_QUERY_KEY } from "src/modelInfo/useModels";
 import { queryClient } from "src/app/providers/QueryProvider";
 import LocalesService from "src/locale/locales.service";
-import LocaleAPISpecs from "api-specifications/locale";
+import { LocaleSchema } from "src/api-types";
 import ModelDirectoryHeader from "./components/ModelDirectoryHeader/ModelDirectoryHeader";
 import ContentLayout from "src/theme/ContentLayout/ContentLayout";
 import { IsOnlineContext } from "src/app/providers";
@@ -47,7 +47,7 @@ const ModelDirectory = () => {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
   const [isImportModelLoading, setIsImportModelLoading] = React.useState(false);
-  const [locales, setLocales] = React.useState([] as LocaleAPISpecs.Types.Payload[]);
+  const [locales, setLocales] = React.useState([] as LocaleSchema[]);
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 

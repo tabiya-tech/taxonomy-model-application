@@ -5,8 +5,8 @@ import * as React from "react";
 import { render, screen } from "src/_test_utilities/test-utils";
 import { getAllImportProcessStatePermutations } from "./_test_utilities/importProcesStateTestData";
 import ImportProcessStateIcon, { DATA_TEST_ID } from "./ImportProcessStateIcon";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { IMPORT_PROCESS_STATUS } from "src/api-types";
 
 const allIconTestIds = [
   DATA_TEST_ID.ICON_STATUS_PENDING,
@@ -50,38 +50,32 @@ describe("ImportProcessStateIcon", () => {
   describe.each(
     getAllImportProcessStatePermutations()
       .filter((importProcessState) => {
-        return importProcessState.status === ImportProcessStateAPISpecs.Enums.Status.PENDING;
+        return importProcessState.status === IMPORT_PROCESS_STATUS.PENDING;
       })
       .map((importProcessState, index) => {
         return [index, importProcessState];
       })
-  )(
-    `Correct ICON_STATUS_SUCCESS is rendered for ${ImportProcessStateAPISpecs.Enums.Status.PENDING}`,
-    (index, givenExportStatus) => {
-      testImportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_PENDING);
-    }
-  );
+  )(`Correct ICON_STATUS_SUCCESS is rendered for ${IMPORT_PROCESS_STATUS.PENDING}`, (index, givenExportStatus) => {
+    testImportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_PENDING);
+  });
 
   describe.each(
     getAllImportProcessStatePermutations()
       .filter((importProcessState) => {
-        return importProcessState.status === ImportProcessStateAPISpecs.Enums.Status.RUNNING;
+        return importProcessState.status === IMPORT_PROCESS_STATUS.RUNNING;
       })
       .map((importProcessState, index) => {
         return [index, importProcessState];
       })
-  )(
-    `Correct ICON_STATUS_SUCCESS is rendered for ${ImportProcessStateAPISpecs.Enums.Status.RUNNING}`,
-    (index, givenExportStatus) => {
-      testImportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_RUNNING);
-    }
-  );
+  )(`Correct ICON_STATUS_SUCCESS is rendered for ${IMPORT_PROCESS_STATUS.RUNNING}`, (index, givenExportStatus) => {
+    testImportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_RUNNING);
+  });
 
   describe.each(
     getAllImportProcessStatePermutations()
       .filter((importProcessState) => {
         return (
-          importProcessState.status === ImportProcessStateAPISpecs.Enums.Status.COMPLETED &&
+          importProcessState.status === IMPORT_PROCESS_STATUS.COMPLETED &&
           !importProcessState.result.errored &&
           !importProcessState.result.parsingErrors &&
           !importProcessState.result.parsingWarnings
@@ -90,18 +84,15 @@ describe("ImportProcessStateIcon", () => {
       .map((importProcessState, index) => {
         return [index, importProcessState];
       })
-  )(
-    `Correct ICON_STATUS_SUCCESS is rendered for ${ImportProcessStateAPISpecs.Enums.Status.COMPLETED}`,
-    (index, givenExportStatus) => {
-      testImportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_SUCCESS);
-    }
-  );
+  )(`Correct ICON_STATUS_SUCCESS is rendered for ${IMPORT_PROCESS_STATUS.COMPLETED}`, (index, givenExportStatus) => {
+    testImportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_SUCCESS);
+  });
 
   describe.each(
     getAllImportProcessStatePermutations()
       .filter((importProcessState) => {
         return (
-          importProcessState.status === ImportProcessStateAPISpecs.Enums.Status.COMPLETED &&
+          importProcessState.status === IMPORT_PROCESS_STATUS.COMPLETED &&
           (importProcessState.result.errored ||
             importProcessState.result.parsingErrors ||
             importProcessState.result.parsingWarnings)
@@ -110,12 +101,9 @@ describe("ImportProcessStateIcon", () => {
       .map((importProcessState, index) => {
         return [index, importProcessState];
       })
-  )(
-    `Correct ICON_STATUS_FAILED is rendered for ${ImportProcessStateAPISpecs.Enums.Status.COMPLETED}`,
-    (index, givenExportStatus) => {
-      testImportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_FAILED);
-    }
-  );
+  )(`Correct ICON_STATUS_FAILED is rendered for ${IMPORT_PROCESS_STATUS.COMPLETED}`, (index, givenExportStatus) => {
+    testImportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_FAILED);
+  });
 });
 
 function testImportProcessStateIcon(

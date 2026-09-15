@@ -3,12 +3,11 @@ import "src/_test_utilities/consoleMock";
 
 import { hasActiveModelProcess } from "src/modelInfo/useModels";
 import { getOneFakeModel } from "src/modeldirectory/_test_utilities/mockModelData";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
-import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
+import { EXPORT_PROCESS_STATUS, IMPORT_PROCESS_STATUS } from "src/api-types";
 
 const getInactiveModel = () => {
   const model = getOneFakeModel();
-  model.importProcessState = { ...model.importProcessState, status: ImportProcessStateAPISpecs.Enums.Status.COMPLETED };
+  model.importProcessState = { ...model.importProcessState, status: IMPORT_PROCESS_STATUS.COMPLETED };
   model.exportProcessState = [];
   return model;
 };
@@ -32,8 +31,8 @@ describe("hasActiveModelProcess", () => {
   });
 
   test.each([
-    ["pending", ImportProcessStateAPISpecs.Enums.Status.PENDING],
-    ["running", ImportProcessStateAPISpecs.Enums.Status.RUNNING],
+    ["pending", IMPORT_PROCESS_STATUS.PENDING],
+    ["running", IMPORT_PROCESS_STATUS.RUNNING],
   ])("should return true when a model's import process is %s", (_desc, status) => {
     // GIVEN a model with an active import process
     const givenModel = getInactiveModel();
@@ -45,8 +44,8 @@ describe("hasActiveModelProcess", () => {
   });
 
   test.each([
-    ["pending", ExportProcessStateAPISpecs.Enums.Status.PENDING],
-    ["running", ExportProcessStateAPISpecs.Enums.Status.RUNNING],
+    ["pending", EXPORT_PROCESS_STATUS.PENDING],
+    ["running", EXPORT_PROCESS_STATUS.RUNNING],
   ])("should return true when a model's export process is %s", (_desc, status) => {
     // GIVEN a model with an active export process
     const givenModel = getInactiveModel();
@@ -62,7 +61,7 @@ describe("hasActiveModelProcess", () => {
     const givenInactiveModel1 = getInactiveModel();
     const givenActiveModel = getInactiveModel();
     givenActiveModel.exportProcessState = [
-      { ...getOneFakeModel().exportProcessState[0], status: ExportProcessStateAPISpecs.Enums.Status.RUNNING },
+      { ...getOneFakeModel().exportProcessState[0], status: EXPORT_PROCESS_STATUS.RUNNING },
     ];
     const givenInactiveModel2 = getInactiveModel();
 

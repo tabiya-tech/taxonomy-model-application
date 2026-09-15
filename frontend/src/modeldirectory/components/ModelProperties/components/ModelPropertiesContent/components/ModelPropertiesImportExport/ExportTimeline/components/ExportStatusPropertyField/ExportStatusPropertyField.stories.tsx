@@ -2,7 +2,7 @@ import React from "react";
 import ExportStatusPropertyField, { uniqueId } from "./ExportStatusPropertyField";
 import { v4 as id } from "uuid";
 import { Meta, StoryObj } from "@storybook/react";
-import { ExportProcessStateEnums } from "api-specifications/exportProcessState/enums";
+import { EXPORT_PROCESS_STATUS } from "src/api-types";
 
 const meta: Meta<typeof ExportStatusPropertyField> = {
   title:
@@ -12,7 +12,7 @@ const meta: Meta<typeof ExportStatusPropertyField> = {
   args: {
     exportProcessState: {
       id: id(),
-      status: ExportProcessStateEnums.Status.PENDING,
+      status: EXPORT_PROCESS_STATUS.PENDING,
       result: {
         errored: false,
         exportErrors: false,
@@ -63,7 +63,7 @@ export const Pending: Story = {
   args: {
     exportProcessState: {
       id: id(),
-      status: ExportProcessStateEnums.Status.PENDING,
+      status: EXPORT_PROCESS_STATUS.PENDING,
       result: {
         errored: false,
         exportErrors: false,
@@ -82,7 +82,7 @@ export const Running: Story = {
   args: {
     exportProcessState: {
       id: id(),
-      status: ExportProcessStateEnums.Status.RUNNING,
+      status: EXPORT_PROCESS_STATUS.RUNNING,
       result: {
         errored: false,
         exportErrors: false,
@@ -101,7 +101,7 @@ export const Completed: Story = {
   args: {
     exportProcessState: {
       id: id(),
-      status: ExportProcessStateEnums.Status.COMPLETED,
+      status: EXPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         exportErrors: false,
@@ -120,7 +120,7 @@ export const CompletedWithCriticalErrors: Story = {
   args: {
     exportProcessState: {
       id: id(),
-      status: ExportProcessStateEnums.Status.COMPLETED,
+      status: EXPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: true,
         exportWarnings: false,
@@ -139,7 +139,7 @@ export const CompletedWithExportErrors: Story = {
   args: {
     exportProcessState: {
       id: id(),
-      status: ExportProcessStateEnums.Status.COMPLETED,
+      status: EXPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         exportWarnings: false,
@@ -158,7 +158,7 @@ export const CompletedWithExportWarnings: Story = {
   args: {
     exportProcessState: {
       id: id(),
-      status: ExportProcessStateEnums.Status.COMPLETED,
+      status: EXPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         exportWarnings: true,
@@ -177,7 +177,7 @@ export const CompletedWithExportWarningsAndExportErrors: Story = {
   args: {
     exportProcessState: {
       id: id(),
-      status: ExportProcessStateEnums.Status.COMPLETED,
+      status: EXPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         exportWarnings: true,

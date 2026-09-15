@@ -2,10 +2,10 @@
 import "src/_test_utilities/consoleMock";
 
 import { render, screen } from "src/_test_utilities/test-utils";
-import { ImportProcessStateEnums } from "api-specifications/importProcessState/enums";
 import ImportProcessStateContent, { FIELD_ID, DATA_TEST_ID } from "./ImportProcessStateContent";
 import ImportStatusPropertyField from "../ImportStatusPropertyField/ImportStatusPropertyField";
 import DurationPropertyField from "src/theme/PropertyFieldLayout/DurationPropertyField/DurationPropertyField";
+import { IMPORT_PROCESS_STATUS } from "src/api-types";
 
 // mock the ImportStatusPropertyField component
 jest.mock(
@@ -44,7 +44,7 @@ describe("ImportProcessStateContent", () => {
         parsingErrors: true,
         parsingWarnings: true,
       },
-      status: ImportProcessStateEnums.Status.PENDING,
+      status: IMPORT_PROCESS_STATUS.PENDING,
       createdAt: new Date("Wed, Mar 6, 2024, 11:02 AM"),
     };
 
@@ -95,7 +95,7 @@ describe("ImportProcessStateContent", () => {
         parsingErrors: true,
         parsingWarnings: true,
       },
-      status: ImportProcessStateEnums.Status.PENDING,
+      status: IMPORT_PROCESS_STATUS.PENDING,
     };
 
     // WHEN the component is rendered

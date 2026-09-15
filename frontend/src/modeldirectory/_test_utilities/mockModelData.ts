@@ -1,8 +1,5 @@
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
-import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
-import { ImportProcessStateEnums } from "api-specifications/importProcessState/enums";
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -10,6 +7,7 @@ import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { getMockId } from "src/_test_utilities/mockMongoId";
 import { getRandomLorem, getRandomString, getTestString } from "src/_test_utilities/specialCharacters";
 import { faker } from "@faker-js/faker";
+import { EXPORT_PROCESS_STATUS, IMPORT_PROCESS_STATUS } from "src/api-types";
 
 const SHORT_DESCRIPTION_LENGTH = 256;
 
@@ -169,7 +167,7 @@ export const fakeModel: ModelInfoTypes.ModelInfo = {
       parsingErrors: true,
       parsingWarnings: true,
     },
-    status: ImportProcessStateEnums.Status.PENDING,
+    status: IMPORT_PROCESS_STATUS.PENDING,
     createdAt: new Date("2023-10-18T17:35:10.571Z"),
     updatedAt: new Date("2023-10-18T17:35:12.571Z"),
   },
@@ -182,7 +180,7 @@ export const fakeModel: ModelInfoTypes.ModelInfo = {
         exportErrors: true,
         exportWarnings: true,
       },
-      status: ExportProcessStateAPISpecs.Enums.Status.PENDING,
+      status: EXPORT_PROCESS_STATUS.PENDING,
       timestamp: new Date("2023-10-18T17:35:10.571Z"),
       createdAt: new Date("2023-10-18T17:35:10.571Z"),
       updatedAt: new Date("2023-10-18T17:35:12.571Z"),
@@ -204,12 +202,12 @@ export const fakeModel: ModelInfoTypes.ModelInfo = {
 };
 
 export function getRandomImportStatus(id: number) {
-  const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+  const allStatuses = Object.values(IMPORT_PROCESS_STATUS);
   return allStatuses[id % allStatuses.length];
 }
 
 export function getRandomExportStatus(id: number) {
-  const allStatuses = Object.values(ExportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+  const allStatuses = Object.values(EXPORT_PROCESS_STATUS);
   return allStatuses[id % allStatuses.length];
 }
 
@@ -244,7 +242,7 @@ export function getMockUUID(i: number): string {
 export function getOneFakeSuccessfulExportProcessState(i: number): ModelInfoTypes.ExportProcessState {
   return {
     id: getMockId(20000 + i),
-    status: ExportProcessStateAPISpecs.Enums.Status.COMPLETED,
+    status: EXPORT_PROCESS_STATUS.COMPLETED,
     result: {
       errored: false,
       exportErrors: false,
@@ -292,7 +290,7 @@ export function getOneDeterministicFakeModel(
     exportProcessState: [getOneFakeSuccessfulExportProcessState(seed)],
     importProcessState: {
       id: getMockId(10000 + seed),
-      status: ImportProcessStateAPISpecs.Enums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         parsingErrors: false,

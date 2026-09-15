@@ -1,46 +1,24 @@
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
-import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
+import { ExportProcessStateSchema, ImportProcessStateSchema, ModelInfoResponseSchema } from "src/api-types";
 
 export namespace ModelInfoTypes {
-  export type Locale = {
-    UUID: string;
-    shortCode: string;
-    name: string;
-  };
+  export type Locale = ModelInfoResponseSchema["locale"];
 
-  export type ImportProcessState = {
-    id: string;
-    status: ImportProcessStateAPISpecs.Enums.Status;
-    result: {
-      errored: boolean;
-      parsingErrors: boolean;
-      parsingWarnings: boolean;
-    };
+  export type ImportProcessState = Omit<ImportProcessStateSchema, "createdAt" | "updatedAt"> & {
     createdAt?: Date;
     updatedAt?: Date;
   };
 
-  export type ExportProcessState = {
-    id: string;
-    status: ExportProcessStateAPISpecs.Enums.Status;
-    result: {
-      errored: boolean;
-      exportErrors: boolean;
-      exportWarnings: boolean;
-    };
+  export type ExportProcessState = Omit<
+    ExportProcessStateSchema,
+    "downloadUrl" | "timestamp" | "createdAt" | "updatedAt"
+  > & {
     downloadUrl: string;
     timestamp: Date;
     createdAt: Date;
     updatedAt: Date;
   };
 
-  export type ModelHistory = {
-    id: string | null;
-    UUID: string;
-    name: string | null;
-    version: string | null;
-    localeShortCode: string | null;
-  };
+  export type ModelHistory = ModelInfoResponseSchema["modelHistory"][number];
 
   export type ModelInfo = {
     id: string;

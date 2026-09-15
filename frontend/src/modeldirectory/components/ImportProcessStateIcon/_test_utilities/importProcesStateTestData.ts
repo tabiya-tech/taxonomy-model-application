@@ -1,10 +1,10 @@
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { getMockId } from "src/_test_utilities/mockMongoId";
+import { IMPORT_PROCESS_STATUS } from "src/api-types";
 
 export const getAllImportProcessStatePermutations = (): ModelInfoTypes.ImportProcessState[] => {
   // generate all permutations of ImportProcessState status, errored, parsingErrors, parsingWarnings
-  const allStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+  const allStatuses = Object.values(IMPORT_PROCESS_STATUS);
   const allBooleans = [true, false];
 
   const allPermutations: ModelInfoTypes.ImportProcessState[] = [];

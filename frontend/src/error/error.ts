@@ -1,8 +1,8 @@
-import ErrorAPISpecs from "api-specifications/error";
 import { ErrorCodes } from "./errorCodes";
 import { StatusCodes } from "http-status-codes/";
+import { ErrorResponseSchema } from "src/api-types";
 
-export type ServiceErrorDetails = string | ErrorAPISpecs.Types.Payload | object | undefined | null;
+export type ServiceErrorDetails = string | ErrorResponseSchema | object | undefined | null;
 
 export const USER_FRIENDLY_ERROR_MESSAGES = {
   REQUEST_TOO_LONG:

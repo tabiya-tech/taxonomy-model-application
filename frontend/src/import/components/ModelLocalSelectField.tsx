@@ -1,7 +1,7 @@
 import { FormControl, Stack, MenuItem, Select, FormLabel, SelectChangeEvent, useTheme } from "@mui/material";
 import React, { useEffect } from "react";
-import Locale from "api-specifications/locale";
 import { isUnspecified } from "src/utils/isUnspecified";
+import { LocaleSchema } from "src/api-types";
 
 export const TEXT = {
   MODEL_LOCALE_SELECT_LABEL: "Select Model Locale",
@@ -17,8 +17,8 @@ export const DATA_TEST_ID = {
 };
 
 export interface ModelLocaleSelectProps {
-  locales: Locale.Types.Payload[];
-  notifyModelLocaleChanged?: (locale: Locale.Types.Payload) => any;
+  locales: LocaleSchema[];
+  notifyModelLocaleChanged?: (locale: LocaleSchema) => any;
 }
 
 const ModelLocalSelectField = (props: Readonly<ModelLocaleSelectProps>) => {

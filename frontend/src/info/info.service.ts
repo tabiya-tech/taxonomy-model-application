@@ -1,12 +1,13 @@
 import infoURL from "./info.constants";
 import { InfoProps } from "./info.types";
 import { fetchWithAuth } from "../apiService/APIService";
+import { InfoResponseSchema } from "src/api-types";
 
 export default class InfoService {
   async loadInfoFromUrl(url: string): Promise<InfoProps> {
     try {
       return await fetchWithAuth(url).then(async (response) => {
-        const data: InfoProps = await response.json();
+        const data: InfoResponseSchema | Partial<InfoProps> = await response.json();
         if (data === null) {
           throw new Error("No data");
         }

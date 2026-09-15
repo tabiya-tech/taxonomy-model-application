@@ -22,16 +22,23 @@ jobs:
     uses: ./.github/workflows/build-locales.yml
     secrets: inherit
 
+  # OpenAPI spec (needed by both the backend's docs generation and the frontend's type generation;
+  # split out so the frontend doesn't have to wait for the backend's full build+test job)
+  build-openapi-spec:
+    needs: [ build-api-specs ]
+    uses: ./.github/workflows/build-openapi-spec.yml
+    secrets: inherit
+
   # Backend
   build-backend:
     uses: ./.github/workflows/build-backend.yml
-    needs: [ build-api-specs ]
+    needs: [ build-api-specs, build-openapi-spec ]
     secrets: inherit
 
   # Frontend
   build-frontend:
     uses: ./.github/workflows/build-frontend.yml
-    needs: [ build-api-specs ]
+    needs: [ build-api-specs, build-openapi-spec ]
     secrets: inherit
 
   # Sonarcloud

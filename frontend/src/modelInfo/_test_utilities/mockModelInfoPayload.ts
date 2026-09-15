@@ -2,20 +2,24 @@ import { faker } from "@faker-js/faker";
 
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
-import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
-import EmbeddingsAPISpecs from "api-specifications/embeddings";
 
 import { v4 as uuidv4 } from "uuid";
 
 import { getMockId } from "src/_test_utilities/mockMongoId";
 import { getRandomLorem, getRandomString, getTestString } from "src/_test_utilities/specialCharacters";
+import {
+  EMBEDDING_PROCESS_STATUS,
+  EMBEDDING_SERVICE_IDS,
+  EXPORT_PROCESS_STATUS,
+  IMPORT_PROCESS_STATUS,
+  ModelInfoResponseSchema,
+} from "src/api-types";
 
 export namespace POST {
   /**
    * Get a mock ModelInfo payload with special character strings of maximum length
    */
-  export function getPayloadWithOneRandomModelInfo(): ModelInfoAPISpecs.Types.POST.Response.Payload {
+  export function getPayloadWithOneRandomModelInfo(): ModelInfoResponseSchema {
     return getRandomModelInfo(1);
   }
 }
@@ -24,7 +28,7 @@ export namespace PATCH {
   /**
    * Get a mock ModelInfo payload with special character strings of maximum length
    */
-  export function getPayloadWithOneRandomModelInfo(): ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload {
+  export function getPayloadWithOneRandomModelInfo(): ModelInfoResponseSchema {
     return { ...getRandomModelInfo(1), released: true };
   }
 }
@@ -34,7 +38,7 @@ export namespace GET {
    * Get a mock ModelInfo payload with special character strings of maximum length
    * @param number The number of ModelInfo objects to generate
    */
-  export function getPayloadWithArrayOfRandomModelInfo(number: number): ModelInfoAPISpecs.Types.GET.Response.Payload {
+  export function getPayloadWithArrayOfRandomModelInfo(number: number): ModelInfoResponseSchema[] {
     return Array.from({ length: number }, (_, i) => {
       return getRandomModelInfo(i);
     });
@@ -44,18 +48,12 @@ export namespace GET {
    * Get a mock ModelInfo payload with lorem ipsum strings of maximum length
    * @param count
    */
-  export function getPayloadWithArrayOfFakeModelInfo(count: number): ModelInfoAPISpecs.Types.GET.Response.Payload {
-    const allImportStatuses: ImportProcessStateAPISpecs.Enums.Status[] = Object.values(
-      ImportProcessStateAPISpecs.Enums.Status
-    ).reverse(); // Assuming it's an enum with string values PENDING, RUNNING, COMPLETED
+  export function getPayloadWithArrayOfFakeModelInfo(count: number): ModelInfoResponseSchema[] {
+    const allImportStatuses = Object.values(IMPORT_PROCESS_STATUS).reverse();
 
-    const allExportStatuses: ExportProcessStateAPISpecs.Enums.Status[] = Object.values(
-      ExportProcessStateAPISpecs.Enums.Status
-    ).reverse(); // Assuming it's an enum with string values PENDING, RUNNING, COMPLETED
+    const allExportStatuses = Object.values(EXPORT_PROCESS_STATUS).reverse();
 
-    const allEmbeddingStatuses = Object.values(
-      ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status
-    ).reverse(); // Assuming it's an enum with string values PENDING, IN_PROGRESS, COMPLETED
+    const allEmbeddingStatuses = Object.values(EMBEDDING_PROCESS_STATUS).reverse();
 
     return Array.from({ length: count }, (_, i) => {
       const randomizedImportStatus = allImportStatuses[i % allImportStatuses.length];
@@ -92,7 +90,7 @@ export namespace GET {
         exportProcessState: [
           {
             id: getMockId(10000 + i),
-            status: randomizedExportStatus,
+            status: randomizedExportStatus as ModelInfoResponseSchema["exportProcessState"][number]["status"],
             result: {
               errored: false,
               exportErrors: faker.datatype.boolean(),
@@ -106,7 +104,7 @@ export namespace GET {
         ],
         importProcessState: {
           id: getMockId(10000 + i),
-          status: randomizedImportStatus,
+          status: randomizedImportStatus as ModelInfoResponseSchema["importProcessState"]["status"],
           result: {
             errored: false,
             parsingErrors: faker.datatype.boolean(),
@@ -118,11 +116,8 @@ export namespace GET {
         embeddingProcessState: [
           {
             id: getMockId(20000 + i),
-            status: randomizedEmbeddingStatus,
-            embeddingServiceId:
-              EmbeddingsAPISpecs.Constants.EmbeddingServiceIds[
-                i % EmbeddingsAPISpecs.Constants.EmbeddingServiceIds.length
-              ],
+            status: randomizedEmbeddingStatus as ModelInfoResponseSchema["embeddingProcessState"][number]["status"],
+            embeddingServiceId: EMBEDDING_SERVICE_IDS[i % EMBEDDING_SERVICE_IDS.length],
             totalDocuments: faker.number.int({ min: 0, max: 1000 }),
             errorCounts: faker.number.int({ min: 0, max: 10 }),
             warningCounts: faker.number.int({ min: 0, max: 10 }),
@@ -138,19 +133,12 @@ export namespace GET {
   }
 }
 
-/**
- * Extracts the type of the elements of an array.
- */
-type PayloadItem<ArrayOfItemType extends Array<unknown>> = ArrayOfItemType extends (infer ItemType)[]
-  ? ItemType
-  : never;
-
-export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.Types.GET.Response.Payload> {
-  const allImportStatuses = Object.values(ImportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+export function getRandomModelInfo(_id: number): ModelInfoResponseSchema {
+  const allImportStatuses = Object.values(IMPORT_PROCESS_STATUS);
   const randomizedImportStatus = allImportStatuses[_id % allImportStatuses.length];
-  const allExportStatuses = Object.values(ExportProcessStateAPISpecs.Enums.Status); // Assuming it's an enum with string values
+  const allExportStatuses = Object.values(EXPORT_PROCESS_STATUS);
   const randomizeExportStatus = allExportStatuses[_id % allExportStatuses.length];
-  const allEmbeddingStatuses = Object.values(ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status); // Assuming it's an enum with string values
+  const allEmbeddingStatuses = Object.values(EMBEDDING_PROCESS_STATUS);
   const randomizedEmbeddingStatus = allEmbeddingStatuses[_id % allEmbeddingStatuses.length];
 
   return {
@@ -181,7 +169,7 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
     exportProcessState: [
       {
         id: getMockId(10000 + _id),
-        status: randomizeExportStatus,
+        status: randomizeExportStatus as ModelInfoResponseSchema["exportProcessState"][number]["status"],
         result: {
           errored: _id % 2 === 0,
           exportErrors: faker.datatype.boolean(),
@@ -195,7 +183,7 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
     ],
     importProcessState: {
       id: getMockId(10000 + _id),
-      status: randomizedImportStatus,
+      status: randomizedImportStatus as ModelInfoResponseSchema["importProcessState"]["status"],
       result: {
         errored: _id % 2 === 0,
         parsingErrors: faker.datatype.boolean(),
@@ -207,11 +195,8 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
     embeddingProcessState: [
       {
         id: getMockId(20000 + _id),
-        status: randomizedEmbeddingStatus,
-        embeddingServiceId:
-          EmbeddingsAPISpecs.Constants.EmbeddingServiceIds[
-            _id % EmbeddingsAPISpecs.Constants.EmbeddingServiceIds.length
-          ],
+        status: randomizedEmbeddingStatus as ModelInfoResponseSchema["embeddingProcessState"][number]["status"],
+        embeddingServiceId: EMBEDDING_SERVICE_IDS[_id % EMBEDDING_SERVICE_IDS.length],
         totalDocuments: faker.number.int({ min: 0, max: 1000 }),
         errorCounts: faker.number.int({ min: 0, max: 10 }),
         warningCounts: faker.number.int({ min: 0, max: 10 }),
