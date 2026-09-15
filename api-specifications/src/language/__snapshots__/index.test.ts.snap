@@ -63,7 +63,7 @@ exports[`Test the language module The language module matches the snapshot 1`] =
           "type": "string",
         },
         "dbKeyName": {
-          "description": "The key of the language inside a localized sub-document",
+          "description": "The key of the language inside a translated sub-document",
           "maxLength": 20,
           "pattern": "\\S",
           "type": "string",
@@ -89,6 +89,8 @@ exports[`Test the language module The language module matches the snapshot 1`] =
       ],
       "type": "object",
     },
+    "getTranslatedString": [Function],
+    "getTranslatedStringArray": [Function],
   },
   "Types": {},
 }

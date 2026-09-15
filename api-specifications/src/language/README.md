@@ -9,7 +9,19 @@ LanguageAPISpecs.Constants.Languages; // the registry, a frozen readonly array
 LanguageAPISpecs.Constants.FALL_BACK_LANGUAGE; // "en", an entry of the registry
 LanguageAPISpecs.Helpers.getLanguageByShortCode("fr");
 LanguageAPISpecs.Types.LanguageShortCode; // "en" | "fr"
+LanguageAPISpecs.Types.ITranslatedString; // { en: "Cook", fr: "Cuisinier" }
+LanguageAPISpecs.Schemas.getTranslatedString({ description: "The preferred label", maxLength: 256 });
 ```
+
+## Translated values
+
+A value that is translated in several languages is a `Record<dbKeyName, string>`, and a list of them, e.g. the
+altLabels, is a `Record<dbKeyName, string>[]`. `Schemas.getTranslatedString()` and `Schemas.getTranslatedStringArray()`
+build the JSON Schema of such a value out of the registry: one property per registered `dbKeyName`, no other key
+allowed, and the length limit of the field enforced for every language on its own.
+
+The primitives live here, next to the registry, because a translated value is keyed by a **language**. It is not keyed
+by a locale, and the two must not be conflated, see below.
 
 ## The contract
 
@@ -17,7 +29,7 @@ LanguageAPISpecs.Types.LanguageShortCode; // "en" | "fr"
 interface ILanguageConfig {
   name: string; // "French"
   shortCode: string; // "fr"   what the client sends in Accept-Language
-  dbKeyName: string; // "fr"   the key inside the localized sub-document
+  dbKeyName: string; // "fr"   the key inside the translated sub-document
   csvSuffix: string; // "FR"   the CSV column suffix
 }
 ```
@@ -54,7 +66,7 @@ this module does not touch `locales/` or `iac/locales/`.
    the package is consumed from `dist/` through `yarn link`, so nothing downstream sees the new language until it is
    recompiled.
 4. Release `api-specifications`.
-5. Backend: the new `dbKeyName` widens `LanguageShortCode` and the localized sub-document keys. Check the Mongoose
+5. Backend: the new `dbKeyName` widens `LanguageShortCode` and the translated sub-document keys. Check the Mongoose
    schemas that validate against the registry, and the import and export column builders that emit `csvSuffix`
    columns. Configure the embeddings for the new language. Rebuild.
 6. Frontend: the new language becomes selectable wherever the registry is rendered. Rebuild.

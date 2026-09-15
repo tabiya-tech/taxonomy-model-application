@@ -1,4 +1,5 @@
 import * as process from "process";
+import LanguageAPISpecs from "api-specifications/language";
 
 export const ENV_VAR_NAMES = {
   MONGODB_URI: "MONGODB_URI",
@@ -16,6 +17,7 @@ export const ENV_VAR_NAMES = {
   GEMINI_EMBEDDING_MODEL: "GEMINI_EMBEDDING_MODEL",
   EMBEDDINGS_QUEUE_URL: "EMBEDDINGS_QUEUE_URL",
   EMBEDDINGS_QUEUE_REGION: "EMBEDDINGS_QUEUE_REGION",
+  FALL_BACK_LANGUAGE: "FALL_BACK_LANGUAGE",
 };
 
 export interface IConfiguration {
@@ -34,6 +36,8 @@ export interface IConfiguration {
   geminiEmbeddingModel: string;
   embeddingsQueueUrl: string;
   embeddingsQueueRegion: string;
+  /** The short code of the language that is served when the client does not ask for a language that the model has */
+  fallbackLanguage: string;
 }
 export function readEnvironmentConfiguration(): IConfiguration {
   return {
@@ -53,6 +57,10 @@ export function readEnvironmentConfiguration(): IConfiguration {
     geminiEmbeddingModel: process.env[ENV_VAR_NAMES.GEMINI_EMBEDDING_MODEL] ?? "",
     embeddingsQueueUrl: process.env[ENV_VAR_NAMES.EMBEDDINGS_QUEUE_URL] ?? "",
     embeddingsQueueRegion: process.env[ENV_VAR_NAMES.EMBEDDINGS_QUEUE_REGION] ?? "",
+    // The fall back language is not part of the deployment of every environment, it defaults to the fall back language
+    // of the language registry, which is english.
+    fallbackLanguage:
+      process.env[ENV_VAR_NAMES.FALL_BACK_LANGUAGE] ?? LanguageAPISpecs.Constants.FALL_BACK_LANGUAGE.shortCode,
   };
 }
 
@@ -123,4 +131,16 @@ export function getEmbeddingsQueueUrl() {
 
 export function getEmbeddingsQueueRegion() {
   return _configuration?.embeddingsQueueRegion ?? "";
+}
+
+/**
+ * The short code of the fall back language.
+ * Unlike the other getters it never returns an empty string, a request must always resolve to a language. When the
+ * configuration is not set, or it carries an empty value, the fall back language of the registry is returned.
+ */
+export function getFallbackLanguage() {
+  const configuredFallbackLanguage = _configuration?.fallbackLanguage ?? "";
+  return configuredFallbackLanguage.trim().length > 0
+    ? configuredFallbackLanguage
+    : LanguageAPISpecs.Constants.FALL_BACK_LANGUAGE.shortCode;
 }
