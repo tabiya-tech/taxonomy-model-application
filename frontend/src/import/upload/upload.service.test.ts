@@ -2,7 +2,7 @@
 import "src/_test_utilities/consoleMock";
 
 import UploadService, { MAX_CONCURRENT_UPLOADS } from "./upload.service";
-import PresignedAPISpecs from "api-specifications/presigned";
+import { PresignedSchema } from "src/api-types";
 import { setupFetchSpy } from "src/_test_utilities/fetchSpy";
 import { StatusCodes } from "http-status-codes";
 import { ServiceError } from "src/error/error";
@@ -18,7 +18,7 @@ function getMockFiles(count: number): File[] {
   return demoFiles;
 }
 
-const presignedMock: PresignedAPISpecs.Types.GET.Response.Payload = {
+const presignedMock: PresignedSchema = {
   url: "https://example.com",
   fields: [
     {
@@ -38,7 +38,7 @@ describe("Test the service", () => {
     // GIVEN some files
     const givenFiles = getMockFiles(13);
     // AND a IPreSignedResponse
-    const givenPreSigned: PresignedAPISpecs.Types.GET.Response.Payload = presignedMock;
+    const givenPreSigned: PresignedSchema = presignedMock;
     // AND the upload of the files will succeed
     setupFetchSpy(StatusCodes.NO_CONTENT, undefined, "");
 
@@ -58,7 +58,7 @@ describe("Test the service", () => {
     // GIVEN some files
     const givenFiles = getMockFiles(13);
     // AND a IPreSignedResponse
-    const givenPreSigned: PresignedAPISpecs.Types.GET.Response.Payload = presignedMock;
+    const givenPreSigned: PresignedSchema = presignedMock;
     // AND the fetch of some of the files will fail with some error.
     const givenError = new Error("some error");
     jest.spyOn(window, "fetch").mockRejectedValue(givenError);
@@ -90,7 +90,7 @@ describe("Test the service", () => {
     // GIVEN some files
     const givenFiles = getMockFiles(13);
     // AND a IPreSignedResponse
-    const givenPreSigned: PresignedAPISpecs.Types.GET.Response.Payload = presignedMock;
+    const givenPreSigned: PresignedSchema = presignedMock;
     // AND the fetch of some of the files will respond with a status code other than 204.
     const givenFailureStatusCode = StatusCodes.BAD_REQUEST;
     setupFetchSpy(givenFailureStatusCode, undefined, "");
@@ -124,7 +124,7 @@ describe("Test the service", () => {
     // add guard to ensure that we have more than MAX_CONCURRENT_UPLOADS files
     expect(givenFiles.length).toBeGreaterThan(MAX_CONCURRENT_UPLOADS);
     // AND a IPreSignedResponse
-    const givenPreSigned: PresignedAPISpecs.Types.GET.Response.Payload = presignedMock;
+    const givenPreSigned: PresignedSchema = presignedMock;
     // AND the upload of the files will succeed
     let counter = 0;
     let max = 0;

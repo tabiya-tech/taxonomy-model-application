@@ -44,6 +44,20 @@ To develop this application locally, follow these steps:
     After running the above command, the `postinstall` script in the [package.json](package.json) will also run, and it will build and link the [api-specifications](/api-specifications/readme.md) dependency.
 
 5. Make sure to set up a `env.js` file in the public/data directory. You can use the [`env.example.js`](public/data/env.example.js) file as a template. Please request the necessary environment variables from the project team.
+
+## Generating API types
+
+The types for the backend's REST API are generated from its OpenAPI spec using [openapi-typescript](https://www.npmjs.com/package/openapi-typescript) into [`src/api-types/schema.d.ts`](src/api-types/schema.d.ts). This file is **gitignored, not committed** — it doesn't exist until you generate it, and every build (local or CI) regenerates it fresh from the backend's current OpenAPI spec:
+
+```
+cd ../backend && yarn generate:openapi
+cd ../frontend && yarn generate:api-types
+```
+
+Run both commands once after cloning, and again whenever the backend's API contract changes, so `tsc`/your editor has up-to-date types to check against. Do not edit `src/api-types/schema.d.ts` by hand — it's overwritten on every regeneration. Add friendly aliases for the generated types you need to [`src/api-types/index.ts`](src/api-types/index.ts).
+
+CI always regenerates `schema.d.ts` itself before building, testing, or linting the frontend, from the OpenAPI spec produced by that same run's backend build. This means the frontend can never be built or tested against stale or hand-edited types, and there's nothing to remember to keep in sync manually — the tradeoff is that frontend CI jobs now wait on the backend build finishing first.
+
 ## Running the development server locally
 
 After installing and setting up the project locally, run the development server with the following command:

@@ -12,8 +12,7 @@ import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessS
 import ExportProcessStateIcon from "src/modeldirectory/components/ExportProcessStateIcon/ExportProcessStateIcon";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import ApproveModal from "src/theme/ApproveModal/ApproveModal";
-import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
+import { EXPORT_PROCESS_STATUS, IMPORT_PROCESS_STATUS } from "src/api-types";
 import { routerPaths } from "src/app/routerPaths";
 import { useNavigate } from "react-router-dom";
 
@@ -69,7 +68,7 @@ const extractFilename = (url: string): string => {
 export function isSuccessfulExport(exportProcessState: ModelInfoTypes.ExportProcessState): boolean {
   return (
     exportProcessState &&
-    exportProcessState.status === ExportProcessStateAPISpecs.Enums.Status.COMPLETED &&
+    exportProcessState.status === EXPORT_PROCESS_STATUS.COMPLETED &&
     !exportProcessState.result.errored &&
     !exportProcessState.result.exportErrors
   );
@@ -109,8 +108,7 @@ export function getLatestSuccessfulExport(model: ModelInfoTypes.ModelInfo): Mode
 
 export function isImportSuccessful(model: ModelInfoTypes.ModelInfo): boolean {
   return (
-    model.importProcessState.status === ImportProcessStateAPISpecs.Enums.Status.COMPLETED &&
-    !model.importProcessState.result.errored
+    model.importProcessState.status === IMPORT_PROCESS_STATUS.COMPLETED && !model.importProcessState.result.errored
   );
 }
 

@@ -5,8 +5,8 @@ import * as React from "react";
 import { render, screen } from "src/_test_utilities/test-utils";
 import { getAllExportProcessStatePermutations } from "./_test_utilities/exportProcesStateTestData";
 import ExportProcessStateIcon, { DATA_TEST_ID } from "./ExportProcessStateIcon";
-import ExportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { EXPORT_PROCESS_STATUS } from "src/api-types";
 
 const allIconTestIds = [
   DATA_TEST_ID.ICON_STATUS_PENDING,
@@ -48,38 +48,32 @@ describe("ExportProcessStateIcon", () => {
   describe.each(
     getAllExportProcessStatePermutations()
       .filter((exportProcessState) => {
-        return exportProcessState.status === ExportProcessStateAPISpecs.Enums.Status.PENDING;
+        return exportProcessState.status === EXPORT_PROCESS_STATUS.PENDING;
       })
       .map((exportProcessState, index) => {
         return [index, exportProcessState];
       })
-  )(
-    `Correct ICON_STATUS_PENDING is rendered for ${ExportProcessStateAPISpecs.Enums.Status.PENDING}`,
-    (index, givenExportStatus) => {
-      testExportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_PENDING);
-    }
-  );
+  )(`Correct ICON_STATUS_PENDING is rendered for ${EXPORT_PROCESS_STATUS.PENDING}`, (index, givenExportStatus) => {
+    testExportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_PENDING);
+  });
 
   describe.each(
     getAllExportProcessStatePermutations()
       .filter((exportProcessState) => {
-        return exportProcessState.status === ExportProcessStateAPISpecs.Enums.Status.RUNNING;
+        return exportProcessState.status === EXPORT_PROCESS_STATUS.RUNNING;
       })
       .map((exportProcessState, index) => {
         return [index, exportProcessState];
       })
-  )(
-    `Correct ICON_STATUS_RUNNING is rendered for ${ExportProcessStateAPISpecs.Enums.Status.RUNNING}`,
-    (index, givenExportStatus) => {
-      testExportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_RUNNING);
-    }
-  );
+  )(`Correct ICON_STATUS_RUNNING is rendered for ${EXPORT_PROCESS_STATUS.RUNNING}`, (index, givenExportStatus) => {
+    testExportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_RUNNING);
+  });
 
   describe.each(
     getAllExportProcessStatePermutations()
       .filter((exportProcessState) => {
         return (
-          exportProcessState.status === ExportProcessStateAPISpecs.Enums.Status.COMPLETED &&
+          exportProcessState.status === EXPORT_PROCESS_STATUS.COMPLETED &&
           !exportProcessState.result.errored &&
           !exportProcessState.result.exportErrors &&
           !exportProcessState.result.exportWarnings
@@ -88,18 +82,15 @@ describe("ExportProcessStateIcon", () => {
       .map((exportProcessState, index) => {
         return [index, exportProcessState];
       })
-  )(
-    `Correct ICON_STATUS_SUCCESS is rendered for ${ExportProcessStateAPISpecs.Enums.Status.COMPLETED}`,
-    (index, givenExportStatus) => {
-      testExportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_COMPLETED);
-    }
-  );
+  )(`Correct ICON_STATUS_SUCCESS is rendered for ${EXPORT_PROCESS_STATUS.COMPLETED}`, (index, givenExportStatus) => {
+    testExportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_COMPLETED);
+  });
 
   describe.each(
     getAllExportProcessStatePermutations()
       .filter((exportProcessState) => {
         return (
-          exportProcessState.status === ExportProcessStateAPISpecs.Enums.Status.COMPLETED &&
+          exportProcessState.status === EXPORT_PROCESS_STATUS.COMPLETED &&
           (exportProcessState.result.errored ||
             exportProcessState.result.exportErrors ||
             exportProcessState.result.exportWarnings)
@@ -108,12 +99,9 @@ describe("ExportProcessStateIcon", () => {
       .map((exportProcessState, index) => {
         return [index, exportProcessState];
       })
-  )(
-    `Correct ICON_STATUS_FAILED is rendered for ${ExportProcessStateAPISpecs.Enums.Status.COMPLETED}`,
-    (index, givenExportStatus) => {
-      testExportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_COMPLETED);
-    }
-  );
+  )(`Correct ICON_STATUS_FAILED is rendered for ${EXPORT_PROCESS_STATUS.COMPLETED}`, (index, givenExportStatus) => {
+    testExportProcessStateIcon(index, givenExportStatus, DATA_TEST_ID.ICON_STATUS_COMPLETED);
+  });
 });
 
 function testExportProcessStateIcon(

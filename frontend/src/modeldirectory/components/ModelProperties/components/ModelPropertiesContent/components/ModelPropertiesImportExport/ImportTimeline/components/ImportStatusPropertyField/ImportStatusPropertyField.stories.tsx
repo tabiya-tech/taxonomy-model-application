@@ -1,8 +1,8 @@
 import React from "react";
 import { Meta, StoryObj } from "@storybook/react";
 import ImportStatusPropertyField, { uniqueId } from "./ImportStatusPropertyField";
-import { ImportProcessStateEnums } from "api-specifications/importProcessState/enums";
 import { v4 as id } from "uuid";
+import { IMPORT_PROCESS_STATUS } from "src/api-types";
 
 const meta: Meta<typeof ImportStatusPropertyField> = {
   title:
@@ -12,7 +12,7 @@ const meta: Meta<typeof ImportStatusPropertyField> = {
   args: {
     importProcessState: {
       id: id(),
-      status: ImportProcessStateEnums.Status.PENDING,
+      status: IMPORT_PROCESS_STATUS.PENDING,
       result: {
         errored: false,
         parsingWarnings: false,
@@ -59,7 +59,7 @@ export const Pending: Story = {
   args: {
     importProcessState: {
       id: id(),
-      status: ImportProcessStateEnums.Status.PENDING,
+      status: IMPORT_PROCESS_STATUS.PENDING,
       result: {
         errored: false,
         parsingWarnings: false,
@@ -74,7 +74,7 @@ export const Running: Story = {
   args: {
     importProcessState: {
       id: id(),
-      status: ImportProcessStateEnums.Status.RUNNING,
+      status: IMPORT_PROCESS_STATUS.RUNNING,
       result: {
         errored: false,
         parsingWarnings: false,
@@ -89,7 +89,7 @@ export const Completed: Story = {
   args: {
     importProcessState: {
       id: id(),
-      status: ImportProcessStateEnums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         parsingWarnings: false,
@@ -104,7 +104,7 @@ export const CompletedWithCriticalErrors: Story = {
   args: {
     importProcessState: {
       id: id(),
-      status: ImportProcessStateEnums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: true,
         parsingWarnings: false,
@@ -119,7 +119,7 @@ export const CompletedWithParsingErrors: Story = {
   args: {
     importProcessState: {
       id: id(),
-      status: ImportProcessStateEnums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         parsingWarnings: false,
@@ -134,7 +134,7 @@ export const CompletedWithParsingWarnings: Story = {
   args: {
     importProcessState: {
       id: id(),
-      status: ImportProcessStateEnums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         parsingWarnings: true,
@@ -149,7 +149,7 @@ export const CompletedWithParsingWarningsAndParsingErrors: Story = {
   args: {
     importProcessState: {
       id: id(),
-      status: ImportProcessStateEnums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         parsingWarnings: true,

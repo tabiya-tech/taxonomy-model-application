@@ -1,8 +1,6 @@
 // ###########
 // Setup mocks
 
-import PresignedAPISpecs from "api-specifications/presigned";
-
 jest.mock("src/modelInfo/modelInfo.service", () => {
   // Mocking the ES5 class
   const mockModelService = jest.fn(); // the constructor
@@ -39,15 +37,16 @@ jest.mock("./import/import.service", () => {
 import { getTestString } from "src/_test_utilities/specialCharacters";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
+import ImportAPISpecs from "api-specifications/import";
 import { randomUUID } from "crypto";
 import ImportDirectorService from "./importDirector.service";
-import ImportAPISpecs from "api-specifications/import";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
 import ImportService from "./import/import.service";
 import { ImportFiles } from "./ImportFiles.type";
 import { getOneRandomModelMaxLength } from "src/modeldirectory/_test_utilities/mockModelData";
+import { PresignedSchema } from "src/api-types";
 
 describe("Test the import director service", () => {
   it("should successfully direct the import", async () => {
@@ -58,7 +57,7 @@ describe("Test the import director service", () => {
     jest.spyOn(modelService, "createModel").mockResolvedValue(givenMockModel);
 
     const presignedService = new PresignedService("foo");
-    const givenMockPresignedResponse: PresignedAPISpecs.Types.GET.Response.Payload = {
+    const givenMockPresignedResponse: PresignedSchema = {
       fields: [
         { name: "foo", value: "bar" },
         { name: "baz", value: "qux" },

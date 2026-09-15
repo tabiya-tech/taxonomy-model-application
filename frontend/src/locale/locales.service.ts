@@ -5,6 +5,7 @@ import { ErrorCodes } from "src/error/errorCodes";
 import { StatusCodes } from "http-status-codes/";
 import LocaleAPISpecs from "api-specifications/locale";
 import { fetchWithAuth } from "src/apiService/APIService";
+import { LocaleSchema } from "src/api-types";
 
 const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
 addFormats(ajv); // To support the "date-time" format
@@ -27,7 +28,7 @@ export default class LocalesService {
    * Resolves with a LocalesResponse or rejects with a ServiceError
    *
    * **/
-  async getLocales(): Promise<LocaleAPISpecs.Types.Payload[]> {
+  async getLocales(): Promise<LocaleSchema[]> {
     const errorFactory = getServiceErrorFactory("LocalesService", "getLocales", "GET", this.localesEndpointUrl);
 
     let response: Response;
@@ -45,7 +46,7 @@ export default class LocalesService {
     });
     responseBody = await response.text();
 
-    let localesResponse: LocaleAPISpecs.Types.Payload[];
+    let localesResponse: LocaleSchema[];
     try {
       localesResponse = JSON.parse(responseBody);
     } catch (error: unknown) {

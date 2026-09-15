@@ -1,21 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import ModelInfoService, { UPDATE_INTERVAL } from "src/modelInfo/modelInfo.service";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
-import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
+import { ExportProcessStatus, IMPORT_PROCESS_STATUS, ImportProcessStatus } from "src/api-types";
 import { getApiUrl } from "src/envService";
 
 export const MODELS_QUERY_KEY = ["models"];
 
 const modelInfoService = new ModelInfoService(getApiUrl());
 
-const ACTIVE_STATUSES: Set<string> = new Set([
-  ImportProcessStateAPISpecs.Enums.Status.PENDING,
-  ImportProcessStateAPISpecs.Enums.Status.RUNNING,
+const ACTIVE_STATUSES: Set<ImportProcessStatus | ExportProcessStatus> = new Set([
+  IMPORT_PROCESS_STATUS.PENDING,
+  IMPORT_PROCESS_STATUS.RUNNING,
 ]);
 
-const isActiveStatus = (status: ImportProcessStateAPISpecs.Enums.Status | ExportProcessStateAPISpecs.Enums.Status) =>
-  ACTIVE_STATUSES.has(status);
+const isActiveStatus = (status: ImportProcessStatus | ExportProcessStatus) => ACTIVE_STATUSES.has(status);
 
 export const hasActiveModelProcess = (models: ModelInfoTypes.ModelInfo[] | undefined): boolean => {
   if (!models) return false;

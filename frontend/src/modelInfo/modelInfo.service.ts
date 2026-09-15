@@ -7,8 +7,9 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import Ajv, { ValidateFunction } from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import { fetchWithAuth } from "src/apiService/APIService";
+import { ModelInfoRequestSchemaPOST, ModelInfoResponseSchema } from "src/api-types";
 
-export type INewModelSpecification = ModelInfoAPISpecs.Types.POST.Request.Payload;
+export type INewModelSpecification = ModelInfoRequestSchemaPOST;
 const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
 addFormats(ajv); // To support the "date-time" format
 ajv.addSchema(LocaleAPISpecs.Schemas.Payload, LocaleAPISpecs.Schemas.Payload.$id);
@@ -32,13 +33,6 @@ const responseValidatorPATCH: ValidateFunction = ajv.getSchema(
 /**
  * Extracts the type of the elements of an array.
  */
-type PayloadItem<ArrayOfItemType extends Array<unknown>> = ArrayOfItemType extends (infer ItemType)[]
-  ? ItemType
-  : never;
-type ModelInfoTypeAPISpecs =
-  | PayloadItem<ModelInfoAPISpecs.Types.GET.Response.Payload>
-  | ModelInfoAPISpecs.Types.POST.Response.Payload
-  | ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload;
 export const UPDATE_INTERVAL = 20000; // In milliseconds
 
 export default class ModelInfoService {
@@ -76,7 +70,7 @@ export default class ModelInfoService {
     });
     responseBody = await response.text();
 
-    let modelResponse: ModelInfoAPISpecs.Types.POST.Response.Payload;
+    let modelResponse: ModelInfoResponseSchema;
     try {
       modelResponse = JSON.parse(responseBody);
     } catch (e: any) {
@@ -129,7 +123,7 @@ export default class ModelInfoService {
     });
     const responseBody = await response.text();
 
-    let modelResponse: ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload;
+    let modelResponse: ModelInfoResponseSchema;
     try {
       modelResponse = JSON.parse(responseBody);
     } catch (e: any) {
@@ -173,7 +167,7 @@ export default class ModelInfoService {
     });
     responseBody = await response.text();
 
-    let allModelsResponse: ModelInfoAPISpecs.Types.GET.Response.Payload;
+    let allModelsResponse: ModelInfoResponseSchema[];
     try {
       allModelsResponse = JSON.parse(responseBody);
     } catch (e: any) {
@@ -198,12 +192,13 @@ export default class ModelInfoService {
     return allModelsResponse.map(this.transform);
   }
 
-  transform(payloadItem: ModelInfoTypeAPISpecs): ModelInfoTypes.ModelInfo {
+  transform(payloadItem: ModelInfoResponseSchema): ModelInfoTypes.ModelInfo {
     return {
       ...payloadItem,
       exportProcessState: payloadItem.exportProcessState.map((exportProcessState) => {
         return {
           ...exportProcessState,
+          downloadUrl: exportProcessState.downloadUrl as string,
           timestamp: new Date(exportProcessState.timestamp),
           createdAt: new Date(exportProcessState.createdAt),
           updatedAt: new Date(exportProcessState.updatedAt),

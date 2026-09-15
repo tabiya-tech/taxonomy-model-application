@@ -22,7 +22,6 @@ import ModelInfoService, { UPDATE_INTERVAL } from "src/modelInfo/modelInfo.servi
 import ExportService from "src/export/export.service";
 import LocalesService from "src/locale/locales.service";
 import ImportAPISpecs from "api-specifications/import";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 
 import {
   getArrayOfRandomModelsMaxLength,
@@ -30,7 +29,7 @@ import {
   getOneDeterministicFakeModel,
 } from "./_test_utilities/mockModelData";
 import { getArrayOfFakeLocales } from "src/locale/_test_utilities/mockLocales";
-import LocaleAPISpecs from "api-specifications/locale";
+import { IMPORT_PROCESS_STATUS, LocaleSchema } from "src/api-types";
 import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 
 import { getUserFriendlyErrorMessage, ServiceError } from "src/error/error";
@@ -235,7 +234,7 @@ function getTestImportData(): ImportData {
   const license = "MIT";
 
   //The locale
-  const locale: LocaleAPISpecs.Types.Payload = {
+  const locale: LocaleSchema = {
     UUID: "8e763c32-4c21-449c-94ee-7ddeb379369a",
     name: "South Africa",
     shortCode: "ZA",
@@ -368,7 +367,7 @@ describe("ModelDirectory", () => {
       const givenRunningModel = getOneRandomModelMaxLength();
       givenRunningModel.importProcessState = {
         ...givenRunningModel.importProcessState,
-        status: ImportProcessStateAPISpecs.Enums.Status.RUNNING,
+        status: IMPORT_PROCESS_STATUS.RUNNING,
       };
       const getAllModelsSpy = jest
         .spyOn(ModelInfoService.prototype, "getAllModels")
@@ -409,14 +408,14 @@ describe("ModelDirectory", () => {
       const givenRunningModel = getOneRandomModelMaxLength();
       givenRunningModel.importProcessState = {
         ...givenRunningModel.importProcessState,
-        status: ImportProcessStateAPISpecs.Enums.Status.RUNNING,
+        status: IMPORT_PROCESS_STATUS.RUNNING,
       };
       givenRunningModel.exportProcessState = [];
       const givenCompletedModel = {
         ...givenRunningModel,
         importProcessState: {
           ...givenRunningModel.importProcessState,
-          status: ImportProcessStateAPISpecs.Enums.Status.COMPLETED,
+          status: IMPORT_PROCESS_STATUS.COMPLETED,
         },
       };
       const getAllModelsSpy = jest
@@ -525,7 +524,7 @@ describe("ModelDirectory", () => {
       const givenRunningModel = getOneRandomModelMaxLength();
       givenRunningModel.importProcessState = {
         ...givenRunningModel.importProcessState,
-        status: ImportProcessStateAPISpecs.Enums.Status.RUNNING,
+        status: IMPORT_PROCESS_STATUS.RUNNING,
       };
       const givenMockData = [givenRunningModel];
       const givenError = new Error("foo");
@@ -655,7 +654,7 @@ describe("ModelDirectory", () => {
       const givenRunningModel = getOneRandomModelMaxLength();
       givenRunningModel.importProcessState = {
         ...givenRunningModel.importProcessState,
-        status: ImportProcessStateAPISpecs.Enums.Status.RUNNING,
+        status: IMPORT_PROCESS_STATUS.RUNNING,
       };
       const getAllModelsSpy = jest
         .spyOn(ModelInfoService.prototype, "getAllModels")

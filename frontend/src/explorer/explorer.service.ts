@@ -5,7 +5,17 @@ import { getServiceErrorFactory } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { fetchWithAuth } from "src/apiService/APIService";
 import { ExplorerTreeItem } from "src/explorer/components/ExplorerTreePanel/ExplorerTreePanel";
-import { ExplorerHistoryItem, ExplorerHistoryModel, ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
+import { ExplorerHistoryItem, ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
+import {
+  OccupationGroupHistoryEntrySchema,
+  OccupationGroupListItemSchema,
+  OccupationDetailResponseSchema,
+  OccupationHistoryEntrySchema,
+  OccupationSearchResultItemSchema,
+  SkillGroupHistoryEntrySchema,
+  SkillDetailResponseSchema,
+  SkillHistoryEntrySchema,
+} from "src/api-types";
 
 export const PAGE_LIMIT = 100;
 
@@ -34,21 +44,21 @@ type ExplorerApiNodeRef = {
 type ExplorerApiNode = Omit<ExplorerApiNodeRef, "objectType"> & {
   definition?: string;
   description?: string;
-  groupType?: ObjectType;
-  occupationType?: ObjectType;
+  groupType?: OccupationGroupListItemSchema["groupType"];
+  occupationType?: OccupationSearchResultItemSchema["occupationType"];
   children?: ExplorerApiNodeRef[];
 };
 
 type ExplorerApiDetailResponse = ExplorerApiNode & {
   UUID: string;
   altLabels?: string[];
-  occupationType?: string;
-  occupationGroupCode?: string;
-  regulatedProfessionNote?: string;
-  skillType?: string;
-  reuseLevel?: string;
-  requiresSkills?: ExplorerItemDetail["requiresSkills"];
-  requiredByOccupations?: ExplorerItemDetail["requiredByOccupations"];
+  occupationType?: OccupationDetailResponseSchema["occupationType"];
+  occupationGroupCode?: OccupationDetailResponseSchema["occupationGroupCode"];
+  regulatedProfessionNote?: OccupationDetailResponseSchema["regulatedProfessionNote"];
+  skillType?: SkillDetailResponseSchema["skillType"];
+  reuseLevel?: SkillDetailResponseSchema["reuseLevel"];
+  requiresSkills?: SkillDetailResponseSchema["requiresSkills"];
+  requiredByOccupations?: SkillDetailResponseSchema["requiredByOccupations"];
 };
 
 type PaginatedResponse<T> = {
@@ -57,11 +67,11 @@ type PaginatedResponse<T> = {
   nextCursor: string | null;
 };
 
-type ExplorerApiHistoryItem = {
-  id: string;
-  preferredLabel: string;
-  model: ExplorerHistoryModel;
-};
+type ExplorerApiHistoryEntry =
+  | SkillGroupHistoryEntrySchema
+  | OccupationGroupHistoryEntrySchema
+  | SkillHistoryEntrySchema
+  | OccupationHistoryEntrySchema;
 
 const isGroupType = (objectType: ObjectType): boolean =>
   objectType === ObjectType.ISCOGroup || objectType === ObjectType.LocalGroup || objectType === ObjectType.SkillGroup;
@@ -114,7 +124,7 @@ const toSearchResultTreeItem = (node: ExplorerApiNode, objectType: ObjectType): 
 });
 
 // Each history entry carries the model it belongs to plus the label the entity had in that model.
-const toHistoryItem = (entry: ExplorerApiHistoryItem): ExplorerHistoryItem => ({
+const toHistoryItem = (entry: ExplorerApiHistoryEntry): ExplorerHistoryItem => ({
   id: entry.id,
   model: entry.model,
   preferredLabel: entry.preferredLabel,
@@ -122,7 +132,9 @@ const toHistoryItem = (entry: ExplorerApiHistoryItem): ExplorerHistoryItem => ({
 
 // Occupations self-report whether they are an ESCO or a local occupation, defaulting to ESCO when unset.
 const occupationObjectType = (node: ExplorerApiNode): ObjectType =>
-  node.occupationType === ObjectType.LocalOccupation ? ObjectType.LocalOccupation : ObjectType.ESCOOccupation;
+  (node.occupationType as ObjectType) === ObjectType.LocalOccupation
+    ? ObjectType.LocalOccupation
+    : ObjectType.ESCOOccupation;
 
 export default class ExplorerService {
   readonly apiServerUrl: string;
@@ -173,7 +185,7 @@ export default class ExplorerService {
 
     // occupationGroups reports its own groupType; skillGroups reports nothing, so it's always a SkillGroup.
     const rootObjectType = (tab: "occupations" | "skills", node: ExplorerApiNode): ObjectType =>
-      tab === "occupations" ? node.groupType ?? ObjectType.ISCOGroup : ObjectType.SkillGroup;
+      tab === "occupations" ? (node.groupType as ObjectType) ?? ObjectType.ISCOGroup : ObjectType.SkillGroup;
 
     return response.data.map((node) => toRootTreeItem(node, rootObjectType(tab, node)));
   }
@@ -246,7 +258,7 @@ export default class ExplorerService {
   public async getItemHistory(modelId: string, item: ExplorerTreeItem): Promise<ExplorerHistoryItem[]> {
     const collection = collectionForObjectType(item.objectType as ObjectType);
     const url = `${this.apiServerUrl}/models/${modelId}/${collection}/${item.id}/history`;
-    const entries = await this.getJSON<ExplorerApiHistoryItem[]>(url, "getItemHistory");
+    const entries = await this.getJSON<ExplorerApiHistoryEntry[]>(url, "getItemHistory");
     return entries.map(toHistoryItem);
   }
 }

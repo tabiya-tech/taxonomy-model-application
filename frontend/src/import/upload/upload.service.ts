@@ -1,12 +1,12 @@
-import PresignedAPISpecs from "api-specifications/presigned";
 import { getServiceErrorFactory } from "../../error/error";
 import { ErrorCodes } from "../../error/errorCodes";
 import pLimit from "p-limit";
 import { StatusCodes } from "http-status-codes";
+import { PresignedSchema } from "src/api-types";
 
 export const MAX_CONCURRENT_UPLOADS = 20;
 export default class UploadService {
-  async uploadFiles(presigned: PresignedAPISpecs.Types.GET.Response.Payload, files: File[]) {
+  async uploadFiles(presigned: PresignedSchema, files: File[]) {
     try {
       const limit = pLimit(MAX_CONCURRENT_UPLOADS);
       const uploadPromises: Promise<void>[] = [];
@@ -20,7 +20,7 @@ export default class UploadService {
     }
   }
 
-  private async uploadFile(presigned: PresignedAPISpecs.Types.GET.Response.Payload, file: File) {
+  private async uploadFile(presigned: PresignedSchema, file: File) {
     const errorFactory = getServiceErrorFactory("UploadService", "uploadFiles", "POST", presigned.url);
 
     let responseStatus: number;

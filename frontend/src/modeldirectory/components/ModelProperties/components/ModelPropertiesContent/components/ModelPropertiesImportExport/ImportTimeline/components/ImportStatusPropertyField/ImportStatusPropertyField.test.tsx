@@ -9,7 +9,7 @@ import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { render, screen } from "src/_test_utilities/test-utils";
 import ImportStatusPropertyField, { HELP_TIP_TEXT } from "./ImportStatusPropertyField";
 import { DATA_TEST_ID as ICON_DATA_TEST_ID } from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
-import { ImportProcessStateEnums } from "api-specifications/importProcessState/enums";
+import { IMPORT_PROCESS_STATUS } from "src/api-types";
 
 import ImportProcessState = ModelInfoTypes.ImportProcessState;
 
@@ -24,7 +24,7 @@ const cases = [
   {
     name: "Pending",
     state: {
-      status: ImportProcessStateEnums.Status.PENDING,
+      status: IMPORT_PROCESS_STATUS.PENDING,
       result: {
         errored: false,
         parsingErrors: false,
@@ -38,7 +38,7 @@ const cases = [
   {
     name: "Running",
     state: {
-      status: ImportProcessStateEnums.Status.RUNNING,
+      status: IMPORT_PROCESS_STATUS.RUNNING,
       result: {
         errored: false,
         parsingErrors: false,
@@ -52,7 +52,7 @@ const cases = [
   {
     name: "Completed",
     state: {
-      status: ImportProcessStateEnums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         parsingErrors: false,
@@ -66,7 +66,7 @@ const cases = [
   {
     name: "Completed With Critical Errors",
     state: {
-      status: ImportProcessStateEnums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: true,
         parsingErrors: false,
@@ -80,7 +80,7 @@ const cases = [
   {
     name: "Completed With Parsing Errors",
     state: {
-      status: ImportProcessStateEnums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         parsingErrors: true,
@@ -94,7 +94,7 @@ const cases = [
   {
     name: "Completed With Parsing Warnings",
     state: {
-      status: ImportProcessStateEnums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         parsingErrors: false,
@@ -108,7 +108,7 @@ const cases = [
   {
     name: "Completed With Parsing Errors and Parsing Warnings",
     state: {
-      status: ImportProcessStateEnums.Status.COMPLETED,
+      status: IMPORT_PROCESS_STATUS.COMPLETED,
       result: {
         errored: false,
         parsingErrors: true,

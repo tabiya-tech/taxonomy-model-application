@@ -1,4 +1,3 @@
-import LocaleAPISpecs from "api-specifications/locale";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
@@ -6,6 +5,7 @@ import ImportService from "./import/import.service";
 import ImportAPISpecs from "api-specifications/import";
 import { ImportFiles } from "./ImportFiles.type";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { LocaleSchema } from "src/api-types";
 
 export default class ImportDirectorService {
   readonly apiServerUrl: string;
@@ -18,7 +18,7 @@ export default class ImportDirectorService {
     name: string,
     description: string,
     license: string,
-    locale: LocaleAPISpecs.Types.Payload,
+    locale: LocaleSchema,
     files: ImportFiles,
     UUIDHistory: string[],
     isOriginalESCOModel: boolean

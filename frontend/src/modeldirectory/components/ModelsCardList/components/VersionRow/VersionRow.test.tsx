@@ -17,11 +17,10 @@ import {
 } from "src/modeldirectory/_test_utilities/mockModelData";
 import { getAllExportProcessStatePermutations } from "src/modeldirectory/components/ExportProcessStateIcon/_test_utilities/exportProcesStateTestData";
 import { mockBrowserIsOnLine, unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
-import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { DATA_TEST_ID as APPROVE_MODAL_DATA_TEST_ID } from "src/theme/ApproveModal/ApproveModal";
 import { routerPaths } from "src/app/routerPaths";
+import { EXPORT_PROCESS_STATUS, IMPORT_PROCESS_STATUS } from "src/api-types";
 
 // mock the ImportProcessStateIcon component
 jest.mock("src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon", () => {
@@ -295,7 +294,7 @@ describe("VersionRow", () => {
     test("should disable the export button when the import was not successful", () => {
       // GIVEN a model with no successful export and a pending import
       const givenModel = getOneDeterministicFakeModel(1, { exportProcessState: [] });
-      givenModel.importProcessState.status = ImportProcessStateAPISpecs.Enums.Status.PENDING;
+      givenModel.importProcessState.status = IMPORT_PROCESS_STATUS.PENDING;
 
       // WHEN the component is rendered for a model manager
       setupVersionRow({ model: givenModel, isModelManager: true });
@@ -444,7 +443,7 @@ describe("VersionRow", () => {
 describe("export and import state helpers", () => {
   function isPermutationSuccessful(exportProcessState: ModelInfoTypes.ExportProcessState): boolean {
     return (
-      exportProcessState.status === ExportProcessStateAPISpecs.Enums.Status.COMPLETED &&
+      exportProcessState.status === EXPORT_PROCESS_STATUS.COMPLETED &&
       !exportProcessState.result.errored &&
       !exportProcessState.result.exportErrors
     );
@@ -561,10 +560,10 @@ describe("export and import state helpers", () => {
 
   describe("isImportSuccessful", () => {
     test.each([
-      [true, ImportProcessStateAPISpecs.Enums.Status.COMPLETED, false],
-      [false, ImportProcessStateAPISpecs.Enums.Status.COMPLETED, true],
-      [false, ImportProcessStateAPISpecs.Enums.Status.PENDING, false],
-      [false, ImportProcessStateAPISpecs.Enums.Status.RUNNING, false],
+      [true, IMPORT_PROCESS_STATUS.COMPLETED, false],
+      [false, IMPORT_PROCESS_STATUS.COMPLETED, true],
+      [false, IMPORT_PROCESS_STATUS.PENDING, false],
+      [false, IMPORT_PROCESS_STATUS.RUNNING, false],
     ])("should return %s for status %s and errored %s", (expected, givenStatus, givenErrored) => {
       // GIVEN a model with the given import process state
       const givenModel = getOneDeterministicFakeModel(1);

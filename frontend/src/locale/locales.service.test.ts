@@ -5,7 +5,7 @@ import { StatusCodes } from "http-status-codes/";
 import { ServiceError } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import LocalesService from "src/locale/locales.service";
-import LocaleAPISpecs from "api-specifications/locale";
+import { LocaleSchema } from "src/api-types";
 
 describe("LocalesService", () => {
   afterEach(() => {
@@ -28,7 +28,7 @@ describe("LocalesService", () => {
     // GIVEN an api server url
     const givenApiServerUrl = "/path/to/api";
     // AND the locales REST API will respond with OK status and some locales
-    const givenResponse: LocaleAPISpecs.Types.Payload[] = getArrayOfFakeLocales(4);
+    const givenResponse: LocaleSchema[] = getArrayOfFakeLocales(4);
     const fetchSpy = setupAPIServiceSpy(StatusCodes.OK, givenResponse, "application/json;charset=UTF-8");
 
     // WHEN the service is called

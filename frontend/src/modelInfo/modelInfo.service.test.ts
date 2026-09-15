@@ -13,6 +13,7 @@ import { randomUUID } from "crypto";
 import Ajv from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import { setupAPIServiceSpy } from "src/_test_utilities/fetchSpy";
+import { ModelInfoResponseSchema } from "src/api-types";
 
 function getNewModelSpecMockData(): INewModelSpecification {
   return {
@@ -62,8 +63,7 @@ describe("ModelInfoService", () => {
   describe("getModels", () => {
     test("getAllModels() should call the API Service at the correct URL, with GET and the correct headers and payload successfully", async () => {
       // AND the GET models REST API will respond with OK and some models
-      const givenResponseBody: ModelInfoAPISpecs.Types.GET.Response.Payload =
-        MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(2);
+      const givenResponseBody: ModelInfoResponseSchema[] = MockPayload.GET.getPayloadWithArrayOfRandomModelInfo(2);
       const apiServiceSpy = setupAPIServiceSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the getAllModels function is called with the given arguments
@@ -184,8 +184,7 @@ describe("ModelInfoService", () => {
       // AND a name, description, locale
       const givenModelSpec = getNewModelSpecMockData();
       // AND the create model REST API will respond with OK and some newly create model
-      const givenResponseBody: ModelInfoAPISpecs.Types.POST.Response.Payload =
-        MockPayload.POST.getPayloadWithOneRandomModelInfo();
+      const givenResponseBody: ModelInfoResponseSchema = MockPayload.POST.getPayloadWithOneRandomModelInfo();
       const apiServiceSpy = setupAPIServiceSpy(
         StatusCodes.CREATED,
         givenResponseBody,
@@ -305,8 +304,7 @@ describe("ModelInfoService", () => {
       const givenModelId = getTestString(24);
       const givenReleaseNotes = getTestString(10);
       // AND the release model REST API will respond with OK and the released model
-      const givenResponseBody: ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload =
-        MockPayload.PATCH.getPayloadWithOneRandomModelInfo();
+      const givenResponseBody: ModelInfoResponseSchema = MockPayload.PATCH.getPayloadWithOneRandomModelInfo();
       const apiServiceSpy = setupAPIServiceSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the releaseModel function is called with the given modelId and releaseNotes
@@ -362,8 +360,7 @@ describe("ModelInfoService", () => {
       // GIVEN a api server url and a modelId, and no releaseNotes
       const givenApiServerUrl = "/path/to/api";
       const givenModelId = getTestString(24);
-      const givenResponseBody: ModelInfoAPISpecs.ModelInfo.PATCH.Types.Response.Payload =
-        MockPayload.PATCH.getPayloadWithOneRandomModelInfo();
+      const givenResponseBody: ModelInfoResponseSchema = MockPayload.PATCH.getPayloadWithOneRandomModelInfo();
       const apiServiceSpy = setupAPIServiceSpy(StatusCodes.OK, givenResponseBody, "application/json;charset=UTF-8");
 
       // WHEN the releaseModel function is called without releaseNotes

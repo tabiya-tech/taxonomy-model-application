@@ -1,17 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import ModelDirectory from "./ModelDirectory";
-import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
-import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import * as MockPayload from "src/modelInfo/_test_utilities/mockModelInfoPayload";
 import { getApiUrl, getLocalesUrl } from "src/envService";
 import { getArrayOfFakeLocales } from "src/locale/_test_utilities/mockLocales";
+import { EXPORT_PROCESS_STATUS, IMPORT_PROCESS_STATUS } from "src/api-types";
 
 // Make sure that the model is in a state that allows its actions to be performed. i.e export, download, etc.
 const modelWithSuccessfulStates = MockPayload.GET.getPayloadWithArrayOfFakeModelInfo(1)[0];
 modelWithSuccessfulStates.exportProcessState = [
   {
     ...modelWithSuccessfulStates.exportProcessState[0],
-    status: ExportProcessStateAPISpecs.Enums.Status.COMPLETED,
+    status: EXPORT_PROCESS_STATUS.COMPLETED,
     result: {
       errored: false,
       exportErrors: false,
@@ -22,7 +21,7 @@ modelWithSuccessfulStates.exportProcessState = [
 
 modelWithSuccessfulStates.importProcessState = {
   ...modelWithSuccessfulStates.importProcessState,
-  status: ImportProcessStateAPISpecs.Enums.Status.COMPLETED,
+  status: IMPORT_PROCESS_STATUS.COMPLETED,
   result: {
     errored: false,
     parsingErrors: false,

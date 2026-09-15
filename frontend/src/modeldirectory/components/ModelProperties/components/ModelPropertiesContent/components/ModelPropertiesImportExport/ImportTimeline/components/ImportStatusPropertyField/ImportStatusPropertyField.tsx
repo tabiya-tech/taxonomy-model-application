@@ -3,9 +3,9 @@ import Box from "@mui/material/Box";
 import HelpTip from "src/theme/HelpTip/HelpTip";
 import { Typography, useTheme } from "@mui/material";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
-import ImportProcessStateEnums from "api-specifications/importProcessState";
 import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
 import PropertyFieldLayout from "src/theme/PropertyFieldLayout/PropertyFieldLayout";
+import { IMPORT_PROCESS_STATUS } from "src/api-types";
 
 interface ImportStatusPropertyFieldProps {
   importProcessState: ModelInfoTypes.ImportProcessState;
@@ -53,7 +53,7 @@ const TypographyComponent = ({ children }: PropsWithChildren) => (
 const Message = (props: Readonly<{ importProcessState: ModelInfoTypes.ImportProcessState }>) => {
   const { status, result } = props.importProcessState;
   switch (status) {
-    case ImportProcessStateEnums.Enums.Status.PENDING:
+    case IMPORT_PROCESS_STATUS.PENDING:
       return (
         <TypographyComponent>
           Pending
@@ -61,7 +61,7 @@ const Message = (props: Readonly<{ importProcessState: ModelInfoTypes.ImportProc
         </TypographyComponent>
       );
 
-    case ImportProcessStateEnums.Enums.Status.RUNNING:
+    case IMPORT_PROCESS_STATUS.RUNNING:
       return (
         <TypographyComponent>
           Running
@@ -69,7 +69,7 @@ const Message = (props: Readonly<{ importProcessState: ModelInfoTypes.ImportProc
         </TypographyComponent>
       );
 
-    case ImportProcessStateEnums.Enums.Status.COMPLETED:
+    case IMPORT_PROCESS_STATUS.COMPLETED:
       if (!result.errored && !result.parsingErrors && !result.parsingWarnings) {
         return (
           <TypographyComponent>

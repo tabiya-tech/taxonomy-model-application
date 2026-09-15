@@ -31,7 +31,7 @@ jobs:
   # Frontend
   build-frontend:
     uses: ./.github/workflows/build-frontend.yml
-    needs: [ build-api-specs ]
+    needs: [ build-api-specs, build-backend ]
     secrets: inherit
 
   # Sonarcloud

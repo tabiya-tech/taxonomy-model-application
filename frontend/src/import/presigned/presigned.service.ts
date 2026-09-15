@@ -7,6 +7,7 @@ import { getServiceErrorFactory } from "src/error/error";
 
 import { StatusCodes } from "http-status-codes/";
 import { fetchWithAuth } from "src/apiService/APIService";
+import { PresignedSchema } from "src/api-types";
 
 const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
 addFormats(ajv); // To support the "date-time" format
@@ -28,7 +29,7 @@ export default class PresignedService {
    * Resolves with a IPresignedResponse or rejects with a ServiceError
    *
    */
-  async getPresignedPost(): Promise<PresignedAPISpecs.Types.GET.Response.Payload> {
+  async getPresignedPost(): Promise<PresignedSchema> {
     const errorFactory = getServiceErrorFactory(
       "PresignedService",
       "getPresignedPost",
@@ -47,7 +48,7 @@ export default class PresignedService {
     });
     responseBody = await response.text();
 
-    let presignedResponse: PresignedAPISpecs.Types.GET.Response.Payload;
+    let presignedResponse: PresignedSchema;
     try {
       presignedResponse = JSON.parse(responseBody);
     } catch (e: any) {

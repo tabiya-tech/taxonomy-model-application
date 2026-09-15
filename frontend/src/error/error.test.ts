@@ -7,17 +7,18 @@ import {
   USER_FRIENDLY_ERROR_MESSAGES,
 } from "./error";
 import { StatusCodes } from "http-status-codes/";
+import { ErrorResponseSchema } from "src/api-types";
 
 describe("Test the ServiceError class", () => {
   it.each([
     ["string", "some string"],
     [
-      "ErrorAPISpecs.Types.Payload",
+      "ErrorResponseSchema",
       {
         errorCode: ErrorAPISpecs.Constants.ErrorCodes.INTERNAL_SERVER_ERROR,
         message: "message",
         details: "details",
-      } as ErrorAPISpecs.Types.Payload,
+      } as ErrorResponseSchema,
     ],
     ["object", { foo: "bar" } as object],
     ["undefined", undefined],
