@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the Language Constants Test the Languages registry the language 'Amharic' should match the snapshot 1`] = `
+{
+  "csvSuffix": "AM",
+  "dbKeyName": "am",
+  "name": "Amharic",
+  "shortCode": "am",
+}
+`;
+
+exports[`Test the Language Constants Test the Languages registry the language 'English' should match the snapshot 1`] = `
+{
+  "csvSuffix": "EN",
+  "dbKeyName": "en",
+  "name": "English",
+  "shortCode": "en",
+}
+`;
+
+exports[`Test the Language Constants Test the Languages registry the language 'French' should match the snapshot 1`] = `
+{
+  "csvSuffix": "FR",
+  "dbKeyName": "fr",
+  "name": "French",
+  "shortCode": "fr",
+}
+`;
+
+exports[`Test the Language Constants Test the Languages registry the language 'Portuguese' should match the snapshot 1`] = `
+{
+  "csvSuffix": "PT",
+  "dbKeyName": "pt",
+  "name": "Portuguese",
+  "shortCode": "pt",
+}
+`;
+
+exports[`Test the Language Constants Test the Languages registry the language 'Spanish' should match the snapshot 1`] = `
+{
+  "csvSuffix": "ES",
+  "dbKeyName": "es",
+  "name": "Spanish",
+  "shortCode": "es",
+}
+`;

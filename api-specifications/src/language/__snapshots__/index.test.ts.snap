@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test the language module The language module matches the snapshot 1`] = `
+{
+  "Constants": {
+    "CSV_SUFFIX_MAX_LENGTH": 20,
+    "DB_KEY_NAME_MAX_LENGTH": 20,
+    "FALL_BACK_LANGUAGE": {
+      "csvSuffix": "EN",
+      "dbKeyName": "en",
+      "name": "English",
+      "shortCode": "en",
+    },
+    "Languages": [
+      {
+        "csvSuffix": "EN",
+        "dbKeyName": "en",
+        "name": "English",
+        "shortCode": "en",
+      },
+      {
+        "csvSuffix": "FR",
+        "dbKeyName": "fr",
+        "name": "French",
+        "shortCode": "fr",
+      },
+      {
+        "csvSuffix": "ES",
+        "dbKeyName": "es",
+        "name": "Spanish",
+        "shortCode": "es",
+      },
+      {
+        "csvSuffix": "PT",
+        "dbKeyName": "pt",
+        "name": "Portuguese",
+        "shortCode": "pt",
+      },
+      {
+        "csvSuffix": "AM",
+        "dbKeyName": "am",
+        "name": "Amharic",
+        "shortCode": "am",
+      },
+    ],
+    "NAME_MAX_LENGTH": 256,
+    "SHORT_CODE_MAX_LENGTH": 20,
+  },
+  "Helpers": {
+    "getLanguageByCsvSuffix": [Function],
+    "getLanguageByShortCode": [Function],
+    "isSupportedLanguage": [Function],
+  },
+  "Schemas": {
+    "Payload": {
+      "$id": "/components/schemas/LanguageConfigSchema",
+      "additionalProperties": false,
+      "properties": {
+        "csvSuffix": {
+          "description": "The suffix of the CSV columns that carry this language",
+          "maxLength": 20,
+          "pattern": "\\S",
+          "type": "string",
+        },
+        "dbKeyName": {
+          "description": "The key of the language inside a localized sub-document",
+          "maxLength": 20,
+          "pattern": "\\S",
+          "type": "string",
+        },
+        "name": {
+          "description": "The human readable name of the language",
+          "maxLength": 256,
+          "pattern": "\\S",
+          "type": "string",
+        },
+        "shortCode": {
+          "description": "The short code of the language, the value the client sends in the Accept-Language header",
+          "maxLength": 20,
+          "pattern": "\\S",
+          "type": "string",
+        },
+      },
+      "required": [
+        "name",
+        "shortCode",
+        "dbKeyName",
+        "csvSuffix",
+      ],
+      "type": "object",
+    },
+  },
+  "Types": {},
+}
+`;
