@@ -4,6 +4,8 @@ import { stringRequired } from "server/stringRequired";
 import { RegExp_UUIDv4 } from "server/regex";
 import { ObjectTypes } from "./objectTypes";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
+import LanguageAPISpecs from "api-specifications/language";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 // check for unique values in an array
 export function hasUniqueValues<T>(value: T[]) {
@@ -207,3 +209,165 @@ export const ImportIDProperty: mongoose.SchemaDefinitionProperty<string> = {
   required: stringRequired("importId"),
   maxlength: [IMPORT_ID_MAX_LENGTH, `importId must be at most 256 chars long`],
 };
+
+// Translated properties
+//
+// A translated path is a map of the dbKeyName of a language to the value of that language, e.g.
+// { en: "Cook", fr: "Cuisinier" }. The keys are languages, they are never locales. The properties below are the
+// translated counterparts of the properties above, they are not a replacement of them, the entities swap them one at
+// a time.
+
+/** The options of a translated property */
+export type TranslatedPropertyOptions = {
+  /** The name of the path, it is used in the error messages, e.g. "preferredLabel" */
+  fieldName: string;
+  /** The maximum length that the value of a single language may have */
+  maxLength: number;
+  /** Whether a language may be translated to an empty value, it defaults to true */
+  allowEmptyValues?: boolean;
+};
+
+/** The options of a translated array property */
+export type TranslatedArrayPropertyOptions = TranslatedPropertyOptions & {
+  /** The maximum number of items that the list may have */
+  maxItems: number;
+};
+
+/**
+ * Reads the entries of a translated value.
+ * Mongoose hydrates a translated path as a Map, a plain object is what a test or a lean query holds, both are handled.
+ */
+function getTranslatedEntries(value: unknown, fieldName: string): [string, unknown][] {
+  if (value instanceof Map) {
+    return [...value.entries()];
+  }
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    return Object.entries(value as Record<string, unknown>);
+  }
+  throw new Error(`${fieldName} must be a translated object`);
+}
+
+/**
+ * Validates a single translated value, i.e. that it carries the fall back language, that every key is a language of
+ * the registry and that the value of every language respects the maximum length of the path.
+ */
+function validateTranslatedValue(value: unknown, options: Required<TranslatedPropertyOptions>): void {
+  const { fieldName, maxLength, allowEmptyValues } = options;
+  const entries = getTranslatedEntries(value, fieldName);
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+
+  if (!entries.some(([dbKeyName]) => dbKeyName === fallbackDbKeyName)) {
+    throw new Error(`${fieldName} must be translated in the fallback language '${fallbackDbKeyName}'`);
+  }
+
+  entries.forEach(([dbKeyName, languageValue]) => {
+    if (LanguageAPISpecs.Constants.Languages.every((language) => language.dbKeyName !== dbKeyName)) {
+      throw new Error(`${fieldName} has an unsupported language '${dbKeyName}'`);
+    }
+    if (typeof languageValue !== "string") {
+      throw new Error(`${fieldName} must be a string for the language '${dbKeyName}'`);
+    }
+    if (languageValue.length > maxLength) {
+      throw new Error(`${fieldName} must be at most ${maxLength} chars long for the language '${dbKeyName}'`);
+    }
+    if (!allowEmptyValues && languageValue.trim().length === 0) {
+      throw new Error(`${fieldName} must not be empty for the language '${dbKeyName}'`);
+    }
+  });
+}
+
+/**
+ * Builds a translated String path, the translated counterpart of a `type: String` path.
+ * @param options the name of the path, the per language maximum length and whether an empty value is allowed
+ */
+export function TranslatedStringProperty(
+  options: TranslatedPropertyOptions
+): mongoose.SchemaDefinitionProperty<Map<string, string>> {
+  const resolvedOptions: Required<TranslatedPropertyOptions> = { allowEmptyValues: true, ...options };
+  return {
+    type: Map,
+    of: String,
+    required: true,
+    validate: (value: Map<string, string>) => {
+      validateTranslatedValue(value, resolvedOptions);
+      return true;
+    },
+  };
+}
+
+/**
+ * Builds a translated [String] path, the translated counterpart of a `type: [String]` path.
+ * Every item of the list is a translated value of its own, and the values of a given language are unique across the
+ * items, so that a language never carries the same alternative label twice.
+ *
+ * The API schema counterpart is Schemas.getTranslatedStringArray() of api-specifications/language. It requires the
+ * fall back language of every item, exactly as this validator does, but it can only reject two items that are
+ * identical in every language: uniqueness per language is not expressible in JSON Schema and stays a rule of this
+ * validator, so a payload that repeats a value in a single language is rejected here rather than at the edge.
+ * @param options the name of the path, the per language maximum length and the maximum number of items
+ */
+export function TranslatedStringArrayProperty(
+  options: TranslatedArrayPropertyOptions
+): mongoose.SchemaDefinitionProperty<Map<string, string>[]> {
+  const resolvedOptions: Required<TranslatedArrayPropertyOptions> = { allowEmptyValues: false, ...options };
+  const { fieldName, maxItems } = resolvedOptions;
+  return {
+    type: [{ type: Map, of: String }],
+    required: true,
+    default: undefined,
+    validate: (value: Map<string, string>[]) => {
+      if (!Array.isArray(value)) {
+        throw new Error(`${fieldName} must be an array`);
+      }
+      if (value.length > maxItems) {
+        throw new Error(`${fieldName} must be at most ${maxItems} items`);
+      }
+
+      const seenValuesPerLanguage = new Map<string, Set<string>>();
+      value.forEach((item) => {
+        validateTranslatedValue(item, resolvedOptions);
+        getTranslatedEntries(item, fieldName).forEach(([dbKeyName, languageValue]) => {
+          const seenValues = seenValuesPerLanguage.get(dbKeyName) ?? new Set<string>();
+          if (seenValues.has(languageValue as string)) {
+            throw new Error(`Duplicate ${fieldName} found for the language '${dbKeyName}'`);
+          }
+          seenValues.add(languageValue as string);
+          seenValuesPerLanguage.set(dbKeyName, seenValues);
+        });
+      });
+      return true;
+    },
+  };
+}
+
+export const TranslatedPreferredLabelProperty = TranslatedStringProperty({
+  fieldName: "preferredLabel",
+  maxLength: LABEL_MAX_LENGTH,
+  allowEmptyValues: false,
+});
+
+export const TranslatedDescriptionProperty = TranslatedStringProperty({
+  fieldName: "description",
+  maxLength: DESCRIPTION_MAX_LENGTH,
+});
+
+export const TranslatedDefinitionProperty = TranslatedStringProperty({
+  fieldName: "definition",
+  maxLength: DEFINITION_MAX_LENGTH,
+});
+
+export const TranslatedScopeNoteProperty = TranslatedStringProperty({
+  fieldName: "scopeNote",
+  maxLength: SCOPE_NOTE_MAX_LENGTH,
+});
+
+export const TranslatedRegulatedProfessionNoteProperty = TranslatedStringProperty({
+  fieldName: "regulatedProfessionNote",
+  maxLength: REGULATED_PROFESSION_NOTE_MAX_LENGTH,
+});
+
+export const TranslatedAltLabelsProperty = TranslatedStringArrayProperty({
+  fieldName: "altLabels",
+  maxLength: LABEL_MAX_LENGTH,
+  maxItems: ATL_LABELS_MAX_ITEMS,
+});

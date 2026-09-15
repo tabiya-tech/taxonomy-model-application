@@ -14,8 +14,10 @@ import {
   getDownloadBucketRegion,
   getDownloadBucketName,
   getDomainName,
+  getFallbackLanguage,
 } from "./config";
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
+import LanguageAPISpecs from "api-specifications/language";
 import { stdConfigurationValuesTest } from "_test_utilities/configurationsValues";
 
 describe("Test read Configuration()", () => {
@@ -53,6 +55,7 @@ describe("Test read Configuration()", () => {
     process.env.GEMINI_EMBEDDING_MODEL = getRandomString(10);
     process.env.EMBEDDINGS_QUEUE_URL = getRandomString(10);
     process.env.EMBEDDINGS_QUEUE_REGION = getRandomString(10);
+    process.env.FALL_BACK_LANGUAGE = getRandomString(10);
 
     // WHEN reading the configuration from the environment
     const actualConfig = readEnvironmentConfiguration();
@@ -74,6 +77,7 @@ describe("Test read Configuration()", () => {
       geminiEmbeddingModel: process.env.GEMINI_EMBEDDING_MODEL,
       embeddingsQueueUrl: process.env.EMBEDDINGS_QUEUE_URL,
       embeddingsQueueRegion: process.env.EMBEDDINGS_QUEUE_REGION,
+      fallbackLanguage: process.env.FALL_BACK_LANGUAGE,
     });
   });
 
@@ -93,6 +97,7 @@ describe("Test read Configuration()", () => {
     delete process.env.GEMINI_EMBEDDING_MODEL;
     delete process.env.EMBEDDINGS_QUEUE_URL;
     delete process.env.EMBEDDINGS_QUEUE_REGION;
+    delete process.env.FALL_BACK_LANGUAGE;
 
     // WHEN reading the configuration from the environment
     const config = readEnvironmentConfiguration();
@@ -114,6 +119,7 @@ describe("Test read Configuration()", () => {
       geminiEmbeddingModel: "",
       embeddingsQueueUrl: "",
       embeddingsQueueRegion: "",
+      fallbackLanguage: LanguageAPISpecs.Constants.FALL_BACK_LANGUAGE.shortCode,
     });
   });
 });
@@ -204,6 +210,56 @@ describe("Test current configuration", () => {
   );
 
   stdConfigurationValuesTest(setConfiguration, getMockConfig, "getDomainName", getDomainName, "domainName");
+
+  describe("Test getFallbackLanguage()", () => {
+    test("getFallbackLanguage() should return the set value", () => {
+      // GIVEN a configuration is set
+      const givenConfig = getMockConfig();
+      setConfiguration(givenConfig);
+
+      // WHEN the fall back language is read
+      const actualFallbackLanguage = getFallbackLanguage();
+
+      // THEN expect the fall back language of the configuration to be returned
+      expect(actualFallbackLanguage).toEqual(givenConfig.fallbackLanguage);
+    });
+
+    test.each([
+      ["is undefined", undefined],
+      ["is null", null],
+      ["is empty", ""],
+      ["is blank", "   "],
+    ])(
+      "getFallbackLanguage() should return the fall back language of the registry if the set value %s",
+      (_description, givenValue) => {
+        // GIVEN a configuration whose fall back language is set to the given value
+        // @ts-ignore
+        setConfiguration({ fallbackLanguage: givenValue });
+        // AND the fall back language of the registry
+        const expectedFallbackLanguage = LanguageAPISpecs.Constants.FALL_BACK_LANGUAGE.shortCode;
+
+        // WHEN the fall back language is read
+        const actualFallbackLanguage = getFallbackLanguage();
+
+        // THEN expect the fall back language of the registry to be returned
+        expect(actualFallbackLanguage).toEqual(expectedFallbackLanguage);
+      }
+    );
+
+    test("getFallbackLanguage() should return the fall back language of the registry if the configuration is not set", () => {
+      // GIVEN no configuration is set
+      // @ts-ignore
+      setConfiguration(undefined);
+      // AND the fall back language of the registry
+      const expectedFallbackLanguage = LanguageAPISpecs.Constants.FALL_BACK_LANGUAGE.shortCode;
+
+      // WHEN the fall back language is read
+      const actualFallbackLanguage = getFallbackLanguage();
+
+      // THEN expect the fall back language of the registry to be returned
+      expect(actualFallbackLanguage).toEqual(expectedFallbackLanguage);
+    });
+  });
 });
 
 function getMockConfig(): IConfiguration {
@@ -222,6 +278,7 @@ function getMockConfig(): IConfiguration {
     geminiApiKey: getTestString(10),
     geminiEmbeddingModel: getTestString(10),
     embeddingsQueueRegion: getTestString(10),
+    fallbackLanguage: getTestString(10),
     embeddingsQueueUrl: getTestString(10),
   };
 }

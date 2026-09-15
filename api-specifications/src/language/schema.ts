@@ -20,7 +20,7 @@ const LanguageConfigSchema: SchemaObject = {
       maxLength: LanguageConstants.SHORT_CODE_MAX_LENGTH,
     },
     dbKeyName: {
-      description: "The key of the language inside a localized sub-document",
+      description: "The key of the language inside a translated sub-document",
       type: "string",
       pattern: RegExp_Str_NotEmptyString,
       maxLength: LanguageConstants.DB_KEY_NAME_MAX_LENGTH,
