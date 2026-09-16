@@ -36,7 +36,7 @@ jest.mock("../server/connection/connectionManager", () => {
   const originalModule = jest.requireActual("../server/connection/connectionManager");
   const connectionManagerMock = {
     initialize: jest.fn().mockImplementation(() => {
-      return Promise.resolve();
+      return Promise.resolve({} as never);
     }),
   };
 
