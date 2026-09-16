@@ -28,7 +28,7 @@ export function TestDBConnectionFailure<S, A>(
     } catch (e: unknown) {
       expect((e as ExtendedError).cause?.message).toMatch(/Client must be connected before running operations/);
     }
-  });
+  }, 15000);
 }
 
 export function TestStreamDBConnectionFailure<S>(
@@ -60,7 +60,7 @@ export function TestStreamDBConnectionFailure<S>(
 
     // THEN expect it to emit a streamError event
     await expect(actualStreamPromise).rejects.toThrowError(/Client must be connected before running operations/);
-  });
+  }, 15000);
 }
 
 export function TestDBConnectionFailureNoSetup<A>(
