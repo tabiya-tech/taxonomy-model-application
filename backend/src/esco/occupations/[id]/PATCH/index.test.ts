@@ -40,6 +40,7 @@ describe("Test for occupation PATCH handler", () => {
         getParent: jest.fn().mockResolvedValue(null),
         getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        delete: jest.fn(),
         getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService,
       initialize: jest.fn(),

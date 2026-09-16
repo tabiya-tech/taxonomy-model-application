@@ -105,6 +105,7 @@ describe("test parseOccupations from", () => {
         findSkillsForOccupation: jest.fn(),
         update: jest.fn(),
         patch: jest.fn(),
+        delete: jest.fn(),
       };
       // @ts-ignore
       jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(mockRepository);

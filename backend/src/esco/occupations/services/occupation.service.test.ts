@@ -3,6 +3,7 @@ import {
   IOccupationService,
   ModelForOccupationValidationErrorCode,
   OccupationModelValidationError,
+  OccupationServiceError,
 } from "./occupation.service.types";
 import {
   INewOccupationSpecWithoutImportId,
@@ -1155,6 +1156,66 @@ describe("Test the OccupationService", () => {
       // WHEN calling service.patch
       // THEN expect it to rethrow
       await expect(service.patch(givenId, givenModelId, givenSpec)).rejects.toThrow(givenError);
+    });
+  });
+
+  describe("delete", () => {
+    test("should call repository.delete when model validation passes", async () => {
+      // GIVEN an id and modelId
+      const givenId = getMockStringId(2);
+      const givenModelId = getMockStringId(1);
+
+      // AND the model is not released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenModelId,
+        released: false,
+      } as unknown as IModelInfo);
+
+      // AND the repository succeeds
+      mockRepository.delete = jest.fn().mockResolvedValue(true);
+
+      // WHEN calling service.delete
+      await service.delete(givenId, givenModelId);
+
+      // THEN expect repository.delete to be called with givenId and givenModelId
+      expect(mockRepository.delete).toHaveBeenCalledWith(givenId, givenModelId);
+    });
+
+    test("should throw OccupationServiceError if repository returns false (occupation not found)", async () => {
+      // GIVEN an id and modelId
+      const givenId = getMockStringId(2);
+      const givenModelId = getMockStringId(1);
+
+      // AND the model is not released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenModelId,
+        released: false,
+      } as unknown as IModelInfo);
+
+      // AND the repository returns false
+      mockRepository.delete = jest.fn().mockResolvedValue(false);
+
+      // WHEN calling service.delete
+      const promise = service.delete(givenId, givenModelId);
+
+      // THEN expect it to throw OccupationServiceError with OCCUPATION_NOT_FOUND
+      await expect(promise).rejects.toThrow(OccupationServiceError);
+    });
+
+    test("should throw OccupationModelValidationError if model is released", async () => {
+      // GIVEN an id and modelId
+      const givenId = getMockStringId(2);
+      const givenModelId = getMockStringId(1);
+
+      // AND the model is released
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenModelId,
+        released: true,
+      } as unknown as IModelInfo);
+
+      // WHEN calling service.delete
+      // THEN expect it to throw OccupationModelValidationError
+      await expect(service.delete(givenId, givenModelId)).rejects.toThrow(OccupationModelValidationError);
     });
   });
 

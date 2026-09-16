@@ -1,5 +1,6 @@
 import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
+import { Transactional, TxContext } from "common/transactional";
 import {
   INewOccupationSpec,
   INewOccupationSpecWithoutImportId,
@@ -20,6 +21,7 @@ import { escapeRegExp } from "esco/common/escapeRegExp";
 import { Readable } from "node:stream";
 import stream from "stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import { OccupationHasChildrenError } from "../services/occupation.service.types";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
@@ -32,10 +34,14 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationReference } from "../_shared/occupationReference.types";
 import { getOccupationDocReference, OccupationDocument } from "../_shared/occupation.reference";
 import {
+  EntityEmbeddingIdPath,
   IEmbeddableEntityRepository,
+  IOccupationEmbeddingDoc,
   ISetEntityEmbeddingStatusSpec,
   ISetModelEntitiesEmbeddingStatusSpec,
 } from "embeddings/entityEmbeddings/entityEmbedding.types";
+import { EntityEmbeddingRepository } from "embeddings/entityEmbeddings/entityEmbeddingRepository";
+import { OccupationEmbeddingModelName } from "embeddings/entityEmbeddings/entityEmbeddingModel";
 import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
@@ -208,6 +214,17 @@ export interface IOccupationRepository extends IEmbeddableEntityRepository {
    * Rejects with an error if the operation fails.
    */
   patch(id: string, modelId: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null>;
+
+  /**
+   * Deletes an Occupation entry by its ID and modelId, cleaning up junction records.
+   *
+   * @param {string} id - The unique ID of the Occupation entry.
+   * @param {string} modelId - The model ID the Occupation belongs to.
+   * @param {TxContext} ctx - Supplied by the @Transactional() decorator; callers must omit it.
+   * @return {Promise<boolean>} - True if deleted, false if not found.
+   * Throws OccupationHasChildrenError if the occupation has child occupations.
+   */
+  delete(id: string, modelId: string, ctx?: TxContext): Promise<boolean>;
 }
 
 export class OccupationRepository implements IOccupationRepository {
@@ -762,6 +779,69 @@ export class OccupationRepository implements IOccupationRepository {
       return doc.toObject();
     } catch (e: unknown) {
       const err = new Error("OccupationRepository.patch: patch failed.", { cause: e });
+      throw err;
+    }
+  }
+
+  @Transactional()
+  async delete(id: string, modelId: string, ctx: TxContext = {}): Promise<boolean> {
+    const { session } = ctx;
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(modelId)) return false;
+      const occupationIdObj = new mongoose.Types.ObjectId(id);
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+
+      const doc = await this.Model.findOne({ _id: occupationIdObj, modelId: modelIdObj })
+        .session(session ?? null)
+        .exec();
+      if (!doc) return false;
+
+      const HierarchyModel = this.Model.db.model(MongooseModelName.OccupationHierarchy);
+      const RelationModel = this.Model.db.model(MongooseModelName.OccupationToSkillRelation);
+
+      const childCount = await HierarchyModel.countDocuments({
+        modelId: modelIdObj,
+        parentId: occupationIdObj,
+        parentDocModel: MongooseModelName.Occupation,
+      })
+        .session(session ?? null)
+        .exec();
+
+      if (childCount > 0) {
+        throw new OccupationHasChildrenError();
+      }
+
+      await RelationModel.deleteMany(
+        { modelId: modelIdObj, requiringOccupationId: occupationIdObj },
+        { session }
+      ).exec();
+
+      await HierarchyModel.deleteMany(
+        {
+          modelId: modelIdObj,
+          $or: [
+            { childId: occupationIdObj, childDocModel: MongooseModelName.Occupation },
+            { parentId: occupationIdObj, parentDocModel: MongooseModelName.Occupation },
+          ],
+        },
+        { session }
+      ).exec();
+
+      const OccupationEmbeddingModel = this.Model.db.model<IOccupationEmbeddingDoc>(OccupationEmbeddingModelName);
+      const occupationEmbeddingRepository = new EntityEmbeddingRepository<IOccupationEmbeddingDoc>(
+        OccupationEmbeddingModel,
+        EntityEmbeddingIdPath.occupationId
+      );
+      await occupationEmbeddingRepository.delete(modelId, id, ctx);
+
+      await this.Model.deleteOne({ _id: occupationIdObj, modelId: modelIdObj }, { session }).exec();
+
+      return true;
+    } catch (e: unknown) {
+      if (e instanceof OccupationHasChildrenError) {
+        throw e;
+      }
+      const err = new Error("OccupationRepository.delete: delete failed.", { cause: e });
       throw err;
     }
   }

@@ -1,221 +1,248 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import "_test_utilities/consoleMock";
-import * as config from "server/config/config";
-import * as transformModule from "../../_shared/transform";
 import { handler as occupationHandler } from "./index";
-import { StatusCodes } from "server/httpUtils";
+import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-
 import OccupationAPISpecs from "api-specifications/esco/occupation";
-
 import * as authenticatorModule from "auth/authorizer";
-import { IOccupation } from "../../_shared/occupation.types";
-import { getIOccupationMockData } from "../../_shared/testDataHelper";
-import { IOccupationService, ModelForOccupationValidationErrorCode } from "../../services/occupation.service.types";
+import {
+  IOccupationService,
+  ModelForOccupationValidationErrorCode,
+  OccupationHasChildrenError,
+  OccupationModelValidationError,
+  OccupationServiceError,
+  OccupationServiceErrorCode,
+} from "../../services/occupation.service.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
 
-const transformSpy = jest.spyOn(transformModule, "transform");
-
-// Mock the service registry
 jest.mock("server/serviceRegistry/serviceRegistry");
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
 
-describe("Test for occupation Detail GET handler", () => {
+describe("Test for occupation Detail DELETE handler", () => {
   beforeEach(async () => {
     jest.clearAllMocks();
-    // Initialize the service registry mock
     const mockServiceRegistry = {
       occupation: {
         create: jest.fn(),
-        findById: jest.fn().mockResolvedValue(null),
-        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        findById: jest.fn(),
+        findPaginated: jest.fn(),
         searchPaginated: jest.fn(),
         validateModelForOccupation: jest.fn(),
-
-        getParent: jest.fn().mockResolvedValue(null),
-        getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
-        getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getParent: jest.fn(),
+        getChildren: jest.fn(),
+        getSkills: jest.fn(),
         update: jest.fn(),
         patch: jest.fn(),
         delete: jest.fn(),
-        getHistory: jest.fn().mockResolvedValue(null),
+        getHistory: jest.fn(),
       } as IOccupationService,
       initialize: jest.fn(),
     } as unknown as ServiceRegistry;
     mockGetServiceRegistry.mockReturnValue(mockServiceRegistry);
   });
 
-  describe("GET /occupations/{id}", () => {
-    test("GET should respond with OK and the occupation for a valid id", async () => {
+  describe("DELETE /models/{modelId}/occupations/{id}", () => {
+    test("should respond with NO_CONTENT on successful deletion", async () => {
       // GIVEN a valid request
       const givenModelId = getMockStringId(1);
       const givenOccupationId = getMockStringId(2);
       const givenEvent = {
-        httpMethod: "GET",
+        httpMethod: HTTP_VERBS.DELETE,
         path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
         pathParameters: { modelId: givenModelId, id: givenOccupationId },
       } as unknown as APIGatewayProxyEvent;
 
-      // AND User has the required role
       checkRole.mockResolvedValue(true);
 
-      // AND a configured base path for resource
-      const givenResourcesBaseUrl = "https://some/path/to/api/resources";
-      jest.spyOn(config, "getResourcesBaseUrl").mockReturnValueOnce(givenResourcesBaseUrl);
-
-      // AND the service that will successfully find the occupation
-      const givenOccupation: IOccupation = getIOccupationMockData();
       const givenOccupationServiceMock = {
-        findById: jest.fn().mockResolvedValue(givenOccupation),
-        searchPaginated: jest.fn(),
-        validateModelForOccupation: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue(null),
+        delete: jest.fn().mockResolvedValue(undefined),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
       // WHEN calling the handler
       const actualResponse = await occupationHandler(givenEvent);
 
-      // THEN expect respond with OK
-      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-      // AND expect the transformation function is called correctly
-      expect(transformModule.transform).toHaveBeenCalledWith(givenOccupation, givenResourcesBaseUrl);
-      // AND the handler to return the expected result
-      expect(JSON.parse(actualResponse.body)).toMatchObject(transformSpy.mock.results[0].value);
+      // THEN expect respond with NO_CONTENT
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NO_CONTENT);
+      expect(givenOccupationServiceMock.delete).toHaveBeenCalledWith(givenOccupationId, givenModelId);
     });
 
-    test("GET should respond with NOT_FOUND when occupation doesn't exist", async () => {
+    test("should respond with BAD_REQUEST when path parameters are invalid", async () => {
+      // GIVEN an event with invalid mongo id for modelId
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.DELETE,
+        path: `/models/invalid-id/occupations/${getMockStringId(1)}`,
+        pathParameters: { modelId: "invalid-id", id: getMockStringId(1) },
+      } as unknown as APIGatewayProxyEvent;
+
+      checkRole.mockResolvedValue(true);
+
+      // WHEN calling the handler
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect respond with BAD_REQUEST
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    });
+
+    test("should respond with CONFLICT when OccupationHasChildrenError is thrown", async () => {
       const givenModelId = getMockStringId(1);
       const givenOccupationId = getMockStringId(2);
       const givenEvent = {
-        httpMethod: "GET",
+        httpMethod: HTTP_VERBS.DELETE,
         path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
         pathParameters: { modelId: givenModelId, id: givenOccupationId },
       } as unknown as APIGatewayProxyEvent;
+
       checkRole.mockResolvedValue(true);
+
       const givenOccupationServiceMock = {
-        findById: jest.fn().mockResolvedValue(null),
-        searchPaginated: jest.fn(),
-        validateModelForOccupation: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue(null),
+        delete: jest.fn().mockRejectedValue(new OccupationHasChildrenError()),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
       const actualResponse = await occupationHandler(givenEvent);
-      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
-      const body = JSON.parse(actualResponse.body);
-      expect(body.errorCode).toEqual(OccupationAPISpecs.GET.Errors.Status404.ErrorCodes.OCCUPATION_NOT_FOUND);
-    });
 
-    test("GET should respond with NOT_FOUND when model doesn't exist", async () => {
-      const givenModelId = getMockStringId(1);
-      const givenOccupationId = getMockStringId(2);
-      const givenEvent = {
-        httpMethod: "GET",
-        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
-        pathParameters: { modelId: givenModelId, id: givenOccupationId },
-      } as unknown as APIGatewayProxyEvent;
-      checkRole.mockResolvedValue(true);
-      const givenOccupationServiceMock = {
-        findById: jest.fn(),
-        searchPaginated: jest.fn(),
-        validateModelForOccupation: jest
-          .fn()
-          .mockResolvedValue(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
-        getHistory: jest.fn().mockResolvedValue(null),
-      } as unknown as IOccupationService;
-      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
-
-      const actualResponse = await occupationHandler(givenEvent);
-      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
-      const body = JSON.parse(actualResponse.body);
-      expect(body.errorCode).toEqual(OccupationAPISpecs.GET.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND);
-    });
-
-    test("GET should respond with INTERNAL_SERVER_ERROR when failed to fetch model from DB", async () => {
-      const givenModelId = getMockStringId(1);
-      const givenOccupationId = getMockStringId(2);
-      const givenEvent = {
-        httpMethod: "GET",
-        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
-        pathParameters: { modelId: givenModelId, id: givenOccupationId },
-      } as unknown as APIGatewayProxyEvent;
-      checkRole.mockResolvedValue(true);
-      const givenOccupationServiceMock = {
-        findById: jest.fn(),
-        searchPaginated: jest.fn(),
-        validateModelForOccupation: jest
-          .fn()
-          .mockResolvedValue(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
-        getHistory: jest.fn().mockResolvedValue(null),
-      } as unknown as IOccupationService;
-      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
-
-      const actualResponse = await occupationHandler(givenEvent);
-      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      expect(actualResponse.statusCode).toEqual(StatusCodes.CONFLICT);
       const body = JSON.parse(actualResponse.body);
       expect(body.errorCode).toEqual(
-        OccupationAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS
+        OccupationAPISpecs.Occupation.DELETE.Errors.Status409.ErrorCodes.CANNOT_DELETE_ENTITY_WITH_CHILDREN
       );
     });
 
-    test("GET should respond with INTERNAL_SERVER_ERROR when service throws an error", async () => {
+    test("should respond with NOT_FOUND when OccupationModelValidationError MODEL_NOT_FOUND_BY_ID is thrown", async () => {
       const givenModelId = getMockStringId(1);
       const givenOccupationId = getMockStringId(2);
       const givenEvent = {
-        httpMethod: "GET",
+        httpMethod: HTTP_VERBS.DELETE,
         path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
         pathParameters: { modelId: givenModelId, id: givenOccupationId },
       } as unknown as APIGatewayProxyEvent;
+
       checkRole.mockResolvedValue(true);
+
       const givenOccupationServiceMock = {
-        findById: jest.fn().mockRejectedValue(new Error("foo")),
-        searchPaginated: jest.fn(),
-        validateModelForOccupation: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue(null),
+        delete: jest
+          .fn()
+          .mockRejectedValue(
+            new OccupationModelValidationError(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID)
+          ),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
       const actualResponse = await occupationHandler(givenEvent);
-      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      const body = JSON.parse(actualResponse.body);
+      expect(body.errorCode).toEqual(OccupationAPISpecs.Occupation.DELETE.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND);
     });
 
-    test("GET should respond with INTERNAL_SERVER_ERROR when service throws a non-Error", async () => {
+    test("should respond with BAD_REQUEST when OccupationModelValidationError MODEL_IS_RELEASED is thrown", async () => {
       const givenModelId = getMockStringId(1);
       const givenOccupationId = getMockStringId(2);
       const givenEvent = {
-        httpMethod: "GET",
+        httpMethod: HTTP_VERBS.DELETE,
         path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
         pathParameters: { modelId: givenModelId, id: givenOccupationId },
       } as unknown as APIGatewayProxyEvent;
+
       checkRole.mockResolvedValue(true);
+
       const givenOccupationServiceMock = {
-        findById: jest.fn().mockRejectedValue("some string error"),
-        searchPaginated: jest.fn(),
-        validateModelForOccupation: jest.fn().mockResolvedValue(null),
-        getHistory: jest.fn().mockResolvedValue(null),
+        delete: jest
+          .fn()
+          .mockRejectedValue(
+            new OccupationModelValidationError(ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED)
+          ),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
       const actualResponse = await occupationHandler(givenEvent);
-      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
-    });
 
-    test("GET should respond with BAD_REQUEST when id is invalid", async () => {
-      const givenModelId = getMockStringId(1);
-      const givenOccupationId = "invalid-id";
-      const givenEvent = {
-        httpMethod: "GET",
-        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
-        pathParameters: { modelId: givenModelId, id: givenOccupationId },
-      } as unknown as APIGatewayProxyEvent;
-      checkRole.mockResolvedValue(true);
-
-      const actualResponse = await occupationHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      const body = JSON.parse(actualResponse.body);
+      expect(body.errorCode).toEqual(
+        OccupationAPISpecs.Occupation.DELETE.Errors.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL
+      );
+    });
+
+    test("should respond with INTERNAL_SERVER_ERROR when default OccupationModelValidationError is thrown", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.DELETE,
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+        pathParameters: { modelId: givenModelId, id: givenOccupationId },
+      } as unknown as APIGatewayProxyEvent;
+
+      checkRole.mockResolvedValue(true);
+
+      const givenOccupationServiceMock = {
+        delete: jest
+          .fn()
+          .mockRejectedValue(
+            new OccupationModelValidationError(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB)
+          ),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      const actualResponse = await occupationHandler(givenEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+    });
+
+    test("should respond with NOT_FOUND when OccupationServiceError OCCUPATION_NOT_FOUND is thrown", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.DELETE,
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+        pathParameters: { modelId: givenModelId, id: givenOccupationId },
+      } as unknown as APIGatewayProxyEvent;
+
+      checkRole.mockResolvedValue(true);
+
+      const givenOccupationServiceMock = {
+        delete: jest
+          .fn()
+          .mockRejectedValue(new OccupationServiceError(OccupationServiceErrorCode.OCCUPATION_NOT_FOUND)),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      const actualResponse = await occupationHandler(givenEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      const body = JSON.parse(actualResponse.body);
+      expect(body.errorCode).toEqual(
+        OccupationAPISpecs.Occupation.DELETE.Errors.Status404.ErrorCodes.OCCUPATION_NOT_FOUND
+      );
+    });
+
+    test("should respond with INTERNAL_SERVER_ERROR when generic unknown error is thrown", async () => {
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.DELETE,
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+        pathParameters: { modelId: givenModelId, id: givenOccupationId },
+      } as unknown as APIGatewayProxyEvent;
+
+      checkRole.mockResolvedValue(true);
+
+      const givenOccupationServiceMock = {
+        delete: jest.fn().mockRejectedValue(new Error("Unexpected error")),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      const actualResponse = await occupationHandler(givenEvent);
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      const body = JSON.parse(actualResponse.body);
+      expect(body.errorCode).toEqual(
+        OccupationAPISpecs.Occupation.DELETE.Errors.Status500.ErrorCodes.DB_FAILED_TO_DELETE_OCCUPATION
+      );
     });
   });
 });

@@ -4,6 +4,8 @@ import {
   ISkillWithRelation,
   ModelForOccupationValidationErrorCode,
   OccupationModelValidationError,
+  OccupationServiceError,
+  OccupationServiceErrorCode,
 } from "./occupation.service.types";
 import {
   INewOccupationSpecWithoutImportId,
@@ -309,5 +311,19 @@ export class OccupationService implements IOccupationService {
       throw new OccupationModelValidationError(errorCode);
     }
     return this.occupationRepository.patch(id, modelId, spec);
+  }
+
+  async delete(id: string, modelId: string): Promise<void> {
+    const errorCode = await this.validateModelForOccupation(modelId);
+    if (errorCode != null) {
+      throw new OccupationModelValidationError(errorCode);
+    }
+    const success = await this.occupationRepository.delete(id, modelId);
+    if (!success) {
+      throw new OccupationServiceError(
+        OccupationServiceErrorCode.OCCUPATION_NOT_FOUND,
+        `No occupation found with id: ${id}`
+      );
+    }
   }
 }

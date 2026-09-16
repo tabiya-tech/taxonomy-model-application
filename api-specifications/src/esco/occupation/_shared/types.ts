@@ -176,6 +176,14 @@ namespace OccupationTypes {
     }
   }
 
+  export namespace Detail.DELETE {
+    export namespace Request {
+      export namespace Param {
+        export type Payload = IOccupationDetailParam;
+      }
+    }
+  }
+
   export namespace Detail.PUT {
     export namespace Request {
       export type Payload = IOccupationRequest;
