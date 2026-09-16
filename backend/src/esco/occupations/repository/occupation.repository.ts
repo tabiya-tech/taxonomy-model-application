@@ -45,10 +45,14 @@ import {
   unwrapOccupationTranslatableFields,
 } from "esco/occupations/_shared/occupation.reference";
 import {
+  EntityEmbeddingIdPath,
   IEmbeddableEntityRepository,
+  IOccupationEmbeddingDoc,
   ISetEntityEmbeddingStatusSpec,
   ISetModelEntitiesEmbeddingStatusSpec,
 } from "embeddings/entityEmbeddings/entityEmbedding.types";
+import { EntityEmbeddingRepository } from "embeddings/entityEmbeddings/entityEmbeddingRepository";
+import { OccupationEmbeddingModelName } from "embeddings/entityEmbeddings/entityEmbeddingModel";
 import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
@@ -960,6 +964,7 @@ export class OccupationRepository implements IOccupationRepository {
       const childCount = await HierarchyModel.countDocuments({
         modelId: modelIdObj,
         parentId: occupationIdObj,
+        parentDocModel: MongooseModelName.Occupation,
       })
         .session(session ?? null)
         .exec();
@@ -976,10 +981,20 @@ export class OccupationRepository implements IOccupationRepository {
       await HierarchyModel.deleteMany(
         {
           modelId: modelIdObj,
-          $or: [{ childId: occupationIdObj }, { parentId: occupationIdObj }],
+          $or: [
+            { childId: occupationIdObj, childDocModel: MongooseModelName.Occupation },
+            { parentId: occupationIdObj, parentDocModel: MongooseModelName.Occupation },
+          ],
         },
         { session }
       ).exec();
+
+      const OccupationEmbeddingModel = this.Model.db.model<IOccupationEmbeddingDoc>(OccupationEmbeddingModelName);
+      const occupationEmbeddingRepository = new EntityEmbeddingRepository<IOccupationEmbeddingDoc>(
+        OccupationEmbeddingModel,
+        EntityEmbeddingIdPath.occupationId
+      );
+      await occupationEmbeddingRepository.delete(modelId, id, ctx);
 
       await this.Model.deleteOne({ _id: occupationIdObj, modelId: modelIdObj }, { session }).exec();
 
