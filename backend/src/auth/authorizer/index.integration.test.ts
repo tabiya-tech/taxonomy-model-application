@@ -9,6 +9,11 @@ import { AccessKeyType } from "auth/accessKey/accessKey.types";
 import { getDependencyRegistry } from "auth/dependencyRegistry";
 
 import { getRandomString } from "_test_utilities/getMockRandomData";
+import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
+import { getNewConnection } from "server/connection/newConnection";
+import mongoose, { Connection } from "mongoose";
+
+jest.setTimeout(15000);
 
 const TabiyaRoles = AuthAPISpecs.Enums.TabiyaRoles;
 
@@ -142,15 +147,27 @@ async function assertAccessRule(testCase: TestCase, event: object) {
 }
 
 describe("Authorizer Integration tests", () => {
+  let dbConnection: Connection;
+
   beforeAll(async () => {
-    const DATABASE_NAME = "AuthIntegrationTests";
+    const config = getTestConfiguration("AuthIntegrationTests");
+    dbConnection = await getNewConnection(config.dbURI);
+    await getDependencyRegistry().initialize(dbConnection);
 
     const configurations = await import("auth/config");
     jest.spyOn(configurations, "readEnvironmentConfiguration").mockReturnValue({
-      dbURI: `${process.env.MONGODB_URI}${DATABASE_NAME}`,
+      dbURI: config.dbURI,
       userPoolClientId: "given client id",
       userPoolId: "given user pool id",
     });
+  });
+
+  afterAll(async () => {
+    if (dbConnection) {
+      await dbConnection.dropDatabase();
+      await dbConnection.close(true);
+    }
+    await mongoose.disconnect();
   });
 
   afterEach(() => {
