@@ -55,6 +55,7 @@ import {
   OccupationToSkillReferenceWithRelationType,
   OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import { EmbeddableField } from "embeddings/service/types";
 import { Readable } from "node:stream";
 import {
   getExpectedPlan,
@@ -2694,6 +2695,101 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       );
 
       findOneSpy.mockRestore();
+    });
+
+    test("should delete embeddings when deleting an occupation", async () => {
+      // GIVEN an occupation exists in the database
+      const givenModelId = getMockStringId(1);
+      const givenOccupation = await repository.create(
+        getSimpleNewESCOOccupationSpec(givenModelId, "occ_with_embeddings")
+      );
+
+      // AND embeddings exist for the occupation
+      await repositoryRegistry.occupationEmbedding.upsert({
+        modelId: givenModelId,
+        entityId: givenOccupation.id,
+        embeddingServiceId: "service-123",
+        sourceHash: "hash-123",
+        sourceField: EmbeddableField.preferredLabel,
+        sourceText: "occ_with_embeddings",
+        vector: [0.1, 0.2, 0.3],
+      });
+
+      // WHEN deleting the occupation
+      const actual = await repository.delete(givenOccupation.id, givenModelId);
+
+      // THEN expect delete to return true
+      expect(actual).toBe(true);
+
+      // AND expect embeddings to have been deleted
+      const embeddings = await repositoryRegistry.occupationEmbedding.findByEntity(
+        givenModelId,
+        givenOccupation.id,
+        "service-123"
+      );
+      expect(embeddings).toEqual([]);
+    });
+
+    test("should successfully delete an occupation and its hierarchy without deleting an OccupationGroup's hierarchy when they share the same _id (ID collision)", async () => {
+      // GIVEN an OccupationGroup and Occupation exist in the database with the exact same forced _id
+      const givenModelId = getMockStringId(1);
+      const givenObjectId = getMockStringId(2);
+
+      const givenGroupSpec = getSimpleNewISCOGroupSpec(givenModelId, "group_collision", true);
+      // @ts-ignore
+      givenGroupSpec._id = givenObjectId;
+      const givenGroup = await repositoryRegistry.OccupationGroup.create(givenGroupSpec);
+
+      const givenOccupationSpec = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_collision");
+      // @ts-ignore
+      givenOccupationSpec._id = givenObjectId;
+      const givenOccupation = await repository.create(givenOccupationSpec);
+
+      // Guard to verify shared _id
+      expect(givenGroup.id).toEqual(givenOccupation.id);
+
+      // AND a child occupation linked to the OccupationGroup as parent (parentId: givenObjectId, parentType: ISCOGroup)
+      const childOfGroup = await repository.create(
+        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child_of_group", givenGroup.code)
+      );
+      await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          parentId: givenGroup.id,
+          parentType: ObjectTypes.ISCOGroup,
+          childId: childOfGroup.id,
+          childType: childOfGroup.occupationType,
+        },
+      ]);
+
+      // AND a parent occupation linked to givenOccupation as child (childId: givenObjectId, childType: ESCOOccupation)
+      const parentOfOccupation = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "parent_of_occ"));
+      await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          parentId: parentOfOccupation.id,
+          parentType: parentOfOccupation.occupationType,
+          childId: givenOccupation.id,
+          childType: givenOccupation.occupationType,
+        },
+      ]);
+
+      // WHEN deleting the Occupation (which shares the _id with OccupationGroup)
+      const actual = await repository.delete(givenOccupation.id, givenModelId);
+
+      // THEN expect the deletion to succeed (returns true) because givenOccupation itself has no children
+      expect(actual).toBe(true);
+
+      // AND expect givenOccupation to be deleted
+      const foundOccupation = await repository.findById(givenOccupation.id);
+      expect(foundOccupation).toBeNull();
+
+      // AND expect only the occupation hierarchy entry (childId: givenObjectId) to be removed
+      const remainingHierarchies = await repositoryRegistry.occupationHierarchy.hierarchyModel
+        .find({ modelId: givenModelId })
+        .exec();
+
+      expect(remainingHierarchies).toHaveLength(1);
+      expect(remainingHierarchies[0].parentId.toString()).toEqual(givenGroup.id);
+      expect(remainingHierarchies[0].childId.toString()).toEqual(childOfGroup.id);
     });
   });
 });
