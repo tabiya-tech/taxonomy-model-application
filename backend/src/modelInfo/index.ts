@@ -39,7 +39,15 @@ class ModelController {
    *       tags:
    *         - model
    *       summary: Create a new taxonomy model.
-   *       description: Create a new taxonomy model that can be used to import data into it.
+   *       description: |
+   *         Create a new taxonomy model that can be used to import data into it.
+   *
+   *         A model declares two independent things, and they are not interchangeable:
+   *         `locale` is the country or the market the model describes, e.g. ZA, EU-fr or KE-en, while
+   *         `availableLanguages` are the translation languages its entities carry data in, e.g. ["en", "fr"].
+   *         A model of the locale ZA can carry data in English and in French, and a model that carries data only in
+   *         English can describe any locale. When `availableLanguages` is omitted, the model is created with the
+   *         fall back language of the environment.
    *       security:
    *        - api_key: []
    *        - jwt_auth: []
@@ -106,6 +114,9 @@ class ModelController {
       name: payload.name,
       description: payload.description,
       locale: payload.locale,
+      // When the payload does not declare the languages the model carries data in, the model is created with the
+      // fall back language, see ModelRepository.create().
+      availableLanguages: payload.availableLanguages,
       license: payload.license,
       UUIDHistory: payload.UUIDHistory,
     };
@@ -136,7 +147,11 @@ class ModelController {
    *     tags:
    *       - model
    *     summary: Get a taxonomy model information
-   *     description: Retrieve information about a specific taxonomy model.
+   *     description: |
+   *       Retrieve information about a specific taxonomy model.
+   *
+   *       Every model returns both `locale`, the country or the market it describes, and `availableLanguages`, the
+   *       translation languages its entities carry data in. The two are orthogonal, see POST /models.
    *     security:
    *        - api_key: []
    *        - jwt_auth: []

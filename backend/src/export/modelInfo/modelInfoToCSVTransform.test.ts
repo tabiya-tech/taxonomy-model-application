@@ -6,6 +6,7 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getTestString } from "_test_utilities/getMockRandomData";
 import ModelInfoToCSVTransform, * as SKillsToCSVTransformModule from "./modelInfoToCSVTransform";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
+import LanguageAPISpecs from "api-specifications/language";
 import { parse } from "csv-parse/sync";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { IModelInfo } from "modelInfo/modelInfo.types";
@@ -32,6 +33,7 @@ const getMockModelInfo = (i: number): IModelInfo => {
       shortCode: `shortCode_${i}`,
       name: `name_${i}`,
     },
+    availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
     description: `description_${i}_${getTestString(10)}`,
     license: `description_${i}_${getTestString(10)}`,
     version: `version_${i}`,
@@ -52,6 +54,7 @@ function setupModelInfoRepositoryMock(findByIdFn: () => IModelInfo | null) {
     getHistory: jest.fn(),
     getModelsByIds: jest.fn(),
     releaseModel: jest.fn(),
+    updateAvailableLanguages: jest.fn(),
   };
   ModelInfoRepository.mockReturnValue(mockModelInfoRepository);
 }

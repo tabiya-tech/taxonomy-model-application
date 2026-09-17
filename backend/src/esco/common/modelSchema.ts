@@ -122,6 +122,40 @@ export const UUIDHistoryProperty: mongoose.SchemaDefinitionProperty<string[]> = 
   },
 };
 
+// Available Languages
+//
+// The languages a model carries data in, as the short codes of the languages of the registry. It is a path of the
+// ModelInfo, not of an entity: an entity carries a translated value per language, the model declares which languages
+// those values are expected in. It is orthogonal to the locale of the model, which is a country or a market.
+export const AvailableLanguagesProperty: mongoose.SchemaDefinitionProperty<string[]> = {
+  type: [String],
+  required: true,
+  default: undefined,
+  validate: (value: string[]) => {
+    if (!Array.isArray(value)) {
+      throw new Error("AvailableLanguages must be an array");
+    }
+    if (value.length <= 0) {
+      throw new Error("AvailableLanguages must be a non empty array");
+    }
+    if (value.length > LanguageAPISpecs.Constants.Languages.length) {
+      throw new Error(
+        `AvailableLanguages must be at most ${LanguageAPISpecs.Constants.Languages.length} items, one per registered language`
+      );
+    }
+    const unsupportedShortCode = value.find(
+      (shortCode: string) => !LanguageAPISpecs.Helpers.isSupportedLanguage(shortCode)
+    );
+    if (unsupportedShortCode !== undefined) {
+      throw new Error(`AvailableLanguages has an unsupported language '${unsupportedShortCode}'`);
+    }
+    if (!hasUniqueValues(value)) {
+      throw new Error("Duplicate availableLanguage found");
+    }
+    return true;
+  },
+};
+
 // Origin Uri
 export const ORIGIN_URI_MAX_LENGTH = 4096;
 export const OriginUriProperty: mongoose.SchemaDefinitionProperty<string> = {

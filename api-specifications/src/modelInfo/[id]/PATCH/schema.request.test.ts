@@ -3,6 +3,7 @@ import addFormats from "ajv-formats";
 import ModelInfoAPISpecs from "../../index";
 import ModelInfoConstants from "../../constants";
 import { getTestString } from "_test_utilities/specialCharacters";
+import LanguageAPISpecs from "language";
 import {
   testValidSchema,
   testSchemaWithAdditionalProperties,
@@ -64,8 +65,12 @@ describe("Validate JSON against the ModelInfo PATCH Request Schema", () => {
       return validateFunction(payload);
     }
 
-    test("released is required", () => {
+    test("a payload that asks for nothing fails validation", () => {
       expect(validate({})).toBe(false);
+    });
+
+    test("a payload that only carries releaseNotes fails validation", () => {
+      expect(validate({ releaseNotes: getTestString(10) })).toBe(false);
     });
 
     test("released: true validates successfully", () => {
@@ -78,6 +83,35 @@ describe("Validate JSON against the ModelInfo PATCH Request Schema", () => {
 
     test("releaseNotes is optional", () => {
       expect(validate({ released: true })).toBe(true);
+    });
+
+    test("availableLanguages on its own validates successfully", () => {
+      expect(validate({ availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode] })).toBe(true);
+    });
+
+    test("availableLanguages together with released validates successfully", () => {
+      expect(
+        validate({ released: true, availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode] })
+      ).toBe(true);
+    });
+
+    test("every registered language validates successfully", () => {
+      expect(
+        validate({ availableLanguages: LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode) })
+      ).toBe(true);
+    });
+
+    test("an empty availableLanguages fails validation", () => {
+      expect(validate({ availableLanguages: [] })).toBe(false);
+    });
+
+    test("an availableLanguages with a language that is not registered fails validation", () => {
+      expect(validate({ availableLanguages: ["not-a-registered-language"] })).toBe(false);
+    });
+
+    test("an availableLanguages with a duplicate language fails validation", () => {
+      const givenShortCode = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
+      expect(validate({ availableLanguages: [givenShortCode, givenShortCode] })).toBe(false);
     });
 
     test("releaseNotes exceeding the max length fails validation", () => {

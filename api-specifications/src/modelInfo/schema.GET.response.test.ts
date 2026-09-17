@@ -27,6 +27,7 @@ import { getTestString } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 import LocaleAPISpecs from "locale";
+import LanguageAPISpecs from "language";
 import ImportProcessState from "importProcessState";
 import { ExportProcessState } from "exportProcessState/enums";
 import ExportProcessStateAPISpecs from "exportProcessState";
@@ -106,6 +107,7 @@ describe("Test objects against the ModelInfoAPISpecs.Schemas.GET.Response.Payloa
       UUID: randomUUID(),
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
+    availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
     releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),

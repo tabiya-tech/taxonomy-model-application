@@ -18,6 +18,7 @@ export interface ILocale {
 export interface IModelInfoDoc {
   name: string;
   locale: ILocale;
+  availableLanguages: string[];
   description: string;
   UUID: string;
   license: string;
@@ -77,7 +78,9 @@ export interface IModelInfo extends Omit<IModelInfoDoc, "importProcessState" | "
 /**
  * Describe how a new model info is created with the API
  */
-export type INewModelInfoSpec = Pick<IModelInfoDoc, "name" | "locale" | "license" | "description" | "UUIDHistory">;
+export type INewModelInfoSpec = Pick<IModelInfoDoc, "name" | "locale" | "license" | "description" | "UUIDHistory"> &
+  // The available languages are optional: a model that does not declare any carries data in the fall back language.
+  Partial<Pick<IModelInfoDoc, "availableLanguages">>;
 
 /**
  * Describes how a reference to a model is returned from the API

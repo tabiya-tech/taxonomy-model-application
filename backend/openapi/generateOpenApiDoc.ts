@@ -570,7 +570,13 @@ function getOpenAPISpecification(
             409,
             Object.values(ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status409.ErrorCodes)
           ),
-          // Model release (PATCH) error schemas
+          // Model patch (PATCH) error schemas
+          PATCHModel400ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "Model",
+            400,
+            Object.values(ModelInfo.ModelInfo.PATCH.Enums.Response.Status400.ErrorCodes)
+          ),
           PATCHModel404ErrorSchema: APIError.Schemas.getPayload(
             "PATCH",
             "Model",

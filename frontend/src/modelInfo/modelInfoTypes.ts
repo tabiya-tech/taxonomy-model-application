@@ -51,6 +51,7 @@ export namespace ModelInfoTypes {
     version: string;
     name: string;
     locale: Locale;
+    availableLanguages: string[];
     description: string;
     license: string;
     path: string;

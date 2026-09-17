@@ -26,6 +26,7 @@ import { getTestString, WHITESPACE } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 import LocaleAPISpecs from "locale";
+import LanguageAPISpecs from "language";
 import ImportProcessState from "importProcessState";
 import { ExportProcessState } from "exportProcessState/enums";
 import ExportProcessStateAPISpecs from "exportProcessState";
@@ -108,6 +109,7 @@ describe("Test objects against the ModelInfo _baseResponseSchema", () => {
       UUID: randomUUID(),
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
+    availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
     releaseNotes: getTestString(ModelInfoConstants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
     version: getTestString(ModelInfoConstants.VERSION_MAX_LENGTH),
@@ -197,6 +199,71 @@ describe("Test objects against the ModelInfo _baseResponseSchema", () => {
         shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       };
       testRefSchemaField("locale", givenSchema, validLocale, LocaleAPISpecs.Schemas.Payload);
+    });
+
+    describe("Test validation of 'availableLanguages'", () => {
+      const givenRegisteredShortCodes = LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode);
+
+      test.each([
+        [
+          CaseType.Failure,
+          "undefined",
+          undefined,
+          constructSchemaError("", "required", "must have required property 'availableLanguages'"),
+        ],
+        [CaseType.Failure, "null", null, constructSchemaError("/availableLanguages", "type", "must be array")],
+        [
+          CaseType.Failure,
+          "a string",
+          LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode,
+          constructSchemaError("/availableLanguages", "type", "must be array"),
+        ],
+        [
+          CaseType.Failure,
+          "an empty array",
+          [],
+          constructSchemaError("/availableLanguages", "minItems", "must NOT have fewer than 1 items"),
+        ],
+        [
+          CaseType.Failure,
+          "an array with a language that is not registered",
+          ["not-a-registered-language"],
+          constructSchemaError("/availableLanguages/0", "enum", "must be equal to one of the allowed values"),
+        ],
+        [
+          CaseType.Failure,
+          "an array with a duplicate language",
+          [
+            LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode,
+            LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode,
+          ],
+          constructSchemaError(
+            "/availableLanguages",
+            "uniqueItems",
+            "must NOT have duplicate items (items ## 1 and 0 are identical)"
+          ),
+        ],
+        [
+          CaseType.Failure,
+          "an array of objects",
+          [{ shortCode: LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode }],
+          constructSchemaError("/availableLanguages/0", "type", "must be string"),
+        ],
+        [
+          CaseType.Success,
+          "an array with a single registered language",
+          [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
+          undefined,
+        ],
+        [CaseType.Success, "an array with every registered language", givenRegisteredShortCodes, undefined],
+      ])("(%s) Validate 'availableLanguages' when it is %s", (caseType, _description, givenValue, failureMessages) => {
+        const givenObject = {
+          availableLanguages: givenValue,
+        };
+        assertCaseForProperty("availableLanguages", givenObject, givenSchema, caseType, failureMessages, [
+          LocaleAPISpecs.Schemas.Payload,
+        ]);
+      });
     });
 
     describe("Test validation of 'modelHistory'", () => {

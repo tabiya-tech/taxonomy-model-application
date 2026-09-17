@@ -3,6 +3,7 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { getTestString } from "_test_utilities/getMockRandomData";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
+import LanguageAPISpecs from "api-specifications/language";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 
 import LicenseToFileTransform from "./licenseToFileTransform";
@@ -29,6 +30,7 @@ const getMockModelInfo = (i: number): IModelInfo => {
       shortCode: `shortCode_${i}`,
       name: `name_${i}`,
     },
+    availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
     description: `description_${i}_${getTestString(10)}`,
     license: `license_${i}_${getTestString(10)}`,
     version: `version_${i}`,
@@ -49,6 +51,7 @@ function setupModelInfoRepositoryMock(findByIdFn: () => IModelInfo | null) {
     getHistory: jest.fn(),
     getModelsByIds: jest.fn(),
     releaseModel: jest.fn(),
+    updateAvailableLanguages: jest.fn(),
   };
   ModelInfoRepository.mockReturnValue(mockModelInfoRepository);
 }

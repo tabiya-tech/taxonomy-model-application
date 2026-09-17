@@ -22,6 +22,7 @@ interface IModelInfoResponse {
   description: string;
   license: string;
   locale: Locale.Types.Payload;
+  availableLanguages: string[];
   path: string;
   tabiyaPath: string;
   released: boolean;
@@ -70,6 +71,7 @@ interface IModelInfoRequest {
   name: string;
   description: string;
   locale: Locale.Types.Payload;
+  availableLanguages?: string[];
   license: string;
   UUIDHistory: string[];
 }

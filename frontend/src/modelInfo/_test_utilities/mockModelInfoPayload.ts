@@ -5,6 +5,7 @@ import LocaleAPISpecs from "api-specifications/locale";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import EmbeddingsAPISpecs from "api-specifications/embeddings";
+import LanguageAPISpecs from "api-specifications/language";
 
 import { v4 as uuidv4 } from "uuid";
 
@@ -82,6 +83,10 @@ export namespace GET {
           name: getRandomLorem(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
           shortCode: faker.location.countryCode("alpha-3"),
         },
+        availableLanguages: LanguageAPISpecs.Constants.Languages.slice(
+          0,
+          (i % LanguageAPISpecs.Constants.Languages.length) + 1
+        ).map((language) => language.shortCode),
         description: getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
         released: i % 2 === 0, // 50% chance of released
         releaseNotes: getRandomLorem(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
@@ -171,6 +176,7 @@ export function getRandomModelInfo(_id: number): PayloadItem<ModelInfoAPISpecs.T
       name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
+    availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
     description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
     license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
     released: _id % 2 === 0,
