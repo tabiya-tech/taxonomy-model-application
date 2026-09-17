@@ -15,6 +15,7 @@ import {
 import ModelInfoAPISpecs from "./index";
 import ModelInfoConstants from "./constants";
 import LocaleAPISpecs from "locale";
+import LanguageAPISpecs from "language";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 import { getTestString } from "_test_utilities/specialCharacters";
@@ -105,6 +106,7 @@ describe("Test objects against the  ModelInfoAPISpecs.Schemas.POST.Response.Payl
       UUID: randomUUID(),
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
+    availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
     releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: false,
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),

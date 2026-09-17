@@ -14,7 +14,7 @@ import {
   EmbeddingProcessStateModelPaths,
   ModelName as EmbeddingProcessStateModelName,
 } from "embeddings/embeddingProcessState/embeddingProcessStateModel";
-import { UUIDHistoryProperty } from "esco/common/modelSchema";
+import { AvailableLanguagesProperty, UUIDHistoryProperty } from "esco/common/modelSchema";
 
 export const ModelName = "ModelInfo";
 export const ModelInfoModelPaths = {
@@ -61,6 +61,7 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
         },
       },
       locale: localeSchema,
+      availableLanguages: AvailableLanguagesProperty,
       description: {
         type: String,
         required: stringRequired("description"),

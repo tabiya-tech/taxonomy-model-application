@@ -6,6 +6,7 @@ import * as config from "server/config/config";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ModelPATCHHandler } from "./index";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LanguageAPISpecs from "api-specifications/language";
 import ErrorAPISpecs from "api-specifications/error";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { APIGatewayProxyEvent } from "aws-lambda";
@@ -42,6 +43,7 @@ function getModelInfoRepositoryMock() {
     getHistory: jest.fn(),
     getModelsByIds: jest.fn(),
     releaseModel: jest.fn(),
+    updateAvailableLanguages: jest.fn(),
   };
 }
 
@@ -221,7 +223,10 @@ describe("Test the ModelPATCHHandler", () => {
 
   test.each([
     ["released is false", { released: false }],
-    ["released is missing", { releaseNotes: "some notes" }],
+    ["the payload only carries releaseNotes", { releaseNotes: "some notes" }],
+    ["the payload asks for nothing", {}],
+    ["availableLanguages is empty", { availableLanguages: [] }],
+    ["availableLanguages has a language that is not registered", { availableLanguages: ["not-a-registered-language"] }],
     ["there is an unknown property", { released: true, foo: "bar" }],
   ])("should respond with BAD_REQUEST when %s", async (_description, givenBody) => {
     // GIVEN an event with a body that does not conform to the schema
@@ -230,6 +235,227 @@ describe("Test the ModelPATCHHandler", () => {
     // THEN expect a 400 response with the INVALID_JSON_SCHEMA error code
     expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
     expect(JSON.parse(actualResponse.body).errorCode).toEqual(ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA);
+  });
+
+  describe("availableLanguages", () => {
+    const givenFallbackShortCode = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
+    const givenAllRegisteredShortCodes = LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode);
+
+    test("should respond with OK and add the languages the payload declares", async () => {
+      // GIVEN a model that carries data in the fall back language only
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(),
+        id: givenModelId,
+        released: false,
+        availableLanguages: [givenFallbackShortCode],
+      };
+      // AND a repository that will successfully update its languages
+      const givenUpdatedModel: IModelInfo = { ...givenModel, availableLanguages: givenAllRegisteredShortCodes };
+      const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+      givenModelInfoRepositoryMock.getModelById.mockResolvedValue(givenModel);
+      givenModelInfoRepositoryMock.updateAvailableLanguages.mockResolvedValue(givenUpdatedModel);
+      givenModelInfoRepositoryMock.getHistory.mockResolvedValue([]);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the handler is invoked with every registered language
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ availableLanguages: givenAllRegisteredShortCodes }) })
+      );
+
+      // THEN expect the repository to be called with the modelId and the given languages
+      expect(givenModelInfoRepositoryMock.updateAvailableLanguages).toHaveBeenCalledWith(
+        givenModelId,
+        givenAllRegisteredShortCodes
+      );
+      // AND expect the model to not have been released, the payload did not ask for it
+      expect(givenModelInfoRepositoryMock.releaseModel).not.toHaveBeenCalled();
+      // AND expect a 200 response with the updated languages
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(JSON.parse(actualResponse.body).availableLanguages).toEqual(givenAllRegisteredShortCodes);
+    });
+
+    test("should respond with OK and both add the languages and release the model", async () => {
+      // GIVEN an unreleased model that carries data in the fall back language only
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(),
+        id: givenModelId,
+        released: false,
+        availableLanguages: [givenFallbackShortCode],
+      };
+      // AND a repository that will successfully update its languages and release it
+      const givenUpdatedModel: IModelInfo = { ...givenModel, availableLanguages: givenAllRegisteredShortCodes };
+      const givenReleasedModel: IModelInfo = { ...givenUpdatedModel, released: true };
+      const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+      givenModelInfoRepositoryMock.getModelById.mockResolvedValue(givenModel);
+      givenModelInfoRepositoryMock.updateAvailableLanguages.mockResolvedValue(givenUpdatedModel);
+      givenModelInfoRepositoryMock.releaseModel.mockResolvedValue(givenReleasedModel);
+      givenModelInfoRepositoryMock.getHistory.mockResolvedValue([]);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the handler is invoked with both the languages and the release
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ released: true, availableLanguages: givenAllRegisteredShortCodes }) })
+      );
+
+      // THEN expect both to have been applied
+      expect(givenModelInfoRepositoryMock.updateAvailableLanguages).toHaveBeenCalledWith(
+        givenModelId,
+        givenAllRegisteredShortCodes
+      );
+      expect(givenModelInfoRepositoryMock.releaseModel).toHaveBeenCalledWith(givenModelId, undefined);
+      // AND expect a 200 response with the released model and its new languages
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(JSON.parse(actualResponse.body).released).toBe(true);
+      expect(JSON.parse(actualResponse.body).availableLanguages).toEqual(givenAllRegisteredShortCodes);
+    });
+
+    test("should respond with BAD_REQUEST when the payload drops a language the model carries data for", async () => {
+      // GIVEN a model that carries data in every registered language
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(),
+        id: givenModelId,
+        availableLanguages: givenAllRegisteredShortCodes,
+      };
+      const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+      givenModelInfoRepositoryMock.getModelById.mockResolvedValue(givenModel);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the handler is invoked with only the fall back language, i.e. dropping the others
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ availableLanguages: [givenFallbackShortCode] }) })
+      );
+
+      // THEN expect a 400 response with the AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED error code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status400.ErrorCodes.AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED
+      );
+      // AND expect the details to name the languages that would have been dropped
+      expect(JSON.parse(actualResponse.body).details).toEqual(
+        expect.stringContaining(givenAllRegisteredShortCodes.slice(1).join(", "))
+      );
+      // AND expect the languages of the model to not have been touched
+      expect(givenModelInfoRepositoryMock.updateAvailableLanguages).not.toHaveBeenCalled();
+    });
+
+    test("should respond with OK when the payload declares exactly the languages the model already carries", async () => {
+      // GIVEN a model that carries data in the fall back language only
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(),
+        id: givenModelId,
+        availableLanguages: [givenFallbackShortCode],
+      };
+      const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+      givenModelInfoRepositoryMock.getModelById.mockResolvedValue(givenModel);
+      givenModelInfoRepositoryMock.updateAvailableLanguages.mockResolvedValue(givenModel);
+      givenModelInfoRepositoryMock.getHistory.mockResolvedValue([]);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the handler is invoked with the same languages
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ availableLanguages: [givenFallbackShortCode] }) })
+      );
+
+      // THEN expect a 200 response, nothing was dropped
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(givenModelInfoRepositoryMock.updateAvailableLanguages).toHaveBeenCalledWith(givenModelId, [
+        givenFallbackShortCode,
+      ]);
+    });
+
+    test("should respond with NOT_FOUND when the model does not exist", async () => {
+      // GIVEN a model that does not exist
+      const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+      givenModelInfoRepositoryMock.getModelById.mockResolvedValue(null);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the handler is invoked with a change of the languages
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ availableLanguages: [givenFallbackShortCode] }) })
+      );
+
+      // THEN expect a 404 response with the MODEL_NOT_FOUND_BY_ID error code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND_BY_ID
+      );
+      // AND expect the languages to not have been touched
+      expect(givenModelInfoRepositoryMock.updateAvailableLanguages).not.toHaveBeenCalled();
+    });
+
+    test("should respond with NOT_FOUND when the model is deleted while its languages are updated", async () => {
+      // GIVEN a model that exists when it is read but not any more when it is updated
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(),
+        id: givenModelId,
+        availableLanguages: [givenFallbackShortCode],
+      };
+      const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+      givenModelInfoRepositoryMock.getModelById.mockResolvedValue(givenModel);
+      givenModelInfoRepositoryMock.updateAvailableLanguages.mockResolvedValue(null);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the handler is invoked with a change of the languages
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ availableLanguages: givenAllRegisteredShortCodes }) })
+      );
+
+      // THEN expect a 404 response with the MODEL_NOT_FOUND_BY_ID error code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND_BY_ID
+      );
+    });
+
+    test("should respond with CONFLICT and leave the languages untouched when the model is already released", async () => {
+      // GIVEN a model that is already released
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(),
+        id: givenModelId,
+        released: true,
+        availableLanguages: [givenFallbackShortCode],
+      };
+      const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+      givenModelInfoRepositoryMock.getModelById.mockResolvedValue(givenModel);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the handler is invoked with both the languages and the release
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ released: true, availableLanguages: givenAllRegisteredShortCodes }) })
+      );
+
+      // THEN expect a 409 response with the MODEL_ALREADY_RELEASED error code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.CONFLICT);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status409.ErrorCodes.MODEL_ALREADY_RELEASED
+      );
+      // AND expect the languages to not have been changed, the request could not be honoured as a whole
+      expect(givenModelInfoRepositoryMock.updateAvailableLanguages).not.toHaveBeenCalled();
+    });
+
+    test("should respond with INTERNAL_SERVER_ERROR when the languages cannot be updated", async () => {
+      // GIVEN a model whose languages cannot be updated
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(),
+        id: givenModelId,
+        availableLanguages: [givenFallbackShortCode],
+      };
+      const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+      givenModelInfoRepositoryMock.getModelById.mockResolvedValue(givenModel);
+      givenModelInfoRepositoryMock.updateAvailableLanguages.mockRejectedValue(new Error("DB failure"));
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      // WHEN the handler is invoked with a change of the languages
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ availableLanguages: givenAllRegisteredShortCodes }) })
+      );
+
+      // THEN expect a 500 response with the DB_FAILED_TO_UPDATE_AVAILABLE_LANGUAGES error code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_UPDATE_AVAILABLE_LANGUAGES
+      );
+    });
   });
 
   test("should respond with INTERNAL_SERVER_ERROR when releaseModel fails unexpectedly", async () => {

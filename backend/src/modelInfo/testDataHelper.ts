@@ -6,6 +6,7 @@ import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import { IModelInfo } from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
+import LanguageAPISpecs from "api-specifications/language";
 import EmbeddingsAPISpecs from "api-specifications/embeddings";
 
 export function getIModelInfoMockData(n: number = 1): IModelInfo {
@@ -19,6 +20,7 @@ export function getIModelInfoMockData(n: number = 1): IModelInfo {
       name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
       shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
+    availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
     description: getRandomString(DESCRIPTION_MAX_LENGTH),
     license: getRandomString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
     released: false,

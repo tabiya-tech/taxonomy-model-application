@@ -13,6 +13,7 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
+import LanguageAPISpecs from "api-specifications/language";
 import { IModelInfo, INewModelInfoSpec } from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
 import ExportProcessStateApiSpecs from "api-specifications/exportProcessState";
@@ -134,6 +135,8 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
         version: "",
         releaseNotes: "",
         released: false,
+        // AND the availableLanguages to be the fall back language, as the specs do not declare any
+        availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
         // AND the importProcessState to be set to pending as there is no import process yet
         importProcessState: {
           id: expect.any(String),
@@ -169,6 +172,8 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
         version: "",
         releaseNotes: "",
         released: false,
+        // AND the availableLanguages to be the fall back language, as the specs do not declare any
+        availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
         // AND the importProcessState to be set to pending as there is no import process yet
         importProcessState: {
           id: expect.any(String),
@@ -185,6 +190,38 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
         updatedAt: expect.any(Date),
       };
       expect(actualNewModel).toEqual(expectedNewModelInfo);
+    });
+
+    test("Should create a new model with the availableLanguages of the given specs", async () => {
+      // GIVEN a valid INewModelInfoSpec that declares every registered language
+      const givenAvailableLanguages = LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode);
+      const givenNewModelInfoSpec: INewModelInfoSpec = {
+        ...getNewModelInfoSpec(),
+        availableLanguages: givenAvailableLanguages,
+      };
+
+      // WHEN creating a new modelInfo with the given specifications
+      const actualNewModel = await repository.create(givenNewModelInfoSpec);
+
+      // THEN expect the new modelInfo to carry the given languages, the fall back language is not added to them
+      expect(actualNewModel.availableLanguages).toEqual(givenAvailableLanguages);
+      // AND expect the change to be persisted
+      const actualPersistedModel = await repository.getModelById(actualNewModel.id);
+      expect(actualPersistedModel?.availableLanguages).toEqual(givenAvailableLanguages);
+    });
+
+    test("Should reject with an error when creating a model with a language that is not registered", async () => {
+      // GIVEN a INewModelInfoSpec that declares a language the registry does not know about
+      const givenNewModelInfoSpec: INewModelInfoSpec = {
+        ...getNewModelInfoSpec(),
+        availableLanguages: ["not-a-registered-language"],
+      };
+
+      // WHEN creating a new modelInfo with the given specifications
+      const actualPromise = repository.create(givenNewModelInfoSpec);
+
+      // THEN expect it to reject with an error
+      await expect(actualPromise).rejects.toThrow("ModelInfoRepository.create: create failed");
     });
 
     test("Should reject with an error when creating a model and providing a UUID", async () => {
@@ -622,6 +659,74 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup((repository) => {
       return repository.modelInfo.releaseModel(getMockStringId(1));
+    });
+  });
+
+  describe("Test updateAvailableLanguages()", () => {
+    test("Should replace the availableLanguages of the model", async () => {
+      // GIVEN a model that carries data in the fall back language only
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      // AND the languages it is to carry data in from now on
+      const givenAvailableLanguages = LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode);
+
+      // WHEN updating the available languages of the model
+      const actualUpdatedModel = await repository.updateAvailableLanguages(
+        givenExistingModel.id,
+        givenAvailableLanguages
+      );
+
+      // THEN expect the returned model to carry the given languages and to be otherwise untouched
+      expect(actualUpdatedModel).toEqual({
+        ...givenExistingModel,
+        availableLanguages: givenAvailableLanguages,
+        updatedAt: expect.any(Date),
+      });
+      // AND expect the change to be persisted
+      const actualPersistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(actualPersistedModel?.availableLanguages).toEqual(givenAvailableLanguages);
+    });
+
+    test("Should return null if the model does not exist", async () => {
+      // GIVEN a model in the database does not exist
+      // WHEN updating the available languages of a model with a non-existent id
+      const actualUpdatedModel = await repository.updateAvailableLanguages(getMockStringId(999), [
+        LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode,
+      ]);
+
+      // THEN expect a null
+      expect(actualUpdatedModel).toBeNull();
+    });
+
+    test.each([
+      ["a language that is not registered", ["not-a-registered-language"]],
+      ["no language at all", []],
+      [
+        "a duplicate language",
+        [
+          LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode,
+          LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode,
+        ],
+      ],
+    ])("Should reject with an error and leave the model untouched when given %s", async (_description, givenValue) => {
+      // GIVEN a model exists in the database
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+
+      // WHEN updating the available languages of the model with the given value
+      const actualPromise = repository.updateAvailableLanguages(givenExistingModel.id, givenValue);
+
+      // THEN expect it to reject with an error
+      await expect(actualPromise).rejects.toThrow(
+        "ModelInfoRepository.updateAvailableLanguages: updateAvailableLanguages failed"
+      );
+      // AND expect the languages of the model to be untouched
+      const actualPersistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(actualPersistedModel?.availableLanguages).toEqual(givenExistingModel.availableLanguages);
+    });
+
+    TestDBConnectionFailureNoSetup((repository) => {
+      return repository.modelInfo.updateAvailableLanguages(getMockStringId(1), [
+        LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode,
+      ]);
     });
   });
 

@@ -55,6 +55,7 @@ const testModel: ModelInfoTypes.ModelInfo = {
     shortCode: "bar",
     name: "bar",
   },
+  availableLanguages: ["en"],
   path: "",
   tabiyaPath: "",
   exportProcessState: [],

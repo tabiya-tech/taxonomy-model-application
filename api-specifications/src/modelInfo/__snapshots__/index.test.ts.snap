@@ -3,9 +3,12 @@
 exports[`Test the modelInfo module The export module matches the snapshot 1`] = `
 {
   "Constants": {
+    "AVAILABLE_LANGUAGES_MAX_ITEMS": 5,
+    "AVAILABLE_LANGUAGES_MAX_PAYLOAD_LENGTH": 120,
+    "AVAILABLE_LANGUAGES_MIN_ITEMS": 1,
     "DESCRIPTION_MAX_LENGTH": 6000,
     "LICENSE_MAX_LENGTH": 100000,
-    "MAX_POST_PAYLOAD_LENGTH": 220884,
+    "MAX_POST_PAYLOAD_LENGTH": 221004,
     "MAX_URI_LENGTH": 4096,
     "NAME_MAX_LENGTH": 256,
     "RELEASE_NOTES_MAX_LENGTH": 100000,
@@ -172,10 +175,15 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
     "PATCH": {
       "Constants": {
         "MAX_JSON_OVERHEAD": 1000,
-        "MAX_PATCH_PAYLOAD_LENGTH": 101000,
+        "MAX_PATCH_PAYLOAD_LENGTH": 101120,
       },
       "Enums": {
         "Response": {
+          "Status400": {
+            "ErrorCodes": {
+              "AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED": "AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED",
+            },
+          },
           "Status404": {
             "ErrorCodes": {
               "MODEL_NOT_FOUND_BY_ID": "MODEL_NOT_FOUND_BY_ID",
@@ -189,6 +197,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
           "Status500": {
             "ErrorCodes": {
               "DB_FAILED_TO_RELEASE_MODEL": "DB_FAILED_TO_RELEASE_MODEL",
+              "DB_FAILED_TO_UPDATE_AVAILABLE_LANGUAGES": "DB_FAILED_TO_UPDATE_AVAILABLE_LANGUAGES",
             },
           },
         },
@@ -198,7 +207,62 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
           "Payload": {
             "$id": "/components/schemas/ModelInfoRequestSchemaPATCH",
             "additionalProperties": false,
+            "anyOf": [
+              {
+                "properties": {
+                  "released": {
+                    "const": true,
+                    "description": "Releases the model. This endpoint can only be used to release a model (set it to true); it cannot be used to un-release one.",
+                    "type": "boolean",
+                  },
+                },
+                "required": [
+                  "released",
+                ],
+              },
+              {
+                "properties": {
+                  "availableLanguages": {
+                    "description": "The full list of the languages the model carries data in. It may add languages to the ones the model already declares, it may not drop any of them: removing a language is out of scope and a request that does not carry every language of the model is rejected with a 400. It is orthogonal to the locale of the model, which this endpoint cannot change.",
+                    "items": {
+                      "enum": [
+                        "en",
+                        "fr",
+                        "es",
+                        "pt",
+                        "am",
+                      ],
+                      "type": "string",
+                    },
+                    "maxItems": 5,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true,
+                  },
+                },
+                "required": [
+                  "availableLanguages",
+                ],
+              },
+            ],
             "properties": {
+              "availableLanguages": {
+                "description": "The full list of the languages the model carries data in. It may add languages to the ones the model already declares, it may not drop any of them: removing a language is out of scope and a request that does not carry every language of the model is rejected with a 400. It is orthogonal to the locale of the model, which this endpoint cannot change.",
+                "items": {
+                  "enum": [
+                    "en",
+                    "fr",
+                    "es",
+                    "pt",
+                    "am",
+                  ],
+                  "type": "string",
+                },
+                "maxItems": 5,
+                "minItems": 1,
+                "type": "array",
+                "uniqueItems": true,
+              },
               "releaseNotes": {
                 "description": "The release notes to record for this release of the model.",
                 "maxLength": 100000,
@@ -210,9 +274,6 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                 "type": "boolean",
               },
             },
-            "required": [
-              "released",
-            ],
             "type": "object",
           },
         },
@@ -234,6 +295,23 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                 },
                 "minItems": 0,
                 "type": "array",
+              },
+              "availableLanguages": {
+                "description": "The languages the model carries data in, as the short codes of the languages of the registry, e.g. ['en', 'fr']. ",
+                "items": {
+                  "enum": [
+                    "en",
+                    "fr",
+                    "es",
+                    "pt",
+                    "am",
+                  ],
+                  "type": "string",
+                },
+                "maxItems": 5,
+                "minItems": 1,
+                "type": "array",
+                "uniqueItems": true,
               },
               "createdAt": {
                 "format": "date-time",
@@ -571,6 +649,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "name",
               "description",
               "locale",
+              "availableLanguages",
               "license",
               "id",
               "UUID",
@@ -614,6 +693,23 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                 "minItems": 0,
                 "type": "array",
               },
+              "availableLanguages": {
+                "description": "The languages the model carries data in, as the short codes of the languages of the registry, e.g. ['en', 'fr']. ",
+                "items": {
+                  "enum": [
+                    "en",
+                    "fr",
+                    "es",
+                    "pt",
+                    "am",
+                  ],
+                  "type": "string",
+                },
+                "maxItems": 5,
+                "minItems": 1,
+                "type": "array",
+                "uniqueItems": true,
+              },
               "createdAt": {
                 "format": "date-time",
                 "type": "string",
@@ -950,6 +1046,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               "name",
               "description",
               "locale",
+              "availableLanguages",
               "license",
               "id",
               "UUID",
@@ -985,6 +1082,23 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               },
               "minItems": 0,
               "type": "array",
+            },
+            "availableLanguages": {
+              "description": "The languages the model carries data in, as the short codes of the languages of the registry, e.g. ['en', 'fr']. ",
+              "items": {
+                "enum": [
+                  "en",
+                  "fr",
+                  "es",
+                  "pt",
+                  "am",
+                ],
+                "type": "string",
+              },
+              "maxItems": 5,
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true,
             },
             "description": {
               "description": "The description of the model",
@@ -1034,6 +1148,23 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
               },
               "minItems": 0,
               "type": "array",
+            },
+            "availableLanguages": {
+              "description": "The languages the model carries data in, as the short codes of the languages of the registry, e.g. ['en', 'fr']. ",
+              "items": {
+                "enum": [
+                  "en",
+                  "fr",
+                  "es",
+                  "pt",
+                  "am",
+                ],
+                "type": "string",
+              },
+              "maxItems": 5,
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true,
             },
             "createdAt": {
               "format": "date-time",
@@ -1371,6 +1502,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
             "name",
             "description",
             "locale",
+            "availableLanguages",
             "license",
             "id",
             "UUID",

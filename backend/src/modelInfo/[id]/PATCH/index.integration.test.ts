@@ -8,6 +8,7 @@ import { Connection } from "mongoose";
 
 import LocaleAPISpecs from "api-specifications/locale";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LanguageAPISpecs from "api-specifications/language";
 
 import { handler as modelInstanceHandler } from "modelInfo/[id]";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
@@ -48,7 +49,7 @@ function getEvent(modelId: string, requestContext: object, body: object = { rele
   };
 }
 
-describe("Test for the PATCH model (release) handler with a DB", () => {
+describe("Test for the PATCH model handler with a DB", () => {
   // set up the ajv validate PATCH response function
   const ajv = new Ajv({
     validateSchema: true,
@@ -116,6 +117,82 @@ describe("Test for the PATCH model (release) handler with a DB", () => {
     const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
     expect(actualPersistedModel?.released).toBe(true);
     expect(actualPersistedModel?.releaseNotes).toEqual("Initial release");
+  });
+
+  test("PATCH should respond with OK and persist the languages that are added to the model", async () => {
+    // GIVEN a model in the DB that carries data in the fall back language only
+    const givenModel = await createModelInDB();
+    expect(givenModel.availableLanguages).toEqual([LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode]);
+    // AND a valid request from a model manager that adds every registered language
+    const givenAvailableLanguages = LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode);
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, {
+      availableLanguages: givenAvailableLanguages,
+    });
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect the handler to respond with the OK status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    // AND the response passes the JSON Schema validation
+    const actualPayload = JSON.parse(actualResponse.body);
+    validatePATCHResponse(actualPayload);
+    expect(validatePATCHResponse.errors).toBeNull();
+    // AND the response to carry the new languages, and the model to still be unreleased
+    expect(actualPayload).toMatchObject({
+      id: givenModel.id,
+      availableLanguages: givenAvailableLanguages,
+      released: false,
+    });
+
+    // AND the change to be persisted in the DB
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.availableLanguages).toEqual(givenAvailableLanguages);
+  });
+
+  test("PATCH should respond with the BAD_REQUEST status code when the request drops a language of the model", async () => {
+    // GIVEN a model in the DB that carries data in every registered language
+    const givenAvailableLanguages = LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode);
+    const givenModel = await createModelInDB();
+    await getRepositoryRegistry().modelInfo.updateAvailableLanguages(givenModel.id, givenAvailableLanguages);
+    // AND a valid request from a model manager that drops every language but the fall back one
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, {
+      availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
+    });
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect the handler to respond with the BAD_REQUEST status code and the removal error code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+      ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status400.ErrorCodes.AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED
+    );
+    // AND expect the languages of the model to be untouched
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.availableLanguages).toEqual(givenAvailableLanguages);
+  });
+
+  test("PATCH should respond with OK and leave the locale of the model untouched when its languages change", async () => {
+    // GIVEN a model in the DB with a locale of its own
+    const givenModel = await createModelInDB();
+    // AND a valid request from a model manager that adds every registered language
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, {
+      availableLanguages: LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode),
+    });
+
+    // WHEN the handler is invoked with the given event
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect the handler to respond with the OK status code
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    // AND the locale of the model to be the one it was created with, it is orthogonal to the languages
+    expect(JSON.parse(actualResponse.body).locale).toEqual(givenModel.locale);
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.locale).toEqual(givenModel.locale);
   });
 
   test("PATCH should respond with the FORBIDDEN status code if the user is not a model manager", async () => {

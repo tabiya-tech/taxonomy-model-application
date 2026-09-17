@@ -5,6 +5,7 @@ import mongoose, { Connection } from "mongoose";
 import { initializeSchemaAndModel } from "./modelInfoModel";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
+import LanguageAPISpecs from "api-specifications/language";
 import { randomUUID } from "crypto";
 import { getTestString, WHITESPACE } from "_test_utilities/getMockRandomData";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
@@ -44,6 +45,7 @@ describe("Test the definition of the ModelInfo Model", () => {
           name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
           shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
         },
+        availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
         description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
         released: false,
         license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
@@ -63,6 +65,7 @@ describe("Test the definition of the ModelInfo Model", () => {
           name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
           shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
         },
+        availableLanguages: LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode),
         description: "",
         license: "",
         released: false,
@@ -348,6 +351,71 @@ describe("Test the definition of the ModelInfo Model", () => {
       });
 
       testObjectIdField(() => ModelInfoModel, "importProcessState");
+    });
+
+    describe("Test validation of 'availableLanguages'", () => {
+      const givenFallbackShortCode = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
+      const givenAllRegisteredShortCodes = LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode);
+      const givenUnregisteredShortCode = "not-a-registered-language";
+
+      test.each([
+        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required.", undefined],
+        [CaseType.Failure, "null", null, "Path `{0}` is required.", undefined],
+        [
+          CaseType.Failure,
+          "an empty array",
+          [],
+          "Validator failed for path `availableLanguages` with value ``",
+          "AvailableLanguages must be a non empty array",
+        ],
+        [
+          CaseType.Failure,
+          "an array with a language that is not registered",
+          [givenUnregisteredShortCode],
+          `Validator failed for path \`availableLanguages\` with value \`${givenUnregisteredShortCode}\``,
+          `AvailableLanguages has an unsupported language '${givenUnregisteredShortCode}'`,
+        ],
+        [
+          CaseType.Failure,
+          "an array with a language that differs in case from the registered one",
+          [givenFallbackShortCode.toUpperCase()],
+          `Validator failed for path \`availableLanguages\` with value \`${givenFallbackShortCode.toUpperCase()}\``,
+          `AvailableLanguages has an unsupported language '${givenFallbackShortCode.toUpperCase()}'`,
+        ],
+        [
+          CaseType.Failure,
+          "an array with a duplicate language",
+          [givenFallbackShortCode, givenFallbackShortCode],
+          `Validator failed for path \`availableLanguages\` with value \`${givenFallbackShortCode},${givenFallbackShortCode}\``,
+          "Duplicate availableLanguage found",
+        ],
+        [
+          CaseType.Success,
+          "an array with a single registered language",
+          [givenFallbackShortCode],
+          undefined,
+          undefined,
+        ],
+        [
+          CaseType.Success,
+          "an array with every registered language",
+          givenAllRegisteredShortCodes,
+          undefined,
+          undefined,
+        ],
+      ])(
+        "(%s) Validate 'availableLanguages' when it is %s",
+        (caseType: CaseType, caseDescription, value, expectedFailureMessage, expectedFailureReason) => {
+          assertCaseForProperty<IModelInfoDoc>({
+            model: ModelInfoModel,
+            propertyNames: "availableLanguages",
+            caseType,
+            testValue: value,
+            expectedFailureMessage,
+            expectedFailureReason,
+          });
+        }
+      );
     });
 
     describe("Test validation of 'license'", () => {
