@@ -1,10 +1,16 @@
 import { RegExp_Str_ID, RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4 } from "../regex";
 import ModelInfoConstants from "./constants";
 import Locale from "../locale";
+import LanguageConstants from "../language/constants";
 import { baseImportProcessStateProperties } from "../importProcessState/schema.GET.response";
 import { baseExportProcessStateProperties } from "../exportProcessState/schema.GET.response";
 import { baseEmbeddingProcessStateProperties } from "./[id]/embeddingProcessStates/POST/schema.response";
 import { _modelInfoReferenceProperties } from "./schema.reference";
+
+const AVAILABLE_LANGUAGES_SHORT_CODES: string[] = LanguageConstants.Languages.map((language) => language.shortCode);
+
+export const AVAILABLE_LANGUAGES_DESCRIPTION =
+  "The languages the model carries data in, as the short codes of the languages of the registry, e.g. ['en', 'fr']. ";
 
 /**
  *  The base schema for the model info request
@@ -32,6 +38,17 @@ export const _baseProperties: any = {
   },
   locale: {
     $ref: `${Locale.Schemas.Payload.$id}`,
+  },
+  availableLanguages: {
+    description: AVAILABLE_LANGUAGES_DESCRIPTION,
+    type: "array",
+    minItems: ModelInfoConstants.AVAILABLE_LANGUAGES_MIN_ITEMS,
+    maxItems: ModelInfoConstants.AVAILABLE_LANGUAGES_MAX_ITEMS,
+    uniqueItems: true,
+    items: {
+      type: "string",
+      enum: AVAILABLE_LANGUAGES_SHORT_CODES,
+    },
   },
   UUIDHistory: {
     description: "The UUIDs history of the model.",
@@ -148,6 +165,7 @@ export const _baseResponseSchema = {
     "name",
     "description",
     "locale",
+    "availableLanguages",
     "license",
     "id",
     "UUID",

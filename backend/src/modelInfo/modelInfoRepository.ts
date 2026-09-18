@@ -4,6 +4,7 @@ import { IModelInfo, IModelInfoDoc, IModelInfoReference, INewModelInfoSpec } fro
 import { populateImportProcessStateOptions } from "./populateImportProcessStateOptions";
 import { populateExportProcessStateOptions } from "./populateExportProcessStateOptions";
 import { populateEmbeddingProcessStateOptions } from "./populateEmbeddingProcessStateOptions";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 export interface IModelRepository {
   readonly Model: mongoose.Model<IModelInfoDoc>;
@@ -75,6 +76,21 @@ export interface IModelRepository {
    * Rejects with an error if the operation fails.
    */
   releaseModel(modelId: string, releaseNotes?: string): Promise<IModelInfo | null>;
+
+  /**
+   * Replaces the languages a ModelInfo entry declares it carries data in.
+   *
+   * The repository only enforces the shape of the list (non empty, registered languages, no duplicates, see
+   * AvailableLanguagesProperty). Whether the new list is an allowed transition from the current one, i.e. that it
+   * does not drop a language the model already carries, is a rule of the endpoint, see PATCH /models/{modelId}.
+   * Assumes modelId is already a valid ObjectId - the caller is responsible for that validation.
+   *
+   * @param {string} modelId - The id of the model to update. Must be a valid ObjectId.
+   * @param {string[]} availableLanguages - The full list of the short codes of the languages the model carries data in.
+   * @return {Promise<IModelInfo|null>} - A Promise that resolves to the updated ModelInfo entry, or null if no model exists with the given id.
+   * Rejects with an error if the operation fails, the validation of the languages included.
+   */
+  updateAvailableLanguages(modelId: string, availableLanguages: string[]): Promise<IModelInfo | null>;
 }
 
 export class ModelRepository implements IModelRepository {
@@ -93,6 +109,8 @@ export class ModelRepository implements IModelRepository {
       const newUUID = randomUUID();
       const newModelInfo = new this.Model({
         ...newModelSpec,
+        // A model that does not declare the languages it carries data in carries data in the fall back language.
+        availableLanguages: newModelSpec.availableLanguages ?? [getFallbackLanguageConfig().shortCode],
         UUID: newUUID,
         version: "",
         releaseNotes: "",
@@ -232,6 +250,29 @@ export class ModelRepository implements IModelRepository {
       return modelInfos.map((modelInfo) => modelInfo.toObject());
     } catch (e: unknown) {
       const err = new Error("ModelInfoRepository.getModelsByIds: getModelsByIds failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async updateAvailableLanguages(modelId: string, availableLanguages: string[]): Promise<IModelInfo | null> {
+    try {
+      const modelInfo = await this.Model.findOneAndUpdate(
+        { _id: modelId },
+        { $set: { availableLanguages } },
+        { new: true, runValidators: true }
+      )
+        .populate([
+          populateImportProcessStateOptions,
+          populateExportProcessStateOptions,
+          populateEmbeddingProcessStateOptions,
+        ])
+        .exec();
+      return modelInfo != null ? modelInfo.toObject() : null;
+    } catch (e: unknown) {
+      const err = new Error("ModelInfoRepository.updateAvailableLanguages: updateAvailableLanguages failed", {
+        cause: e,
+      });
       console.error(err);
       throw err;
     }

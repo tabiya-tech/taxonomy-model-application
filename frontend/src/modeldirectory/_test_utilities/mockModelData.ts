@@ -10,6 +10,7 @@ import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { getMockId } from "src/_test_utilities/mockMongoId";
 import { getRandomLorem, getRandomString, getTestString } from "src/_test_utilities/specialCharacters";
 import { faker } from "@faker-js/faker";
+import LanguageAPISpecs from "api-specifications/language";
 
 const SHORT_DESCRIPTION_LENGTH = 256;
 
@@ -45,6 +46,10 @@ export function getArrayOfFakeModels(count: number): ModelInfoTypes.ModelInfo[] 
           .countryCode("alpha-3")
           .substring(0, LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
+      availableLanguages: LanguageAPISpecs.Constants.Languages.slice(
+        0,
+        (i % LanguageAPISpecs.Constants.Languages.length) + 1
+      ).map((language) => language.shortCode),
       description:
         i % 2 === 0
           ? getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)
@@ -89,6 +94,7 @@ export function getArrayOfFakeModelsMaxLength(count: number): ModelInfoTypes.Mod
         name: getRandomLorem(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
         shortCode: getRandomLorem(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
+      availableLanguages: LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode),
       description: getRandomLorem(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
       license: getRandomLorem(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
       released: i % 2 === 0, // 50% chance of released
@@ -131,6 +137,7 @@ export function getArrayOfRandomModelsMaxLength(number: number): ModelInfoTypes.
         name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
         shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
       },
+      availableLanguages: LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode),
       description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
       license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
       released: i % 2 === 0,
@@ -193,6 +200,7 @@ export const fakeModel: ModelInfoTypes.ModelInfo = {
     name: "Palestine",
     shortCode: "ETH",
   },
+  availableLanguages: ["en"],
   name: "1/1 - fysmros tcgcnjbbrrev",
   path: "https://unwelcome-editorial.net/",
   releaseNotes: "Perferendis modi impedit necessitatibus a",
@@ -280,6 +288,7 @@ export function getOneDeterministicFakeModel(
       name: `Locale ${seed}`,
       shortCode: "ZA",
     },
+    availableLanguages: ["en"],
     description: `Description of the deterministic model ${seed}`,
     license: "MIT",
     released: true,

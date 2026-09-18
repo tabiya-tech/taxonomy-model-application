@@ -192,6 +192,7 @@ describe("Test the main async handler", () => {
       getHistory: jest.fn().mockResolvedValue([]),
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
+      updateAvailableLanguages: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
     // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
@@ -393,6 +394,7 @@ describe("Test the main async handler", () => {
         getHistory: jest.fn().mockResolvedValue(null),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
       // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
@@ -457,6 +459,7 @@ describe("Test the main async handler", () => {
         getHistory: jest.fn().mockResolvedValue(null),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
       // AND an occupation repository
@@ -541,6 +544,7 @@ describe("Test the main async handler", () => {
         getHistory: jest.fn(),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        updateAvailableLanguages: jest.fn(),
         findHistoryReferencesByUUIDs: jest.fn(),
         findParent: jest.fn(),
         findChildren: jest.fn().mockResolvedValue([]),

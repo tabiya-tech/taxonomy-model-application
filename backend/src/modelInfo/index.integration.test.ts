@@ -6,6 +6,7 @@ import { randomUUID } from "crypto";
 import { Connection } from "mongoose";
 
 import LocaleAPISpecs from "api-specifications/locale";
+import LanguageAPISpecs from "api-specifications/language";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
@@ -198,6 +199,57 @@ describe("Test for model handler with a DB", () => {
     validatePOSTResponse(JSON.parse(actualResponse.body));
     expect(validatePOSTResponse.errors).toBeNull();
   });
+
+  test.each([
+    [
+      "the payload declares them",
+      LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode),
+      LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode),
+    ],
+    ["the payload omits them", undefined, [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode]],
+  ])(
+    "POST should respond with the CREATED status code and the availableLanguages when %s",
+    async (_description, givenAvailableLanguages, expectedAvailableLanguages) => {
+      // GIVEN a valid request whose payload declares the given languages, if any
+      const givenPayload: ModelInfoAPISpecs.Types.POST.Request.Payload = {
+        name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+        locale: {
+          UUID: randomUUID(),
+          name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+          shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+        },
+        description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        license: getRandomString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
+        UUIDHistory: [randomUUID()],
+        ...(givenAvailableLanguages !== undefined ? { availableLanguages: givenAvailableLanguages } : {}),
+      };
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.POST,
+        body: JSON.stringify(givenPayload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        requestContext: usersRequestContext.MODEL_MANAGER,
+      };
+
+      // WHEN the handler is invoked with the given event
+      // @ts-ignore
+      const actualResponse = await modelHandler(givenEvent);
+
+      // THEN expect the handler to respond with the CREATED status code
+      expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
+      // AND a modelInfo object that validates against the POST response schema
+      const actualPayload = JSON.parse(actualResponse.body);
+      validatePOSTResponse(actualPayload);
+      expect(validatePOSTResponse.errors).toBeNull();
+      // AND the expected languages, alongside the locale of the payload which is orthogonal to them
+      expect(actualPayload.availableLanguages).toEqual(expectedAvailableLanguages);
+      expect(actualPayload.locale).toEqual(givenPayload.locale);
+      // AND the languages to be persisted
+      const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(actualPayload.id);
+      expect(actualPersistedModel?.availableLanguages).toEqual(expectedAvailableLanguages);
+    }
+  );
 
   test("GET should respond with the OK status code and the response passes the JSON Schema validation", async () => {
     // GIVEN a valid request (method & header)

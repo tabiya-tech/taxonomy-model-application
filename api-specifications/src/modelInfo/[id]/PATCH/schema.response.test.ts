@@ -1,5 +1,6 @@
 import ModelInfoAPISpecs from "../../index";
 import LocaleAPISpecs from "locale";
+import LanguageAPISpecs from "language";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "crypto";
 import { getTestString } from "_test_utilities/specialCharacters";
@@ -74,6 +75,7 @@ describe("Validate JSON against the ModelInfo PATCH Response Schema", () => {
       UUID: randomUUID(),
       shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
     },
+    availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
     releaseNotes: getTestString(ModelInfoAPISpecs.Constants.RELEASE_NOTES_MAX_LENGTH),
     released: true,
     version: getTestString(ModelInfoAPISpecs.Constants.VERSION_MAX_LENGTH),

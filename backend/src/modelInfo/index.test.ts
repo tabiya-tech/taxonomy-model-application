@@ -11,6 +11,7 @@ import ErrorAPISpecs from "api-specifications/error";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
+import LanguageAPISpecs from "api-specifications/language";
 import { getIModelInfoMockData } from "./testDataHelper";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import {
@@ -118,6 +119,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue(givenUuidHistoryDetails),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
@@ -145,6 +147,107 @@ describe("Test for model handler", () => {
       );
       // AND the handler to return the expected result
       expect(JSON.parse(actualResponse.body)).toMatchObject(transformSpy.mock.results[0].value);
+    });
+
+    describe("POST availableLanguages", () => {
+      function getGivenPayload(availableLanguages?: string[]): ModelInfoAPISpecs.Types.POST.Request.Payload {
+        return {
+          name: getRandomString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+          locale: {
+            UUID: randomUUID(),
+            name: getRandomString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+            shortCode: getRandomString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+          },
+          description: getRandomString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+          license: getRandomString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
+          UUIDHistory: [randomUUID()],
+          ...(availableLanguages !== undefined ? { availableLanguages } : {}),
+        };
+      }
+
+      function getGivenEvent(payload: ModelInfoAPISpecs.Types.POST.Request.Payload): APIGatewayProxyEvent {
+        return {
+          httpMethod: HTTP_VERBS.POST,
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json" },
+          requestContext: usersRequestContext.MODEL_MANAGER,
+        } as never;
+      }
+
+      function getGivenRepositoryMock(createdModel: IModelInfo) {
+        return {
+          Model: undefined as never,
+          create: jest.fn().mockResolvedValue(createdModel),
+          getModelById: jest.fn().mockResolvedValue(null),
+          getModelByUUID: jest.fn().mockResolvedValue(null),
+          getModels: jest.fn().mockResolvedValue([]),
+          getHistory: jest.fn().mockResolvedValue([]),
+          getModelsByIds: jest.fn(),
+          releaseModel: jest.fn(),
+          updateAvailableLanguages: jest.fn(),
+        };
+      }
+
+      test("POST should create the model with the availableLanguages of the payload", async () => {
+        // GIVEN a valid payload that declares every registered language
+        const givenAvailableLanguages = LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode);
+        const givenPayload = getGivenPayload(givenAvailableLanguages);
+        // AND a repository that will successfully create the model
+        const givenCreatedModel: IModelInfo = {
+          ...getIModelInfoMockData(),
+          availableLanguages: givenAvailableLanguages,
+        };
+        const givenModelInfoRepositoryMock = getGivenRepositoryMock(givenCreatedModel);
+        jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+        // WHEN the handler is invoked with the given event
+        const actualResponse = await modelHandler(getGivenEvent(givenPayload));
+
+        // THEN expect the handler to create the model with the given languages
+        expect(givenModelInfoRepositoryMock.create).toHaveBeenCalledWith(
+          expect.objectContaining({ availableLanguages: givenAvailableLanguages })
+        );
+        // AND expect the CREATED status and the languages in the response
+        expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
+        expect(JSON.parse(actualResponse.body).availableLanguages).toEqual(givenAvailableLanguages);
+      });
+
+      test("POST should leave the availableLanguages to the repository to default when the payload omits them", async () => {
+        // GIVEN a valid payload that does not declare any language
+        const givenPayload = getGivenPayload();
+        // AND a repository that will successfully create the model with the fall back language
+        const givenCreatedModel: IModelInfo = getIModelInfoMockData();
+        const givenModelInfoRepositoryMock = getGivenRepositoryMock(givenCreatedModel);
+        jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+        // WHEN the handler is invoked with the given event
+        const actualResponse = await modelHandler(getGivenEvent(givenPayload));
+
+        // THEN expect the handler to not declare any language, the repository defaults them to the fall back language
+        expect(givenModelInfoRepositoryMock.create.mock.calls[0][0].availableLanguages).toBeUndefined();
+        // AND expect the CREATED status and the languages of the created model in the response
+        expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
+        expect(JSON.parse(actualResponse.body).availableLanguages).toEqual(givenCreatedModel.availableLanguages);
+      });
+
+      test("POST should respond with the BAD_REQUEST status code when the payload declares a language that is not registered", async () => {
+        // GIVEN a payload that declares a language the registry does not know about
+        const givenPayload = getGivenPayload(["not-a-registered-language"]);
+        // AND a repository that would create the model
+        const givenModelInfoRepositoryMock = getGivenRepositoryMock(getIModelInfoMockData());
+        jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+        // WHEN the handler is invoked with the given event
+        const actualResponse = await modelHandler(getGivenEvent(givenPayload));
+
+        // THEN expect the handler to reject the payload
+        expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+          ErrorAPISpecs.Constants.ErrorCodes.INVALID_JSON_SCHEMA
+        );
+        // AND expect the repository to not have been called
+        expect(givenModelInfoRepositoryMock.create).not.toHaveBeenCalled();
+      });
     });
 
     test("POST should respond with the INTERNAL_SERVER_ERROR status code if the repository fails to create the model info", async () => {
@@ -181,6 +284,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        updateAvailableLanguages: jest.fn(),
       } as never;
 
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
@@ -287,6 +391,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        updateAvailableLanguages: jest.fn(),
       };
 
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
@@ -345,6 +450,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        updateAvailableLanguages: jest.fn(),
       };
 
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
@@ -398,6 +504,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
@@ -467,6 +574,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
@@ -496,6 +604,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockRejectedValue(new Error("foo")),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
