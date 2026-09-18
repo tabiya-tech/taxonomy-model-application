@@ -28,21 +28,22 @@ export interface IOccupationWithRelation extends IOccupation {
 }
 
 /**
- * Describes how an occupation is saved in MongoDB
+ * Describes how an occupation is saved in MongoDB.
+ * Translatable fields are typed as Map<string, string>, the shape mongoose hydrates them as.
  */
 export interface IOccupationDoc extends ImportIdentifiable {
   UUID: string;
   modelId: mongoose.Types.ObjectId;
-  preferredLabel: string;
+  preferredLabel: Map<string, string>;
   UUIDHistory: string[];
   originUri: string;
   occupationGroupCode: string;
   code: string;
-  altLabels: string[];
-  description: string;
-  definition: string;
-  scopeNote: string;
-  regulatedProfessionNote: string;
+  altLabels: Map<string, string>[];
+  description: Map<string, string>;
+  definition: Map<string, string>;
+  scopeNote: Map<string, string>;
+  regulatedProfessionNote: Map<string, string>;
   occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   isLocalized: boolean;
   importId: string;
@@ -52,10 +53,28 @@ export interface IOccupationDoc extends ImportIdentifiable {
 /**
  * Describes how occupations are return from the API
  * The embeddingStatus is internal bookkeeping of the embedding process and is not returned from the API.
+ * Translatable fields are redeclared as flat strings, since the repository flattens them.
  */
-export interface IOccupation extends Omit<IOccupationDoc, "modelId" | "embeddingStatus"> {
+export interface IOccupation
+  extends Omit<
+    IOccupationDoc,
+    | "modelId"
+    | "embeddingStatus"
+    | "preferredLabel"
+    | "altLabels"
+    | "description"
+    | "definition"
+    | "scopeNote"
+    | "regulatedProfessionNote"
+  > {
   id: string;
   modelId: string;
+  preferredLabel: string;
+  altLabels: string[];
+  description: string;
+  definition: string;
+  scopeNote: string;
+  regulatedProfessionNote: string;
   parent: IOccupationGroupReference | IOccupationReference | null;
   children: (IOccupationGroupReference | IOccupationReference)[];
   createdAt: Date;

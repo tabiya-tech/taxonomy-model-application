@@ -1527,6 +1527,35 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       expect(actualFoundChildren).toHaveLength(2);
       expect(actualFoundChildren).toEqual(expectedChildren);
     });
+    test("should return an Occupation child with preferredLabel, description and altLabels flattened to plain strings", async () => {
+      // GIVEN a leaf OccupationGroup parent (a 4 digit ISCO code, as an occupation's code must start with one)
+      const givenModelId = getMockStringId(1);
+      const givenParent = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "parent", true));
+      // AND an ESCO Occupation child of that parent, whose translatable fields are stored as localized sub documents
+      const givenOccupationChild = await repositoryRegistry.occupation.create(
+        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", givenParent.code)
+      );
+      await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.ESCOOccupation,
+          childId: givenOccupationChild.id,
+        },
+      ]);
+
+      // WHEN searching for the parent's children
+      const actualFoundChildren = await repository.findChildren(givenParent.id);
+
+      // THEN expect the Occupation child's translatable fields to be plain strings, not localized sub documents
+      expect(actualFoundChildren).toHaveLength(1);
+      expect(actualFoundChildren[0].preferredLabel).toEqual(givenOccupationChild.preferredLabel);
+      expect(actualFoundChildren[0].description).toEqual(givenOccupationChild.description);
+      expect(actualFoundChildren[0].altLabels).toEqual(givenOccupationChild.altLabels);
+      expect(typeof actualFoundChildren[0].preferredLabel).toBe("string");
+      expect(typeof actualFoundChildren[0].description).toBe("string");
+      expect(actualFoundChildren[0].altLabels.every((label) => typeof label === "string")).toBe(true);
+    });
     test("should return [] if no children for the given OccupationGroup with the given parent id", async () => {
       // GIVEN an OccupationGroup exists without a parent
       const givenModelId = getMockStringId(1);

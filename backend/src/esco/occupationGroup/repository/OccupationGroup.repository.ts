@@ -32,6 +32,7 @@ import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 interface FindPaginatedFilter {
   root?: boolean;
@@ -312,6 +313,36 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return [];
 
+      const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+      // reads straight off the raw collections, bypassing the owning model's toObject transform, so a
+      // translatable field must be flattened here, tolerating both a plain string and a localized sub document
+      const flattenTranslatedString = (path: string) => ({
+        $cond: [
+          { $eq: [{ $type: path }, "object"] },
+          { $ifNull: [{ $getField: { field: fallbackDbKeyName, input: path } }, ""] },
+          path,
+        ],
+      });
+      const flattenTranslatedStringArray = (path: string) => ({
+        $cond: [
+          { $eq: [{ $type: path }, "array"] },
+          {
+            $map: {
+              input: path,
+              as: "item",
+              in: {
+                $cond: [
+                  { $eq: [{ $type: "$$item" }, "object"] },
+                  { $ifNull: [{ $getField: { field: fallbackDbKeyName, input: "$$item" } }, ""] },
+                  "$$item",
+                ],
+              },
+            },
+          },
+          path,
+        ],
+      });
+
       const result = await this.hierarchyModel.aggregate([
         {
           $match: { parentId: new mongoose.Types.ObjectId(id) },
@@ -363,9 +394,9 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
 
             originUri: "$child.originUri",
             code: "$child.code",
-            description: "$child.description",
-            preferredLabel: "$child.preferredLabel",
-            altLabels: "$child.altLabels",
+            description: flattenTranslatedString("$child.description"),
+            preferredLabel: flattenTranslatedString("$child.preferredLabel"),
+            altLabels: flattenTranslatedStringArray("$child.altLabels"),
 
             objectType: "$childType",
             modelId: { $toString: "$modelId" },

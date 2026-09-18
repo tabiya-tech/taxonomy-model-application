@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 import { RegExp_UUIDv4 } from "server/regex";
 import {
-  AltLabelsProperty,
-  DefinitionProperty,
-  DescriptionProperty,
+  TranslatedAltLabelsProperty,
+  TranslatedDefinitionProperty,
+  TranslatedDescriptionProperty,
   OccupationCodeProperty,
   OriginUriProperty,
-  PreferredLabelProperty,
-  RegulatedProfessionNoteProperty,
-  ScopeNoteProperty,
+  TranslatedPreferredLabelProperty,
+  TranslatedRegulatedProfessionNoteProperty,
+  TranslatedScopeNoteProperty,
   UUIDHistoryProperty,
   OccupationGroupCodeProperty,
   EmbeddingStatusProperty,
@@ -19,6 +19,7 @@ import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTrans
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 export const OccupationModelPaths = {
   parent: "parent",
@@ -39,12 +40,12 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       originUri: OriginUriProperty,
       [OccupationModelPaths.code]: OccupationCodeProperty, // TODO: code should be the .X.Y.Z part of the ESCO code. Esco Code should be the combined as a virtual or a getter
       occupationGroupCode: OccupationGroupCodeProperty, // TODO: if OccupationGroupCode is part of the code, then make sure that code starts with the OccupationGroupCode (e.g. I32_0_1 starts with I32)
-      preferredLabel: PreferredLabelProperty,
-      altLabels: AltLabelsProperty,
-      definition: DefinitionProperty,
-      description: DescriptionProperty,
-      regulatedProfessionNote: RegulatedProfessionNoteProperty,
-      scopeNote: ScopeNoteProperty,
+      preferredLabel: TranslatedPreferredLabelProperty,
+      altLabels: TranslatedAltLabelsProperty,
+      definition: TranslatedDefinitionProperty,
+      description: TranslatedDescriptionProperty,
+      regulatedProfessionNote: TranslatedRegulatedProfessionNoteProperty,
+      scopeNote: TranslatedScopeNoteProperty,
       [OccupationModelPaths.occupationType]: {
         type: String,
         required: true,
@@ -84,8 +85,8 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     {
       timestamps: true,
       strict: "throw",
-      toObject: getGlobalTransformOptions(),
-      toJSON: getGlobalTransformOptions(),
+      toObject: getGlobalTransformOptions(_TransformFn),
+      toJSON: getGlobalTransformOptions(_TransformFn),
     }
   );
 
@@ -143,4 +144,32 @@ export const INDEX_FOR_UUID: mongoose.IndexDefinition = {
 };
 export const INDEX_FOR_UUID_HISTORY: mongoose.IndexDefinition = {
   UUIDHistory: 1,
+};
+
+// returns the stored value as-is, including if it is empty or whitespace; resolveTranslated is not used here
+// because it swaps an empty value for the fallback language's value, and this already reads the fallback language
+function readFallbackLanguageValue(translatedValue: unknown, fallbackDbKeyName: string): string {
+  if (translatedValue instanceof Map) {
+    const value = translatedValue.get(fallbackDbKeyName);
+    return typeof value === "string" ? value : "";
+  }
+  if (typeof translatedValue === "object" && translatedValue !== null && !Array.isArray(translatedValue)) {
+    const value = (translatedValue as Record<string, unknown>)[fallbackDbKeyName];
+    return typeof value === "string" ? value : "";
+  }
+  return "";
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _TransformFn = (doc: any, ret: any) => {
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  ret.preferredLabel = readFallbackLanguageValue(ret.preferredLabel, fallbackDbKeyName);
+  ret.description = readFallbackLanguageValue(ret.description, fallbackDbKeyName);
+  ret.definition = readFallbackLanguageValue(ret.definition, fallbackDbKeyName);
+  ret.scopeNote = readFallbackLanguageValue(ret.scopeNote, fallbackDbKeyName);
+  ret.regulatedProfessionNote = readFallbackLanguageValue(ret.regulatedProfessionNote, fallbackDbKeyName);
+  ret.altLabels = Array.isArray(ret.altLabels)
+    ? ret.altLabels.map((item: unknown) => readFallbackLanguageValue(item, fallbackDbKeyName))
+    : [];
+  return ret;
 };
