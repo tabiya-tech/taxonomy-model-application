@@ -5,9 +5,13 @@ import {
   OccupationToSkillRelationType,
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { SignallingValueLabel } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
-export type OccupationDocument = _Document<IBaseOccupationDoc>;
+// the raw hydrated document, before the repository flattens preferredLabel to a string
+export type OccupationDocument = _Document<Omit<IBaseOccupationDoc, "preferredLabel">> & {
+  preferredLabel: Map<string, string>;
+};
 
 export function getOccupationDocReference(occupation: OccupationDocument): IOccupationReferenceDoc {
   return {
@@ -16,7 +20,7 @@ export function getOccupationDocReference(occupation: OccupationDocument): IOccu
     UUID: occupation.UUID,
     occupationGroupCode: occupation.occupationGroupCode,
     code: occupation.code,
-    preferredLabel: occupation.preferredLabel,
+    preferredLabel: occupation.preferredLabel.get(getFallbackLanguageConfig().dbKeyName) ?? "",
     occupationType: occupation.occupationType,
     isLocalized: occupation.isLocalized,
   };

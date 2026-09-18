@@ -14,6 +14,7 @@ import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 export function testImportId<T>(getModel: () => mongoose.Model<T>) {
   return describe("Test validation of 'importId'", () => {
@@ -448,6 +449,175 @@ export function testDescription<T>(getModel: () => mongoose.Model<T>) {
           caseType,
           testValue: value,
           expectedFailureMessage,
+        });
+      }
+    );
+  });
+}
+
+export function testTranslatedStringField<T>(
+  getModel: () => mongoose.Model<T>,
+  fieldName: string,
+  maxLength: number,
+  allowEmptyValues = true
+) {
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  // mongoose reports a custom validator's message as the error's `reason`, not its `message`
+  const VALIDATOR_FAILED_MESSAGE = "Validator failed for path `{0}` with value `.*`";
+  const testCases: [
+    CaseType,
+    string,
+    Record<string, string> | null | undefined,
+    string | undefined,
+    string | undefined,
+  ][] = [
+    [CaseType.Failure, "undefined", undefined, "Path `{0}` is required.", undefined],
+    [CaseType.Failure, "null", null, "Path `{0}` is required.", undefined],
+    [
+      CaseType.Failure,
+      "missing the fallback language",
+      { fr: getTestString(5) },
+      VALIDATOR_FAILED_MESSAGE,
+      `${fieldName} must be translated in the fallback language '${fallbackDbKeyName}'`,
+    ],
+    [
+      CaseType.Failure,
+      "too long value for the fallback language",
+      { [fallbackDbKeyName]: getTestString(maxLength + 1) },
+      VALIDATOR_FAILED_MESSAGE,
+      `${fieldName} must be at most ${maxLength} chars long for the language '${fallbackDbKeyName}'`,
+    ],
+    [CaseType.Success, "one character for the fallback language", { [fallbackDbKeyName]: "a" }, undefined, undefined],
+    [
+      CaseType.Success,
+      "the longest value for the fallback language",
+      { [fallbackDbKeyName]: getTestString(maxLength) },
+      undefined,
+      undefined,
+    ],
+    [
+      CaseType.Success,
+      "translated in the fallback language and in another language of the registry",
+      { [fallbackDbKeyName]: getTestString(5), fr: getTestString(5) },
+      undefined,
+      undefined,
+    ],
+  ];
+  if (allowEmptyValues) {
+    testCases.push(
+      [CaseType.Success, "empty value for the fallback language", { [fallbackDbKeyName]: "" }, undefined, undefined],
+      [
+        CaseType.Success,
+        "only whitespace characters for the fallback language",
+        { [fallbackDbKeyName]: WHITESPACE },
+        undefined,
+        undefined,
+      ]
+    );
+  } else {
+    testCases.push([
+      CaseType.Failure,
+      "empty value for the fallback language",
+      { [fallbackDbKeyName]: "" },
+      VALIDATOR_FAILED_MESSAGE,
+      `${fieldName} must not be empty for the language '${fallbackDbKeyName}'`,
+    ]);
+  }
+
+  return describe(`Test validation of '${fieldName}'`, () => {
+    test.each(testCases)(
+      `(%s) Validate '${fieldName}' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage, expectedFailureReason) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: fieldName,
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+          expectedFailureReason,
+        });
+      }
+    );
+  });
+}
+
+export function testTranslatedAltLabelsField<T>(getModel: () => mongoose.Model<T>) {
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  // mongoose reports a custom validator's message as the error's `reason`, not its `message`
+  const VALIDATOR_FAILED_MESSAGE = "Validator failed for path `{0}` with value `.*`";
+  return describe("Test validation of 'altLabels'", () => {
+    test.each([
+      [CaseType.Failure, "undefined", undefined, "Path `{0}` is required.", undefined],
+      [CaseType.Failure, "null", null, "Path `{0}` is required.", undefined],
+      [
+        CaseType.Failure,
+        "an item missing the fallback language",
+        [{ fr: "Cuisinier" }],
+        VALIDATOR_FAILED_MESSAGE,
+        `altLabels must be translated in the fallback language '${fallbackDbKeyName}'`,
+      ],
+      [
+        CaseType.Failure,
+        "an item with too long a label",
+        [{ [fallbackDbKeyName]: getTestString(LABEL_MAX_LENGTH + 1) }],
+        VALIDATOR_FAILED_MESSAGE,
+        `altLabels must be at most ${LABEL_MAX_LENGTH} chars long for the language '${fallbackDbKeyName}'`,
+      ],
+      [
+        CaseType.Failure,
+        "an item with an empty label for the fallback language",
+        [{ [fallbackDbKeyName]: "" }],
+        VALIDATOR_FAILED_MESSAGE,
+        `altLabels must not be empty for the language '${fallbackDbKeyName}'`,
+      ],
+      [
+        CaseType.Failure,
+        "duplicate labels for the fallback language",
+        [{ [fallbackDbKeyName]: "foo" }, { [fallbackDbKeyName]: "foo" }],
+        VALIDATOR_FAILED_MESSAGE,
+        `Duplicate altLabels found for the language '${fallbackDbKeyName}'`,
+      ],
+      [
+        CaseType.Failure,
+        "too many items",
+        new Array(ATL_LABELS_MAX_ITEMS + 1).fill(undefined).map((_v, i) => ({ [fallbackDbKeyName]: "foo" + i })),
+        VALIDATOR_FAILED_MESSAGE,
+        `altLabels must be at most ${ATL_LABELS_MAX_ITEMS} items`,
+      ],
+      [CaseType.Success, "empty array", [], undefined, undefined],
+      [
+        CaseType.Success,
+        "valid array",
+        [{ [fallbackDbKeyName]: "foo" }, { [fallbackDbKeyName]: "bar" }],
+        undefined,
+        undefined,
+      ],
+      [
+        CaseType.Success,
+        "valid array with the longest label",
+        [{ [fallbackDbKeyName]: getTestString(LABEL_MAX_LENGTH) }],
+        undefined,
+        undefined,
+      ],
+      [
+        CaseType.Success,
+        "the longest array with the longest label",
+        new Array(ATL_LABELS_MAX_ITEMS)
+          .fill(undefined)
+          .map(() => ({ [fallbackDbKeyName]: getRandomString(LABEL_MAX_LENGTH) })),
+        undefined,
+        undefined,
+      ],
+    ])(
+      `(%s) Validate 'altLabels' when it is %s`,
+      (caseType: CaseType, caseDescription, value, expectedFailureMessage, expectedFailureReason) => {
+        assertCaseForProperty<T>({
+          model: getModel(),
+          propertyNames: "altLabels",
+          caseType,
+          testValue: value,
+          expectedFailureMessage,
+          expectedFailureReason,
         });
       }
     );
