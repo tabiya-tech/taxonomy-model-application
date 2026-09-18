@@ -40,6 +40,56 @@ import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import LanguageAPISpecs from "api-specifications/language";
+
+// fields stored as localized sub documents, wrapped/flattened by this repository
+const TRANSLATABLE_STRING_FIELDS = [
+  "preferredLabel",
+  "description",
+  "definition",
+  "scopeNote",
+  "regulatedProfessionNote",
+] as const;
+type TranslatableStringField = (typeof TRANSLATABLE_STRING_FIELDS)[number];
+
+// same as above, plus altLabels (an array of localized sub documents)
+const TRANSLATABLE_FIELDS = [...TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
+
+function wrapTranslated(value: string): LanguageAPISpecs.Types.ITranslatedString {
+  return { [getFallbackLanguageConfig().dbKeyName]: value };
+}
+
+function wrapTranslatedArray(values: string[]): LanguageAPISpecs.Types.ITranslatedStringArray {
+  return values.map(wrapTranslated);
+}
+
+// mongoose hydrates the path as a Map; absent on a brand new, unsaved document
+function getExistingTranslatedEntries(doc: IOccupationDoc, field: TranslatableStringField): Record<string, string> {
+  const value = doc[field];
+  return value instanceof Map ? Object.fromEntries(value) : {};
+}
+
+// merges the fallback language into the field's existing translations (mongoose replaces, not merges, a Map on
+// .set()); altLabels has no stable per-item identity to merge by, so it is replaced wholesale instead
+function wrapTranslatableFields<T extends Partial<Record<TranslatableStringField, string>> & { altLabels?: string[] }>(
+  spec: T,
+  existingDoc?: IOccupationDoc
+): Record<string, unknown> {
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  const wrapped: Record<string, unknown> = { ...spec };
+  TRANSLATABLE_STRING_FIELDS.forEach((field) => {
+    const value = spec[field];
+    if (value !== undefined) {
+      const existingEntries = existingDoc ? getExistingTranslatedEntries(existingDoc, field) : {};
+      wrapped[field] = { ...existingEntries, [fallbackDbKeyName]: value };
+    }
+  });
+  if (spec.altLabels !== undefined) {
+    wrapped.altLabels = wrapTranslatedArray(spec.altLabels);
+  }
+  return wrapped;
+}
 
 /**
  * A single UUID from an entity's UUIDHistory resolved to the entity's reference (as it was in that model) and
@@ -228,7 +278,7 @@ export class OccupationRepository implements IOccupationRepository {
   private newSpecToModel(newSpec: INewOccupationSpec): mongoose.HydratedDocument<IOccupationDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...newSpec,
+      ...wrapTranslatableFields(newSpec),
       UUID: newUUID,
     });
     // add the new UUID as the first element of the UUIDHistory
@@ -241,7 +291,7 @@ export class OccupationRepository implements IOccupationRepository {
   ): mongoose.HydratedDocument<IOccupationDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...newSpec,
+      ...wrapTranslatableFields(newSpec),
       UUID: newUUID,
       importId: null,
     });
@@ -366,12 +416,19 @@ export class OccupationRepository implements IOccupationRepository {
       const matchStage: Record<string, unknown> = { ...filter, modelId: modelIdObj };
 
       // When searching, match the value literally (escaped) and case-insensitively on any of the requested fields.
-      // altLabels is an array of strings, which $regex matches element-wise, so array and scalar fields are handled
-      // uniformly.
+      // Translatable fields are localized sub documents, so the search targets their fallback language path.
       if (search) {
         const escapedValue = escapeRegExp(search.value);
+        const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
         matchStage.$and = [
-          { $or: search.fields.map((field) => ({ [field]: { $regex: escapedValue, $options: "i" } })) },
+          {
+            $or: search.fields.map((field) => {
+              const path = (TRANSLATABLE_FIELDS as readonly string[]).includes(field)
+                ? `${field}.${fallbackDbKeyName}`
+                : field;
+              return { [path]: { $regex: escapedValue, $options: "i" } };
+            }),
+          },
         ];
       }
 
@@ -733,7 +790,7 @@ export class OccupationRepository implements IOccupationRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(spec);
+      doc.set(wrapTranslatableFields(spec, doc));
       await doc.save();
       await doc.populate([
         populateOccupationParentOptions,
@@ -752,7 +809,7 @@ export class OccupationRepository implements IOccupationRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(spec);
+      doc.set(wrapTranslatableFields(spec, doc));
       await doc.save();
       await doc.populate([
         populateOccupationParentOptions,

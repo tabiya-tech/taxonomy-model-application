@@ -2486,6 +2486,39 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(actual?.UUIDHistory).toEqual(updateSpec.UUIDHistory);
     });
 
+    test("should preserve a non fallback language translation of a field when updating it", async () => {
+      // GIVEN an occupation exists in the database
+      const modelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_with_french");
+      const occupation = await repository.create(givenSpec);
+      // AND its preferredLabel also carries a French translation, stored directly (the flat-string repository API
+      // has no way to write a non fallback language)
+      await repository.Model.updateOne({ _id: occupation.id }, { $set: { "preferredLabel.fr": "Cuisinier" } });
+
+      // WHEN updating the occupation, setting only the fallback (English) language through the public API
+      const newSpec = getNewESCOOccupationSpec();
+      const updateSpec: IUpdateOccupationSpec = {
+        modelId,
+        preferredLabel: newSpec.preferredLabel,
+        code: newSpec.code,
+        altLabels: newSpec.altLabels,
+        description: newSpec.description,
+        definition: newSpec.definition,
+        scopeNote: newSpec.scopeNote,
+        regulatedProfessionNote: newSpec.regulatedProfessionNote,
+        occupationType: ObjectTypes.ESCOOccupation,
+        isLocalized: false,
+        originUri: newSpec.originUri,
+        occupationGroupCode: newSpec.occupationGroupCode,
+        UUIDHistory: newSpec.UUIDHistory,
+      };
+      await repository.update(occupation.id, modelId, updateSpec);
+
+      // THEN expect the fallback language to have been updated, and the French translation to still be there
+      const actualRawDoc = await repository.Model.findById(occupation.id).lean();
+      expect(actualRawDoc?.preferredLabel).toEqual({ en: updateSpec.preferredLabel, fr: "Cuisinier" });
+    });
+
     test("should return null if occupation does not exist", async () => {
       // GIVEN a non-existent occupation ID
       const nonExistentId = getMockStringId(2);
@@ -2575,6 +2608,29 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       expect(actual?.preferredLabel).toEqual(patchSpec.preferredLabel);
       expect(actual?.description).toEqual(patchSpec.description);
       expect(actual?.code).toEqual(occupation.code); // Unchanged
+    });
+
+    test("should preserve a non fallback language translation of a field when patching it, and leave other translatable fields untouched", async () => {
+      // GIVEN an occupation exists in the database
+      const modelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_with_french");
+      const occupation = await repository.create(givenSpec);
+      // AND its preferredLabel and description also carry a French translation, stored directly (the flat-string
+      // repository API has no way to write a non fallback language)
+      await repository.Model.updateOne(
+        { _id: occupation.id },
+        { $set: { "preferredLabel.fr": "Cuisinier", "description.fr": "Une description" } }
+      );
+
+      // WHEN patching only preferredLabel through the public API
+      const patchSpec: IPartialUpdateOccupationSpec = { preferredLabel: "patched label" };
+      await repository.patch(occupation.id, modelId, patchSpec);
+
+      // THEN expect preferredLabel's fallback language to have been updated, and its French translation preserved
+      const actualRawDoc = await repository.Model.findById(occupation.id).lean();
+      expect(actualRawDoc?.preferredLabel).toEqual({ en: "patched label", fr: "Cuisinier" });
+      // AND expect description, which was not part of the patch, to be completely untouched
+      expect(actualRawDoc?.description).toEqual({ en: occupation.description, fr: "Une description" });
     });
 
     test("should return null if occupation does not exist", async () => {

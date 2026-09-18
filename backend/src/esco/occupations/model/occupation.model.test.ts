@@ -27,18 +27,18 @@ import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode"
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { IOccupationDoc } from "../_shared/occupation.types";
 import {
-  testAltLabelsField,
+  testTranslatedAltLabelsField,
   testEmbeddingStatusField,
-  testDescription,
+  testTranslatedStringField,
   testObjectIdField,
   testObjectType,
   testOriginUri,
-  testPreferredLabel,
   testUUIDField,
   testUUIDHistoryField,
   testOptionalImportId,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 describe("Test the definition of the Occupation Model", () => {
   let dbConnection: Connection;
@@ -57,6 +57,10 @@ describe("Test the definition of the Occupation Model", () => {
       await dbConnection.close();
     }
   });
+
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  // Wraps a flat string into a localized sub document keyed by the fallback language, e.g. "Cook" -> { en: "Cook" }.
+  const wrapTranslated = (value: string) => ({ [fallbackDbKeyName]: value });
 
   test.each([
     [
@@ -77,7 +81,7 @@ describe("Test the definition of the Occupation Model", () => {
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
         occupationType: ObjectTypes.ESCOOccupation,
         isLocalized: false,
-      } as IOccupationDoc,
+      },
     ],
     [
       "optional fields ESCO occupation",
@@ -97,7 +101,7 @@ describe("Test the definition of the Occupation Model", () => {
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
         occupationType: ObjectTypes.ESCOOccupation,
         isLocalized: false,
-      } as IOccupationDoc,
+      },
     ],
     [
       "mandatory fields ESCO Localised occupation",
@@ -117,7 +121,7 @@ describe("Test the definition of the Occupation Model", () => {
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
         occupationType: ObjectTypes.ESCOOccupation,
         isLocalized: true,
-      } as IOccupationDoc,
+      },
     ],
     [
       "optional fields ESCO Localised occupation",
@@ -137,7 +141,7 @@ describe("Test the definition of the Occupation Model", () => {
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
         occupationType: ObjectTypes.ESCOOccupation,
         isLocalized: true,
-      } as IOccupationDoc,
+      },
     ],
     [
       "mandatory fields local occupation",
@@ -157,7 +161,7 @@ describe("Test the definition of the Occupation Model", () => {
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
         occupationType: ObjectTypes.LocalOccupation,
         isLocalized: false,
-      } as IOccupationDoc,
+      },
     ],
     [
       "optional fields Local occupation",
@@ -177,10 +181,21 @@ describe("Test the definition of the Occupation Model", () => {
         importId: getTestString(IMPORT_ID_MAX_LENGTH),
         occupationType: ObjectTypes.LocalOccupation,
         isLocalized: false,
-      } as IOccupationDoc,
+      },
     ],
-  ])("Successfully validate Occupation with %s", async (description, givenObject: IOccupationDoc) => {
-    // GIVEN an Occupation document based on the given object
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ])("Successfully validate Occupation with %s", async (description, givenFlatObject: any) => {
+    // GIVEN an Occupation document based on the given object, with its translatable fields wrapped as localized
+    // sub documents keyed by the fallback language, the shape the schema now stores them as.
+    const givenObject = {
+      ...givenFlatObject,
+      preferredLabel: wrapTranslated(givenFlatObject.preferredLabel),
+      altLabels: givenFlatObject.altLabels.map(wrapTranslated),
+      description: wrapTranslated(givenFlatObject.description),
+      definition: wrapTranslated(givenFlatObject.definition),
+      scopeNote: wrapTranslated(givenFlatObject.scopeNote),
+      regulatedProfessionNote: wrapTranslated(givenFlatObject.regulatedProfessionNote),
+    } as IOccupationDoc;
     const givenOccupationDocument = new OccupationModel(givenObject);
 
     // WHEN validating that given occupation document
@@ -192,14 +207,83 @@ describe("Test the definition of the Occupation Model", () => {
     // AND the document to be saved successfully
     await givenOccupationDocument.save();
 
-    // AND the toObject() transformation to return the correct properties
+    // AND the toObject() transformation to return the correct properties, with the translatable fields flattened
+    // back to the fallback language string, since that is what the schema's transform does.
     expect(givenOccupationDocument.toObject()).toEqual({
-      ...givenObject,
+      ...givenFlatObject,
       modelId: givenObject.modelId.toString(),
       id: givenOccupationDocument._id.toString(),
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
     });
+  });
+
+  test("should round trip a whitespace only value for a field that allows empty values, without turning it into an empty string", async () => {
+    // GIVEN an occupation whose scopeNote is translated to whitespace only in the fallback language, which the
+    // schema allows (scopeNote's TranslatedStringProperty defaults allowEmptyValues to true)
+    const givenWhitespaceOnlyValue = "   ";
+    const givenObject = {
+      UUID: randomUUID(),
+      code: getMockRandomOccupationCode(false),
+      preferredLabel: wrapTranslated(getTestString(LABEL_MAX_LENGTH)),
+      modelId: getMockObjectId(2),
+      UUIDHistory: [randomUUID()],
+      originUri: "",
+      altLabels: [],
+      description: wrapTranslated(""),
+      occupationGroupCode: getMockRandomISCOGroupCode(),
+      definition: wrapTranslated(""),
+      scopeNote: wrapTranslated(givenWhitespaceOnlyValue),
+      regulatedProfessionNote: wrapTranslated(""),
+      importId: getTestString(IMPORT_ID_MAX_LENGTH),
+      occupationType: ObjectTypes.ESCOOccupation,
+      isLocalized: false,
+    } as unknown as IOccupationDoc;
+    const givenOccupationDocument = new OccupationModel(givenObject);
+
+    // WHEN saving and reading the document back
+    await givenOccupationDocument.save();
+    const actualObject = givenOccupationDocument.toObject();
+
+    // THEN expect scopeNote to be returned exactly as stored, not treated as untranslated and defaulted to ""
+    expect(actualObject.scopeNote).toEqual(givenWhitespaceOnlyValue);
+  });
+
+  test("should not drop an altLabels item that lacks the fallback language, e.g. from data written before validation existed", async () => {
+    // GIVEN an occupation saved through the normal, validated path
+    const givenObject = {
+      UUID: randomUUID(),
+      code: getMockRandomOccupationCode(false),
+      preferredLabel: wrapTranslated(getTestString(LABEL_MAX_LENGTH)),
+      modelId: getMockObjectId(2),
+      UUIDHistory: [randomUUID()],
+      originUri: "",
+      altLabels: [wrapTranslated("kept")],
+      description: wrapTranslated(""),
+      occupationGroupCode: getMockRandomISCOGroupCode(),
+      definition: wrapTranslated(""),
+      scopeNote: wrapTranslated(""),
+      regulatedProfessionNote: wrapTranslated(""),
+      importId: getTestString(IMPORT_ID_MAX_LENGTH),
+      occupationType: ObjectTypes.ESCOOccupation,
+      isLocalized: false,
+    } as unknown as IOccupationDoc;
+    const givenOccupationDocument = new OccupationModel(givenObject);
+    await givenOccupationDocument.save();
+    // AND its altLabels are rewritten, bypassing mongoose validation, to include an item that lacks the fallback
+    // language entirely, e.g. data that predates the validation this schema now enforces at write time
+    await OccupationModel.collection.updateOne(
+      { _id: givenOccupationDocument._id },
+      { $set: { altLabels: [{ en: "kept" }, { fr: "sans anglais" }] } }
+    );
+
+    // WHEN reading the document back
+    const actualDoc = await OccupationModel.findById(givenOccupationDocument._id).exec();
+    const actualObject = actualDoc!.toObject();
+
+    // THEN expect both items to be present, the one lacking the fallback language read as an empty string rather
+    // than being silently dropped from the array
+    expect(actualObject.altLabels).toEqual(["kept", ""]);
   });
 
   describe("Validate Occupation fields", () => {
@@ -474,99 +558,25 @@ describe("Test the definition of the Occupation Model", () => {
       });
     });
 
-    testPreferredLabel<IOccupationDoc>(() => OccupationModel);
+    testTranslatedStringField<IOccupationDoc>(() => OccupationModel, "preferredLabel", LABEL_MAX_LENGTH, false);
 
-    testAltLabelsField<IOccupationDoc>(() => OccupationModel);
+    testTranslatedAltLabelsField<IOccupationDoc>(() => OccupationModel);
 
     testEmbeddingStatusField<IOccupationDoc>(() => OccupationModel);
 
-    describe("Test validation of 'scopeNote'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "Too long scopeNote",
-          getTestString(SCOPE_NOTE_MAX_LENGTH + 1),
-          `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-        [CaseType.Success, "the longest", getTestString(SCOPE_NOTE_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'scopeNote' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>({
-            model: OccupationModel,
-            propertyNames: "scopeNote",
-            caseType,
-            testValue: value,
-            expectedFailureMessage,
-          });
-        }
-      );
-    });
+    testTranslatedStringField<IOccupationDoc>(() => OccupationModel, "scopeNote", SCOPE_NOTE_MAX_LENGTH);
 
-    describe("Test validation of 'definition'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "Too long definition",
-          getTestString(DEFINITION_MAX_LENGTH + 1),
-          `Definition must be at most ${DEFINITION_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-        [CaseType.Success, "the longest", getTestString(DEFINITION_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'definition' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>({
-            model: OccupationModel,
-            propertyNames: "definition",
-            caseType,
-            testValue: value,
-            expectedFailureMessage,
-          });
-        }
-      );
-    });
+    testTranslatedStringField<IOccupationDoc>(() => OccupationModel, "definition", DEFINITION_MAX_LENGTH);
 
     testOriginUri<IOccupationDoc>(() => OccupationModel);
 
-    testDescription<IOccupationDoc>(() => OccupationModel);
+    testTranslatedStringField<IOccupationDoc>(() => OccupationModel, "description", DESCRIPTION_MAX_LENGTH);
 
-    describe("Test validation of 'regulatedProfessionNote'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "Too long description",
-          getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH + 1),
-          `RegulatedProfessionNote must be at most ${REGULATED_PROFESSION_NOTE_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-        [CaseType.Success, "the longest", getTestString(REGULATED_PROFESSION_NOTE_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'regulatedProfessionNote' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<IOccupationDoc>({
-            model: OccupationModel,
-            propertyNames: "regulatedProfessionNote",
-            caseType,
-            testValue: value,
-            expectedFailureMessage,
-          });
-        }
-      );
-    });
+    testTranslatedStringField<IOccupationDoc>(
+      () => OccupationModel,
+      "regulatedProfessionNote",
+      REGULATED_PROFESSION_NOTE_MAX_LENGTH
+    );
 
     testOptionalImportId<IOccupationDoc>(() => OccupationModel);
 
