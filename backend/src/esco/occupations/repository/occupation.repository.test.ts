@@ -18,6 +18,7 @@ import {
   IUpdateOccupationSpec,
 } from "../_shared/occupation.types";
 import { INewSkillSpec, ISkillReference, ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import {
   INewOccupationHierarchyPairSpec,
@@ -2341,10 +2342,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const modelId = getMockStringId(1);
       const occupation = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "occ"));
 
+      const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
       const SkillModel = dbConnection.model(MongooseModelName.Skill);
       const skill = await SkillModel.create({
         modelId,
-        preferredLabel: "skill",
+        preferredLabel: { [fallbackDbKeyName]: "skill" },
         skillType: SkillType.Knowledge,
         reuseLevel: ReuseLevel.CrossSector, // Valid enum value
         originUri: "uri",
@@ -2352,10 +2354,10 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         UUIDHistory: [randomUUID()],
         isLocalized: false,
         importId: "importId",
-        scopeNote: "scopeNote",
-        description: "description",
-        definition: "definition",
-        altLabels: ["altLabel"],
+        scopeNote: { [fallbackDbKeyName]: "scopeNote" },
+        description: { [fallbackDbKeyName]: "description" },
+        definition: { [fallbackDbKeyName]: "definition" },
+        altLabels: [{ [fallbackDbKeyName]: "altLabel" }],
       });
 
       const RelationModel = dbConnection.model(MongooseModelName.OccupationToSkillRelation);
@@ -2379,13 +2381,14 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const modelId = getMockStringId(1);
       const occupation = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "occ"));
 
+      const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
       const SkillModel = dbConnection.model(MongooseModelName.Skill);
       const skillsInDB = [];
       for (let i = 0; i < 3; i++) {
         skillsInDB.push(
           await SkillModel.create({
             modelId,
-            preferredLabel: `skill ${i}`,
+            preferredLabel: { [fallbackDbKeyName]: `skill ${i}` },
             skillType: SkillType.Knowledge,
             reuseLevel: ReuseLevel.CrossSector,
             originUri: `uri ${i}`,
@@ -2393,10 +2396,10 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
             UUIDHistory: [randomUUID()],
             isLocalized: false,
             importId: `importId ${i}`,
-            scopeNote: "scopeNote",
-            description: "description",
-            definition: "definition",
-            altLabels: ["altLabel"],
+            scopeNote: { [fallbackDbKeyName]: "scopeNote" },
+            description: { [fallbackDbKeyName]: "description" },
+            definition: { [fallbackDbKeyName]: "definition" },
+            altLabels: [{ [fallbackDbKeyName]: "altLabel" }],
           })
         );
       }

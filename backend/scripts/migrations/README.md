@@ -55,3 +55,5 @@ the documents it changed, an immediate second run reports zero.
 | Name                                  | What it does                                                                                                                               |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `0001-model-info-available-languages` | Sets `availableLanguages` to `[<fall back language>]` on every model that does not declare any. `down` removes the field from every model. |
+| `0002-occupations-localized-fields`   | Rewrites the Occupation collection's translatable fields into localized sub documents. `down` flattens them back to the fallback language. |
+| `0004-skills-localized-fields`        | Rewrites the Skill collection's translatable fields into localized sub documents. `down` flattens them back to the fallback language.      |

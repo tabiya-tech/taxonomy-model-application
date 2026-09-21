@@ -181,7 +181,7 @@ async function doExport(modelId: string) {
     exportProcessStateId: givenExportProcessState.id,
   };
   // AND a context object
-  const  // GIVEN a context object
+  const // GIVEN a context object
     givenContext = {
       functionName: "foo",
       functionVersion: "bar",
@@ -312,6 +312,17 @@ function mapEntityCSVFile(file: string, entityType: CSVObjectTypes, mapper: Mapp
   });
 }
 
+// The Skill import drops empty ALTLABELS entries (e.g. a leading blank line in the source CSV), which the export
+// never reproduces; normalizing both sides the same way keeps the round trip comparison meaningful for that case.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeAltLabels(row: any) {
+  if (typeof row.ALTLABELS === "string") {
+    row.ALTLABELS = arrayFromString(row.ALTLABELS)
+      .filter((label) => label.length > 0)
+      .join("\n");
+  }
+}
+
 function compareCSVContent(file1: string, file2: string) {
   const map1 = new Map<string, unknown>();
   const entitiesMissingUUID1 = []; // entities that have no UUIDHistory from file 1
@@ -323,7 +334,7 @@ function compareCSVContent(file1: string, file2: string) {
     // if there is a file with no UUIDHistory, add it to the entitiesMissingUUID1
     // for later comparison, because we can't compare it with the other file
     // since there is no UUID.
-    if(!row.UUIDHISTORY){
+    if (!row.UUIDHISTORY) {
       entitiesMissingUUID1.push(row);
       return;
     }
@@ -333,6 +344,7 @@ function compareCSVContent(file1: string, file2: string) {
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    normalizeAltLabels(row);
     // Keep only the original UUID field from the parsed CSV data
     const uuidHistory = arrayFromString(row.UUIDHISTORY);
     row.UUIDHISTORY = uuidHistory[uuidHistory.length - 1];
@@ -346,6 +358,7 @@ function compareCSVContent(file1: string, file2: string) {
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    normalizeAltLabels(row);
     // Keep only the original UUID field from the parsed CSV data
     const uuidHistory = arrayFromString(row.UUIDHISTORY);
     row.UUIDHISTORY = uuidHistory[uuidHistory.length - 1];
@@ -354,7 +367,7 @@ function compareCSVContent(file1: string, file2: string) {
     // because the current UUID is not in the first file.
     // we will have to compare the size of entitiesMissingUUID1 and entitiesMissingUUID2
     // to assert that the two files have the same entities with no UUID.
-    if (!map1.get(row.UUIDHISTORY)){
+    if (!map1.get(row.UUIDHISTORY)) {
       entitiesMissingUUID2.push(row);
       return;
     }
@@ -425,7 +438,6 @@ function compareOccupationsContent(file1: string, file2: string) {
   // We are using the UUID instead speed up the comparison .
 }
 
-
 function compareHierarchyCSVContent(file1: string, mapper1: Mapper, file2: string, mapper2: Mapper) {
   // Read CSV files and parse their content
   const map1 = new Map<string, unknown>();
@@ -438,7 +450,7 @@ function compareHierarchyCSVContent(file1: string, mapper1: Mapper, file2: strin
     row.PARENTID = mapper1.getUUID(row.PARENTID, row.PARENTOBJECTTYPE);
     row.CHILDID = mapper1.getUUID(row.CHILDID, row.CHILDOBJECTTYPE);
 
-    if(!row.PARENTID || !row.CHILDID){
+    if (!row.PARENTID || !row.CHILDID) {
       entitiesMissingUUID1.push(row);
       return;
     }
@@ -457,7 +469,7 @@ function compareHierarchyCSVContent(file1: string, mapper1: Mapper, file2: strin
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
-    if(!map1.get(row.PARENTID + row.CHILDID)){
+    if (!map1.get(row.PARENTID + row.CHILDID)) {
       entitiesMissingUUID2.push(row);
       return;
     }
@@ -537,7 +549,7 @@ function compareOccupationToSkillCSVContent(file1: string, mapper1: Mapper, file
     // if there is a file with no UUIDHistory, add it to the entitiesMissingUUID1
     // for later comparison, because we can't compare it with the other file
     // since there is no UUID.
-    if(!row.OCCUPATIONID || !row.SKILLID){
+    if (!row.OCCUPATIONID || !row.SKILLID) {
       entitiesMissingUUID1.push(row);
       return;
     }
@@ -560,7 +572,7 @@ function compareOccupationToSkillCSVContent(file1: string, mapper1: Mapper, file
     // because the current UUID is not in the first file.
     // we will have to compare the size of entitiesMissingUUID1 and entitiesMissingUUID2
     // to assert that the two files have the same entities with no UUID.
-    if (!map1.get(row.OCCUPATIONID + row.SKILLID)){
+    if (!map1.get(row.OCCUPATIONID + row.SKILLID)) {
       entitiesMissingUUID2.push(row);
       return;
     }

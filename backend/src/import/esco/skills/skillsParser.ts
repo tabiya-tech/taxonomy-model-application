@@ -43,12 +43,15 @@ function getRowToSpecificationTransformFn(
       errorLogger.logWarning(`Failed to import Skill with skillId:${row.ID}`);
       return null;
     }
-    const { uniqueArray: uniqueAltLabels, duplicateCount } = uniqueArrayFromString(row.ALTLABELS);
+    const { uniqueArray: parsedAltLabels, duplicateCount } = uniqueArrayFromString(row.ALTLABELS);
     if (duplicateCount) {
       errorLogger.logWarning(
         `Warning while importing Skill row with id:'${row.ID}'. AltLabels contain ${duplicateCount} duplicates.`
       );
     }
+    // a leading/trailing newline in the CSV value yields an empty entry once split; drop it rather than fail the
+    // whole row, since it carries no label of its own
+    const uniqueAltLabels = parsedAltLabels.filter((label) => label.length > 0);
     //TODO: add the preferred label to the alt labels if it is not there (in addition to logging a warning)
     // and disallow preferred labels with line breaks ( if it does, throw an error )
     if (row.PREFERREDLABEL && !uniqueAltLabels.includes(row.PREFERREDLABEL)) {
