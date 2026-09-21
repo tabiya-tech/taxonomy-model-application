@@ -33,6 +33,20 @@ import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+
+// A Skill child's translatable fields are localized sub documents, a SkillGroup child's are still flat strings;
+// this reads the fallback language when the field is a sub document, and passes a flat value through unchanged.
+function readFallbackLanguageAggregationExpr(fieldPath: string): Record<string, unknown> {
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  return {
+    $cond: {
+      if: { $eq: [{ $type: fieldPath }, "object"] },
+      then: { $ifNull: [{ $getField: { field: fallbackDbKeyName, input: fieldPath } }, ""] },
+      else: { $ifNull: [fieldPath, ""] },
+    },
+  };
+}
 
 interface FindPaginatedFilter {
   childrenIds?: string;
@@ -518,9 +532,15 @@ export class SkillGroupRepository implements ISkillGroupRepository {
             UUID: "$child.UUID",
             UUIDHistory: "$child.UUIDHistory",
             originUri: "$child.originUri",
-            description: "$child.description",
-            preferredLabel: "$child.preferredLabel",
-            altLabels: "$child.altLabels",
+            description: readFallbackLanguageAggregationExpr("$child.description"),
+            preferredLabel: readFallbackLanguageAggregationExpr("$child.preferredLabel"),
+            altLabels: {
+              $map: {
+                input: { $ifNull: ["$child.altLabels", []] },
+                as: "altLabel",
+                in: readFallbackLanguageAggregationExpr("$$altLabel"),
+              },
+            },
             code: {
               $cond: {
                 if: { $ne: ["$child.code", null] },

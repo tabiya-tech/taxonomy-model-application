@@ -323,6 +323,33 @@ export function TranslatedStringProperty(
 }
 
 /**
+ * Validates a translated array value: an array within the maximum items, every item a valid translated value,
+ * and no language carrying the same value twice across items.
+ */
+function validateTranslatedArrayValue(value: unknown[], options: Required<TranslatedArrayPropertyOptions>): void {
+  const { fieldName, maxItems } = options;
+  if (!Array.isArray(value)) {
+    throw new Error(`${fieldName} must be an array`);
+  }
+  if (value.length > maxItems) {
+    throw new Error(`${fieldName} must be at most ${maxItems} items`);
+  }
+
+  const seenValuesPerLanguage = new Map<string, Set<string>>();
+  value.forEach((item) => {
+    validateTranslatedValue(item, options);
+    getTranslatedEntries(item, fieldName).forEach(([dbKeyName, languageValue]) => {
+      const seenValues = seenValuesPerLanguage.get(dbKeyName) ?? new Set<string>();
+      if (seenValues.has(languageValue as string)) {
+        throw new Error(`Duplicate ${fieldName} found for the language '${dbKeyName}'`);
+      }
+      seenValues.add(languageValue as string);
+      seenValuesPerLanguage.set(dbKeyName, seenValues);
+    });
+  });
+}
+
+/**
  * Builds a translated [String] path, the translated counterpart of a `type: [String]` path.
  * Every item of the list is a translated value of its own, and the values of a given language are unique across the
  * items, so that a language never carries the same alternative label twice.
@@ -333,35 +360,82 @@ export function TranslatedStringArrayProperty(
   options: TranslatedArrayPropertyOptions
 ): mongoose.SchemaDefinitionProperty<Map<string, string>[]> {
   const resolvedOptions: Required<TranslatedArrayPropertyOptions> = { allowEmptyValues: false, ...options };
-  const { fieldName, maxItems } = resolvedOptions;
   return {
     type: [{ type: Map, of: String }],
     required: true,
     default: undefined,
     validate: (value: Map<string, string>[]) => {
-      if (!Array.isArray(value)) {
-        throw new Error(`${fieldName} must be an array`);
-      }
-      if (value.length > maxItems) {
-        throw new Error(`${fieldName} must be at most ${maxItems} items`);
-      }
-
-      const seenValuesPerLanguage = new Map<string, Set<string>>();
-      value.forEach((item) => {
-        validateTranslatedValue(item, resolvedOptions);
-        getTranslatedEntries(item, fieldName).forEach(([dbKeyName, languageValue]) => {
-          const seenValues = seenValuesPerLanguage.get(dbKeyName) ?? new Set<string>();
-          if (seenValues.has(languageValue as string)) {
-            throw new Error(`Duplicate ${fieldName} found for the language '${dbKeyName}'`);
-          }
-          seenValues.add(languageValue as string);
-          seenValuesPerLanguage.set(dbKeyName, seenValues);
-        });
-      });
+      validateTranslatedArrayValue(value, resolvedOptions);
       return true;
     },
   };
 }
+
+/**
+ * Builds a localized sub document path, the counterpart of `TranslatedStringProperty` that hydrates as a plain
+ * object (e.g. `{ en: "Cook" }`, read as `value.en`) instead of a Map.
+ * @param options the name of the path, the per language maximum length and whether an empty value is allowed
+ */
+export function LocalizedStringProperty(
+  options: TranslatedPropertyOptions
+): mongoose.SchemaDefinitionProperty<LanguageAPISpecs.Types.ITranslatedString> {
+  const resolvedOptions: Required<TranslatedPropertyOptions> = { allowEmptyValues: true, ...options };
+  return {
+    type: mongoose.Schema.Types.Mixed,
+    required: true,
+    validate: (value: LanguageAPISpecs.Types.ITranslatedString) => {
+      validateTranslatedValue(value, resolvedOptions);
+      return true;
+    },
+  };
+}
+
+/**
+ * Builds a localized sub document array path, the counterpart of `TranslatedStringArrayProperty` that hydrates
+ * every item as a plain object instead of a Map.
+ * @param options the name of the path, the per language maximum length and the maximum number of items
+ */
+export function LocalizedStringArrayProperty(
+  options: TranslatedArrayPropertyOptions
+): mongoose.SchemaDefinitionProperty<LanguageAPISpecs.Types.ITranslatedStringArray> {
+  const resolvedOptions: Required<TranslatedArrayPropertyOptions> = { allowEmptyValues: false, ...options };
+  return {
+    type: [{ type: mongoose.Schema.Types.Mixed }],
+    required: true,
+    default: undefined,
+    validate: (value: LanguageAPISpecs.Types.ITranslatedString[]) => {
+      validateTranslatedArrayValue(value, resolvedOptions);
+      return true;
+    },
+  };
+}
+
+export const LocalizedPreferredLabelProperty = LocalizedStringProperty({
+  fieldName: "preferredLabel",
+  maxLength: LABEL_MAX_LENGTH,
+  allowEmptyValues: false,
+});
+
+export const LocalizedDescriptionProperty = LocalizedStringProperty({
+  fieldName: "description",
+  maxLength: DESCRIPTION_MAX_LENGTH,
+});
+
+export const LocalizedDefinitionProperty = LocalizedStringProperty({
+  fieldName: "definition",
+  maxLength: DEFINITION_MAX_LENGTH,
+});
+
+export const LocalizedScopeNoteProperty = LocalizedStringProperty({
+  fieldName: "scopeNote",
+  maxLength: SCOPE_NOTE_MAX_LENGTH,
+});
+
+export const LocalizedAltLabelsProperty = LocalizedStringArrayProperty({
+  fieldName: "altLabels",
+  maxLength: LABEL_MAX_LENGTH,
+  maxItems: ATL_LABELS_MAX_ITEMS,
+});
 
 export const TranslatedPreferredLabelProperty = TranslatedStringProperty({
   fieldName: "preferredLabel",

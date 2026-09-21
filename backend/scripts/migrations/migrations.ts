@@ -1,4 +1,6 @@
 import modelInfoAvailableLanguages from "./0001-model-info-available-languages";
+import occupationsLocalizedFields from "./0002-occupations-localized-fields";
+import skillsLocalizedFields from "./0004-skills-localized-fields";
 import { IMigration } from "./migration.types";
 
 /**
@@ -7,7 +9,11 @@ import { IMigration } from "./migration.types";
  * A migration is added here so that the runner can find it by name. Nothing in this list implies an order of
  * execution: migrations are run one by one, by hand, see ./README.md.
  */
-export const MIGRATIONS: readonly IMigration[] = [modelInfoAvailableLanguages];
+export const MIGRATIONS: readonly IMigration[] = [
+  modelInfoAvailableLanguages,
+  occupationsLocalizedFields,
+  skillsLocalizedFields,
+];
 
 /**
  * Finds the migration to run.

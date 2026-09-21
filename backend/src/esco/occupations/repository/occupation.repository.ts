@@ -42,6 +42,7 @@ import {
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import LanguageAPISpecs from "api-specifications/language";
+import { unwrapSkillTranslatableFields } from "esco/skill/_shared/skillReference";
 
 // fields stored as localized sub documents, wrapped/flattened by this repository
 const TRANSLATABLE_STRING_FIELDS = [
@@ -775,7 +776,7 @@ export class OccupationRepository implements IOccupationRepository {
         populateEmptySkillHierarchy(doc);
         populateEmptySkillToSkillRelation(doc);
         populateEmptyRequiredByOccupations(doc);
-        return doc.toObject() as ISkillWithRelation;
+        return unwrapSkillTranslatableFields(doc.toObject()) as ISkillWithRelation;
       });
     } catch (e: unknown) {
       const err = new Error("OccupationRepository.findSkillsForOccupation: findSkillsForOccupation failed", {

@@ -18,16 +18,16 @@ import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
 import { ISkillDoc, ReuseLevel, SkillType } from "../_shared/skill.types";
 import {
-  testAltLabelsField,
+  testTranslatedAltLabelsField,
   testEmbeddingStatusField,
-  testDescription,
+  testTranslatedStringField,
   testImportId,
   testObjectIdField,
   testOriginUri,
-  testPreferredLabel,
   testUUIDField,
   testUUIDHistoryField,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 describe("Test the definition of the skill Model", () => {
   let dbConnection: Connection;
@@ -46,6 +46,10 @@ describe("Test the definition of the skill Model", () => {
       await dbConnection.close();
     }
   });
+
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  // Wraps a flat string into a localized sub document keyed by the fallback language, e.g. "Cook" -> { en: "Cook" }.
+  const wrapTranslated = (value: string) => ({ [fallbackDbKeyName]: value });
 
   test.each([
     [
@@ -84,8 +88,18 @@ describe("Test the definition of the skill Model", () => {
         isLocalized: false,
       },
     ],
-  ])("Successfully validate skill with mandatory fields", async (description, givenObject: ISkillDoc) => {
-    // GIVEN a skill document based on the given object
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ])("Successfully validate skill with %s", async (description, givenFlatObject: any) => {
+    // GIVEN a skill document based on the given object, with its translatable fields wrapped as localized sub
+    // documents keyed by the fallback language, the shape the schema now stores them as.
+    const givenObject = {
+      ...givenFlatObject,
+      preferredLabel: wrapTranslated(givenFlatObject.preferredLabel),
+      altLabels: givenFlatObject.altLabels.map(wrapTranslated),
+      description: wrapTranslated(givenFlatObject.description),
+      definition: wrapTranslated(givenFlatObject.definition),
+      scopeNote: wrapTranslated(givenFlatObject.scopeNote),
+    } as ISkillDoc;
     const givenSkillDocument = new skillModel(givenObject);
 
     // WHEN validating that given skill document
@@ -97,7 +111,9 @@ describe("Test the definition of the skill Model", () => {
     // AND the document to be saved successfully
     await givenSkillDocument.save();
 
-    // AND the toObject() transformation to return the correct properties
+    // AND the toObject() transformation to return the correct properties, since the schema stores the translatable
+    // fields as localized sub documents, toObject() also returns them that way (the repository is the layer
+    // responsible for flattening them back to the fallback language string).
     expect(givenSkillDocument.toObject()).toEqual({
       ...givenObject,
       modelId: givenObject.modelId.toString(),
@@ -107,7 +123,44 @@ describe("Test the definition of the skill Model", () => {
     });
   });
 
-  describe("Validate skillGroup fields", () => {
+  test("should not drop an altLabels item that lacks the fallback language, e.g. from data written before validation existed", async () => {
+    // GIVEN a skill saved through the normal, validated path
+    const givenObject = {
+      UUID: randomUUID(),
+      preferredLabel: wrapTranslated(getTestString(LABEL_MAX_LENGTH)),
+      modelId: getMockObjectId(2),
+      UUIDHistory: [randomUUID()],
+      originUri: "",
+      altLabels: [wrapTranslated("kept")],
+      definition: wrapTranslated(""),
+      description: wrapTranslated(""),
+      scopeNote: wrapTranslated(""),
+      skillType: SkillType.None,
+      reuseLevel: ReuseLevel.None,
+      importId: "",
+      isLocalized: false,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any as ISkillDoc;
+    const givenSkillDocument = new skillModel(givenObject);
+    await givenSkillDocument.save();
+    // AND its altLabels are rewritten, bypassing mongoose validation, to include an item that lacks the fallback
+    // language entirely, e.g. data that predates the validation this schema now enforces at write time
+    await skillModel.collection.updateOne(
+      { _id: givenSkillDocument._id },
+      { $set: { altLabels: [{ en: "kept" }, { fr: "sans anglais" }] } }
+    );
+
+    // WHEN reading the document back
+    const actualDoc = await skillModel.findById(givenSkillDocument._id).exec();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const actualObject = actualDoc!.toObject() as any;
+
+    // THEN expect both items to be present, the one lacking the fallback language read as an empty object rather
+    // than being silently dropped from the array
+    expect(actualObject.altLabels).toEqual([{ en: "kept" }, { fr: "sans anglais" }]);
+  });
+
+  describe("Validate skill fields", () => {
     testObjectIdField<ISkillDoc>(() => skillModel, "modelId");
 
     testUUIDField<ISkillDoc>(() => skillModel);
@@ -116,69 +169,17 @@ describe("Test the definition of the skill Model", () => {
 
     testOriginUri<ISkillDoc>(() => skillModel);
 
-    testPreferredLabel<ISkillDoc>(() => skillModel);
+    testTranslatedStringField<ISkillDoc>(() => skillModel, "preferredLabel", LABEL_MAX_LENGTH, false);
 
-    testAltLabelsField<ISkillDoc>(() => skillModel);
+    testTranslatedAltLabelsField<ISkillDoc>(() => skillModel);
 
     testEmbeddingStatusField<ISkillDoc>(() => skillModel);
 
-    describe("Test validation of 'scopeNote'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "Too long scopeNote",
-          getTestString(SCOPE_NOTE_MAX_LENGTH + 1),
-          `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-        [CaseType.Success, "the longest", getTestString(SCOPE_NOTE_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'scopeNote' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>({
-            model: skillModel,
-            propertyNames: "scopeNote",
-            caseType,
-            testValue: value,
-            expectedFailureMessage,
-          });
-        }
-      );
-    });
+    testTranslatedStringField<ISkillDoc>(() => skillModel, "scopeNote", SCOPE_NOTE_MAX_LENGTH);
 
-    describe("Test validation of 'definition'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "Too long definition",
-          getTestString(DEFINITION_MAX_LENGTH + 1),
-          `Definition must be at most ${DEFINITION_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-        [CaseType.Success, "the longest", getTestString(DEFINITION_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'definition' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillDoc>({
-            model: skillModel,
-            propertyNames: "definition",
-            caseType,
-            testValue: value,
-            expectedFailureMessage,
-          });
-        }
-      );
-    });
+    testTranslatedStringField<ISkillDoc>(() => skillModel, "definition", DEFINITION_MAX_LENGTH);
 
-    testDescription<ISkillDoc>(() => skillModel);
+    testTranslatedStringField<ISkillDoc>(() => skillModel, "description", DESCRIPTION_MAX_LENGTH);
 
     describe("Test validation of 'skillType'", () => {
       test.each([

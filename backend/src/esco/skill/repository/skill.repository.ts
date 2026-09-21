@@ -10,7 +10,7 @@ import {
   IUpdateSkillSpec,
 } from "../_shared/skill.types";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
-import { getSkillDocReference, SkillDocument } from "../_shared/skillReference";
+import { getSkillDocReference, SkillDocument, unwrapSkillTranslatableFields } from "../_shared/skillReference";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
@@ -43,6 +43,63 @@ import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import LanguageAPISpecs from "api-specifications/language";
+
+// The translatable fields of a Skill, stored as localized sub documents ({ en: "value" }); this repository wraps
+// a flat string on the way in and reads the fallback language on the way out, so ISkillDoc/ISkill stay flat.
+const TRANSLATABLE_STRING_FIELDS = ["preferredLabel", "description", "definition", "scopeNote"] as const;
+type TranslatableStringField = (typeof TRANSLATABLE_STRING_FIELDS)[number];
+
+// same as above, plus altLabels (an array of localized sub documents); used to redirect a search field to its
+// fallback language path
+const TRANSLATABLE_FIELDS = [...TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
+
+function wrapTranslated(value: string): LanguageAPISpecs.Types.ITranslatedString {
+  return { [getFallbackLanguageConfig().dbKeyName]: value };
+}
+
+function wrapTranslatedArray(values: string[]): LanguageAPISpecs.Types.ITranslatedStringArray {
+  return values.map(wrapTranslated);
+}
+
+// mongoose hydrates a translatable field as a plain object keyed by language; absent on a brand new document
+function getExistingTranslations(doc: ISkillDoc | undefined, field: TranslatableStringField): Record<string, string> {
+  const value = doc ? (doc as unknown as Record<string, unknown>)[field] : undefined;
+  return value && typeof value === "object" ? { ...(value as Record<string, string>) } : {};
+}
+
+/**
+ * Wraps the translatable fields of a create/update spec into localized sub documents keyed by the fallback
+ * language, merging into `existingDoc`'s translations since mongoose replaces (not merges) a Mixed path on
+ * `.set()`. altLabels has no stable per-item identity to merge by, so it is always replaced wholesale.
+ */
+function wrapTranslatableFields<T extends Partial<Record<TranslatableStringField, string>> & { altLabels?: string[] }>(
+  spec: T,
+  existingDoc?: ISkillDoc
+): Record<string, unknown> {
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  const wrapped: Record<string, unknown> = { ...spec };
+  TRANSLATABLE_STRING_FIELDS.forEach((field) => {
+    const value = spec[field];
+    if (value !== undefined) {
+      wrapped[field] = { ...getExistingTranslations(existingDoc, field), [fallbackDbKeyName]: value };
+    }
+  });
+  if (spec.altLabels !== undefined) {
+    wrapped.altLabels = wrapTranslatedArray(spec.altLabels);
+  }
+  return wrapped;
+}
+
+// skillType is only present on a Skill, not a SkillGroup; used to unwrap only the Skill entries of a mixed array
+function isSkillObject(entity: object): boolean {
+  return "skillType" in entity;
+}
+
+function unwrapIfSkill<T extends object>(entity: T): T {
+  return isSkillObject(entity) ? unwrapSkillTranslatableFields(entity) : entity;
+}
 
 /**
  * A single UUID from a skill's UUIDHistory resolved to the skill's reference (as it was in that model) and the
@@ -239,7 +296,7 @@ export class SkillRepository implements ISkillRepository {
   private newSpecToModel(newSpec: INewSkillSpec): mongoose.HydratedDocument<ISkillDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...newSpec,
+      ...wrapTranslatableFields(newSpec),
       UUID: newUUID,
     });
     // add the new UUID as the first element of the UUIDHistory
@@ -250,7 +307,7 @@ export class SkillRepository implements ISkillRepository {
   private newSpecWithoutImportIdToModel(newSpec: INewSkillSpecWithoutImportId): mongoose.HydratedDocument<ISkillDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...newSpec,
+      ...wrapTranslatableFields(newSpec),
       UUID: newUUID,
       importId: randomUUID(),
     });
@@ -273,7 +330,7 @@ export class SkillRepository implements ISkillRepository {
       populateEmptySkillHierarchy(newSkillModel);
       populateEmptySkillToSkillRelation(newSkillModel);
       populateEmptyRequiredByOccupations(newSkillModel);
-      return newSkillModel.toObject();
+      return unwrapSkillTranslatableFields(newSkillModel.toObject());
     } catch (e: unknown) {
       const err = new Error("SkillRepository.create: create failed", { cause: e });
       console.error(err);
@@ -312,7 +369,7 @@ export class SkillRepository implements ISkillRepository {
       populateEmptySkillHierarchy(skill);
       populateEmptySkillToSkillRelation(skill);
       populateEmptyRequiredByOccupations(skill);
-      return skill.toObject();
+      return unwrapSkillTranslatableFields(skill.toObject());
     });
   }
 
@@ -328,7 +385,7 @@ export class SkillRepository implements ISkillRepository {
         .populate(populateSkillRequiredByOccupationOptions)
         .exec();
 
-      return skill !== null ? skill.toObject() : null;
+      return skill !== null ? unwrapSkillTranslatableFields<ISkill>(skill.toObject()) : null;
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findById: findById failed", { cause: e });
       console.error(err);
@@ -343,6 +400,12 @@ export class SkillRepository implements ISkillRepository {
         this.Model.find({ modelId: { $eq: modelId } }).cursor(),
         // in the current version we do not populate the parents, children
         new DocumentToObjectTransformer<ISkill>(),
+        new stream.Transform({
+          objectMode: true,
+          transform(chunk: ISkill, _encoding, callback) {
+            callback(null, unwrapSkillTranslatableFields(chunk));
+          },
+        }),
         () => undefined
       );
 
@@ -371,12 +434,18 @@ export class SkillRepository implements ISkillRepository {
       // each expressed as an $or clause.
       const andConditions: mongoose.FilterQuery<ISkillDoc>[] = [];
 
-      // When searching, match the value literally (escaped) and case-insensitively on any of the requested fields.
-      // altLabels is an array of strings, which $regex matches element-wise, so array and scalar fields are handled
-      // uniformly.
+      // Match the value literally (escaped), case-insensitively, on the requested fields. Translatable fields are
+      // localized sub documents, so the search targets their fallback language path (e.g. preferredLabel.en);
+      // $regex matches altLabels element-wise on that same path, handling arrays and scalars uniformly.
       if (search) {
         const escapedValue = escapeRegExp(search.value);
-        const searchConditions = search.fields.map((field) => ({ [field]: { $regex: escapedValue, $options: "i" } }));
+        const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+        const searchConditions = search.fields.map((field) => {
+          const path = (TRANSLATABLE_FIELDS as readonly string[]).includes(field)
+            ? `${field}.${fallbackDbKeyName}`
+            : field;
+          return { [path]: { $regex: escapedValue, $options: "i" } };
+        });
         andConditions.push({ $or: searchConditions });
       }
 
@@ -414,7 +483,7 @@ export class SkillRepository implements ISkillRepository {
         populateSkillRequiredByOccupationOptions,
       ]);
 
-      return populated.map((doc) => doc.toObject());
+      return populated.map((doc) => unwrapSkillTranslatableFields(doc.toObject()));
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findPaginated: findPaginated failed", { cause: e });
       console.error(err);
@@ -443,7 +512,7 @@ export class SkillRepository implements ISkillRepository {
         populateSkillRequiredByOccupationOptions,
       ]);
 
-      return populated.map((doc) => doc.toObject());
+      return populated.map((doc) => unwrapSkillTranslatableFields(doc.toObject()));
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findByIds: findByIds failed", { cause: e });
       console.error(err);
@@ -542,7 +611,7 @@ export class SkillRepository implements ISkillRepository {
         ]);
       }
 
-      return hydrated.map((doc) => doc.toObject() as ISkill | ISkillGroup);
+      return hydrated.map((doc) => unwrapIfSkill(doc.toObject()) as ISkill | ISkillGroup);
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findParents: findParents failed", { cause: e });
       console.error(err);
@@ -641,7 +710,7 @@ export class SkillRepository implements ISkillRepository {
         ]);
       }
 
-      return hydrated.map((doc) => doc.toObject() as ISkill | ISkillGroup);
+      return hydrated.map((doc) => unwrapIfSkill(doc.toObject()) as ISkill | ISkillGroup);
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findChildren: findChildren failed", { cause: e });
       console.error(err);
@@ -794,7 +863,7 @@ export class SkillRepository implements ISkillRepository {
         populateEmptyRequiredByOccupations(doc);
         const relationId = typeof r.relationId === "string" ? r.relationId : r.relationId?.toString();
         return {
-          ...doc.toObject(),
+          ...unwrapSkillTranslatableFields(doc.toObject()),
           relationType: r.relationType,
           relationId,
         } as SkillToSkillReferenceWithRelationType<ISkill> & { relationId: string };
@@ -822,7 +891,9 @@ export class SkillRepository implements ISkillRepository {
           return { UUID: uuid, modelId: null, reference: null };
         }
         // Reuse the shared reference mapper; the reference itself does not carry the modelId, so split it out.
-        const { modelId, ...reference } = getSkillDocReference(skill as SkillDocument);
+        // Cast through unknown: this.Model is typed with ISkillDoc's flat preferredLabel, but the field is actually
+        // hydrated as the localized sub document SkillDocument expects.
+        const { modelId, ...reference } = getSkillDocReference(skill as unknown as SkillDocument);
         return { UUID: uuid, modelId: modelId.toString(), reference };
       });
     } catch (e: unknown) {
@@ -839,7 +910,7 @@ export class SkillRepository implements ISkillRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(spec);
+      doc.set(wrapTranslatableFields(spec, doc));
       await doc.save();
       await doc.populate([
         populateSkillParentsOptions,
@@ -848,7 +919,7 @@ export class SkillRepository implements ISkillRepository {
         populateSkillRequiredBySkillsOptions,
         populateSkillRequiredByOccupationOptions,
       ]);
-      return doc.toObject();
+      return unwrapSkillTranslatableFields<ISkill>(doc.toObject());
     } catch (e: unknown) {
       const err = new Error("SkillRepository.update: update failed.", { cause: e });
       console.error(err);
@@ -861,7 +932,7 @@ export class SkillRepository implements ISkillRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(spec);
+      doc.set(wrapTranslatableFields(spec, doc));
       await doc.save();
       await doc.populate([
         populateSkillParentsOptions,
@@ -870,7 +941,7 @@ export class SkillRepository implements ISkillRepository {
         populateSkillRequiredBySkillsOptions,
         populateSkillRequiredByOccupationOptions,
       ]);
-      return doc.toObject();
+      return unwrapSkillTranslatableFields<ISkill>(doc.toObject());
     } catch (e: unknown) {
       const err = new Error("SkillRepository.patch: patch failed.", { cause: e });
       console.error(err);

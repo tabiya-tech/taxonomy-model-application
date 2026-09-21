@@ -5,6 +5,7 @@ import { ISkillGroupReference } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import LanguageAPISpecs from "api-specifications/language";
 
 /**
  * Enum for the different types of skills.
@@ -46,6 +47,23 @@ export interface ISkillDoc extends ImportIdentifiable {
   isLocalized: boolean;
   embeddingStatus?: Map<string, EntityEmbeddingStatus>;
 }
+
+/**
+ * The translatable fields of a skill, stored as localized sub documents (e.g. { en: "Cook" }).
+ */
+type SkillTranslatableFields = "preferredLabel" | "description" | "definition" | "scopeNote";
+
+/**
+ * How a skill is actually shaped in MongoDB, used only at the mongoose schema/document boundary. Everywhere else
+ * (ISkillDoc, ISkill) the fields stay flat strings, resolved to the fallback language by the repository.
+ */
+export type ISkillLocalizedDoc = Omit<ISkillDoc, SkillTranslatableFields | "altLabels"> & {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  definition: LanguageAPISpecs.Types.ITranslatedString;
+  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+};
 
 /**
  * Describes how a skill is returned from the API.
