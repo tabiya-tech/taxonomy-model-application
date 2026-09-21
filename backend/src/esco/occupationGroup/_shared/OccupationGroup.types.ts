@@ -5,6 +5,8 @@ import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbeddi
 
 /**
  * Describes how an OccupationGroup is saved in the database.
+ * Translatable fields are typed as Map<string, string>, the shape mongoose hydrates them as.
+ * code and groupType are monolingual and stay flat strings.
  */
 export interface IOccupationGroupDoc extends ImportIdentifiable {
   modelId: mongoose.Types.ObjectId;
@@ -12,22 +14,29 @@ export interface IOccupationGroupDoc extends ImportIdentifiable {
   UUIDHistory: string[];
   code: string;
   originUri: string;
-  preferredLabel: string;
-  altLabels: string[];
+  preferredLabel: Map<string, string>;
+  altLabels: Map<string, string>[];
   importId: string;
   groupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
-  description: string;
+  description: Map<string, string>;
   embeddingStatus?: Map<string, EntityEmbeddingStatus>;
 }
 
 /**
  * Describes how an OccupationGroup is returned from the API.
  * The embeddingStatus is internal bookkeeping of the embedding process and is not returned from the API.
+ * Translatable fields are redeclared as flat strings, since the repository flattens them.
  */
 export interface IOccupationGroup
-  extends Omit<IOccupationGroupDoc, "id" | "modelId" | "UUIDHistory" | "embeddingStatus"> {
+  extends Omit<
+    IOccupationGroupDoc,
+    "id" | "modelId" | "UUIDHistory" | "embeddingStatus" | "preferredLabel" | "altLabels" | "description"
+  > {
   id: string;
   UUID: string;
+  preferredLabel: string;
+  altLabels: string[];
+  description: string;
   parent: IOccupationGroupReference | null;
   children: (IOccupationGroupReference | IOccupationReference)[];
   UUIDHistory: string[];
@@ -88,9 +97,11 @@ export interface IOccupationGroupReference extends Pick<IOccupationGroup, "id" |
  * Describes how a reference to an OccupationGroup is populated within repository functions .
  * This is not returned from the API.
  */
-export interface IOccupationGroupReferenceDoc
-  extends Pick<IOccupationGroupDoc, "modelId" | "UUID" | "code" | "preferredLabel"> {
+export interface IOccupationGroupReferenceDoc extends Pick<IOccupationGroupDoc, "modelId" | "UUID" | "code"> {
   id: string;
+  // flattened to the fall back language by getOccupationGroupDocReference, unlike the localized sub document it is
+  // stored as
+  preferredLabel: string;
   objectType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
 }
 
