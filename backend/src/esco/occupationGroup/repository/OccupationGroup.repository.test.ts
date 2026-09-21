@@ -22,6 +22,7 @@ import {
 } from "../_shared/OccupationGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { INewSkillSpec } from "esco/skill/_shared/skill.types";
 import {
@@ -528,6 +529,40 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       });
     }
   );
+
+  describe("Test the shape the translatable fields are stored in", () => {
+    test("should store preferredLabel, description and altLabels as localized sub documents keyed by the fallback language", async () => {
+      // GIVEN a new OccupationGroup spec whose translatable fields are flat strings, as the repository API takes them
+      const givenModelId = getMockStringId(1);
+      const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(ObjectTypes.ISCOGroup);
+      givenNewOccupationGroupSpec.modelId = givenModelId;
+
+      // WHEN creating the OccupationGroup
+      const actualCreated = await repository.create(givenNewOccupationGroupSpec);
+
+      // THEN expect the raw document to carry them as localized sub documents keyed by the fallback language
+      const actualRawDoc = await repository.Model.findById(actualCreated.id).lean();
+      const expectedFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+      expect(actualRawDoc?.preferredLabel).toEqual({
+        [expectedFallbackDbKeyName]: givenNewOccupationGroupSpec.preferredLabel,
+      });
+      expect(actualRawDoc?.description).toEqual({
+        [expectedFallbackDbKeyName]: givenNewOccupationGroupSpec.description,
+      });
+      expect(actualRawDoc?.altLabels).toEqual(
+        givenNewOccupationGroupSpec.altLabels.map((altLabel) => ({ [expectedFallbackDbKeyName]: altLabel }))
+      );
+
+      // AND expect the repository to have returned them as flat strings, i.e. its public API is unchanged
+      expect(actualCreated.preferredLabel).toEqual(givenNewOccupationGroupSpec.preferredLabel);
+      expect(actualCreated.description).toEqual(givenNewOccupationGroupSpec.description);
+      expect(actualCreated.altLabels).toEqual(givenNewOccupationGroupSpec.altLabels);
+
+      // AND expect code and groupType to be stored as plain strings, they are monolingual
+      expect(actualRawDoc?.code).toEqual(givenNewOccupationGroupSpec.code);
+      expect(actualRawDoc?.groupType).toEqual(givenNewOccupationGroupSpec.groupType);
+    });
+  });
 
   describe("Test findById()", () => {
     test("should find an OccupationGroup by its id", async () => {
@@ -1950,6 +1985,55 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         expect(actual[0].id).toBe(givenGroup.id);
       });
 
+      test("should match the search value on description and on altLabels, which are localized sub documents too", async () => {
+        // GIVEN a model with two occupation groups, distinguishable by their description and their altLabels
+        const givenModelId = getMockStringId(1);
+        const givenMatchingSpec = getSimpleNewISCOGroupSpec(givenModelId, "matching");
+        givenMatchingSpec.description = "Caring for the sick";
+        givenMatchingSpec.altLabels = ["Carers"];
+        const givenMatchingGroup = await repository.create(givenMatchingSpec);
+        const givenOtherSpec = getSimpleNewISCOGroupSpec(givenModelId, "other");
+        givenOtherSpec.description = "Writing software";
+        givenOtherSpec.altLabels = ["Developers"];
+        await repository.create(givenOtherSpec);
+
+        // WHEN searching for a value that occurs in the description of the first group only
+        const actualFoundByDescription = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
+          value: "caring",
+          fields: ["description"],
+        });
+
+        // THEN expect only that group, i.e. the query reaches into the localized sub document
+        expect(actualFoundByDescription).toHaveLength(1);
+        expect(actualFoundByDescription[0].id).toEqual(givenMatchingGroup.id);
+
+        // WHEN searching for a value that occurs in the altLabels of the first group only
+        const actualFoundByAltLabels = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
+          value: "carers",
+          fields: ["altLabels"],
+        });
+
+        // THEN expect only that group, i.e. the query reaches into every item of the localized list
+        expect(actualFoundByAltLabels).toHaveLength(1);
+        expect(actualFoundByAltLabels[0].id).toEqual(givenMatchingGroup.id);
+      });
+
+      test("should not match the search value on code, which stays monolingual", async () => {
+        // GIVEN a model with an occupation group whose code is a plain string, not a localized sub document
+        const givenModelId = getMockStringId(1);
+        const givenGroup = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "a group"));
+
+        // WHEN searching for that code
+        const actualFound = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
+          value: givenGroup.code,
+          fields: ["code"],
+        });
+
+        // THEN expect the group to be found, i.e. the query targets code itself and not a language of it
+        expect(actualFound).toHaveLength(1);
+        expect(actualFound[0].id).toEqual(givenGroup.id);
+      });
+
       test("should return an empty array when nothing matches the search value", async () => {
         // GIVEN a model with an occupation group
         const givenModelId = getMockStringId(1);
@@ -2317,6 +2401,38 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         expect(actualUpdated!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenOccupationGroup.updatedAt.getTime());
       });
 
+      test("should preserve a non fallback language translation of a field when updating it", async () => {
+        // GIVEN an OccupationGroup exists in the database
+        const givenModelId = getMockStringId(1);
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+        givenNewOccupationGroupSpec.modelId = givenModelId;
+        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+        // AND its preferredLabel also carries a French translation, stored directly (the flat-string repository API
+        // has no way to write a non fallback language)
+        await repository.Model.updateOne({ _id: givenOccupationGroup.id }, { $set: { "preferredLabel.fr": "Cadres" } });
+
+        // WHEN updating the OccupationGroup, setting only the fallback language through the public API
+        const givenUpdateSpec: IUpdateOccupationGroupSpec = {
+          code: givenOccupationGroup.code,
+          preferredLabel: "Updated Label",
+          altLabels: ["updated-alt-1"],
+          description: "Updated description",
+          originUri: "https://updated.example.com",
+          modelId: givenModelId,
+          UUIDHistory: givenOccupationGroup.UUIDHistory,
+          groupType: givenGroupType,
+        };
+        await repository.update(givenOccupationGroup.id, givenModelId, givenUpdateSpec);
+
+        // THEN expect the fallback language to have been updated, and the French translation to still be there
+        const actualRawDoc = await repository.Model.findById(givenOccupationGroup.id).lean();
+        const expectedFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+        expect(actualRawDoc?.preferredLabel).toEqual({
+          [expectedFallbackDbKeyName]: givenUpdateSpec.preferredLabel,
+          fr: "Cadres",
+        });
+      });
+
       test("should return null if the OccupationGroup with the given id does not exist", async () => {
         // GIVEN no OccupationGroup with the given id exists
         const givenModelId = getMockStringId(1);
@@ -2429,6 +2545,37 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         expect(actualPatched!.groupType).toEqual(givenOccupationGroup.groupType);
         // AND expect the timestamps to be updated
         expect(actualPatched!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenOccupationGroup.updatedAt.getTime());
+      });
+
+      test("should preserve a non fallback language translation of a field when patching it, and leave other translatable fields untouched", async () => {
+        // GIVEN an OccupationGroup exists in the database
+        const givenModelId = getMockStringId(1);
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+        givenNewOccupationGroupSpec.modelId = givenModelId;
+        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+        // AND its preferredLabel and description also carry a French translation, stored directly (the flat-string
+        // repository API has no way to write a non fallback language)
+        await repository.Model.updateOne(
+          { _id: givenOccupationGroup.id },
+          { $set: { "preferredLabel.fr": "Cadres", "description.fr": "Une description" } }
+        );
+
+        // WHEN patching only preferredLabel through the public API
+        const givenPatchSpec: IPartialUpdateOccupationGroupSpec = { preferredLabel: "Patched Label" };
+        await repository.patch(givenOccupationGroup.id, givenModelId, givenPatchSpec);
+
+        // THEN expect preferredLabel's fallback language to have been updated, and its French translation preserved
+        const actualRawDoc = await repository.Model.findById(givenOccupationGroup.id).lean();
+        const expectedFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+        expect(actualRawDoc?.preferredLabel).toEqual({
+          [expectedFallbackDbKeyName]: "Patched Label",
+          fr: "Cadres",
+        });
+        // AND expect description, which was not part of the patch, to be completely untouched
+        expect(actualRawDoc?.description).toEqual({
+          [expectedFallbackDbKeyName]: givenOccupationGroup.description,
+          fr: "Une description",
+        });
       });
 
       test("should return null if the OccupationGroup with the given id does not exist", async () => {

@@ -13,18 +13,18 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockRandomISCOGroupCode, getMockRandomLocalGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { IOccupationGroupDoc } from "../_shared/OccupationGroup.types";
 import {
-  testAltLabelsField,
+  testTranslatedAltLabelsField,
   testEmbeddingStatusField,
-  testDescription,
+  testTranslatedStringField,
   testOptionalImportId,
   testObjectIdField,
   testOriginUri,
-  testPreferredLabel,
   testUUIDField,
   testUUIDHistoryField,
   testEnumField,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 describe("Test the definition of the OccupationGroup Model", () => {
   let dbConnection: Connection;
@@ -44,7 +44,11 @@ describe("Test the definition of the OccupationGroup Model", () => {
     }
   });
 
-  test.each<[string, IOccupationGroupDoc]>([
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  // Wraps a flat string into a localized sub document keyed by the fallback language, e.g. "Managers" -> { en: "Managers" }.
+  const wrapTranslated = (value: string) => ({ [fallbackDbKeyName]: value });
+
+  test.each([
     [
       "mandatory fields for ISCOGroup",
       {
@@ -105,8 +109,16 @@ describe("Test the definition of the OccupationGroup Model", () => {
         importId: "",
       },
     ],
-  ])("Successfully validate OccupationGroup with %s", async (description, givenObject: IOccupationGroupDoc) => {
-    // GIVEN an OccupationGroup document based on the given object
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ])("Successfully validate OccupationGroup with %s", async (description, givenFlatObject: any) => {
+    // GIVEN an OccupationGroup document based on the given object, with its translatable fields wrapped as localized
+    // sub documents keyed by the fallback language, the shape the schema now stores them as.
+    const givenObject = {
+      ...givenFlatObject,
+      preferredLabel: wrapTranslated(givenFlatObject.preferredLabel),
+      altLabels: givenFlatObject.altLabels.map(wrapTranslated),
+      description: wrapTranslated(givenFlatObject.description),
+    } as IOccupationGroupDoc;
     const givenOccupationGroupDocument = new OccupationGroupModel(givenObject);
 
     // WHEN validating that given OccupationGroup document
@@ -118,14 +130,73 @@ describe("Test the definition of the OccupationGroup Model", () => {
     // AND the document to be saved successfully
     await givenOccupationGroupDocument.save();
 
-    // AND expect the toObject() transformation to have the correct properties
+    // AND the toObject() transformation to return the correct properties, with the translatable fields flattened
+    // back to the fallback language string, since that is what the schema's transform does.
     expect(givenOccupationGroupDocument.toObject()).toEqual({
-      ...givenObject,
+      ...givenFlatObject,
       modelId: givenObject.modelId.toString(),
       id: givenOccupationGroupDocument._id.toString(),
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
     });
+  });
+
+  test("should round trip a whitespace only value for a field that allows empty values, without turning it into an empty string", async () => {
+    // GIVEN an OccupationGroup whose description is translated to whitespace only in the fallback language, which
+    // the schema allows (description's TranslatedStringProperty defaults allowEmptyValues to true)
+    const givenWhitespaceOnlyValue = "   ";
+    const givenObject = {
+      UUID: randomUUID(),
+      UUIDHistory: [randomUUID()],
+      code: getMockRandomISCOGroupCode(),
+      preferredLabel: wrapTranslated(getTestString(LABEL_MAX_LENGTH)),
+      modelId: getMockObjectId(2),
+      originUri: "",
+      groupType: ObjectTypes.ISCOGroup,
+      altLabels: [],
+      description: wrapTranslated(givenWhitespaceOnlyValue),
+      importId: "",
+    } as unknown as IOccupationGroupDoc;
+    const givenOccupationGroupDocument = new OccupationGroupModel(givenObject);
+
+    // WHEN saving and reading the document back
+    await givenOccupationGroupDocument.save();
+    const actualObject = givenOccupationGroupDocument.toObject();
+
+    // THEN expect description to be returned exactly as stored, not treated as untranslated and defaulted to ""
+    expect(actualObject.description).toEqual(givenWhitespaceOnlyValue);
+  });
+
+  test("should not drop an altLabels item that lacks the fallback language, e.g. from data written before validation existed", async () => {
+    // GIVEN an OccupationGroup saved through the normal, validated path
+    const givenObject = {
+      UUID: randomUUID(),
+      UUIDHistory: [randomUUID()],
+      code: getMockRandomISCOGroupCode(),
+      preferredLabel: wrapTranslated(getTestString(LABEL_MAX_LENGTH)),
+      modelId: getMockObjectId(2),
+      originUri: "",
+      groupType: ObjectTypes.ISCOGroup,
+      altLabels: [wrapTranslated("kept")],
+      description: wrapTranslated(""),
+      importId: "",
+    } as unknown as IOccupationGroupDoc;
+    const givenOccupationGroupDocument = new OccupationGroupModel(givenObject);
+    await givenOccupationGroupDocument.save();
+    // AND its altLabels are rewritten, bypassing mongoose validation, to include an item that lacks the fallback
+    // language entirely, e.g. data that predates the validation this schema now enforces at write time
+    await OccupationGroupModel.collection.updateOne(
+      { _id: givenOccupationGroupDocument._id },
+      { $set: { altLabels: [{ [fallbackDbKeyName]: "kept" }, { fr: "sans anglais" }] } }
+    );
+
+    // WHEN reading the document back
+    const actualDoc = await OccupationGroupModel.findById(givenOccupationGroupDocument._id).exec();
+    const actualObject = actualDoc!.toObject();
+
+    // THEN expect both items to be present, the one lacking the fallback language read as an empty string rather
+    // than being silently dropped from the array
+    expect(actualObject.altLabels).toEqual(["kept", ""]);
   });
 
   describe("Validate OccupationGroup fields", () => {
@@ -227,13 +298,18 @@ describe("Test the definition of the OccupationGroup Model", () => {
       });
     });
 
-    testDescription<IOccupationGroupDoc>(() => OccupationGroupModel);
+    testTranslatedStringField<IOccupationGroupDoc>(() => OccupationGroupModel, "description", DESCRIPTION_MAX_LENGTH);
 
     testOriginUri<IOccupationGroupDoc>(() => OccupationGroupModel);
 
-    testPreferredLabel<IOccupationGroupDoc>(() => OccupationGroupModel);
+    testTranslatedStringField<IOccupationGroupDoc>(
+      () => OccupationGroupModel,
+      "preferredLabel",
+      LABEL_MAX_LENGTH,
+      false
+    );
 
-    testAltLabelsField<IOccupationGroupDoc>(() => OccupationGroupModel);
+    testTranslatedAltLabelsField<IOccupationGroupDoc>(() => OccupationGroupModel);
 
     testEmbeddingStatusField<IOccupationGroupDoc>(() => OccupationGroupModel);
 

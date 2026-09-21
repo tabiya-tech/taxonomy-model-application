@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 import {
-  AltLabelsProperty,
-  DescriptionProperty,
+  TranslatedAltLabelsProperty,
+  TranslatedDescriptionProperty,
   OriginUriProperty,
   OccupationGroupCodeProperty,
   UUIDHistoryProperty,
-  PreferredLabelProperty,
+  TranslatedPreferredLabelProperty,
   EmbeddingStatusProperty,
 } from "esco/common/modelSchema";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
@@ -14,6 +14,7 @@ import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTrans
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { RegExp_UUIDv4 } from "server/regex";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 export const OccupationGroupModelPaths = {
   parent: "parent",
@@ -31,11 +32,11 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
       UUID: { type: String, required: true, validate: RegExp_UUIDv4 },
       UUIDHistory: UUIDHistoryProperty,
       [OccupationGroupModelPaths.code]: OccupationGroupCodeProperty,
-      preferredLabel: PreferredLabelProperty,
+      preferredLabel: TranslatedPreferredLabelProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       originUri: OriginUriProperty,
-      altLabels: AltLabelsProperty,
-      description: DescriptionProperty,
+      altLabels: TranslatedAltLabelsProperty,
+      description: TranslatedDescriptionProperty,
       [OccupationGroupModelPaths.groupType]: {
         type: String,
         required: true,
@@ -51,8 +52,8 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     {
       timestamps: true,
       strict: "throw",
-      toObject: getGlobalTransformOptions(),
-      toJSON: getGlobalTransformOptions(),
+      toObject: getGlobalTransformOptions(_TransformFn),
+      toJSON: getGlobalTransformOptions(_TransformFn),
     }
   );
   OccupationGroupSchema.virtual(OccupationGroupModelPaths.parent, {
@@ -87,3 +88,28 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
 
   return dbConnection.model<IOccupationGroupDoc>(MongooseModelName.OccupationGroup, OccupationGroupSchema);
 }
+
+// returns the stored value as-is, including if it is empty or whitespace; resolveTranslated is not used here
+// because it swaps an empty value for the fallback language's value, and this already reads the fallback language
+function readFallbackLanguageValue(translatedValue: unknown, fallbackDbKeyName: string): string {
+  if (translatedValue instanceof Map) {
+    const value = translatedValue.get(fallbackDbKeyName);
+    return typeof value === "string" ? value : "";
+  }
+  if (typeof translatedValue === "object" && translatedValue !== null && !Array.isArray(translatedValue)) {
+    const value = (translatedValue as Record<string, unknown>)[fallbackDbKeyName];
+    return typeof value === "string" ? value : "";
+  }
+  return "";
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _TransformFn = (doc: any, ret: any) => {
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  ret.preferredLabel = readFallbackLanguageValue(ret.preferredLabel, fallbackDbKeyName);
+  ret.description = readFallbackLanguageValue(ret.description, fallbackDbKeyName);
+  ret.altLabels = Array.isArray(ret.altLabels)
+    ? ret.altLabels.map((item: unknown) => readFallbackLanguageValue(item, fallbackDbKeyName))
+    : [];
+  return ret;
+};
