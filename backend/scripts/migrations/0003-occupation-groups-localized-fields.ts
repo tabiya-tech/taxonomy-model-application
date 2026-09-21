@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
-import { initializeSchemaAndModel } from "../../src/esco/occupationGroup/model/OccupationGroup.model";
+import LanguageAPISpecs from "api-specifications/language";
+import { initializeSchemaAndModel as initializeOccupationGroupSchemaAndModel } from "../../src/esco/occupationGroup/model/OccupationGroup.model";
+import {
+  initializeSchemaAndModel as initializeModelInfoSchemaAndModel,
+  ModelName as ModelInfoModelName,
+} from "../../src/modelInfo/modelInfoModel";
 import { MongooseModelName } from "../../src/esco/common/mongooseModelNames";
 import { getFallbackLanguageConfig } from "../../src/common/language/fallbackLanguage";
 import { IMigration, IMigrationResult } from "./migration.types";
@@ -8,7 +13,7 @@ import { IMigration, IMigrationResult } from "./migration.types";
  * Rewrites the translatable fields of every occupation group into localized sub documents.
  *
  * An occupation group that predates the localized schema carries its translatable fields as flat values, in a single
- * language, the fall back language of the environment:
+ * language, the first language its model declares:
  *
  *   { preferredLabel: "Managers", description: "...", altLabels: ["a", "b"] }
  *
@@ -32,7 +37,14 @@ const TRANSLATABLE_ARRAY_FIELDS = ["altLabels"] as const;
  * to compile the same model twice.
  */
 function getOccupationGroupCollection(connection: mongoose.Connection): mongoose.Collection {
-  const model = connection.models[MongooseModelName.OccupationGroup] ?? initializeSchemaAndModel(connection);
+  const model =
+    connection.models[MongooseModelName.OccupationGroup] ?? initializeOccupationGroupSchemaAndModel(connection);
+  return model.collection;
+}
+
+/** Returns the collection of the ModelInfo entries, in the same way as the one of the occupation groups. */
+function getModelInfoCollection(connection: mongoose.Connection): mongoose.Collection {
+  const model = connection.models[ModelInfoModelName] ?? initializeModelInfoSchemaAndModel(connection);
   return model.collection;
 }
 
@@ -58,11 +70,11 @@ const GROUPS_WITH_A_LOCALIZED_FIELD = {
 };
 
 /** Wraps a flat value into a localized sub document, leaving an already localized one as it is. */
-function wrapField(field: string, fallbackDbKeyName: string) {
+function wrapField(field: string, dbKeyName: string) {
   return {
     $cond: [
       { $eq: [{ $type: `$${field}` }, "string"] },
-      { [fallbackDbKeyName]: `$${field}` },
+      { [dbKeyName]: `$${field}` },
       // already localized, or absent, in which case $set leaves the field alone
       `$${field}`,
     ],
@@ -70,7 +82,7 @@ function wrapField(field: string, fallbackDbKeyName: string) {
 }
 
 /** Wraps every flat item of a list into a localized sub document, leaving already localized items as they are. */
-function wrapArrayField(field: string, fallbackDbKeyName: string) {
+function wrapArrayField(field: string, dbKeyName: string) {
   return {
     $cond: [
       { $isArray: `$${field}` },
@@ -79,7 +91,7 @@ function wrapArrayField(field: string, fallbackDbKeyName: string) {
           input: `$${field}`,
           as: "item",
           in: {
-            $cond: [{ $eq: [{ $type: "$$item" }, "string"] }, { [fallbackDbKeyName]: "$$item" }, "$$item"],
+            $cond: [{ $eq: [{ $type: "$$item" }, "string"] }, { [dbKeyName]: "$$item" }, "$$item"],
           },
         },
       },
@@ -88,19 +100,15 @@ function wrapArrayField(field: string, fallbackDbKeyName: string) {
   };
 }
 
-/** Flattens a localized sub document back to the value of the fall back language, or to an empty string. */
-function unwrapField(field: string, fallbackDbKeyName: string) {
+/** Flattens a localized sub document back to the value of the language of the model, or to an empty string. */
+function unwrapField(field: string, dbKeyName: string) {
   return {
-    $cond: [
-      { $eq: [{ $type: `$${field}` }, "object"] },
-      { $ifNull: [`$${field}.${fallbackDbKeyName}`, ""] },
-      `$${field}`,
-    ],
+    $cond: [{ $eq: [{ $type: `$${field}` }, "object"] }, { $ifNull: [`$${field}.${dbKeyName}`, ""] }, `$${field}`],
   };
 }
 
-/** Flattens every localized item of a list back to the value of the fall back language. */
-function unwrapArrayField(field: string, fallbackDbKeyName: string) {
+/** Flattens every localized item of a list back to the value of the language of the model. */
+function unwrapArrayField(field: string, dbKeyName: string) {
   return {
     $cond: [
       { $isArray: `$${field}` },
@@ -109,11 +117,7 @@ function unwrapArrayField(field: string, fallbackDbKeyName: string) {
           input: `$${field}`,
           as: "item",
           in: {
-            $cond: [
-              { $eq: [{ $type: "$$item" }, "object"] },
-              { $ifNull: [`$$item.${fallbackDbKeyName}`, ""] },
-              "$$item",
-            ],
+            $cond: [{ $eq: [{ $type: "$$item" }, "object"] }, { $ifNull: [`$$item.${dbKeyName}`, ""] }, "$$item"],
           },
         },
       },
@@ -124,49 +128,107 @@ function unwrapArrayField(field: string, fallbackDbKeyName: string) {
 
 /** Builds the single $set stage that rewrites every translatable field of a group in one pass. */
 function buildSetStage(
-  fallbackDbKeyName: string,
-  buildString: (field: string, fallbackDbKeyName: string) => object,
-  buildArray: (field: string, fallbackDbKeyName: string) => object
+  dbKeyName: string,
+  buildString: (field: string, dbKeyName: string) => object,
+  buildArray: (field: string, dbKeyName: string) => object
 ): Record<string, object> {
   const stage: Record<string, object> = {};
   TRANSLATABLE_STRING_FIELDS.forEach((field) => {
-    stage[field] = buildString(field, fallbackDbKeyName);
+    stage[field] = buildString(field, dbKeyName);
   });
   TRANSLATABLE_ARRAY_FIELDS.forEach((field) => {
-    stage[field] = buildArray(field, fallbackDbKeyName);
+    stage[field] = buildArray(field, dbKeyName);
   });
   return stage;
+}
+
+/**
+ * Reads every model once and returns the ids of the models, grouped by the language their data is in: the first of
+ * the languages the model declares, or the fall back language when it declares none, or one that the registry does
+ * not know about.
+ *
+ * Reading every model up front, in a single request, is what keeps the migration from looking a model up per
+ * occupation group: the groups of all the models that share a language are then rewritten with a single request.
+ */
+async function getModelIdsByDbKeyName(connection: mongoose.Connection): Promise<Map<string, mongoose.Types.ObjectId[]>> {
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  const models = await getModelInfoCollection(connection)
+    .find({}, { projection: { availableLanguages: 1 } })
+    .toArray();
+
+  const modelIdsByDbKeyName = new Map<string, mongoose.Types.ObjectId[]>();
+  for (const model of models) {
+    const shortCode = Array.isArray(model.availableLanguages) ? model.availableLanguages[0] : undefined;
+    const language = typeof shortCode === "string" ? LanguageAPISpecs.Helpers.getLanguageByShortCode(shortCode) : undefined;
+    const dbKeyName = language?.dbKeyName ?? fallbackDbKeyName;
+    const modelIds = modelIdsByDbKeyName.get(dbKeyName) ?? [];
+    modelIds.push(model._id);
+    modelIdsByDbKeyName.set(dbKeyName, modelIds);
+  }
+  return modelIdsByDbKeyName;
+}
+
+/**
+ * Rewrites the translatable fields of the occupation groups that match the given filter, one request per language,
+ * all of them sent in a single round trip.
+ *
+ * A group whose model no longer exists is not rewritten, as there is no language to key its values by. Such a group
+ * is reported, it is the only thing a run can leave behind.
+ */
+async function rewriteTranslatableFields(
+  connection: mongoose.Connection,
+  filter: object,
+  buildString: (field: string, dbKeyName: string) => object,
+  buildArray: (field: string, dbKeyName: string) => object
+): Promise<IMigrationResult> {
+  const modelIdsByDbKeyName = await getModelIdsByDbKeyName(connection);
+  const collection = getOccupationGroupCollection(connection);
+  if (modelIdsByDbKeyName.size === 0) {
+    return { matched: 0, modified: 0 };
+  }
+
+  const result = await collection.bulkWrite(
+    [...modelIdsByDbKeyName].map(([dbKeyName, modelIds]) => ({
+      updateMany: {
+        filter: { modelId: { $in: modelIds }, ...filter },
+        update: [{ $set: buildSetStage(dbKeyName, buildString, buildArray) }],
+      },
+    }))
+  );
+
+  const leftBehindCount = await collection.countDocuments(filter);
+  if (leftBehindCount > 0) {
+    console.warn(
+      `${leftBehindCount} occupation group(s) were left untouched, they belong to a model that does not exist.`
+    );
+  }
+  return { matched: result.matchedCount, modified: result.modifiedCount };
 }
 
 const migration: IMigration = {
   name: "0003-occupation-groups-localized-fields",
   description:
     "Rewrites preferredLabel, description and altLabels of every occupation group into localized sub documents " +
-    "keyed by the fall back language. Down flattens them back to the value of the fall back language.",
+    "keyed by the first language its model declares. Down flattens them back to the value of that language.",
 
   async up(connection: mongoose.Connection): Promise<IMigrationResult> {
-    const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-    const collection = getOccupationGroupCollection(connection);
-    const result = await collection.updateMany(GROUPS_WITH_A_FLAT_FIELD, [
-      { $set: buildSetStage(fallbackDbKeyName, wrapField, wrapArrayField) },
-    ]);
-    console.info(
-      `Wrapped the translatable fields of ${result.modifiedCount} occupation group(s) into '${fallbackDbKeyName}'.`
-    );
-    return { matched: result.matchedCount, modified: result.modifiedCount };
+    const result = await rewriteTranslatableFields(connection, GROUPS_WITH_A_FLAT_FIELD, wrapField, wrapArrayField);
+    console.info(`Wrapped the translatable fields of ${result.modified} occupation group(s).`);
+    return result;
   },
 
   async down(connection: mongoose.Connection): Promise<IMigrationResult> {
-    // Flattening keeps the fall back language only: a group that was translated into other languages after the
-    // migration ran loses those translations, which is why the runbook asks for a snapshot before a down. A group
-    // that carries no fall back language at all flattens to an empty string, the closest the flat shape can get.
-    const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-    const collection = getOccupationGroupCollection(connection);
-    const result = await collection.updateMany(GROUPS_WITH_A_LOCALIZED_FIELD, [
-      { $set: buildSetStage(fallbackDbKeyName, unwrapField, unwrapArrayField) },
-    ]);
-    console.info(`Flattened the translatable fields of ${result.modifiedCount} occupation group(s).`);
-    return { matched: result.matchedCount, modified: result.modifiedCount };
+    // Flattening keeps a single language only: a group that was translated into other languages after the migration
+    // ran loses those translations, which is why the runbook asks for a snapshot before a down. A group that carries
+    // no value in the language of its model flattens to an empty string, the closest the flat shape can get.
+    const result = await rewriteTranslatableFields(
+      connection,
+      GROUPS_WITH_A_LOCALIZED_FIELD,
+      unwrapField,
+      unwrapArrayField
+    );
+    console.info(`Flattened the translatable fields of ${result.modified} occupation group(s).`);
+    return result;
   },
 };
 

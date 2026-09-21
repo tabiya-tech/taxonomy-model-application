@@ -10,17 +10,23 @@ import { initializeSchemaAndModel } from "modelInfo/modelInfoModel";
 import LanguageAPISpecs from "api-specifications/language";
 import migration from "./0001-model-info-available-languages";
 
+/** The locale of a model that carries its data in English, i.e. one whose short code does not end with "es". */
+const GIVEN_ENGLISH_LOCALE = { UUID: randomUUID(), name: "South Africa", shortCode: "ZA" };
+
+/** The locale of a model that carries its data in Spanish, i.e. one whose short code ends with "es". */
+const GIVEN_SPANISH_LOCALE = { UUID: randomUUID(), name: "Argentina", shortCode: "AR-es" };
+
 /**
  * Returns a raw ModelInfo document, i.e. one that is inserted into the collection without passing through the schema,
  * exactly as a model that predates the availableLanguages field looks like in the database.
  */
-function getRawModelInfoDoc(availableLanguages?: string[] | null) {
+function getRawModelInfoDoc(availableLanguages?: string[] | null, locale: unknown = GIVEN_ENGLISH_LOCALE) {
   return {
     UUID: randomUUID(),
     UUIDHistory: [randomUUID()],
     name: "a model",
     description: "a model that predates the available languages",
-    locale: { UUID: randomUUID(), name: "South Africa", shortCode: "ZA" },
+    locale,
     license: "a license",
     released: false,
     releaseNotes: "",
@@ -30,7 +36,8 @@ function getRawModelInfoDoc(availableLanguages?: string[] | null) {
 }
 
 describe("Test the 0001-model-info-available-languages migration with an in-memory mongodb", () => {
-  const givenFallbackShortCode = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
+  const givenEnglishShortCode = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
+  const givenSpanishShortCode = "es";
   let dbConnection: Connection;
   let modelInfoCollection: Collection;
 
@@ -61,9 +68,9 @@ describe("Test the 0001-model-info-available-languages migration with an in-memo
   }
 
   describe("Test up()", () => {
-    test("should set the fall back language on every model that does not declare any language", async () => {
-      // GIVEN three models that do not declare any language, one without the field, one with null and one with an
-      // empty list
+    test("should set English on every model that does not declare any language and whose locale is not a Spanish one", async () => {
+      // GIVEN three models with an English locale that do not declare any language, one without the field, one with
+      // null and one with an empty list
       const givenModelsWithoutLanguages = [getRawModelInfoDoc(), getRawModelInfoDoc(null), getRawModelInfoDoc([])];
       await modelInfoCollection.insertMany(givenModelsWithoutLanguages);
 
@@ -77,14 +84,76 @@ describe("Test the 0001-model-info-available-languages migration with an in-memo
       };
       expect(actualResult).toEqual(expectedResult);
 
-      // AND expect every model to declare the fall back language
-      const expectedAvailableLanguages = givenModelsWithoutLanguages.map(() => [givenFallbackShortCode]);
+      // AND expect every model to declare English
+      const expectedAvailableLanguages = givenModelsWithoutLanguages.map(() => [givenEnglishShortCode]);
       expect(await getStoredAvailableLanguages()).toEqual(expectedAvailableLanguages);
+    });
+
+    test("should set Spanish on a model whose locale short code ends with 'es'", async () => {
+      // GIVEN a model that does not declare any language and whose locale short code ends with "es"
+      await modelInfoCollection.insertOne(getRawModelInfoDoc(undefined, GIVEN_SPANISH_LOCALE));
+
+      // WHEN the migration is applied
+      const actualResult = await migration.up(dbConnection);
+
+      // THEN expect the model to have been matched and modified
+      const expectedResult = { matched: 1, modified: 1 };
+      expect(actualResult).toEqual(expectedResult);
+
+      // AND expect the model to declare Spanish
+      expect(await getStoredAvailableLanguages()).toEqual([[givenSpanishShortCode]]);
+    });
+
+    test("should set Spanish on a model whose locale short code ends with 'es' in any case", async () => {
+      // GIVEN a model whose locale short code ends with "ES", the same locale written in upper case
+      const givenUpperCaseSpanishLocale = { ...GIVEN_SPANISH_LOCALE, shortCode: "AR-ES" };
+      await modelInfoCollection.insertOne(getRawModelInfoDoc(undefined, givenUpperCaseSpanishLocale));
+
+      // WHEN the migration is applied
+      await migration.up(dbConnection);
+
+      // THEN expect the model to declare Spanish, the case of the locale does not decide the language
+      expect(await getStoredAvailableLanguages()).toEqual([[givenSpanishShortCode]]);
+    });
+
+    test("should give every model the language of its own locale, when the models have different locales", async () => {
+      // GIVEN a model with a Spanish locale and a model with an English locale, neither declaring any language
+      const givenModelsWithDifferentLocales = [
+        getRawModelInfoDoc(undefined, GIVEN_SPANISH_LOCALE),
+        getRawModelInfoDoc(undefined, GIVEN_ENGLISH_LOCALE),
+      ];
+      await modelInfoCollection.insertMany(givenModelsWithDifferentLocales);
+
+      // WHEN the migration is applied
+      const actualResult = await migration.up(dbConnection);
+
+      // THEN expect both models to have been matched and modified
+      const expectedResult = {
+        matched: givenModelsWithDifferentLocales.length,
+        modified: givenModelsWithDifferentLocales.length,
+      };
+      expect(actualResult).toEqual(expectedResult);
+
+      // AND expect each model to declare the language of its own locale
+      expect(await getStoredAvailableLanguages()).toEqual([[givenSpanishShortCode], [givenEnglishShortCode]]);
+    });
+
+    test("should set English on a model that carries no locale at all", async () => {
+      // GIVEN a model that declares no language and carries no locale, the shape of a model that was written by hand
+      const givenModelWithoutLocale: Record<string, unknown> = getRawModelInfoDoc();
+      delete givenModelWithoutLocale.locale;
+      await modelInfoCollection.insertOne(givenModelWithoutLocale);
+
+      // WHEN the migration is applied
+      await migration.up(dbConnection);
+
+      // THEN expect the model to declare English, the language of every model that is not a Spanish one
+      expect(await getStoredAvailableLanguages()).toEqual([[givenEnglishShortCode]]);
     });
 
     test("should leave the languages of a model that declares them untouched", async () => {
       // GIVEN a model that already declares the languages it carries data in
-      const givenDeclaredLanguages = [givenFallbackShortCode, "fr"];
+      const givenDeclaredLanguages = [givenEnglishShortCode, "fr"];
       await modelInfoCollection.insertOne(getRawModelInfoDoc(givenDeclaredLanguages));
 
       // WHEN the migration is applied
@@ -111,7 +180,7 @@ describe("Test the 0001-model-info-available-languages migration with an in-memo
       expect(actualResult).toEqual(expectedResult);
 
       // AND expect the model to still declare the fall back language
-      expect(await getStoredAvailableLanguages()).toEqual([[givenFallbackShortCode]]);
+      expect(await getStoredAvailableLanguages()).toEqual([[givenEnglishShortCode]]);
     });
 
     test("should do nothing when there is no model at all", async () => {
@@ -129,8 +198,8 @@ describe("Test the 0001-model-info-available-languages migration with an in-memo
     test("should remove the languages from every model that declares them", async () => {
       // GIVEN two models that declare the languages they carry data in, one of them more than one
       const givenModelsWithLanguages = [
-        getRawModelInfoDoc([givenFallbackShortCode]),
-        getRawModelInfoDoc([givenFallbackShortCode, "fr"]),
+        getRawModelInfoDoc([givenEnglishShortCode]),
+        getRawModelInfoDoc([givenEnglishShortCode, "fr"]),
       ];
       await modelInfoCollection.insertMany(givenModelsWithLanguages);
 
@@ -148,7 +217,7 @@ describe("Test the 0001-model-info-available-languages migration with an in-memo
 
     test("should be idempotent, a second run is a no-op", async () => {
       // GIVEN a model the migration has already been reverted for
-      await modelInfoCollection.insertOne(getRawModelInfoDoc([givenFallbackShortCode]));
+      await modelInfoCollection.insertOne(getRawModelInfoDoc([givenEnglishShortCode]));
       await migration.down(dbConnection);
 
       // WHEN the migration is reverted a second time

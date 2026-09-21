@@ -1,12 +1,13 @@
 // mute the console output
 import "_test_utilities/consoleMock";
 
-import { Collection, Connection } from "mongoose";
+import { Collection, Connection, Types } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { setConfiguration } from "server/config/config";
 import { initializeSchemaAndModel } from "esco/occupationGroup/model/OccupationGroup.model";
+import { initializeSchemaAndModel as initializeModelInfoSchemaAndModel } from "modelInfo/modelInfoModel";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
@@ -23,12 +24,21 @@ type GivenTranslatableFields = {
   altLabels: unknown[];
 };
 
+/**
+ * The id of the model that the occupation groups of a test belong to, unless the test gives them another one.
+ * It is the model that is inserted before each test, declaring the fall back language.
+ */
+let givenDefaultModelId: Types.ObjectId;
+
 /** Returns a raw OccupationGroup document carrying the given translatable fields as they are. */
-function getRawOccupationGroupDoc(translatableFields: GivenTranslatableFields) {
+function getRawOccupationGroupDoc(
+  translatableFields: GivenTranslatableFields,
+  modelId: Types.ObjectId = givenDefaultModelId
+) {
   return {
     UUID: randomUUID(),
     UUIDHistory: [randomUUID()],
-    modelId: getMockObjectId(1),
+    modelId,
     code: "1234",
     groupType: ObjectTypes.ISCOGroup,
     originUri: "https://foo.bar/",
@@ -37,18 +47,51 @@ function getRawOccupationGroupDoc(translatableFields: GivenTranslatableFields) {
   };
 }
 
+/**
+ * Returns a raw ModelInfo document declaring the given languages. Only the languages matter to the migration, the
+ * rest of the fields are what a model carries, so that the document is a realistic one.
+ */
+function getRawModelInfoDoc(availableLanguages?: string[]) {
+  return {
+    UUID: randomUUID(),
+    UUIDHistory: [randomUUID()],
+    name: "a model",
+    description: "a model the occupation groups belong to",
+    locale: { UUID: randomUUID(), name: "South Africa", shortCode: "ZA" },
+    license: "a license",
+    released: false,
+    releaseNotes: "",
+    version: "",
+    ...(availableLanguages !== undefined ? { availableLanguages } : {}),
+  };
+}
+
 describe("Test the 0003-occupation-groups-localized-fields migration with an in-memory mongodb", () => {
   const givenFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  const givenFallbackShortCode = getFallbackLanguageConfig().shortCode;
   let dbConnection: Connection;
   let occupationGroupCollection: Collection;
+  let modelInfoCollection: Collection;
 
   beforeAll(async () => {
     // using the in-memory mongodb instance that is started up with @shelf/jest-mongodb
     const givenConfig = getTestConfiguration("OccupationGroupsLocalizedFieldsMigrationTestDB");
     setConfiguration(givenConfig);
     dbConnection = await getNewConnection(givenConfig.dbURI);
-    // the collection is taken from the model so that the test and the migration agree on its name
+    // the collections are taken from the models so that the test and the migration agree on their names
     occupationGroupCollection = initializeSchemaAndModel(dbConnection).collection;
+    modelInfoCollection = initializeModelInfoSchemaAndModel(dbConnection).collection;
+  });
+
+  /** Inserts a model declaring the given languages and returns its id. */
+  async function insertModel(availableLanguages?: string[]): Promise<Types.ObjectId> {
+    const insertResult = await modelInfoCollection.insertOne(getRawModelInfoDoc(availableLanguages));
+    return insertResult.insertedId;
+  }
+
+  beforeEach(async () => {
+    // every occupation group belongs to a model, and the language of the model is what its values are keyed by
+    givenDefaultModelId = await insertModel([givenFallbackShortCode]);
   });
 
   afterAll(async () => {
@@ -60,6 +103,7 @@ describe("Test the 0003-occupation-groups-localized-fields migration with an in-
 
   afterEach(async () => {
     await occupationGroupCollection.deleteMany({});
+    await modelInfoCollection.deleteMany({});
   });
 
   /** Reads the translatable fields of every occupation group, in insertion order, as they are stored. */
@@ -197,6 +241,94 @@ describe("Test the 0003-occupation-groups-localized-fields migration with an in-
       expect(await getStoredMonolingualFields()).toEqual([expectedMonolingualFields]);
     });
 
+    test("should key the values of the occupation groups of a model by the first language the model declares", async () => {
+      // GIVEN a model that declares Spanish first, and an occupation group of that model with flat fields
+      const givenSpanishShortCode = "es";
+      const givenSpanishModelId = await insertModel([givenSpanishShortCode, givenFallbackShortCode]);
+      await occupationGroupCollection.insertOne(getRawOccupationGroupDoc(givenFlatFields, givenSpanishModelId));
+
+      // WHEN the migration is applied
+      const actualResult = await migration.up(dbConnection);
+
+      // THEN expect the occupation group to have been matched and modified
+      const expectedResult = { matched: 1, modified: 1 };
+      expect(actualResult).toEqual(expectedResult);
+
+      // AND expect its translatable fields to be keyed by the first language of its model, not by the fall back one
+      const expectedStoredFields: GivenTranslatableFields = {
+        preferredLabel: { [givenSpanishShortCode]: "Managers" },
+        description: { [givenSpanishShortCode]: "A description of the group" },
+        altLabels: [{ [givenSpanishShortCode]: "Chiefs" }, { [givenSpanishShortCode]: "Leaders" }],
+      };
+      expect(await getStoredTranslatableFields()).toEqual([expectedStoredFields]);
+    });
+
+    test("should key the values of every occupation group by the language of its own model, when the models declare different languages", async () => {
+      // GIVEN an occupation group of a model that declares Spanish and one of the model that declares the fall back
+      // language
+      const givenSpanishShortCode = "es";
+      const givenSpanishModelId = await insertModel([givenSpanishShortCode]);
+      await occupationGroupCollection.insertMany([
+        getRawOccupationGroupDoc(givenFlatFields, givenSpanishModelId),
+        getRawOccupationGroupDoc(givenFlatFields),
+      ]);
+
+      // WHEN the migration is applied
+      const actualResult = await migration.up(dbConnection);
+
+      // THEN expect both occupation groups to have been matched and modified
+      const expectedResult = { matched: 2, modified: 2 };
+      expect(actualResult).toEqual(expectedResult);
+
+      // AND expect each of them to be keyed by the language of its own model
+      const expectedSpanishFields: GivenTranslatableFields = {
+        preferredLabel: { [givenSpanishShortCode]: "Managers" },
+        description: { [givenSpanishShortCode]: "A description of the group" },
+        altLabels: [{ [givenSpanishShortCode]: "Chiefs" }, { [givenSpanishShortCode]: "Leaders" }],
+      };
+      expect(await getStoredTranslatableFields()).toEqual([expectedSpanishFields, expectedLocalizedFields]);
+    });
+
+    test("should key the values by the fall back language, when the model declares no language the registry knows about", async () => {
+      // GIVEN an occupation group of a model that declares no language at all, and one of a model that declares a
+      // language that the registry does not know about
+      const givenModelWithoutLanguagesId = await insertModel();
+      const givenModelWithAnUnknownLanguageId = await insertModel(["not-a-language"]);
+      await occupationGroupCollection.insertMany([
+        getRawOccupationGroupDoc(givenFlatFields, givenModelWithoutLanguagesId),
+        getRawOccupationGroupDoc(givenFlatFields, givenModelWithAnUnknownLanguageId),
+      ]);
+
+      // WHEN the migration is applied
+      const actualResult = await migration.up(dbConnection);
+
+      // THEN expect both occupation groups to have been matched and modified
+      const expectedResult = { matched: 2, modified: 2 };
+      expect(actualResult).toEqual(expectedResult);
+
+      // AND expect both of them to be keyed by the fall back language
+      expect(await getStoredTranslatableFields()).toEqual([expectedLocalizedFields, expectedLocalizedFields]);
+    });
+
+    test("should leave an occupation group whose model does not exist untouched, and report it", async () => {
+      // GIVEN an occupation group that belongs to a model that is not in the collection of the models
+      const givenModelIdThatDoesNotExist = getMockObjectId(999);
+      await occupationGroupCollection.insertOne(getRawOccupationGroupDoc(givenFlatFields, givenModelIdThatDoesNotExist));
+
+      // WHEN the migration is applied
+      const actualResult = await migration.up(dbConnection);
+
+      // THEN expect no occupation group to have been matched, there is no language to key its values by
+      const expectedResult = { matched: 0, modified: 0 };
+      expect(actualResult).toEqual(expectedResult);
+
+      // AND expect its translatable fields to still be flat values
+      expect(await getStoredTranslatableFields()).toEqual([givenFlatFields]);
+
+      // AND expect the occupation group that was left behind to have been reported
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("1 occupation group(s) were left untouched"));
+    });
+
     test("should do nothing when there is no occupation group at all", async () => {
       // GIVEN an empty collection of occupation groups
       // WHEN the migration is applied
@@ -270,6 +402,34 @@ describe("Test the 0003-occupation-groups-localized-fields migration with an in-
         preferredLabel: "Managers",
         description: "",
         altLabels: [""],
+      };
+      expect(await getStoredTranslatableFields()).toEqual([expectedStoredFields]);
+    });
+
+    test("should flatten the values of the language of the model, not the ones of the fall back language", async () => {
+      // GIVEN an occupation group of a model that declares Spanish, translated into Spanish and into the fall back
+      // language
+      const givenSpanishShortCode = "es";
+      const givenSpanishModelId = await insertModel([givenSpanishShortCode]);
+      await occupationGroupCollection.insertOne(
+        getRawOccupationGroupDoc(
+          {
+            preferredLabel: { [givenSpanishShortCode]: "Gerentes", [givenFallbackDbKeyName]: "Managers" },
+            description: { [givenSpanishShortCode]: "Una descripcion", [givenFallbackDbKeyName]: "A description" },
+            altLabels: [{ [givenSpanishShortCode]: "Jefes", [givenFallbackDbKeyName]: "Chiefs" }],
+          },
+          givenSpanishModelId
+        )
+      );
+
+      // WHEN the migration is reverted
+      await migration.down(dbConnection);
+
+      // THEN expect the values of the language of the model to have survived
+      const expectedStoredFields: GivenTranslatableFields = {
+        preferredLabel: "Gerentes",
+        description: "Una descripcion",
+        altLabels: ["Jefes"],
       };
       expect(await getStoredTranslatableFields()).toEqual([expectedStoredFields]);
     });
