@@ -6,11 +6,13 @@ import {
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { SignallingValueLabel } from "esco/common/objectTypes";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import { ITranslatedStringDoc } from "common/language/translatedString.types";
+import { resolveTranslated } from "common/language/resolveTranslated";
 
 type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
 // the raw hydrated document, before the repository flattens preferredLabel to a string
 export type OccupationDocument = _Document<Omit<IBaseOccupationDoc, "preferredLabel">> & {
-  preferredLabel: Map<string, string>;
+  preferredLabel: ITranslatedStringDoc;
 };
 
 export function getOccupationDocReference(occupation: OccupationDocument): IOccupationReferenceDoc {
@@ -20,7 +22,9 @@ export function getOccupationDocReference(occupation: OccupationDocument): IOccu
     UUID: occupation.UUID,
     occupationGroupCode: occupation.occupationGroupCode,
     code: occupation.code,
-    preferredLabel: occupation.preferredLabel.get(getFallbackLanguageConfig().dbKeyName) ?? "",
+    // a reference carries the fall back language only; the sub document is keyed by the languages of the registry,
+    // while the configured fall back language is a runtime string, so it is read through resolveTranslated
+    preferredLabel: resolveTranslated(occupation.preferredLabel, getFallbackLanguageConfig().dbKeyName),
     occupationType: occupation.occupationType,
     isLocalized: occupation.isLocalized,
   };

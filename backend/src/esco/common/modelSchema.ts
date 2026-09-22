@@ -6,6 +6,7 @@ import { ObjectTypes } from "./objectTypes";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import LanguageAPISpecs from "api-specifications/language";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
 
 // check for unique values in an array
 export function hasUniqueValues<T>(value: T[]) {
@@ -309,13 +310,13 @@ function validateTranslatedValue(value: unknown, options: Required<TranslatedPro
  */
 export function TranslatedStringProperty(
   options: TranslatedPropertyOptions
-): mongoose.SchemaDefinitionProperty<Map<string, string>> {
+): mongoose.SchemaDefinitionProperty<ITranslatedStringDoc> {
   const resolvedOptions: Required<TranslatedPropertyOptions> = { allowEmptyValues: true, ...options };
   return {
     type: Map,
     of: String,
     required: true,
-    validate: (value: Map<string, string>) => {
+    validate: (value: ITranslatedStringDoc) => {
       validateTranslatedValue(value, resolvedOptions);
       return true;
     },
@@ -358,13 +359,13 @@ function validateTranslatedArrayValue(value: unknown[], options: Required<Transl
  */
 export function TranslatedStringArrayProperty(
   options: TranslatedArrayPropertyOptions
-): mongoose.SchemaDefinitionProperty<Map<string, string>[]> {
+): mongoose.SchemaDefinitionProperty<ITranslatedStringArrayDoc> {
   const resolvedOptions: Required<TranslatedArrayPropertyOptions> = { allowEmptyValues: false, ...options };
   return {
     type: [{ type: Map, of: String }],
     required: true,
     default: undefined,
-    validate: (value: Map<string, string>[]) => {
+    validate: (value: ITranslatedStringArrayDoc) => {
       validateTranslatedArrayValue(value, resolvedOptions);
       return true;
     },
