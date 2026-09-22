@@ -16,7 +16,6 @@ import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { escapeRegExp } from "esco/common/escapeRegExp";
 import { populateSkillChildrenOptions, populateSkillParentsOptions } from "../_shared/populateSkillHierarchyOptions";
 import {
   populateSkillGroupChildrenOptions,
@@ -43,54 +42,16 @@ import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
-import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import LanguageAPISpecs from "api-specifications/language";
+import { wrapTranslatableFields } from "common/language/translatedFields";
+import { buildSearchCondition } from "esco/common/searchCondition";
 
 // The translatable fields of a Skill, stored as localized sub documents ({ en: "value" }); this repository wraps
 // a flat string on the way in and reads the fallback language on the way out, so ISkillDoc/ISkill stay flat.
 const TRANSLATABLE_STRING_FIELDS = ["preferredLabel", "description", "definition", "scopeNote"] as const;
-type TranslatableStringField = (typeof TRANSLATABLE_STRING_FIELDS)[number];
 
 // same as above, plus altLabels (an array of localized sub documents); used to redirect a search field to its
 // fallback language path
 const TRANSLATABLE_FIELDS = [...TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
-
-function wrapTranslated(value: string): LanguageAPISpecs.Types.ITranslatedString {
-  return { [getFallbackLanguageConfig().dbKeyName]: value };
-}
-
-function wrapTranslatedArray(values: string[]): LanguageAPISpecs.Types.ITranslatedStringArray {
-  return values.map(wrapTranslated);
-}
-
-// mongoose hydrates a translatable field as a plain object keyed by language; absent on a brand new document
-function getExistingTranslations(doc: ISkillDoc | undefined, field: TranslatableStringField): Record<string, string> {
-  const value = doc ? (doc as unknown as Record<string, unknown>)[field] : undefined;
-  return value && typeof value === "object" ? { ...(value as Record<string, string>) } : {};
-}
-
-/**
- * Wraps the translatable fields of a create/update spec into localized sub documents keyed by the fallback
- * language, merging into `existingDoc`'s translations since mongoose replaces (not merges) a Mixed path on
- * `.set()`. altLabels has no stable per-item identity to merge by, so it is always replaced wholesale.
- */
-function wrapTranslatableFields<T extends Partial<Record<TranslatableStringField, string>> & { altLabels?: string[] }>(
-  spec: T,
-  existingDoc?: ISkillDoc
-): Record<string, unknown> {
-  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-  const wrapped: Record<string, unknown> = { ...spec };
-  TRANSLATABLE_STRING_FIELDS.forEach((field) => {
-    const value = spec[field];
-    if (value !== undefined) {
-      wrapped[field] = { ...getExistingTranslations(existingDoc, field), [fallbackDbKeyName]: value };
-    }
-  });
-  if (spec.altLabels !== undefined) {
-    wrapped.altLabels = wrapTranslatedArray(spec.altLabels);
-  }
-  return wrapped;
-}
 
 // skillType is only present on a Skill, not a SkillGroup; used to unwrap only the Skill entries of a mixed array
 function isSkillObject(entity: object): boolean {
@@ -296,7 +257,7 @@ export class SkillRepository implements ISkillRepository {
   private newSpecToModel(newSpec: INewSkillSpec): mongoose.HydratedDocument<ISkillDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec),
+      ...wrapTranslatableFields(newSpec, TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
     });
     // add the new UUID as the first element of the UUIDHistory
@@ -307,7 +268,7 @@ export class SkillRepository implements ISkillRepository {
   private newSpecWithoutImportIdToModel(newSpec: INewSkillSpecWithoutImportId): mongoose.HydratedDocument<ISkillDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec),
+      ...wrapTranslatableFields(newSpec, TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: randomUUID(),
     });
@@ -438,15 +399,7 @@ export class SkillRepository implements ISkillRepository {
       // localized sub documents, so the search targets their fallback language path (e.g. preferredLabel.en);
       // $regex matches altLabels element-wise on that same path, handling arrays and scalars uniformly.
       if (search) {
-        const escapedValue = escapeRegExp(search.value);
-        const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-        const searchConditions = search.fields.map((field) => {
-          const path = (TRANSLATABLE_FIELDS as readonly string[]).includes(field)
-            ? `${field}.${fallbackDbKeyName}`
-            : field;
-          return { [path]: { $regex: escapedValue, $options: "i" } };
-        });
-        andConditions.push({ $or: searchConditions });
+        andConditions.push(buildSearchCondition(search, TRANSLATABLE_FIELDS));
       }
 
       // If a cursor is provided, add it to the match stage to get results after the cursor.
@@ -910,7 +863,7 @@ export class SkillRepository implements ISkillRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, doc));
+      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([
         populateSkillParentsOptions,
@@ -932,7 +885,7 @@ export class SkillRepository implements ISkillRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, doc));
+      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([
         populateSkillParentsOptions,
