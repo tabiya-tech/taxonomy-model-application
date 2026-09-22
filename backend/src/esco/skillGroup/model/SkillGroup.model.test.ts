@@ -18,15 +18,16 @@ import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ISkillGroupDoc } from "../_shared/skillGroup.types";
 import {
-  testAltLabelsField,
+  testTranslatedAltLabelsField,
   testEmbeddingStatusField,
   testOptionalImportId,
   testObjectIdField,
   testOriginUri,
-  testPreferredLabel,
+  testTranslatedStringField,
   testUUIDField,
   testUUIDHistoryField,
 } from "esco/_test_utilities/modelSchemaTestFunctions";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 describe("Test the definition of the skillGroup Model", () => {
   let dbConnection: Connection;
@@ -45,6 +46,10 @@ describe("Test the definition of the skillGroup Model", () => {
       await dbConnection.close();
     }
   });
+
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  // Wraps a flat string into a localized sub document keyed by the fallback language, e.g. "Management" -> { en: "Management" }.
+  const wrapTranslated = (value: string) => ({ [fallbackDbKeyName]: value });
 
   test.each([
     [
@@ -77,8 +82,17 @@ describe("Test the definition of the skillGroup Model", () => {
         importId: "",
       },
     ],
-  ])("Successfully validate skillGroup with %s", async (description, givenObject: ISkillGroupDoc) => {
-    // GIVEN a skillGroup document based on the given object
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ])("Successfully validate skillGroup with %s", async (description, givenFlatObject: any) => {
+    // GIVEN a skillGroup document based on the given object, with its translatable fields wrapped as localized sub
+    // documents keyed by the fallback language, the shape the schema now stores them as.
+    const givenObject = {
+      ...givenFlatObject,
+      preferredLabel: wrapTranslated(givenFlatObject.preferredLabel),
+      altLabels: givenFlatObject.altLabels.map(wrapTranslated),
+      description: wrapTranslated(givenFlatObject.description),
+      scopeNote: wrapTranslated(givenFlatObject.scopeNote),
+    } as ISkillGroupDoc;
     const givenSkillGroupDocument = new skillGroupModel(givenObject);
 
     // WHEN validating that given skillGroup document
@@ -90,14 +104,73 @@ describe("Test the definition of the skillGroup Model", () => {
     // AND the document to be saved successfully
     await givenSkillGroupDocument.save();
 
-    // AND the toObject() transformation to return the correct properties
+    // AND the toObject() transformation to return the correct properties, with the translatable fields flattened
+    // back to the fallback language string, since that is what the schema's transform does.
     expect(givenSkillGroupDocument.toObject()).toEqual({
-      ...givenObject,
+      ...givenFlatObject,
       modelId: givenObject.modelId.toString(),
       id: givenSkillGroupDocument._id.toString(),
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
     });
+  });
+
+  test("should round trip a whitespace only value for a field that allows empty values, without turning it into an empty string", async () => {
+    // GIVEN a skillGroup whose scopeNote is translated to whitespace only in the fallback language, which the schema
+    // allows (scopeNote's TranslatedStringProperty defaults allowEmptyValues to true)
+    const givenWhitespaceOnlyValue = "   ";
+    const givenObject = {
+      UUID: randomUUID(),
+      code: getTestSkillGroupCode(100),
+      preferredLabel: wrapTranslated(getTestString(LABEL_MAX_LENGTH)),
+      modelId: getMockObjectId(2),
+      UUIDHistory: [randomUUID()],
+      originUri: "",
+      altLabels: [],
+      description: wrapTranslated(""),
+      scopeNote: wrapTranslated(givenWhitespaceOnlyValue),
+      importId: "",
+    } as unknown as ISkillGroupDoc;
+    const givenSkillGroupDocument = new skillGroupModel(givenObject);
+
+    // WHEN saving and reading the document back
+    await givenSkillGroupDocument.save();
+    const actualObject = givenSkillGroupDocument.toObject();
+
+    // THEN expect scopeNote to be returned exactly as stored, not treated as untranslated and defaulted to ""
+    expect(actualObject.scopeNote).toEqual(givenWhitespaceOnlyValue);
+  });
+
+  test("should not drop an altLabels item that lacks the fallback language, e.g. from data written before validation existed", async () => {
+    // GIVEN a skillGroup saved through the normal, validated path
+    const givenObject = {
+      UUID: randomUUID(),
+      code: getTestSkillGroupCode(100),
+      preferredLabel: wrapTranslated(getTestString(LABEL_MAX_LENGTH)),
+      modelId: getMockObjectId(2),
+      UUIDHistory: [randomUUID()],
+      originUri: "",
+      altLabels: [wrapTranslated("kept")],
+      description: wrapTranslated(""),
+      scopeNote: wrapTranslated(""),
+      importId: "",
+    } as unknown as ISkillGroupDoc;
+    const givenSkillGroupDocument = new skillGroupModel(givenObject);
+    await givenSkillGroupDocument.save();
+    // AND its altLabels are rewritten, bypassing mongoose validation, to include an item that lacks the fallback
+    // language entirely, e.g. data that predates the validation this schema now enforces at write time
+    await skillGroupModel.collection.updateOne(
+      { _id: givenSkillGroupDocument._id },
+      { $set: { altLabels: [{ [fallbackDbKeyName]: "kept" }, { fr: "sans anglais" }] } }
+    );
+
+    // WHEN reading the document back
+    const actualDoc = await skillGroupModel.findById(givenSkillGroupDocument._id).exec();
+    const actualObject = actualDoc!.toObject();
+
+    // THEN expect both items to be present, the one lacking the fallback language read as an empty string rather
+    // than being silently dropped from the array
+    expect(actualObject.altLabels).toEqual(["kept", ""]);
   });
 
   describe("Validate skillGroup fields", () => {
@@ -133,39 +206,15 @@ describe("Test the definition of the skillGroup Model", () => {
 
     testOriginUri<ISkillGroupDoc>(() => skillGroupModel);
 
-    testPreferredLabel<ISkillGroupDoc>(() => skillGroupModel);
+    testTranslatedStringField<ISkillGroupDoc>(() => skillGroupModel, "preferredLabel", LABEL_MAX_LENGTH, false);
 
-    testAltLabelsField<ISkillGroupDoc>(() => skillGroupModel);
+    testTranslatedAltLabelsField<ISkillGroupDoc>(() => skillGroupModel);
 
     testEmbeddingStatusField<ISkillGroupDoc>(() => skillGroupModel);
 
-    describe("Test validation of 'scopeNote'", () => {
-      test.each([
-        [CaseType.Failure, "undefined", undefined, "Path `{0}` is required."],
-        [CaseType.Failure, "null", null, "Path `{0}` is required."],
-        [
-          CaseType.Failure,
-          "Too long scopeNote",
-          getTestString(SCOPE_NOTE_MAX_LENGTH + 1),
-          `ScopeNote must be at most ${SCOPE_NOTE_MAX_LENGTH} chars long`,
-        ],
-        [CaseType.Success, "empty", "", undefined],
-        [CaseType.Success, "one character", "a", undefined],
-        [CaseType.Success, "only whitespace characters", WHITESPACE, undefined],
-        [CaseType.Success, "the longest", getTestString(SCOPE_NOTE_MAX_LENGTH), undefined],
-      ])(
-        `(%s) Validate 'scopeNote' when it is %s`,
-        (caseType: CaseType, caseDescription, value, expectedFailureMessage) => {
-          assertCaseForProperty<ISkillGroupDoc>({
-            model: skillGroupModel,
-            propertyNames: "scopeNote",
-            caseType,
-            testValue: value,
-            expectedFailureMessage,
-          });
-        }
-      );
-    });
+    testTranslatedStringField<ISkillGroupDoc>(() => skillGroupModel, "description", DESCRIPTION_MAX_LENGTH);
+
+    testTranslatedStringField<ISkillGroupDoc>(() => skillGroupModel, "scopeNote", SCOPE_NOTE_MAX_LENGTH);
 
     testOptionalImportId<ISkillGroupDoc>(() => skillGroupModel);
   });
