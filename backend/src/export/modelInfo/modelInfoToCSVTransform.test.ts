@@ -129,6 +129,46 @@ describe("ModelInfosDocToCsvTransform", () => {
     }
   );
 
+  test.each([
+    ["a model with a single fallback language", [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode], "en"],
+    ["a model with multiple languages", ["en", "fr", "es"], "en\nfr\nes"],
+    ["a legacy (pre-migration) model where availableLanguages is not set in the database", undefined, ""],
+  ])(
+    "should encode LANGUAGES as a newline-separated list for %s",
+    async (_description: string, givenAvailableLanguages: string[] | undefined, expectedLanguages: string) => {
+      // GIVEN a ModelInfo with the given availableLanguages
+      const givenModelInfo = getMockModelInfo(2);
+      // @ts-ignore
+      givenModelInfo.availableLanguages = givenAvailableLanguages;
+      setupModelInfoRepositoryMock(() => givenModelInfo);
+
+      // WHEN the transformation is applied
+      const transformedStream = await ModelInfoToCSVTransform(givenModelInfo.id);
+
+      // THEN the output should be a stream
+      const chunks = [];
+      for await (const chunk of transformedStream) {
+        chunks.push(chunk);
+      }
+      const actualCSVOutput = chunks.join("");
+
+      // AND the LANGUAGES column should be the newline-separated list of availableLanguages, positioned between
+      // LOCALE and DESCRIPTION
+      const parsedObjects = parse(actualCSVOutput, { columns: true });
+      expect(parsedObjects[0].LANGUAGES).toEqual(expectedLanguages);
+      expect(Object.keys(parsedObjects[0])).toEqual(expect.arrayContaining(["LOCALE", "LANGUAGES", "DESCRIPTION"]));
+      const headerLine = actualCSVOutput.split("\n")[0];
+      const localeIndex = headerLine.indexOf('"LOCALE"');
+      const languagesIndex = headerLine.indexOf('"LANGUAGES"');
+      const descriptionIndex = headerLine.indexOf('"DESCRIPTION"');
+      expect(localeIndex).toBeLessThan(languagesIndex);
+      expect(languagesIndex).toBeLessThan(descriptionIndex);
+
+      // AND the stream should end
+      expect(transformedStream.closed).toBe(true);
+    }
+  );
+
   describe("should handle errors during stream processing", () => {
     test("should throw an error if no model by that id exists in the db", () => {
       // GIVEN that findByIdAndStream will return a stream with the ModelInfo

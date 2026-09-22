@@ -3,11 +3,13 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { stringify } from "csv-stringify";
 import { IModelInfo } from "modelInfo/modelInfo.types";
 import { Readable } from "node:stream";
+import { stringFromArray } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 const modelInfoHeaders = [
   "UUIDHISTORY",
   "NAME",
   "LOCALE",
+  "LANGUAGES",
   "DESCRIPTION",
   "VERSION",
   "RELEASED",
@@ -20,6 +22,7 @@ export interface IModelInfoRow {
   UUIDHISTORY: string;
   NAME: string;
   LOCALE: string;
+  LANGUAGES: string;
   DESCRIPTION: string;
   VERSION: string;
   RELEASED: "true" | "false";
@@ -33,6 +36,7 @@ export const transformModelInfoSpecToCSVRow = (modelInfo: IModelInfo): IModelInf
     UUIDHISTORY: modelInfo.UUIDHistory.join("\n"),
     NAME: modelInfo.name,
     LOCALE: modelInfo.locale.shortCode,
+    LANGUAGES: stringFromArray(modelInfo.availableLanguages ?? []),
     DESCRIPTION: modelInfo.description,
     VERSION: modelInfo.version,
     RELEASED: modelInfo.released ? "true" : "false",
