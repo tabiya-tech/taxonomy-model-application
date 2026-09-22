@@ -2,10 +2,12 @@ import mongoose from "mongoose";
 import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
+import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
 
 /**
  * Describes how an OccupationGroup is saved in the database.
- * Translatable fields are typed as Map<string, string>, the shape mongoose hydrates them as.
+ * Translatable fields are typed as ITranslatedStringDoc/ITranslatedStringArrayDoc, the shape mongoose hydrates them
+ * as, keyed by the languages of the registry.
  * code and groupType are monolingual and stay flat strings.
  */
 export interface IOccupationGroupDoc extends ImportIdentifiable {
@@ -14,11 +16,11 @@ export interface IOccupationGroupDoc extends ImportIdentifiable {
   UUIDHistory: string[];
   code: string;
   originUri: string;
-  preferredLabel: Map<string, string>;
-  altLabels: Map<string, string>[];
+  preferredLabel: ITranslatedStringDoc;
+  altLabels: ITranslatedStringArrayDoc;
   importId: string;
   groupType: ObjectTypes.ISCOGroup | ObjectTypes.LocalGroup;
-  description: Map<string, string>;
+  description: ITranslatedStringDoc;
   embeddingStatus?: Map<string, EntityEmbeddingStatus>;
 }
 

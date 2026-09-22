@@ -55,7 +55,7 @@ function wrapTranslatedArray(values: string[]): LanguageAPISpecs.Types.ITranslat
 function getExistingTranslatedEntries(
   doc: IOccupationGroupDoc,
   field: TranslatableStringField
-): Record<string, string> {
+): LanguageAPISpecs.Types.ITranslatedString {
   const value = doc[field];
   return value instanceof Map ? Object.fromEntries(value) : {};
 }

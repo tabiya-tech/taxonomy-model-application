@@ -1,6 +1,7 @@
 import { ImportIdentifiable, ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import mongoose from "mongoose";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
+import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
 import { IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ISkill, ISkillReference } from "esco/skill/_shared/skill.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
@@ -29,21 +30,22 @@ export interface IOccupationWithRelation extends IOccupation {
 
 /**
  * Describes how an occupation is saved in MongoDB.
- * Translatable fields are typed as Map<string, string>, the shape mongoose hydrates them as.
+ * Translatable fields are typed as ITranslatedStringDoc/ITranslatedStringArrayDoc, the shape mongoose hydrates them
+ * as, keyed by the languages of the registry.
  */
 export interface IOccupationDoc extends ImportIdentifiable {
   UUID: string;
   modelId: mongoose.Types.ObjectId;
-  preferredLabel: Map<string, string>;
+  preferredLabel: ITranslatedStringDoc;
   UUIDHistory: string[];
   originUri: string;
   occupationGroupCode: string;
   code: string;
-  altLabels: Map<string, string>[];
-  description: Map<string, string>;
-  definition: Map<string, string>;
-  scopeNote: Map<string, string>;
-  regulatedProfessionNote: Map<string, string>;
+  altLabels: ITranslatedStringArrayDoc;
+  description: ITranslatedStringDoc;
+  definition: ITranslatedStringDoc;
+  scopeNote: ITranslatedStringDoc;
+  regulatedProfessionNote: ITranslatedStringDoc;
   occupationType: ObjectTypes.ESCOOccupation | ObjectTypes.LocalOccupation;
   isLocalized: boolean;
   importId: string;

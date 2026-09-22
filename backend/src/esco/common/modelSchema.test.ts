@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { setConfiguration } from "server/config/config";
+import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
 import {
   ATL_LABELS_MAX_ITEMS,
   DESCRIPTION_MAX_LENGTH,
@@ -342,8 +343,8 @@ describe("Test the translated properties of the model schema", () => {
   describe("Test the translated properties as paths of a mongoose schema", () => {
     // GIVEN a model that carries a translated string path and a translated list of strings path
     type ITestTranslatedEntity = {
-      preferredLabel: Map<string, string>;
-      altLabels: Map<string, string>[];
+      preferredLabel: ITranslatedStringDoc;
+      altLabels: ITranslatedStringArrayDoc;
     };
     const givenMongoose = new mongoose.Mongoose();
     const givenSchema = new givenMongoose.Schema<ITestTranslatedEntity>({
