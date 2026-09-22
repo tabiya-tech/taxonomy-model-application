@@ -1,5 +1,5 @@
-import LanguageAPISpecs from "api-specifications/language";
 import { getFallbackLanguageConfig } from "./fallbackLanguage";
+import { ILocalizedStringArrayDoc, ILocalizedStringDoc } from "./translatedString.types";
 
 /**
  * Reads the value a plain object carries under a key, or undefined when the value is not a plain object.
@@ -57,14 +57,14 @@ export function readFallbackLanguageValues(translatedValues: unknown, fallbackDb
 /**
  * Wraps a flat string into a translated value keyed by the fall back language, e.g. "Cook" into { en: "Cook" }.
  */
-export function wrapTranslated(value: string): LanguageAPISpecs.Types.ITranslatedString {
+export function wrapTranslated(value: string): ILocalizedStringDoc {
   return { [getFallbackLanguageConfig().dbKeyName]: value };
 }
 
 /**
  * Wraps a list of flat strings into a list of translated values keyed by the fall back language.
  */
-export function wrapTranslatedArray(values: string[]): LanguageAPISpecs.Types.ITranslatedStringArray {
+export function wrapTranslatedArray(values: string[]): ILocalizedStringArrayDoc {
   return values.map(wrapTranslated);
 }
 
@@ -78,12 +78,12 @@ export function wrapTranslatedArray(values: string[]): LanguageAPISpecs.Types.IT
  * @param storedValue the value of the path, as it is hydrated
  * @returns the translations, keyed by the dbKeyName of their language
  */
-export function readExistingTranslations(storedValue: unknown): LanguageAPISpecs.Types.ITranslatedString {
+export function readExistingTranslations(storedValue: unknown): ILocalizedStringDoc {
   if (storedValue instanceof Map) {
     return Object.fromEntries(storedValue);
   }
   if (typeof storedValue === "object" && storedValue !== null && !Array.isArray(storedValue)) {
-    return { ...(storedValue as LanguageAPISpecs.Types.ITranslatedString) };
+    return { ...(storedValue as ILocalizedStringDoc) };
   }
   return {};
 }

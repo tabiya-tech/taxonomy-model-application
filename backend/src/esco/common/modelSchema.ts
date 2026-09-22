@@ -6,7 +6,12 @@ import { ObjectTypes } from "./objectTypes";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import LanguageAPISpecs from "api-specifications/language";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
+import {
+  ILocalizedStringArrayDoc,
+  ILocalizedStringDoc,
+  ITranslatedStringArrayDoc,
+  ITranslatedStringDoc,
+} from "common/language/translatedString.types";
 
 // check for unique values in an array
 export function hasUniqueValues<T>(value: T[]) {
@@ -379,12 +384,12 @@ export function TranslatedStringArrayProperty(
  */
 export function LocalizedStringProperty(
   options: TranslatedPropertyOptions
-): mongoose.SchemaDefinitionProperty<LanguageAPISpecs.Types.ITranslatedString> {
+): mongoose.SchemaDefinitionProperty<ILocalizedStringDoc> {
   const resolvedOptions: Required<TranslatedPropertyOptions> = { allowEmptyValues: true, ...options };
   return {
     type: mongoose.Schema.Types.Mixed,
     required: true,
-    validate: (value: LanguageAPISpecs.Types.ITranslatedString) => {
+    validate: (value: ILocalizedStringDoc) => {
       validateTranslatedValue(value, resolvedOptions);
       return true;
     },
@@ -398,13 +403,13 @@ export function LocalizedStringProperty(
  */
 export function LocalizedStringArrayProperty(
   options: TranslatedArrayPropertyOptions
-): mongoose.SchemaDefinitionProperty<LanguageAPISpecs.Types.ITranslatedStringArray> {
+): mongoose.SchemaDefinitionProperty<ILocalizedStringArrayDoc> {
   const resolvedOptions: Required<TranslatedArrayPropertyOptions> = { allowEmptyValues: false, ...options };
   return {
     type: [{ type: mongoose.Schema.Types.Mixed }],
     required: true,
     default: undefined,
-    validate: (value: LanguageAPISpecs.Types.ITranslatedString[]) => {
+    validate: (value: ILocalizedStringArrayDoc) => {
       validateTranslatedArrayValue(value, resolvedOptions);
       return true;
     },

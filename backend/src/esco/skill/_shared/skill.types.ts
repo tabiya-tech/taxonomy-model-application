@@ -5,7 +5,7 @@ import { ISkillGroupReference } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import LanguageAPISpecs from "api-specifications/language";
+import { ILocalizedStringArrayDoc, ILocalizedStringDoc } from "common/language/translatedString.types";
 
 /**
  * Enum for the different types of skills.
@@ -58,11 +58,11 @@ type SkillTranslatableFields = "preferredLabel" | "description" | "definition" |
  * (ISkillDoc, ISkill) the fields stay flat strings, resolved to the fallback language by the repository.
  */
 export type ISkillLocalizedDoc = Omit<ISkillDoc, SkillTranslatableFields | "altLabels"> & {
-  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
-  description: LanguageAPISpecs.Types.ITranslatedString;
-  definition: LanguageAPISpecs.Types.ITranslatedString;
-  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
-  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  preferredLabel: ILocalizedStringDoc;
+  description: ILocalizedStringDoc;
+  definition: ILocalizedStringDoc;
+  scopeNote: ILocalizedStringDoc;
+  altLabels: ILocalizedStringArrayDoc;
 };
 
 /**
