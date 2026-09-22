@@ -16,7 +16,7 @@ import {
 } from "../_shared/populateSkillHierarchyOptions";
 import { getSkillGroupDocReference, SkillGroupDocument } from "../_shared/skillGroupReference";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-import { escapeRegExp } from "esco/common/escapeRegExp";
+import { buildSearchCondition } from "esco/common/searchCondition";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
@@ -268,14 +268,9 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       const matchStage: Record<string, unknown> = { modelId: modelIdObj };
 
-      // When searching, match the value literally (escaped) and case-insensitively on any of the requested fields.
-      // altLabels is an array of strings, which $regex matches element-wise, so array and scalar fields are handled
-      // uniformly.
+      // a skill group carries no translatable field yet, so the search matches every field as it is stored
       if (search) {
-        const escapedValue = escapeRegExp(search.value);
-        matchStage.$and = [
-          { $or: search.fields.map((field) => ({ [field]: { $regex: escapedValue, $options: "i" } })) },
-        ];
+        matchStage.$and = [buildSearchCondition(search)];
       }
 
       if (filter?.childrenIds && filter.childrenType) {

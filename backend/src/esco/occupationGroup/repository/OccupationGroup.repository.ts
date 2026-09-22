@@ -16,7 +16,6 @@ import {
   populateOccupationGroupParentOptions,
 } from "esco/occupationGroup/_shared/populateOccupationHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-import { escapeRegExp } from "esco/common/escapeRegExp";
 import { Readable } from "node:stream";
 import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
@@ -33,53 +32,15 @@ import {
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import LanguageAPISpecs from "api-specifications/language";
+import { wrapTranslatableFields } from "common/language/translatedFields";
+import { buildSearchCondition } from "esco/common/searchCondition";
 
 // fields stored as localized sub documents, wrapped/flattened by this repository. code and groupType are
 // monolingual and are deliberately absent from this list.
 const TRANSLATABLE_STRING_FIELDS = ["preferredLabel", "description"] as const;
-type TranslatableStringField = (typeof TRANSLATABLE_STRING_FIELDS)[number];
 
 // same as above, plus altLabels (an array of localized sub documents)
 const TRANSLATABLE_FIELDS = [...TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
-
-function wrapTranslated(value: string): LanguageAPISpecs.Types.ITranslatedString {
-  return { [getFallbackLanguageConfig().dbKeyName]: value };
-}
-
-function wrapTranslatedArray(values: string[]): LanguageAPISpecs.Types.ITranslatedStringArray {
-  return values.map(wrapTranslated);
-}
-
-// mongoose hydrates the path as a Map; absent on a brand new, unsaved document
-function getExistingTranslatedEntries(
-  doc: IOccupationGroupDoc,
-  field: TranslatableStringField
-): LanguageAPISpecs.Types.ITranslatedString {
-  const value = doc[field];
-  return value instanceof Map ? Object.fromEntries(value) : {};
-}
-
-// merges the fallback language into the field's existing translations (mongoose replaces, not merges, a Map on
-// .set()); altLabels has no stable per-item identity to merge by, so it is replaced wholesale instead
-function wrapTranslatableFields<T extends Partial<Record<TranslatableStringField, string>> & { altLabels?: string[] }>(
-  spec: T,
-  existingDoc?: IOccupationGroupDoc
-): Record<string, unknown> {
-  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-  const wrapped: Record<string, unknown> = { ...spec };
-  TRANSLATABLE_STRING_FIELDS.forEach((field) => {
-    const value = spec[field];
-    if (value !== undefined) {
-      const existingEntries = existingDoc ? getExistingTranslatedEntries(existingDoc, field) : {};
-      wrapped[field] = { ...existingEntries, [fallbackDbKeyName]: value };
-    }
-  });
-  if (spec.altLabels !== undefined) {
-    wrapped.altLabels = wrapTranslatedArray(spec.altLabels);
-  }
-  return wrapped;
-}
 
 interface FindPaginatedFilter {
   root?: boolean;
@@ -247,7 +208,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
   private newSpecToModel(newSpec: INewOccupationGroupSpec): mongoose.HydratedDocument<IOccupationGroupDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec),
+      ...wrapTranslatableFields(newSpec, TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: newSpec.importId,
     });
@@ -261,7 +222,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
   ): mongoose.HydratedDocument<IOccupationGroupDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec),
+      ...wrapTranslatableFields(newSpec, TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: null,
     });
@@ -551,21 +512,8 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       // Build the match stage
       const matchStage: Record<string, unknown> = { modelId: modelIdObj };
 
-      // When searching, match the value literally (escaped) and case-insensitively on any of the requested fields.
-      // Translatable fields are localized sub documents, so the search targets their fallback language path.
       if (search) {
-        const escapedValue = escapeRegExp(search.value);
-        const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-        matchStage.$and = [
-          {
-            $or: search.fields.map((field) => {
-              const path = (TRANSLATABLE_FIELDS as readonly string[]).includes(field)
-                ? `${field}.${fallbackDbKeyName}`
-                : field;
-              return { [path]: { $regex: escapedValue, $options: "i" } };
-            }),
-          },
-        ];
+        matchStage.$and = [buildSearchCondition(search, TRANSLATABLE_FIELDS)];
       }
 
       // If a cursorId is provided, add it to the match stage to get results after the cursor
@@ -627,7 +575,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, doc));
+      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([populateOccupationGroupParentOptions, populateOccupationGroupChildrenOptions]);
       return doc.toObject();
@@ -643,7 +591,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, doc));
+      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([populateOccupationGroupParentOptions, populateOccupationGroupChildrenOptions]);
       return doc.toObject();

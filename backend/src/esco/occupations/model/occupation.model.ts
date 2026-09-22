@@ -20,6 +20,7 @@ import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupati
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import { readFallbackLanguageValue, readFallbackLanguageValues } from "common/language/translatedFields";
 
 export const OccupationModelPaths = {
   parent: "parent",
@@ -146,20 +147,6 @@ export const INDEX_FOR_UUID_HISTORY: mongoose.IndexDefinition = {
   UUIDHistory: 1,
 };
 
-// returns the stored value as-is, including if it is empty or whitespace; resolveTranslated is not used here
-// because it swaps an empty value for the fallback language's value, and this already reads the fallback language
-function readFallbackLanguageValue(translatedValue: unknown, fallbackDbKeyName: string): string {
-  if (translatedValue instanceof Map) {
-    const value = translatedValue.get(fallbackDbKeyName);
-    return typeof value === "string" ? value : "";
-  }
-  if (typeof translatedValue === "object" && translatedValue !== null && !Array.isArray(translatedValue)) {
-    const value = (translatedValue as Record<string, unknown>)[fallbackDbKeyName];
-    return typeof value === "string" ? value : "";
-  }
-  return "";
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _TransformFn = (doc: any, ret: any) => {
   const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
@@ -168,8 +155,6 @@ const _TransformFn = (doc: any, ret: any) => {
   ret.definition = readFallbackLanguageValue(ret.definition, fallbackDbKeyName);
   ret.scopeNote = readFallbackLanguageValue(ret.scopeNote, fallbackDbKeyName);
   ret.regulatedProfessionNote = readFallbackLanguageValue(ret.regulatedProfessionNote, fallbackDbKeyName);
-  ret.altLabels = Array.isArray(ret.altLabels)
-    ? ret.altLabels.map((item: unknown) => readFallbackLanguageValue(item, fallbackDbKeyName))
-    : [];
+  ret.altLabels = readFallbackLanguageValues(ret.altLabels, fallbackDbKeyName);
   return ret;
 };
