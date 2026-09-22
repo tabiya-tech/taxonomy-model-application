@@ -145,8 +145,8 @@ describe("Test wrapTranslated()", () => {
     // WHEN the value is wrapped
     const actualTranslatedValue = wrapTranslated(givenValue);
 
-    // THEN expect it to be keyed by the fall back language
-    expect(actualTranslatedValue).toEqual({ [FALLBACK_DB_KEY_NAME]: givenValue });
+    // THEN expect a map keyed by the fall back language, the shape a translated path is stored in
+    expect(actualTranslatedValue).toEqual(new Map([[FALLBACK_DB_KEY_NAME, givenValue]]));
   });
 });
 
@@ -159,7 +159,10 @@ describe("Test wrapTranslatedArray()", () => {
     const actualTranslatedValues = wrapTranslatedArray(givenValues);
 
     // THEN expect every item to be keyed by the fall back language, in the order of the list
-    expect(actualTranslatedValues).toEqual([{ [FALLBACK_DB_KEY_NAME]: "first" }, { [FALLBACK_DB_KEY_NAME]: "second" }]);
+    expect(actualTranslatedValues).toEqual([
+      new Map([[FALLBACK_DB_KEY_NAME, "first"]]),
+      new Map([[FALLBACK_DB_KEY_NAME, "second"]]),
+    ]);
   });
 
   test("should return an empty list when the list is empty", () => {
@@ -175,7 +178,7 @@ describe("Test wrapTranslatedArray()", () => {
 });
 
 describe("Test readExistingTranslations()", () => {
-  test("should return the entries of the value when it is a map, as mongoose hydrates a Map path", () => {
+  test("should return a copy of the value when it is a map, as mongoose hydrates a translated path", () => {
     // GIVEN a stored value that is hydrated as a map
     const givenStoredValue = new Map([
       [FALLBACK_DB_KEY_NAME, "Cook"],
@@ -185,23 +188,25 @@ describe("Test readExistingTranslations()", () => {
     // WHEN the existing translations are read
     const actualTranslations = readExistingTranslations(givenStoredValue);
 
-    // THEN expect every language of the map to be returned
-    expect(actualTranslations).toEqual({
-      [FALLBACK_DB_KEY_NAME]: "Cook",
-      [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier",
-    });
+    // THEN expect every language of the map to be returned, as a copy so that the stored value is not mutated later
+    expect(actualTranslations).toEqual(givenStoredValue);
+    expect(actualTranslations).not.toBe(givenStoredValue);
   });
 
-  test("should return a copy of the value when it is a plain object, as mongoose hydrates a Mixed path", () => {
-    // GIVEN a stored value that is hydrated as a plain object
-    const givenStoredValue = { [FALLBACK_DB_KEY_NAME]: "Cook" };
+  test("should return the entries of the value when it is a plain object, as a lean query hands it over", () => {
+    // GIVEN a stored value that is a plain object
+    const givenStoredValue = { [FALLBACK_DB_KEY_NAME]: "Cook", [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" };
 
     // WHEN the existing translations are read
     const actualTranslations = readExistingTranslations(givenStoredValue);
 
-    // THEN expect the translations to be returned, as a copy so that the stored value is not mutated later on
-    expect(actualTranslations).toEqual(givenStoredValue);
-    expect(actualTranslations).not.toBe(givenStoredValue);
+    // THEN expect its entries to be returned as a map
+    expect(actualTranslations).toEqual(
+      new Map([
+        [FALLBACK_DB_KEY_NAME, "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ])
+    );
   });
 
   test.each([
@@ -216,7 +221,7 @@ describe("Test readExistingTranslations()", () => {
     const actualTranslations = readExistingTranslations(givenStoredValue);
 
     // THEN expect no translations to be returned
-    expect(actualTranslations).toEqual({});
+    expect(actualTranslations).toEqual(new Map());
   });
 });
 
@@ -237,9 +242,9 @@ describe("Test wrapTranslatableFields()", () => {
 
     // THEN expect the translatable fields to be keyed by the fall back language, the rest untouched
     expect(actualWrapped).toEqual({
-      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Cook" },
-      description: { [FALLBACK_DB_KEY_NAME]: "Prepares food" },
-      altLabels: [{ [FALLBACK_DB_KEY_NAME]: "Chef" }],
+      preferredLabel: new Map([[FALLBACK_DB_KEY_NAME, "Cook"]]),
+      description: new Map([[FALLBACK_DB_KEY_NAME, "Prepares food"]]),
+      altLabels: [new Map([[FALLBACK_DB_KEY_NAME, "Chef"]])],
       code: "1234",
     });
   });
@@ -252,7 +257,7 @@ describe("Test wrapTranslatableFields()", () => {
     const actualWrapped = wrapTranslatableFields(givenSpec, givenTranslatableStringFields);
 
     // THEN expect the field the spec does not carry to stay absent
-    expect(actualWrapped).toEqual({ preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Cook" } });
+    expect(actualWrapped).toEqual({ preferredLabel: new Map([[FALLBACK_DB_KEY_NAME, "Cook"]]) });
   });
 
   test("should merge the fall back language into the translations the document already carries", () => {
@@ -271,8 +276,25 @@ describe("Test wrapTranslatableFields()", () => {
 
     // THEN expect the other language to be kept and the fall back language to be replaced
     expect(actualWrapped).toEqual({
-      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Cook", [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" },
+      preferredLabel: new Map([
+        [FALLBACK_DB_KEY_NAME, "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ]),
     });
+  });
+
+  test("should not mutate the translations of the document it is given", () => {
+    // GIVEN a spec that carries a new value for the fall back language
+    const givenSpec = { preferredLabel: "Cook" };
+    // AND a document that is already translated in the fall back language
+    const givenExistingTranslations = new Map([[FALLBACK_DB_KEY_NAME, "Stale"]]);
+    const givenExistingDoc = { preferredLabel: givenExistingTranslations };
+
+    // WHEN the translatable fields are wrapped against that document
+    wrapTranslatableFields(givenSpec, givenTranslatableStringFields, givenExistingDoc);
+
+    // THEN expect the translations of the document to be unchanged
+    expect(givenExistingTranslations).toEqual(new Map([[FALLBACK_DB_KEY_NAME, "Stale"]]));
   });
 
   test("should replace altLabels wholesale, since an item has no identity to merge by", () => {
@@ -287,7 +309,7 @@ describe("Test wrapTranslatableFields()", () => {
     const actualWrapped = wrapTranslatableFields(givenSpec, givenTranslatableStringFields, givenExistingDoc);
 
     // THEN expect the altLabels of the spec to replace the ones of the document
-    expect(actualWrapped).toEqual({ altLabels: [{ [FALLBACK_DB_KEY_NAME]: "Chef" }] });
+    expect(actualWrapped).toEqual({ altLabels: [new Map([[FALLBACK_DB_KEY_NAME, "Chef"]])] });
   });
 
   test("should not mutate the spec it is given", () => {

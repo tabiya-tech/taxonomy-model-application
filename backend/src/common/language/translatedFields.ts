@@ -1,5 +1,5 @@
 import { getFallbackLanguageConfig } from "./fallbackLanguage";
-import { ILocalizedStringArrayDoc, ILocalizedStringDoc } from "./translatedString.types";
+import { ITranslatedStringArrayDoc, ITranslatedStringDoc, TranslatedStringKey } from "./translatedString.types";
 
 /**
  * Reads the value a plain object carries under a key, or undefined when the value is not a plain object.
@@ -57,35 +57,35 @@ export function readFallbackLanguageValues(translatedValues: unknown, fallbackDb
 /**
  * Wraps a flat string into a translated value keyed by the fall back language, e.g. "Cook" into { en: "Cook" }.
  */
-export function wrapTranslated(value: string): ILocalizedStringDoc {
-  return { [getFallbackLanguageConfig().dbKeyName]: value };
+export function wrapTranslated(value: string): ITranslatedStringDoc {
+  return new Map([[getFallbackLanguageConfig().dbKeyName as TranslatedStringKey, value]]);
 }
 
 /**
  * Wraps a list of flat strings into a list of translated values keyed by the fall back language.
  */
-export function wrapTranslatedArray(values: string[]): ILocalizedStringArrayDoc {
+export function wrapTranslatedArray(values: string[]): ITranslatedStringArrayDoc {
   return values.map(wrapTranslated);
 }
 
 /**
  * Reads the translations a stored path already carries.
  *
- * Mongoose hydrates a Map path as a Map and a Mixed path as a plain object, both are handled. The path is absent on
- * a brand new, unsaved document, and carries a flat string on a document that predates the localized fields
- * migration; neither is a set of translations, so both read as none.
+ * A hydrated path is a Map, but a lean query and a document written before the localized fields migration hand over
+ * a plain object, so both are read. The path is absent on a brand new, unsaved document, and carries a flat string
+ * on a document that predates the migration; neither is a set of translations, so both read as none.
  *
  * @param storedValue the value of the path, as it is hydrated
  * @returns the translations, keyed by the dbKeyName of their language
  */
-export function readExistingTranslations(storedValue: unknown): ILocalizedStringDoc {
+export function readExistingTranslations(storedValue: unknown): ITranslatedStringDoc {
   if (storedValue instanceof Map) {
-    return Object.fromEntries(storedValue);
+    return new Map(storedValue);
   }
   if (typeof storedValue === "object" && storedValue !== null && !Array.isArray(storedValue)) {
-    return { ...(storedValue as ILocalizedStringDoc) };
+    return new Map(Object.entries(storedValue) as [TranslatedStringKey, string][]);
   }
-  return {};
+  return new Map();
 }
 
 /**
@@ -110,10 +110,10 @@ export function wrapTranslatableFields<Field extends string>(
   translatableStringFields.forEach((field) => {
     const value = spec[field];
     if (value !== undefined) {
-      const existingTranslations = existingDoc
+      const translations = existingDoc
         ? readExistingTranslations((existingDoc as Record<string, unknown>)[field])
-        : {};
-      wrapped[field] = { ...existingTranslations, [fallbackDbKeyName]: value };
+        : new Map<TranslatedStringKey, string>();
+      wrapped[field] = translations.set(fallbackDbKeyName as TranslatedStringKey, value);
     }
   });
   if (spec.altLabels !== undefined) {

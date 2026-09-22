@@ -15,7 +15,7 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import { ILocalizedStringDoc } from "common/language/translatedString.types";
+import { TranslatedStringKey } from "common/language/translatedString.types";
 
 export function testImportId<T>(getModel: () => mongoose.Model<T>) {
   return describe("Test validation of 'importId'", () => {
@@ -468,7 +468,7 @@ export function testTranslatedStringField<T>(
   const testCases: [
     CaseType,
     string,
-    ILocalizedStringDoc | null | undefined,
+    Partial<Record<TranslatedStringKey, string>> | null | undefined,
     string | undefined,
     string | undefined,
   ][] = [
