@@ -6,12 +6,7 @@ import { ObjectTypes } from "./objectTypes";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import LanguageAPISpecs from "api-specifications/language";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import {
-  ILocalizedStringArrayDoc,
-  ILocalizedStringDoc,
-  ITranslatedStringArrayDoc,
-  ITranslatedStringDoc,
-} from "common/language/translatedString.types";
+import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
 
 // check for unique values in an array
 export function hasUniqueValues<T>(value: T[]) {
@@ -376,72 +371,6 @@ export function TranslatedStringArrayProperty(
     },
   };
 }
-
-/**
- * Builds a localized sub document path, the counterpart of `TranslatedStringProperty` that hydrates as a plain
- * object (e.g. `{ en: "Cook" }`, read as `value.en`) instead of a Map.
- * @param options the name of the path, the per language maximum length and whether an empty value is allowed
- */
-export function LocalizedStringProperty(
-  options: TranslatedPropertyOptions
-): mongoose.SchemaDefinitionProperty<ILocalizedStringDoc> {
-  const resolvedOptions: Required<TranslatedPropertyOptions> = { allowEmptyValues: true, ...options };
-  return {
-    type: mongoose.Schema.Types.Mixed,
-    required: true,
-    validate: (value: ILocalizedStringDoc) => {
-      validateTranslatedValue(value, resolvedOptions);
-      return true;
-    },
-  };
-}
-
-/**
- * Builds a localized sub document array path, the counterpart of `TranslatedStringArrayProperty` that hydrates
- * every item as a plain object instead of a Map.
- * @param options the name of the path, the per language maximum length and the maximum number of items
- */
-export function LocalizedStringArrayProperty(
-  options: TranslatedArrayPropertyOptions
-): mongoose.SchemaDefinitionProperty<ILocalizedStringArrayDoc> {
-  const resolvedOptions: Required<TranslatedArrayPropertyOptions> = { allowEmptyValues: false, ...options };
-  return {
-    type: [{ type: mongoose.Schema.Types.Mixed }],
-    required: true,
-    default: undefined,
-    validate: (value: ILocalizedStringArrayDoc) => {
-      validateTranslatedArrayValue(value, resolvedOptions);
-      return true;
-    },
-  };
-}
-
-export const LocalizedPreferredLabelProperty = LocalizedStringProperty({
-  fieldName: "preferredLabel",
-  maxLength: LABEL_MAX_LENGTH,
-  allowEmptyValues: false,
-});
-
-export const LocalizedDescriptionProperty = LocalizedStringProperty({
-  fieldName: "description",
-  maxLength: DESCRIPTION_MAX_LENGTH,
-});
-
-export const LocalizedDefinitionProperty = LocalizedStringProperty({
-  fieldName: "definition",
-  maxLength: DEFINITION_MAX_LENGTH,
-});
-
-export const LocalizedScopeNoteProperty = LocalizedStringProperty({
-  fieldName: "scopeNote",
-  maxLength: SCOPE_NOTE_MAX_LENGTH,
-});
-
-export const LocalizedAltLabelsProperty = LocalizedStringArrayProperty({
-  fieldName: "altLabels",
-  maxLength: LABEL_MAX_LENGTH,
-  maxItems: ATL_LABELS_MAX_ITEMS,
-});
 
 export const TranslatedPreferredLabelProperty = TranslatedStringProperty({
   fieldName: "preferredLabel",

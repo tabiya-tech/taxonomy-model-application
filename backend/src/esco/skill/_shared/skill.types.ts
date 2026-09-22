@@ -5,7 +5,7 @@ import { ISkillGroupReference } from "esco/skillGroup/_shared/skillGroup.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
-import { ILocalizedStringArrayDoc, ILocalizedStringDoc } from "common/language/translatedString.types";
+import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
 
 /**
  * Enum for the different types of skills.
@@ -49,7 +49,7 @@ export interface ISkillDoc extends ImportIdentifiable {
 }
 
 /**
- * The translatable fields of a skill, stored as localized sub documents (e.g. { en: "Cook" }).
+ * The translatable fields of a skill, stored as translated sub documents (e.g. { en: "Cook" }).
  */
 type SkillTranslatableFields = "preferredLabel" | "description" | "definition" | "scopeNote";
 
@@ -57,12 +57,12 @@ type SkillTranslatableFields = "preferredLabel" | "description" | "definition" |
  * How a skill is actually shaped in MongoDB, used only at the mongoose schema/document boundary. Everywhere else
  * (ISkillDoc, ISkill) the fields stay flat strings, resolved to the fallback language by the repository.
  */
-export type ISkillLocalizedDoc = Omit<ISkillDoc, SkillTranslatableFields | "altLabels"> & {
-  preferredLabel: ILocalizedStringDoc;
-  description: ILocalizedStringDoc;
-  definition: ILocalizedStringDoc;
-  scopeNote: ILocalizedStringDoc;
-  altLabels: ILocalizedStringArrayDoc;
+export type ISkillTranslatedDoc = Omit<ISkillDoc, SkillTranslatableFields | "altLabels"> & {
+  preferredLabel: ITranslatedStringDoc;
+  description: ITranslatedStringDoc;
+  definition: ITranslatedStringDoc;
+  scopeNote: ITranslatedStringDoc;
+  altLabels: ITranslatedStringArrayDoc;
 };
 
 /**

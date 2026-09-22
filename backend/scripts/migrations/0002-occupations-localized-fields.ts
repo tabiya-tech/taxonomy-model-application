@@ -2,10 +2,7 @@ import mongoose from "mongoose";
 import { initializeSchemaAndModel } from "../../src/esco/occupations/model/occupation.model";
 import { getFallbackLanguageConfig } from "../../src/common/language/fallbackLanguage";
 import { readFallbackLanguageValue } from "../../src/common/language/translatedFields";
-import {
-  ILocalizedStringArrayDoc,
-  ILocalizedStringDoc,
-} from "../../src/common/language/translatedString.types";
+import { TranslatedStringKey } from "../../src/common/language/translatedString.types";
 import { MongooseModelName } from "../../src/esco/common/mongooseModelNames";
 import { IOccupationDoc } from "../../src/esco/occupations/_shared/occupation.types";
 import { IMigration, IMigrationResult } from "./migration.types";
@@ -56,7 +53,7 @@ export function buildMigrationUpdate(doc: Record<string, unknown>): Record<strin
 }
 
 // true when the field is a localized sub document, i.e. an object keyed by language rather than a flat string
-function isLocalizedValue(value: unknown): value is ILocalizedStringDoc {
+function isLocalizedValue(value: unknown): value is Partial<Record<TranslatedStringKey, string>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
@@ -72,7 +69,7 @@ function buildRevertUpdate(doc: Record<string, unknown>, fallbackDbKeyName: stri
   });
 
   if (Array.isArray(doc.altLabels) && doc.altLabels.some(isLocalizedValue)) {
-    update.altLabels = (doc.altLabels as ILocalizedStringArrayDoc).map((item) =>
+    update.altLabels = (doc.altLabels as unknown[]).map((item) =>
       isLocalizedValue(item) ? readFallbackLanguageValue(item, fallbackDbKeyName) : item
     );
   }

@@ -48,8 +48,9 @@ describe("Test the definition of the skill Model", () => {
   });
 
   const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-  // Wraps a flat string into a localized sub document keyed by the fallback language, e.g. "Cook" -> { en: "Cook" }.
-  const wrapTranslated = (value: string) => ({ [fallbackDbKeyName]: value });
+  // Wraps a flat string into a translated sub document keyed by the fallback language, e.g. "Cook" -> { en: "Cook" }.
+  // It is built as a Map, the shape a translated path is stored in and hydrated as.
+  const wrapTranslated = (value: string) => new Map([[fallbackDbKeyName, value]]);
 
   test.each([
     [
@@ -90,7 +91,7 @@ describe("Test the definition of the skill Model", () => {
     ],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ])("Successfully validate skill with %s", async (description, givenFlatObject: any) => {
-    // GIVEN a skill document based on the given object, with its translatable fields wrapped as localized sub
+    // GIVEN a skill document based on the given object, with its translatable fields wrapped as translated sub
     // documents keyed by the fallback language, the shape the schema now stores them as.
     const givenObject = {
       ...givenFlatObject,
@@ -112,7 +113,7 @@ describe("Test the definition of the skill Model", () => {
     await givenSkillDocument.save();
 
     // AND the toObject() transformation to return the correct properties, since the schema stores the translatable
-    // fields as localized sub documents, toObject() also returns them that way (the repository is the layer
+    // fields as translated sub documents, toObject() also returns them that way (the repository is the layer
     // responsible for flattening them back to the fallback language string).
     expect(givenSkillDocument.toObject()).toEqual({
       ...givenObject,
@@ -155,9 +156,9 @@ describe("Test the definition of the skill Model", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const actualObject = actualDoc!.toObject() as any;
 
-    // THEN expect both items to be present, the one lacking the fallback language read as an empty object rather
+    // THEN expect both items to be present, the one lacking the fallback language hydrated as it is stored rather
     // than being silently dropped from the array
-    expect(actualObject.altLabels).toEqual([{ en: "kept" }, { fr: "sans anglais" }]);
+    expect(actualObject.altLabels).toEqual([new Map([["en", "kept"]]), new Map([["fr", "sans anglais"]])]);
   });
 
   describe("Validate skill fields", () => {

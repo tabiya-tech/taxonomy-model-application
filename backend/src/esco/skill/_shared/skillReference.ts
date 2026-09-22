@@ -11,16 +11,16 @@ import {
 } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { readFallbackLanguageValue, readFallbackLanguageValues } from "common/language/translatedFields";
-import { ILocalizedStringDoc } from "common/language/translatedString.types";
+import { ITranslatedStringDoc } from "common/language/translatedString.types";
 
 type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
-// preferredLabel is stored as a localized sub document; ISkillDoc types it as a flat string for callers outside the
+// preferredLabel is stored as a translated sub document; ISkillDoc types it as a flat string for callers outside the
 // repository, so the raw hydrated document is typed separately here.
 export type SkillDocument = Omit<_Document<ISkillDoc>, "preferredLabel"> & {
-  preferredLabel: ILocalizedStringDoc;
+  preferredLabel: ITranslatedStringDoc;
 };
 
-// The translatable fields of a Skill, stored as localized sub documents ({ en: "value" }).
+// The translatable fields of a Skill, stored as translated sub documents ({ en: "value" }).
 const SKILL_TRANSLATABLE_STRING_FIELDS = ["preferredLabel", "description", "definition", "scopeNote"] as const;
 
 export function getSkillDocReference(skill: SkillDocument): ISkillReferenceDoc {
