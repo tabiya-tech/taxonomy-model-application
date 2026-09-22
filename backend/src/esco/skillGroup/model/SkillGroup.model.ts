@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 import { RegEx_Skill_Group_Code, RegExp_UUIDv4 } from "server/regex";
 import {
-  AltLabelsProperty,
-  DescriptionProperty,
+  TranslatedAltLabelsProperty,
+  TranslatedDescriptionProperty,
   OriginUriProperty,
   UUIDHistoryProperty,
-  PreferredLabelProperty,
-  ScopeNoteProperty,
+  TranslatedPreferredLabelProperty,
+  TranslatedScopeNoteProperty,
   EmbeddingStatusProperty,
 } from "esco/common/modelSchema";
 import { ISkillGroupDoc } from "../_shared/skillGroup.types";
@@ -15,6 +15,8 @@ import { stringRequired } from "server/stringRequired";
 import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { SkillHierarchyModelPaths } from "esco/skillHierarchy/skillHierarchyModel";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import { readFallbackLanguageValue, readFallbackLanguageValues } from "common/language/translatedFields";
 
 export const SkillGroupModelPaths = {
   parents: "parents",
@@ -36,13 +38,13 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
           message: (props) => `${props.value} is not a valid code.`,
         },
       },
-      preferredLabel: PreferredLabelProperty,
+      preferredLabel: TranslatedPreferredLabelProperty,
       modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
       UUIDHistory: UUIDHistoryProperty,
       originUri: OriginUriProperty,
-      altLabels: AltLabelsProperty,
-      description: DescriptionProperty,
-      scopeNote: ScopeNoteProperty,
+      altLabels: TranslatedAltLabelsProperty,
+      description: TranslatedDescriptionProperty,
+      scopeNote: TranslatedScopeNoteProperty,
       importId: {
         type: String,
         required: false,
@@ -53,8 +55,8 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
     {
       timestamps: true,
       strict: "throw",
-      toObject: getGlobalTransformOptions(),
-      toJSON: getGlobalTransformOptions(),
+      toObject: getGlobalTransformOptions(_TransformFn),
+      toJSON: getGlobalTransformOptions(_TransformFn),
     }
   );
 
@@ -84,3 +86,13 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
 
   return dbConnection.model<ISkillGroupDoc>(MongooseModelName.SkillGroup, SkillGroupSchema);
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _TransformFn = (doc: any, ret: any) => {
+  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+  ret.preferredLabel = readFallbackLanguageValue(ret.preferredLabel, fallbackDbKeyName);
+  ret.description = readFallbackLanguageValue(ret.description, fallbackDbKeyName);
+  ret.scopeNote = readFallbackLanguageValue(ret.scopeNote, fallbackDbKeyName);
+  ret.altLabels = readFallbackLanguageValues(ret.altLabels, fallbackDbKeyName);
+  return ret;
+};

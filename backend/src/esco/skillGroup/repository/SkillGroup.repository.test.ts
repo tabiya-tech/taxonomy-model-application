@@ -21,6 +21,7 @@ import {
 } from "../_shared/skillGroup.types";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { INewSkillSpec, ISkillReference } from "esco/skill/_shared/skill.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
@@ -369,6 +370,39 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.skillGroup.createMany([getNewSkillGroupSpec()]);
+    });
+  });
+
+  describe("Test the shape the translatable fields are stored in", () => {
+    test("should store preferredLabel, description, scopeNote and altLabels as localized sub documents keyed by the fallback language", async () => {
+      // GIVEN a new SkillGroup spec whose translatable fields are flat strings, as the repository API takes them
+      const givenModelId = getMockStringId(1);
+      const givenNewSkillGroupSpec: INewSkillGroupSpec = getNewSkillGroupSpec();
+      givenNewSkillGroupSpec.modelId = givenModelId;
+
+      // WHEN creating the SkillGroup
+      const actualCreated = await repository.create(givenNewSkillGroupSpec);
+
+      // THEN expect the raw document to carry them as localized sub documents keyed by the fallback language
+      const actualRawDoc = await repository.Model.findById(actualCreated.id).lean();
+      const expectedFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+      expect(actualRawDoc?.preferredLabel).toEqual({
+        [expectedFallbackDbKeyName]: givenNewSkillGroupSpec.preferredLabel,
+      });
+      expect(actualRawDoc?.description).toEqual({ [expectedFallbackDbKeyName]: givenNewSkillGroupSpec.description });
+      expect(actualRawDoc?.scopeNote).toEqual({ [expectedFallbackDbKeyName]: givenNewSkillGroupSpec.scopeNote });
+      expect(actualRawDoc?.altLabels).toEqual(
+        givenNewSkillGroupSpec.altLabels.map((altLabel) => ({ [expectedFallbackDbKeyName]: altLabel }))
+      );
+
+      // AND expect the repository to have returned them as flat strings, i.e. its public API is unchanged
+      expect(actualCreated.preferredLabel).toEqual(givenNewSkillGroupSpec.preferredLabel);
+      expect(actualCreated.description).toEqual(givenNewSkillGroupSpec.description);
+      expect(actualCreated.scopeNote).toEqual(givenNewSkillGroupSpec.scopeNote);
+      expect(actualCreated.altLabels).toEqual(givenNewSkillGroupSpec.altLabels);
+
+      // AND expect code to be stored as a plain string, it is monolingual
+      expect(actualRawDoc?.code).toEqual(givenNewSkillGroupSpec.code);
     });
   });
 
@@ -1365,6 +1399,67 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         expect(actual[0].id).toBe(givenSkillGroup.id);
       });
 
+      test("should match the search value on description, scopeNote and altLabels, which are localized sub documents too", async () => {
+        // GIVEN a model with two skill groups, distinguishable by their description, scopeNote and altLabels
+        const givenModelId = getMockStringId(1);
+        const givenMatchingSpec = getSimpleNewSkillGroupSpec(givenModelId, "matching");
+        givenMatchingSpec.description = "Caring for the sick";
+        givenMatchingSpec.scopeNote = "Excludes veterinary care";
+        givenMatchingSpec.altLabels = ["Carers"];
+        const givenMatchingSkillGroup = await repository.create(givenMatchingSpec);
+        const givenOtherSpec = getSimpleNewSkillGroupSpec(givenModelId, "other");
+        givenOtherSpec.description = "Writing software";
+        givenOtherSpec.scopeNote = "Excludes hardware design";
+        givenOtherSpec.altLabels = ["Developers"];
+        await repository.create(givenOtherSpec);
+
+        // WHEN searching for a value that occurs in the description of the first skill group only
+        const actualFoundByDescription = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
+          value: "caring",
+          fields: ["description"],
+        });
+
+        // THEN expect only that skill group, i.e. the query reaches into the localized sub document
+        expect(actualFoundByDescription).toHaveLength(1);
+        expect(actualFoundByDescription[0].id).toEqual(givenMatchingSkillGroup.id);
+
+        // WHEN searching for a value that occurs in the scopeNote of the first skill group only
+        const actualFoundByScopeNote = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
+          value: "veterinary",
+          fields: ["scopeNote"],
+        });
+
+        // THEN expect only that skill group
+        expect(actualFoundByScopeNote).toHaveLength(1);
+        expect(actualFoundByScopeNote[0].id).toEqual(givenMatchingSkillGroup.id);
+
+        // WHEN searching for a value that occurs in the altLabels of the first skill group only
+        const actualFoundByAltLabels = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
+          value: "carers",
+          fields: ["altLabels"],
+        });
+
+        // THEN expect only that skill group, i.e. the query reaches into every item of the localized list
+        expect(actualFoundByAltLabels).toHaveLength(1);
+        expect(actualFoundByAltLabels[0].id).toEqual(givenMatchingSkillGroup.id);
+      });
+
+      test("should not match the search value on code, which stays monolingual", async () => {
+        // GIVEN a model with a skill group whose code is a plain string, not a localized sub document
+        const givenModelId = getMockStringId(1);
+        const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "a group"));
+
+        // WHEN searching for that code
+        const actualFound = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
+          value: givenSkillGroup.code,
+          fields: ["code"],
+        });
+
+        // THEN expect the skill group to be found, i.e. the query targets code itself and not a language of it
+        expect(actualFound).toHaveLength(1);
+        expect(actualFound[0].id).toEqual(givenSkillGroup.id);
+      });
+
       test("should return an empty array when nothing matches the search value", async () => {
         // GIVEN a model with a skill group
         const givenModelId = getMockStringId(1);
@@ -1817,6 +1912,36 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actualUpdated!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenSkillGroup.updatedAt.getTime());
     });
 
+    test("should preserve a non fallback language translation of a field when updating it", async () => {
+      // GIVEN a SkillGroup exists in the database
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "group_1"));
+      // AND its preferredLabel also carries a French translation, stored directly (the flat-string repository API
+      // has no way to write a non fallback language)
+      await repository.Model.updateOne({ _id: givenSkillGroup.id }, { $set: { "preferredLabel.fr": "Gestion" } });
+
+      // WHEN updating the SkillGroup, setting only the fallback language through the public API
+      const givenUpdateSpec: IUpdateSkillGroupSpec = {
+        code: givenSkillGroup.code,
+        preferredLabel: "Updated Label",
+        altLabels: ["updated-alt-1"],
+        description: "Updated description",
+        scopeNote: "Updated scope note",
+        originUri: "https://updated.example.com",
+        modelId: givenModelId,
+        UUIDHistory: givenSkillGroup.UUIDHistory,
+      };
+      await repository.update(givenSkillGroup.id, givenModelId, givenUpdateSpec);
+
+      // THEN expect the fallback language to have been updated, and the French translation to still be there
+      const actualRawDoc = await repository.Model.findById(givenSkillGroup.id).lean();
+      const expectedFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+      expect(actualRawDoc?.preferredLabel).toEqual({
+        [expectedFallbackDbKeyName]: givenUpdateSpec.preferredLabel,
+        fr: "Gestion",
+      });
+    });
+
     test("should return null if the SkillGroup with the given id does not exist", async () => {
       // GIVEN no SkillGroup with the given id exists
       const givenModelId = getMockStringId(1);
@@ -1923,6 +2048,37 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actualPatched!.UUIDHistory).toEqual(givenSkillGroup.UUIDHistory);
       // AND expect the timestamps to be updated
       expect(actualPatched!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenSkillGroup.updatedAt.getTime());
+    });
+
+    test("should preserve a non fallback language translation of a field when patching it, and leave other translatable fields untouched", async () => {
+      // GIVEN a SkillGroup exists in the database
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(givenModelId, "group_1");
+      givenSkillGroupSpec.description = "A description of the group";
+      const givenSkillGroup = await repository.create(givenSkillGroupSpec);
+      // AND its preferredLabel and description also carry a French translation, stored directly (the flat-string
+      // repository API has no way to write a non fallback language)
+      await repository.Model.updateOne(
+        { _id: givenSkillGroup.id },
+        { $set: { "preferredLabel.fr": "Gestion", "description.fr": "Une description" } }
+      );
+
+      // WHEN patching only preferredLabel through the public API
+      const givenPatchSpec: IPartialUpdateSkillGroupSpec = { preferredLabel: "Patched Label" };
+      await repository.patch(givenSkillGroup.id, givenModelId, givenPatchSpec);
+
+      // THEN expect preferredLabel's fallback language to have been updated, and its French translation preserved
+      const actualRawDoc = await repository.Model.findById(givenSkillGroup.id).lean();
+      const expectedFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+      expect(actualRawDoc?.preferredLabel).toEqual({
+        [expectedFallbackDbKeyName]: "Patched Label",
+        fr: "Gestion",
+      });
+      // AND expect description, which was not part of the patch, to be completely untouched
+      expect(actualRawDoc?.description).toEqual({
+        [expectedFallbackDbKeyName]: givenSkillGroup.description,
+        fr: "Une description",
+      });
     });
 
     test("should return null if the SkillGroup with the given id does not exist", async () => {

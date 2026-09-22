@@ -2,6 +2,7 @@ import modelInfoAvailableLanguages from "./0001-model-info-available-languages";
 import occupationsLocalizedFields from "./0002-occupations-localized-fields";
 import occupationGroupsLocalizedFields from "./0003-occupation-groups-localized-fields";
 import skillsLocalizedFields from "./0004-skills-localized-fields";
+import skillGroupsLocalizedFields from "./0005-skill-groups-localized-fields";
 import { IMigration } from "./migration.types";
 
 /**
@@ -15,6 +16,7 @@ export const MIGRATIONS: readonly IMigration[] = [
   occupationsLocalizedFields,
   occupationGroupsLocalizedFields,
   skillsLocalizedFields,
+  skillGroupsLocalizedFields,
 ];
 
 /**

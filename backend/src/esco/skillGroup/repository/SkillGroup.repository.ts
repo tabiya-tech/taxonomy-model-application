@@ -34,19 +34,14 @@ import {
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import { wrapTranslatableFields } from "common/language/translatedFields";
 
-// A Skill child's translatable fields are localized sub documents, a SkillGroup child's are still flat strings;
-// this reads the fallback language when the field is a sub document, and passes a flat value through unchanged.
-function readFallbackLanguageAggregationExpr(fieldPath: string): Record<string, unknown> {
-  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-  return {
-    $cond: {
-      if: { $eq: [{ $type: fieldPath }, "object"] },
-      then: { $ifNull: [{ $getField: { field: fallbackDbKeyName, input: fieldPath } }, ""] },
-      else: { $ifNull: [fieldPath, ""] },
-    },
-  };
-}
+// fields stored as localized sub documents, wrapped/flattened by this repository. code is monolingual and is
+// deliberately absent from this list.
+const TRANSLATABLE_STRING_FIELDS = ["preferredLabel", "description", "scopeNote"] as const;
+
+// same as above, plus altLabels (an array of localized sub documents)
+const TRANSLATABLE_FIELDS = [...TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
 
 interface FindPaginatedFilter {
   childrenIds?: string;
@@ -164,7 +159,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
   private newSpecToModel(newSpec: INewSkillGroupSpec): mongoose.HydratedDocument<ISkillGroupDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...newSpec,
+      ...wrapTranslatableFields(newSpec, TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
     });
     newModel.UUIDHistory.unshift(newUUID);
@@ -176,7 +171,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
   ): mongoose.HydratedDocument<ISkillGroupDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...newSpe,
+      ...wrapTranslatableFields(newSpe, TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: null,
     });
@@ -268,9 +263,8 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       const matchStage: Record<string, unknown> = { modelId: modelIdObj };
 
-      // a skill group carries no translatable field yet, so the search matches every field as it is stored
       if (search) {
-        matchStage.$and = [buildSearchCondition(search)];
+        matchStage.$and = [buildSearchCondition(search, TRANSLATABLE_FIELDS)];
       }
 
       if (filter?.childrenIds && filter.childrenType) {
@@ -475,6 +469,37 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       if (cursor && mongoose.Types.ObjectId.isValid(cursor)) {
         matchStage.childId = { $gt: new mongoose.Types.ObjectId(cursor) };
       }
+
+      const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+      // reads straight off the raw collections, bypassing the owning model's toObject transform, so a
+      // translatable field must be flattened here, tolerating both a plain string and a localized sub document
+      const flattenTranslatedString = (path: string) => ({
+        $cond: [
+          { $eq: [{ $type: path }, "object"] },
+          { $ifNull: [{ $getField: { field: fallbackDbKeyName, input: path } }, ""] },
+          path,
+        ],
+      });
+      const flattenTranslatedStringArray = (path: string) => ({
+        $cond: [
+          { $eq: [{ $type: path }, "array"] },
+          {
+            $map: {
+              input: path,
+              as: "item",
+              in: {
+                $cond: [
+                  { $eq: [{ $type: "$$item" }, "object"] },
+                  { $ifNull: [{ $getField: { field: fallbackDbKeyName, input: "$$item" } }, ""] },
+                  "$$item",
+                ],
+              },
+            },
+          },
+          path,
+        ],
+      });
+
       const result = await this.hierarchyModel.aggregate([
         {
           $match: matchStage as mongoose.PipelineStage.Match["$match"],
@@ -527,15 +552,9 @@ export class SkillGroupRepository implements ISkillGroupRepository {
             UUID: "$child.UUID",
             UUIDHistory: "$child.UUIDHistory",
             originUri: "$child.originUri",
-            description: readFallbackLanguageAggregationExpr("$child.description"),
-            preferredLabel: readFallbackLanguageAggregationExpr("$child.preferredLabel"),
-            altLabels: {
-              $map: {
-                input: { $ifNull: ["$child.altLabels", []] },
-                as: "altLabel",
-                in: readFallbackLanguageAggregationExpr("$$altLabel"),
-              },
-            },
+            description: flattenTranslatedString("$child.description"),
+            preferredLabel: flattenTranslatedString("$child.preferredLabel"),
+            altLabels: flattenTranslatedStringArray("$child.altLabels"),
             code: {
               $cond: {
                 if: { $ne: ["$child.code", null] },
@@ -570,7 +589,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(spec);
+      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([populateSkillGroupParentsOptions, populateSkillGroupChildrenOptions]);
       return doc.toObject();
@@ -586,7 +605,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(spec);
+      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([populateSkillGroupParentsOptions, populateSkillGroupChildrenOptions]);
       return doc.toObject();

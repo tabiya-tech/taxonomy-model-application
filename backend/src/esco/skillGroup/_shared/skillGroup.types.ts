@@ -2,9 +2,13 @@ import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import mongoose from "mongoose";
 import { ISkillReference } from "esco/skill/_shared/skill.types";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
+import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
 
 /**
  * Describes how a skill group is saved in the database.
+ * Translatable fields are typed as ITranslatedStringDoc/ITranslatedStringArrayDoc, the shape mongoose hydrates them
+ * as, keyed by the languages of the registry.
+ * code is monolingual and stays a flat string.
  */
 export interface ISkillGroupDoc extends ImportIdentifiable {
   modelId: mongoose.Types.ObjectId;
@@ -12,21 +16,30 @@ export interface ISkillGroupDoc extends ImportIdentifiable {
   UUIDHistory: string[];
   code: string;
   originUri: string;
-  preferredLabel: string;
-  altLabels: string[];
-  description: string;
-  scopeNote: string;
+  preferredLabel: ITranslatedStringDoc;
+  altLabels: ITranslatedStringArrayDoc;
+  description: ITranslatedStringDoc;
+  scopeNote: ITranslatedStringDoc;
   embeddingStatus?: Map<string, EntityEmbeddingStatus>;
 }
 
 /**
  * Describes how a skill group is returned from the API.
  * The embeddingStatus is internal bookkeeping of the embedding process and is not returned from the API.
+ * Translatable fields are redeclared as flat strings, since the repository flattens them.
  */
-export interface ISkillGroup extends Omit<ISkillGroupDoc, "id" | "modelId" | "UUIDHistory" | "embeddingStatus"> {
+export interface ISkillGroup
+  extends Omit<
+    ISkillGroupDoc,
+    "id" | "modelId" | "UUIDHistory" | "embeddingStatus" | "preferredLabel" | "altLabels" | "description" | "scopeNote"
+  > {
   id: string;
   UUID: string;
   modelId: string;
+  preferredLabel: string;
+  altLabels: string[];
+  description: string;
+  scopeNote: string;
   parents: ISkillGroupReference[];
   UUIDHistory: string[];
   children: (ISkillGroupReference | ISkillReference)[];
@@ -85,8 +98,11 @@ export interface ISkillGroupReference extends Pick<ISkillGroup, "id" | "UUID" | 
  * Describes how a reference to a skill group is populated within repository functions .
  * This is not returned from the API.
  */
-export interface ISkillGroupReferenceDoc extends Pick<ISkillGroupDoc, "modelId" | "UUID" | "code" | "preferredLabel"> {
+export interface ISkillGroupReferenceDoc extends Pick<ISkillGroupDoc, "modelId" | "UUID" | "code"> {
   id: string;
+  // flattened to the fall back language by getSkillGroupDocReference, unlike the localized sub document it is
+  // stored as
+  preferredLabel: string;
   objectType: ObjectTypes.SkillGroup | ObjectTypes.Skill;
 }
 
