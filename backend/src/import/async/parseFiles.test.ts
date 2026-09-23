@@ -248,24 +248,32 @@ describe("Test the main async handler", () => {
           expect(parseOccupationGroupsFromUrl).toHaveBeenCalledWith(
             givenEvent.modelId,
             expectedPresignedUrl,
-            expect.any(Map)
+            expect.any(Map),
+            expect.any(Array)
           );
           break;
         case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILL_GROUPS:
           expect(parseSkillGroupsFromUrl).toHaveBeenCalledWith(
             givenEvent.modelId,
             expectedPresignedUrl,
-            expect.any(Map)
+            expect.any(Map),
+            expect.any(Array)
           );
           break;
         case ImportAPISpecs.Constants.ImportFileTypes.ESCO_SKILLS:
-          expect(parseSkillsFromUrl).toHaveBeenCalledWith(givenEvent.modelId, expectedPresignedUrl, expect.any(Map));
+          expect(parseSkillsFromUrl).toHaveBeenCalledWith(
+            givenEvent.modelId,
+            expectedPresignedUrl,
+            expect.any(Map),
+            expect.any(Array)
+          );
           break;
         case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATIONS:
           expect(parseOccupationsFromUrl).toHaveBeenCalledWith(
             givenEvent.modelId,
             expectedPresignedUrl,
-            expect.any(Map)
+            expect.any(Map),
+            expect.any(Array)
           );
           break;
         case ImportAPISpecs.Constants.ImportFileTypes.OCCUPATION_HIERARCHY:

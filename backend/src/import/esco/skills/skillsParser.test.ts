@@ -6,7 +6,7 @@ import fs from "fs";
 import { StatusCodes } from "server/httpUtils";
 import { parseSkillsFromFile, parseSkillsFromUrl } from "./skillsParser";
 import { ISkillRepository } from "esco/skill/repository/skill.repository";
-import { INewSkillSpec, ISkill } from "esco/skill/_shared/skill.types";
+import { INewSkillSpecLocalized, ISkill } from "esco/skill/_shared/skill.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
@@ -66,13 +66,19 @@ describe("test parseSkills from", () => {
         // @ts-ignore
         Model: undefined,
         create: jest.fn().mockResolvedValue({}),
-        createMany: jest.fn().mockImplementation((specs: INewSkillSpec[]): Promise<ISkill[]> => {
+        createMany: jest.fn().mockResolvedValue([]),
+        createManyLocalized: jest.fn().mockImplementation((specs: INewSkillSpecLocalized[]): Promise<ISkill[]> => {
           return Promise.resolve(
-            specs.map((spec: INewSkillSpec): ISkill => {
+            specs.map((spec: INewSkillSpecLocalized): ISkill => {
               return {
                 ...spec,
-                id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
+                id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later
                 UUID: "",
+                preferredLabel: "",
+                altLabels: [],
+                description: "",
+                definition: "",
+                scopeNote: "",
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 children: [],
@@ -104,8 +110,8 @@ describe("test parseSkills from", () => {
       const path = "./_test_data_/expected.ts";
       const expectedResultsModule = await import(path);
       const expectedResults = expectedResultsModule.expected;
-      expectedResults.forEach((expectedSpec: Omit<INewSkillSpec, "modelId">) => {
-        expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
+      expectedResults.forEach((expectedSpec: Omit<INewSkillSpecLocalized, "modelId">) => {
+        expect(givenMockRepository.createManyLocalized).toHaveBeenLastCalledWith(
           expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
         );
       });
@@ -119,8 +125,8 @@ describe("test parseSkills from", () => {
       // AND the non-empty import ids to have been mapped to the db id
       expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(10);
       expectedResults
-        .filter((res: Omit<INewSkillSpec, "modelId">) => isSpecified(res.importId))
-        .forEach((expectedSpec: Omit<INewSkillSpec, "modelId">, index: number) => {
+        .filter((res: Omit<INewSkillSpecLocalized, "modelId">) => isSpecified(res.importId))
+        .forEach((expectedSpec: Omit<INewSkillSpecLocalized, "modelId">, index: number) => {
           expect(givenImportIdToDBIdMap.set).toHaveBeenNthCalledWith(
             index + 1,
             expectedSpec.importId,
@@ -129,25 +135,30 @@ describe("test parseSkills from", () => {
         });
       // AND no error should be logged
       expect(errorLogger.logError).not.toHaveBeenCalled();
+      // AND a deprecation warning for legacy unsuffixed columns is logged first
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        1,
+        expect.stringContaining("CSV uses legacy unsuffixed columns")
+      );
       // AND a warning should be logged for the row with duplicate altLabels
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        4,
-        "Warning while importing Skill row with id:'key_8'. AltLabels contain 1 duplicates."
+        5,
+        "Warning while importing Skill row with id:'key_8'. AltLabels (en) contain 1 duplicates."
       );
 
       // AND a warning that that says that the preferred label is not in the alt labels should be logged
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(3, "Failed to import Skill with skillId:key_7");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(4, "Failed to import Skill with skillId:key_7");
       // AND warning should be logged fo reach of the failed rows
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        1,
-        "Warning while importing Skill row with id:'key_2'. Preferred label 'preferred\n" +
+        2,
+        "Warning while importing Skill row with id:'key_2'. Preferred label (en) 'preferred\n" +
           "label\n" +
           "with\n" +
           "linebreak' is not in the alt labels."
       );
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(2, "Failed to import Skill with skillId:key_6");
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(5, "Failed to import Skill from row:1 with importId:");
-      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(6, "Failed to import Skill from row:2 with importId:");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(3, "Failed to import Skill with skillId:key_6");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(6, "Failed to import Skill from row:1 with importId:");
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(7, "Failed to import Skill from row:2 with importId:");
     }
   );
 });

@@ -1,0 +1,3 @@
+"ORIGINURI","ID","UUIDHISTORY","SKILLTYPE","REUSELEVEL","PREFERREDLABEL_EN","PREFERREDLABEL_FR","ALTLABELS_EN","ALTLABELS_FR","DESCRIPTION_EN","DESCRIPTION_FR","DEFINITION_EN","DEFINITION_FR","SCOPENOTE_EN","SCOPENOTE_FR","ISLOCALIZED"
+"http://data.europa.eu/esco/skill/0001","key_sk_1","","skill/competence","cross-sector","manage staff","gérer le personnel","manage staff","gérer le personnel","Ability to manage staff in an organisation.","Capacité à gérer le personnel dans une organisation.","","","","","false"
+"http://data.europa.eu/esco/skill/0002","key_sk_2","","knowledge","transversal","accounting","comptabilité","accounting","comptabilité","Knowledge of accounting principles and practices.","Connaissance des principes et pratiques comptables.","","","","","false"

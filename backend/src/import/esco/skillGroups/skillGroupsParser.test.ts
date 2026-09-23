@@ -6,7 +6,7 @@ import { parseSkillGroupsFromFile, parseSkillGroupsFromUrl } from "./skillGroups
 import fs from "fs";
 import { StatusCodes } from "server/httpUtils";
 import { ISkillGroupRepository } from "esco/skillGroup/repository/SkillGroup.repository";
-import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
+import { INewSkillGroupSpecLocalized, ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { isSpecified } from "server/isUnspecified";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import errorLogger from "common/errorLogger/errorLogger";
@@ -68,21 +68,28 @@ describe("test parseSkillGroups from", () => {
         // @ts-ignore
         Model: undefined,
         create: jest.fn().mockResolvedValue({}),
-        createMany: jest.fn().mockImplementation((specs: INewSkillGroupSpec[]): Promise<ISkillGroup[]> => {
-          return Promise.resolve(
-            specs.map((spec: INewSkillGroupSpec): ISkillGroup => {
-              return {
-                ...spec,
-                id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
-                UUID: "",
-                children: [],
-                parents: [],
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              };
-            })
-          );
-        }),
+        createMany: jest.fn().mockResolvedValue([]),
+        createManyLocalized: jest
+          .fn()
+          .mockImplementation((specs: INewSkillGroupSpecLocalized[]): Promise<ISkillGroup[]> => {
+            return Promise.resolve(
+              specs.map((spec: INewSkillGroupSpecLocalized): ISkillGroup => {
+                return {
+                  ...spec,
+                  id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later
+                  UUID: "",
+                  preferredLabel: "",
+                  altLabels: [],
+                  description: "",
+                  scopeNote: "",
+                  children: [],
+                  parents: [],
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                };
+              })
+            );
+          }),
       };
       jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenMockRepository);
       // AND a map to map the ids of the CSV givenCSVFile to the database ids
@@ -96,8 +103,8 @@ describe("test parseSkillGroups from", () => {
       const path = "./_test_data_/expected.ts";
       const expectedResultsModule = await import(path);
       const expectedResults = expectedResultsModule.expected;
-      expectedResults.forEach((expectedSpec: Omit<INewSkillGroupSpec, "modelId">) => {
-        expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
+      expectedResults.forEach((expectedSpec: Omit<INewSkillGroupSpecLocalized, "modelId">) => {
+        expect(givenMockRepository.createManyLocalized).toHaveBeenLastCalledWith(
           expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
         );
       });
@@ -112,8 +119,8 @@ describe("test parseSkillGroups from", () => {
       expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(6);
 
       expectedResults
-        .filter((res: Omit<INewSkillGroupSpec, "modelId">) => isSpecified(res.importId))
-        .forEach((expectedSpec: Omit<INewSkillGroupSpec, "modelId">, index: number) => {
+        .filter((res: Omit<INewSkillGroupSpecLocalized, "modelId">) => isSpecified(res.importId))
+        .forEach((expectedSpec: Omit<INewSkillGroupSpecLocalized, "modelId">, index: number) => {
           expect(givenImportIdToDBIdMap.set).toHaveBeenNthCalledWith(
             index + 1,
             expectedSpec.importId,
@@ -122,25 +129,30 @@ describe("test parseSkillGroups from", () => {
         });
       // AND no error should be logged
       expect(errorLogger.logError).not.toHaveBeenCalled();
+      // AND a deprecation warning for legacy unsuffixed columns is logged first
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
         1,
-        "Warning while importing Skill Group row with id:'key_2'. Preferred label 'preferred\n" +
+        expect.stringContaining("CSV uses legacy unsuffixed columns")
+      );
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        2,
+        "Warning while importing Skill Group row with id:'key_2'. Preferred label (en) 'preferred\n" +
           "label\n" +
           "with\n" +
           "linebreak' is not in the alt labels."
       );
       // AND a warning should be logged for the row with duplicate altLabels
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        2,
-        "Warning while importing SkillGroup row with id:'key_6'. AltLabels contain 1 duplicates."
+        3,
+        "Warning while importing SkillGroup row with id:'key_6'. AltLabels (en) contain 1 duplicates."
       );
       // AND warning should be logged fo reach of the failed rows
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        3,
+        4,
         "Failed to import SkillGroup from row:1 with importId:"
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        4,
+        5,
         "Failed to import SkillGroup from row:2 with importId:"
       );
     }

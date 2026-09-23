@@ -101,7 +101,7 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
     "should import the %s CSV files",
     async (dataTestType, dataFolder) => {
       // GIVEN some csv files
-      // AND a model to import into
+      // AND a model to import into (no availableLanguages declared → legacy unsuffixed CSVs)
       const modelInfo: IModelInfo = await getRepositoryRegistry().modelInfo.create({
         name: "CSVImport",
         description: "CSVImport",
@@ -179,9 +179,58 @@ describe("Test Import CSV files with an in-memory mongodb", () => {
         getRepositoryRegistry().occupationToSkillRelation.relationModel,
         dataFolder + "occupation_to_skill_relations.csv"
       );
+
+      // THEN the 4 entity parsers each emit exactly one legacy-format deprecation warning, and no errors
+      expect(errorLogger.errorCount).toEqual(0);
+      expect(errorLogger.warningCount).toEqual(4);
       },
     60000 // Should remain at 1 min for the Sample files, but can be increased to 3 min in case of testing both Sample and full ESCO files
   );
+
+  test("should import localized (suffixed-column) CSV files with no warnings", async () => {
+    // GIVEN a model that declares availableLanguages
+    const modelInfo: IModelInfo = await getRepositoryRegistry().modelInfo.create({
+      name: "LocalizedCSVImport",
+      description: "LocalizedCSVImport",
+      UUIDHistory: [randomUUID()],
+      license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
+      locale: {
+        name: "en",
+        UUID: randomUUID(),
+        shortCode: "en",
+      },
+      availableLanguages: ["en", "fr"],
+    });
+    const availableLanguages = modelInfo.availableLanguages;
+    const dataFolder = "../data-sets/csv/sample-localized/";
+    const importIdToDBIdMap: Map<string, string> = new Map<string, string>();
+
+    // WHEN localized CSV files (suffixed columns) are imported
+    await assertEntityImportedSuccessfully(
+      () => parseOccupationGroupsFromFile(modelInfo.id, dataFolder + "occupation_groups.csv", importIdToDBIdMap, availableLanguages),
+      getRepositoryRegistry().OccupationGroup.Model,
+      dataFolder + "occupation_groups.csv"
+    );
+    await assertEntityImportedSuccessfully(
+      () => parseSkillGroupsFromFile(modelInfo.id, dataFolder + "skill_groups.csv", importIdToDBIdMap, availableLanguages),
+      getRepositoryRegistry().skillGroup.Model,
+      dataFolder + "skill_groups.csv"
+    );
+    await assertEntityImportedSuccessfully(
+      () => parseSkillsFromFile(modelInfo.id, dataFolder + "skills.csv", importIdToDBIdMap, availableLanguages),
+      getRepositoryRegistry().skill.Model,
+      dataFolder + "skills.csv"
+    );
+    await assertEntityImportedSuccessfully(
+      () => parseOccupationsFromFile(modelInfo.id, dataFolder + "occupations.csv", importIdToDBIdMap, availableLanguages),
+      getRepositoryRegistry().occupation.Model,
+      dataFolder + "occupations.csv"
+    );
+
+    // THEN no errors or deprecation warnings are emitted
+    expect(errorLogger.errorCount).toEqual(0);
+    expect(errorLogger.warningCount).toEqual(0);
+  }, 30000);
 });
 
 const assertEntityImportedSuccessfully = async (
@@ -208,7 +257,7 @@ function assertSuccessfullyImported(
   csvRowCount: number,
   dbRowCount: number,
   consoleErrorSpy: jest.SpyInstance,
-  consoleWarnSpy: jest.SpyInstance
+  _consoleWarnSpy: jest.SpyInstance
 ) {
   // expect all the rows to have been processed
   expect(stats.rowsProcessed).toBeGreaterThan(0);
@@ -216,11 +265,8 @@ function assertSuccessfullyImported(
   // expect all the rows to have been successfully parsed into the database
   expect(stats.rowsSuccess).toEqual(csvRowCount);
   expect(stats.rowsSuccess).toEqual(dbRowCount);
-  // expect no errors or warnings to have been logged
   expect(stats.rowsSuccess).toEqual(stats.rowsProcessed);
   expect(stats.rowsFailed).toEqual(0);
-  expect(errorLogger.errorCount).toEqual(0);
-  expect(errorLogger.warningCount).toEqual(0);
   expect(consoleErrorSpy).not.toHaveBeenCalled();
-  expect(consoleWarnSpy).not.toHaveBeenCalled();
+  // warningCount is checked at test level since legacy-format imports emit a deprecation warning per entity parser
 }
