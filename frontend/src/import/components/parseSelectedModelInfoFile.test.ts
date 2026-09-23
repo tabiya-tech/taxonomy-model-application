@@ -43,6 +43,48 @@ describe("parseSelectedModelInfoFile tests", () => {
     expect(UUIDHistory).toEqual(givenUUIDHistory);
   });
 
+  it("should parse the LANGUAGES column into the new line separated short codes of the languages", async () => {
+    // GIVEN a CSV file with a LANGUAGES column that declares english and french,
+    // with some surrounding whitespace, a different case, a duplicate and an empty line
+    const givenLanguagesCell = " en \nFR\n\nen\r";
+    const testFileContent = `UUIDHISTORY,LANGUAGES\n"UUID1","${givenLanguagesCell}"`;
+    const file = new File([testFileContent], "test.csv", { type: "text/csv" });
+
+    // WHEN parseSelectedModelInfoFile is called with the file
+    const { availableLanguages } = await parseSelectedModelInfoFile(file);
+
+    // THEN it should return the short codes of english and french, normalized and deduplicated
+    const expectedAvailableLanguages = ["en", "fr"];
+    expect(availableLanguages).toEqual(expectedAvailableLanguages);
+  });
+
+  it.each([
+    ["the LANGUAGES column is missing", `UUIDHISTORY\n"UUID1"`],
+    ["the LANGUAGES column is empty", `UUIDHISTORY,LANGUAGES\n"UUID1",""`],
+  ])("should return no language when %s", async (_description, givenFileContent) => {
+    // GIVEN a CSV file that declares no language
+    const file = new File([givenFileContent], "test.csv", { type: "text/csv" });
+
+    // WHEN parseSelectedModelInfoFile is called with the file
+    const { availableLanguages } = await parseSelectedModelInfoFile(file);
+
+    // THEN it should return no language
+    expect(availableLanguages).toEqual([]);
+  });
+
+  it("should throw an error if the LANGUAGES column declares a language that is not supported", async () => {
+    // GIVEN a CSV file with a LANGUAGES column that declares an unsupported language
+    const givenUnsupportedLanguage = "xx";
+    const testFileContent = `UUIDHISTORY,LANGUAGES\n"UUID1","en\n${givenUnsupportedLanguage}"`;
+    const file = new File([testFileContent], "test.csv", { type: "text/csv" });
+
+    // WHEN parseSelectedModelInfoFile is called with the file
+    // THEN it should throw an error naming the unsupported language
+    await expect(parseSelectedModelInfoFile(file)).rejects.toThrow(
+      `LANGUAGES column contains unsupported languages: ${givenUnsupportedLanguage}`
+    );
+  });
+
   it("should throw an error if the file is not a CSV", async () => {
     // GIVEN a non-CSV file
     const testFileName = "test.json";

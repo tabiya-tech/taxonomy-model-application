@@ -14,6 +14,7 @@ import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHier
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
 import { RemoveGeneratedUUID } from "import/removeGeneratedUUID/removeGeneratedUUID";
+import { validateImportLanguages } from "import/languages/validateImportLanguages";
 
 const getPresignedUrls = async (
   filePaths: ImportAPISpecs.Types.POST.Request.ImportFilePaths
@@ -42,9 +43,9 @@ const getPresignedUrls = async (
 export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payload): Promise<void> => {
   const modelId = event.modelId;
   // Get the model to import into
-  const modelInfo = (await getRepositoryRegistry().modelInfo.getModelById(event.modelId)) as IModelInfo;
-  const importProcessStateId = modelInfo.importProcessState.id;
-  const availableLanguages = modelInfo.availableLanguages ?? [];
+  const model = (await getRepositoryRegistry().modelInfo.getModelById(event.modelId)) as IModelInfo;
+  const importProcessStateId = model.importProcessState.id;
+  const availableLanguages = model.availableLanguages ?? [];
   // Generate the presigned urls for the files
   const downloadUrls = await getPresignedUrls(event.filePaths);
 
@@ -61,6 +62,12 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
       parsingWarnings: false,
     },
   });
+
+  // Validate the languages the entity files carry against the languages the model declares.
+  // A disagreement is logged and does not stop the import, each file is imported in the languages it carries that the
+  // model also declares.
+  const importLanguages = await validateImportLanguages(model.availableLanguages, downloadUrls);
+  console.info("Import languages", importLanguages);
 
   // Process the files
   let countOccupationGroups = 0;

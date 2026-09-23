@@ -242,9 +242,11 @@ function getTestImportData(): ImportData {
   };
   // and the UUID history
   const UUIDHistory = [randomUUID()];
+  // and the available languages
+  const availableLanguages = ["en", "fr"];
   // and the isOriginalESCOModel
   const isOriginalESCOModel = false;
-  return { name, description, locale, license, selectedFiles, UUIDHistory, isOriginalESCOModel };
+  return { name, description, locale, license, selectedFiles, UUIDHistory, availableLanguages, isOriginalESCOModel };
 }
 
 describe("ModelDirectory", () => {
@@ -947,6 +949,7 @@ describe("ModelDirectory", () => {
         givenImportData.locale,
         givenImportData.selectedFiles,
         givenImportData.UUIDHistory,
+        givenImportData.availableLanguages,
         givenImportData.isOriginalESCOModel
       );
 
@@ -1036,6 +1039,7 @@ describe("ModelDirectory", () => {
         givenImportData.locale,
         givenImportData.selectedFiles,
         givenImportData.UUIDHistory,
+        givenImportData.availableLanguages,
         givenImportData.isOriginalESCOModel
       );
 
@@ -1102,6 +1106,7 @@ describe("ModelDirectory", () => {
         givenImportData.locale,
         givenImportData.selectedFiles,
         givenImportData.UUIDHistory,
+        givenImportData.availableLanguages,
         givenImportData.isOriginalESCOModel
       );
 
