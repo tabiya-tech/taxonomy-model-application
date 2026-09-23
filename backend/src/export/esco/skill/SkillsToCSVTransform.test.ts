@@ -84,6 +84,7 @@ function setupSkillRepositoryMock(findAllImpl: () => Readable) {
     patch: jest.fn(),
     setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
     setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+    createManyLocalized: jest.fn().mockResolvedValue([]),
   };
   SkillRepository.mockReturnValue(mockSkillRepository);
 }

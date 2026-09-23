@@ -40,7 +40,7 @@ export class OccupationGroupsService extends TaxonomyEntityService {
       const rightValue = rightOccupationGroup.row[field];
 
       if (leftValue !== rightValue) {
-        differences.push(constructDiffObject(field, leftValue, rightValue));
+        differences.push(constructDiffObject(field as string, leftValue, rightValue));
       }
     }
 

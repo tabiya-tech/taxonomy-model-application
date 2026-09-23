@@ -1,75 +1,102 @@
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { processDownloadStream, processStream } from "import/stream/processStream";
 import fs from "fs";
-import { INewSkillSpec, ISkill } from "esco/skill/_shared/skill.types";
+import { INewSkillSpecLocalized } from "esco/skill/_shared/skill.types";
+import { ISkill } from "esco/skill/_shared/skill.types";
 import { BatchProcessor } from "import/batch/BatchProcessor";
 import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
-import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-import { ISkillImportRow, skillImportHeaders } from "esco/common/entityToCSV.types";
+import { getProcessLocalizedEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
+import { ISkillImportRow } from "esco/common/entityToCSV.types";
 import { getReuseLevelFromCSVReuseLevel, getSkillTypeFromCSVSkillType } from "esco/common/csvObjectTypes";
-import { arrayFromString, uniqueArrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
+import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import errorLogger from "common/errorLogger/errorLogger";
+import {
+  LocalizedHeaderMode,
+  assembleTranslatedArray,
+  assembleTranslatedString,
+  checkPreferredLabelInAltLabels,
+  getLocalizedHeadersValidator,
+} from "import/parse/localizedHeaders";
+import LanguageAPISpecs from "api-specifications/language";
 
-function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, skillImportHeaders);
+const SKILL_NON_LOCALIZABLE_HEADERS = ["ID", "ORIGINURI", "UUIDHISTORY", "REUSELEVEL", "SKILLTYPE", "ISLOCALIZED"];
+const SKILL_LOCALIZABLE_FIELDS = ["PREFERREDLABEL", "ALTLABELS", "DESCRIPTION", "DEFINITION", "SCOPENOTE"] as const;
+
+function getHeadersValidator(
+  validatorName: string,
+  availableLanguages: string[],
+  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+): HeadersValidatorFunction {
+  return getLocalizedHeadersValidator(
+    validatorName,
+    SKILL_NON_LOCALIZABLE_HEADERS,
+    SKILL_LOCALIZABLE_FIELDS,
+    availableLanguages,
+    ctx
+  );
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = getProcessEntityBatchFunction<ISkill, INewSkillSpec>(
+  const batchProcessFn = getProcessLocalizedEntityBatchFunction<ISkill, INewSkillSpecLocalized>(
     "Skill",
     getRepositoryRegistry().skill,
     importIdToDBIdMap
   );
-  return new BatchProcessor<INewSkillSpec>(BATCH_SIZE, batchProcessFn);
+  return new BatchProcessor<INewSkillSpecLocalized>(BATCH_SIZE, batchProcessFn);
 }
 
 function getRowToSpecificationTransformFn(
-  modelId: string
-): TransformRowToSpecificationFunction<ISkillImportRow, INewSkillSpec> {
+  modelId: string,
+  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+): TransformRowToSpecificationFunction<ISkillImportRow, INewSkillSpecLocalized> {
   return (row: ISkillImportRow) => {
+    const mode = ctx.mode ?? "legacy";
+    const languages = ctx.languages ?? [];
+
     const reuseLevel = getReuseLevelFromCSVReuseLevel(row.REUSELEVEL);
     if (reuseLevel === null) {
-      // we should check for null as reuseLevel can be ""
       errorLogger.logWarning(`Failed to import Skill with skillId:${row.ID}`);
       return null;
     }
     const skillType = getSkillTypeFromCSVSkillType(row.SKILLTYPE);
     if (skillType === null) {
-      // we should check for null as skillType can be ""
       errorLogger.logWarning(`Failed to import Skill with skillId:${row.ID}`);
       return null;
     }
-    const { uniqueArray: parsedAltLabels, duplicateCount } = uniqueArrayFromString(row.ALTLABELS);
-    if (duplicateCount) {
+
+    const { translatedArray: altLabels, duplicateCounts } = assembleTranslatedArray(row, "ALTLABELS", mode, languages);
+    for (const [langKey, count] of duplicateCounts.entries()) {
+      if (count > 0) {
+        errorLogger.logWarning(
+          `Warning while importing Skill row with id:'${row.ID}'. AltLabels (${langKey}) contain ${count} duplicates.`
+        );
+      }
+    }
+
+    const preferredLabel = assembleTranslatedString(row, "PREFERREDLABEL", mode, languages);
+    const missingLangs = checkPreferredLabelInAltLabels(preferredLabel, altLabels);
+    for (const langKey of missingLangs) {
       errorLogger.logWarning(
-        `Warning while importing Skill row with id:'${row.ID}'. AltLabels contain ${duplicateCount} duplicates.`
+        `Warning while importing Skill row with id:'${row.ID}'. Preferred label (${langKey}) '${preferredLabel.get(
+          langKey as LanguageAPISpecs.Types.LanguageDbKeyName
+        )}' is not in the alt labels.`
       );
     }
-    // a leading/trailing newline in the CSV value yields an empty entry once split; drop it rather than fail the
-    // whole row, since it carries no label of its own
-    const uniqueAltLabels = parsedAltLabels.filter((label) => label.length > 0);
-    //TODO: add the preferred label to the alt labels if it is not there (in addition to logging a warning)
-    // and disallow preferred labels with line breaks ( if it does, throw an error )
-    if (row.PREFERREDLABEL && !uniqueAltLabels.includes(row.PREFERREDLABEL)) {
-      errorLogger.logWarning(
-        `Warning while importing Skill row with id:'${row.ID}'. Preferred label '${row.PREFERREDLABEL}' is not in the alt labels.`
-      );
-    }
+
     const isLocalized = row.ISLOCALIZED.trim().toLowerCase() === "true";
 
     return {
       originUri: row.ORIGINURI,
       modelId: modelId,
       UUIDHistory: arrayFromString(row.UUIDHISTORY),
-      preferredLabel: row.PREFERREDLABEL,
-      altLabels: uniqueAltLabels,
-      description: row.DESCRIPTION,
-      definition: row.DEFINITION,
-      scopeNote: row.SCOPENOTE,
+      preferredLabel,
+      altLabels,
+      description: assembleTranslatedString(row, "DESCRIPTION", mode, languages),
+      definition: assembleTranslatedString(row, "DEFINITION", mode, languages),
+      scopeNote: assembleTranslatedString(row, "SCOPENOTE", mode, languages),
       reuseLevel: reuseLevel,
       skillType: skillType,
       importId: row.ID,
@@ -78,14 +105,15 @@ function getRowToSpecificationTransformFn(
   };
 }
 
-// function to parse from url
 export async function parseSkillsFromUrl(
   modelId: string,
   url: string,
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string, string>,
+  availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
-  const headersValidator = getHeadersValidator("Skill");
-  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
+  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const headersValidator = getHeadersValidator("Skill", availableLanguages, ctx);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processDownloadStream(url, "Skill", batchRowProcessor);
@@ -94,11 +122,13 @@ export async function parseSkillsFromUrl(
 export async function parseSkillsFromFile(
   modelId: string,
   filePath: string,
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string, string>,
+  availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
   const skillsCSVFileStream = fs.createReadStream(filePath);
-  const headersValidator = getHeadersValidator("Skill");
-  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
+  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const headersValidator = getHeadersValidator("Skill", availableLanguages, ctx);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processStream<ISkillImportRow>("Skill", skillsCSVFileStream, batchRowProcessor);

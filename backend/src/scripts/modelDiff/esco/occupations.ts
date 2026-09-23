@@ -41,7 +41,7 @@ export class OccupationService extends TaxonomyEntityService {
       const rightValue = rightOccupation.row[field];
 
       if (leftValue !== rightValue) {
-        differences.push(constructDiffObject(field, leftValue, rightValue));
+        differences.push(constructDiffObject(field as string, leftValue, rightValue));
       }
     }
 

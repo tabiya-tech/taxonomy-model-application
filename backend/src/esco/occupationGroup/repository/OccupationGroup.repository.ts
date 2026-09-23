@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import {
   IOccupationGroupDoc,
   INewOccupationGroupSpec,
+  INewOccupationGroupSpecLocalized,
   INewOccupationGroupSpecWithoutImportId,
   IOccupationGroupChild,
   IPartialUpdateOccupationGroupSpec,
@@ -79,6 +80,7 @@ export interface IOccupationGroupRepository extends IEmbeddableEntityRepository 
    * Rejects with an error if any entry cannot be created due to reasons other than validation.
    */
   createMany(newOccupationGroupSpecs: INewOccupationGroupSpec[]): Promise<IOccupationGroup[]>;
+  createManyLocalized(newOccupationGroupSpecs: INewOccupationGroupSpecLocalized[]): Promise<IOccupationGroup[]>;
 
   /**
    * Finds a OccupationGroup entry by its ID.
@@ -279,6 +281,50 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     if (newOccupationGroupSpecs.length !== newOccupationGroupsDocs.length) {
       console.warn(
         `OccupationGroupRepository.createMany: ${
+          newOccupationGroupSpecs.length - newOccupationGroupsDocs.length
+        } invalid entries were not created`
+      );
+    }
+    return newOccupationGroupsDocs.map((doc) => {
+      populateEmptyOccupationHierarchy(doc);
+      return doc.toObject();
+    });
+  }
+
+  private newLocalizedSpecToModel(
+    spec: INewOccupationGroupSpecLocalized
+  ): mongoose.HydratedDocument<IOccupationGroupDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({ ...spec, UUID: newUUID });
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
+  async createManyLocalized(newOccupationGroupSpecs: INewOccupationGroupSpecLocalized[]): Promise<IOccupationGroup[]> {
+    const newOccupationGroupsDocs: mongoose.Document<unknown, unknown, IOccupationGroupDoc>[] = [];
+    try {
+      const newOccupationGroupModels = newOccupationGroupSpecs
+        .map((spec) => {
+          try {
+            return this.newLocalizedSpecToModel(spec);
+          } catch (e: unknown) {
+            return null;
+          }
+        })
+        .filter(Boolean);
+      const docs = await this.Model.insertMany(newOccupationGroupModels, { ordered: false });
+      newOccupationGroupsDocs.push(...docs);
+    } catch (e: unknown) {
+      const docs = handleInsertManyError<IOccupationGroupDoc>(
+        e,
+        "OccupationGroupRepository.createManyLocalized",
+        newOccupationGroupSpecs.length
+      );
+      newOccupationGroupsDocs.push(...docs);
+    }
+    if (newOccupationGroupSpecs.length !== newOccupationGroupsDocs.length) {
+      console.warn(
+        `OccupationGroupRepository.createManyLocalized: ${
           newOccupationGroupSpecs.length - newOccupationGroupsDocs.length
         } invalid entries were not created`
       );

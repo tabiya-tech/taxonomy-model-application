@@ -56,6 +56,7 @@ function setupOccupationRepositoryMock(findAllImpl: () => Readable) {
     patch: jest.fn(),
     setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
     setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+    createManyLocalized: jest.fn().mockResolvedValue([]),
   };
   OccupationRepositorySpy.mockReturnValue(mockOccupationRepository);
 }

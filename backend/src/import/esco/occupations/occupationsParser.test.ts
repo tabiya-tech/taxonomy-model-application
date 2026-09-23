@@ -105,6 +105,7 @@ describe("test parseOccupations from", () => {
         findSkillsForOccupation: jest.fn(),
         update: jest.fn(),
         patch: jest.fn(),
+        createManyLocalized: jest.fn().mockResolvedValue([]),
       };
       // @ts-ignore
       jest.spyOn(getRepositoryRegistry(), "occupation", "get").mockReturnValue(mockRepository);

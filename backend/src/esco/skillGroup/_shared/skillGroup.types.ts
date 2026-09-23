@@ -88,6 +88,20 @@ export type IUpdateSkillGroupSpec = Pick<
 export type IPartialUpdateSkillGroupSpec = Partial<IUpdateSkillGroupSpec>;
 
 /**
+ * Like INewSkillGroupSpec but with translatable fields already expressed as localized Maps, for the
+ * language-suffixed CSV import path.
+ */
+export type INewSkillGroupSpecLocalized = Omit<
+  INewSkillGroupSpec,
+  "preferredLabel" | "altLabels" | "description" | "scopeNote"
+> & {
+  preferredLabel: ITranslatedStringDoc;
+  altLabels: ITranslatedStringArrayDoc;
+  description: ITranslatedStringDoc;
+  scopeNote: ITranslatedStringDoc;
+};
+
+/**
  * Describes how a reference to a skill group is returned from the API
  */
 export interface ISkillGroupReference extends Pick<ISkillGroup, "id" | "UUID" | "code" | "preferredLabel"> {

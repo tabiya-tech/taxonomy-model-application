@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import {
   INewSkillSpec,
+  INewSkillSpecLocalized,
   INewSkillSpecWithoutImportId,
   IPartialUpdateSkillSpec,
   ISkill,
@@ -94,6 +95,7 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
    * Rejects with an error if any entry cannot be created due to reasons other than validation.
    */
   createMany(newSkillSpecs: INewSkillSpec[]): Promise<ISkill[]>;
+  createManyLocalized(newSkillSpecs: INewSkillSpecLocalized[]): Promise<ISkill[]>;
 
   /**
    * Finds a Skill entry by its ID.
@@ -322,6 +324,46 @@ export class SkillRepository implements ISkillRepository {
     if (newSkillSpecs.length !== newSkillsDocuments.length) {
       console.warn(
         `SkillRepository.createMany: ${
+          newSkillSpecs.length - newSkillsDocuments.length
+        } invalid entries were not created`
+      );
+    }
+    return newSkillsDocuments.map((skill) => {
+      populateEmptySkillHierarchy(skill);
+      populateEmptySkillToSkillRelation(skill);
+      populateEmptyRequiredByOccupations(skill);
+      return unwrapSkillTranslatableFields(skill.toObject());
+    });
+  }
+
+  private newLocalizedSpecToModel(spec: INewSkillSpecLocalized): mongoose.HydratedDocument<ISkillDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({ ...spec, UUID: newUUID });
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
+  async createManyLocalized(newSkillSpecs: INewSkillSpecLocalized[]): Promise<ISkill[]> {
+    const newSkillsDocuments: mongoose.Document<unknown, unknown, ISkillDoc>[] = [];
+    try {
+      const newSkillModels = newSkillSpecs
+        .map((spec) => {
+          try {
+            return this.newLocalizedSpecToModel(spec);
+          } catch (e: unknown) {
+            return null;
+          }
+        })
+        .filter(Boolean);
+      const docs = await this.Model.insertMany(newSkillModels, { ordered: false });
+      newSkillsDocuments.push(...docs);
+    } catch (e: unknown) {
+      const docs = handleInsertManyError<ISkillDoc>(e, "SkillRepository.createManyLocalized", newSkillSpecs.length);
+      newSkillsDocuments.push(...docs);
+    }
+    if (newSkillSpecs.length !== newSkillsDocuments.length) {
+      console.warn(
+        `SkillRepository.createManyLocalized: ${
           newSkillSpecs.length - newSkillsDocuments.length
         } invalid entries were not created`
       );

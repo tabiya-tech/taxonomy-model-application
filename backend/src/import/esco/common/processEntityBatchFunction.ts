@@ -4,6 +4,48 @@ import errorLogger from "common/errorLogger/errorLogger";
 import { ProcessBatchFunction } from "import/batch/BatchProcessor";
 import { ImportIdentifiable } from "esco/common/objectTypes";
 
+export function getProcessLocalizedEntityBatchFunction<
+  EntityType extends ImportIdentifiable & { id: string },
+  LocalizedSpecType extends ImportIdentifiable,
+>(
+  entityName: string,
+  repository: {
+    createManyLocalized: (specs: LocalizedSpecType[]) => Promise<EntityType[]>;
+  },
+  importIdToDBIdMap: Map<string, string>
+): ProcessBatchFunction<LocalizedSpecType> {
+  let totalRowsProcessed = 0;
+  return async (specs: LocalizedSpecType[]) => {
+    const stats: RowsProcessedStats = {
+      rowsProcessed: specs.length,
+      rowsSuccess: 0,
+      rowsFailed: 0,
+    };
+    try {
+      const toImportSpecs = specs.filter((spec) => isSpecified(spec.importId));
+      const entities = await repository.createManyLocalized(toImportSpecs);
+      entities.forEach((entity) => {
+        if (isSpecified(entity.importId)) {
+          importIdToDBIdMap.set(entity.importId!, entity.id);
+        }
+      });
+      stats.rowsSuccess = entities.length;
+    } catch (e: unknown) {
+      errorLogger.logError(new Error(`Failed to process ${entityName}s batch`, { cause: e }));
+    }
+    specs.forEach((spec, index) => {
+      if (!spec.importId || !importIdToDBIdMap.has(spec.importId)) {
+        errorLogger.logWarning(
+          `Failed to import ${entityName} from row:${totalRowsProcessed + index + 1} with importId:${spec.importId}`
+        );
+      }
+    });
+    totalRowsProcessed += stats.rowsProcessed;
+    stats.rowsFailed = specs.length - stats.rowsSuccess;
+    return stats;
+  };
+}
+
 export function getProcessEntityBatchFunction<
   EntityType extends ImportIdentifiable & {
     id: string;

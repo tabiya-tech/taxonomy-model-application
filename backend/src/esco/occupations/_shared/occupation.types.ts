@@ -127,3 +127,19 @@ export type IUpdateOccupationSpec = Pick<
  * All fields are optional.
  */
 export type IPartialUpdateOccupationSpec = Partial<IUpdateOccupationSpec>;
+
+/**
+ * Like INewOccupationSpec but with translatable fields already expressed as localized Maps, for the
+ * language-suffixed CSV import path.
+ */
+export type INewOccupationSpecLocalized = Omit<
+  INewOccupationSpec,
+  "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote" | "regulatedProfessionNote"
+> & {
+  preferredLabel: ITranslatedStringDoc;
+  altLabels: ITranslatedStringArrayDoc;
+  description: ITranslatedStringDoc;
+  definition: ITranslatedStringDoc;
+  scopeNote: ITranslatedStringDoc;
+  regulatedProfessionNote: ITranslatedStringDoc;
+};

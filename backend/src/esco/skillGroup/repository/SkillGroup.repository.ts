@@ -2,6 +2,7 @@ import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
 import {
   INewSkillGroupSpec,
+  INewSkillGroupSpecLocalized,
   INewSkillGroupSpecWithoutImportId,
   ISkillGroup,
   ISkillGroupChild,
@@ -65,6 +66,7 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
   readonly hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>;
   create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup>;
   createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]>;
+  createManyLocalized(newSkillGroupSpecs: INewSkillGroupSpecLocalized[]): Promise<ISkillGroup[]>;
   findById(id: string): Promise<ISkillGroup | null>;
   findAll(modelId: string): Readable;
   findPaginated(
@@ -226,6 +228,48 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     if (newSkillGroupSpecs.length !== newSkillGroupsDocuments.length) {
       console.warn(
         `SkillGroupRepository.createMany: ${
+          newSkillGroupSpecs.length - newSkillGroupsDocuments.length
+        } invalid entries were not created`
+      );
+    }
+    return newSkillGroupsDocuments.map((skillGroup) => {
+      populateEmptySkillHierarchy(skillGroup);
+      return skillGroup.toObject();
+    });
+  }
+
+  private newLocalizedSpecToModel(spec: INewSkillGroupSpecLocalized): mongoose.HydratedDocument<ISkillGroupDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({ ...spec, UUID: newUUID });
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
+  async createManyLocalized(newSkillGroupSpecs: INewSkillGroupSpecLocalized[]): Promise<ISkillGroup[]> {
+    const newSkillGroupsDocuments: mongoose.Document<unknown, unknown, ISkillGroupDoc>[] = [];
+    try {
+      const newSkillGroupModels = newSkillGroupSpecs
+        .map((spec) => {
+          try {
+            return this.newLocalizedSpecToModel(spec);
+          } catch (e: unknown) {
+            return null;
+          }
+        })
+        .filter(Boolean);
+      const docs = await this.Model.insertMany(newSkillGroupModels, { ordered: false });
+      newSkillGroupsDocuments.push(...docs);
+    } catch (e: unknown) {
+      const docs = handleInsertManyError<ISkillGroupDoc>(
+        e,
+        "SkillGroupRepository.createManyLocalized",
+        newSkillGroupSpecs.length
+      );
+      newSkillGroupsDocuments.push(...docs);
+    }
+    if (newSkillGroupSpecs.length !== newSkillGroupsDocuments.length) {
+      console.warn(
+        `SkillGroupRepository.createManyLocalized: ${
           newSkillGroupSpecs.length - newSkillGroupsDocuments.length
         } invalid entries were not created`
       );

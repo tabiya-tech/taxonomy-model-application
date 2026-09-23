@@ -1,54 +1,83 @@
-import { IOccupationGroup, INewOccupationGroupSpec } from "esco/occupationGroup/_shared/OccupationGroup.types";
+import { IOccupationGroup, INewOccupationGroupSpecLocalized } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { processDownloadStream, processStream } from "import/stream/processStream";
 import fs from "fs";
 import { BatchProcessor } from "import/batch/BatchProcessor";
 import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
-import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-import { IOccupationGroupImportRow, OccupationGroupImportHeaders } from "esco/common/entityToCSV.types";
-import { arrayFromString, uniqueArrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
+import { getProcessLocalizedEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
+import { IOccupationGroupImportRow } from "esco/common/entityToCSV.types";
+import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import errorLogger from "common/errorLogger/errorLogger";
 import { getOccupationGroupTypeFromCSVObjectType } from "import/esco/common/getEntityTypeFromCSVObjectType";
+import {
+  LocalizedHeaderMode,
+  assembleTranslatedArray,
+  assembleTranslatedString,
+  checkPreferredLabelInAltLabels,
+  getLocalizedHeadersValidator,
+} from "import/parse/localizedHeaders";
+import LanguageAPISpecs from "api-specifications/language";
 
-function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, OccupationGroupImportHeaders);
+const OCCUPATION_GROUP_NON_LOCALIZABLE_HEADERS = ["ID", "ORIGINURI", "UUIDHISTORY", "CODE", "GROUPTYPE"];
+const OCCUPATION_GROUP_LOCALIZABLE_FIELDS = ["PREFERREDLABEL", "ALTLABELS", "DESCRIPTION"] as const;
+
+function getHeadersValidator(
+  validatorName: string,
+  availableLanguages: string[],
+  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+): HeadersValidatorFunction {
+  return getLocalizedHeadersValidator(
+    validatorName,
+    OCCUPATION_GROUP_NON_LOCALIZABLE_HEADERS,
+    OCCUPATION_GROUP_LOCALIZABLE_FIELDS,
+    availableLanguages,
+    ctx
+  );
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = getProcessEntityBatchFunction<IOccupationGroup, INewOccupationGroupSpec>(
+  const batchProcessFn = getProcessLocalizedEntityBatchFunction<IOccupationGroup, INewOccupationGroupSpecLocalized>(
     "OccupationGroup",
     getRepositoryRegistry().OccupationGroup,
     importIdToDBIdMap
   );
-  return new BatchProcessor<INewOccupationGroupSpec>(BATCH_SIZE, batchProcessFn);
+  return new BatchProcessor<INewOccupationGroupSpecLocalized>(BATCH_SIZE, batchProcessFn);
 }
 
 function getRowToSpecificationTransformFn(
-  modelId: string
-): TransformRowToSpecificationFunction<IOccupationGroupImportRow, INewOccupationGroupSpec> {
-  return (row: IOccupationGroupImportRow): INewOccupationGroupSpec | null => {
-    const { uniqueArray: uniqueAltLabels, duplicateCount } = uniqueArrayFromString(row.ALTLABELS);
-    if (duplicateCount) {
-      errorLogger.logWarning(
-        `Warning while importing OccupationGroup row with id:'${row.ID}'. AltLabels contain ${duplicateCount} duplicates.`
-      );
+  modelId: string,
+  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+): TransformRowToSpecificationFunction<IOccupationGroupImportRow, INewOccupationGroupSpecLocalized> {
+  return (row: IOccupationGroupImportRow): INewOccupationGroupSpecLocalized | null => {
+    const mode = ctx.mode ?? "legacy";
+    const languages = ctx.languages ?? [];
+
+    const { translatedArray: altLabels, duplicateCounts } = assembleTranslatedArray(row, "ALTLABELS", mode, languages);
+    for (const [langKey, count] of duplicateCounts.entries()) {
+      if (count > 0) {
+        errorLogger.logWarning(
+          `Warning while importing OccupationGroup row with id:'${row.ID}'. AltLabels (${langKey}) contain ${count} duplicates.`
+        );
+      }
     }
 
-    // warning if the preferred label is not in the alt labels
-    if (row.PREFERREDLABEL && !uniqueAltLabels.includes(row.PREFERREDLABEL)) {
+    const preferredLabel = assembleTranslatedString(row, "PREFERREDLABEL", mode, languages);
+    const missingLangs = checkPreferredLabelInAltLabels(preferredLabel, altLabels);
+    for (const langKey of missingLangs) {
       errorLogger.logWarning(
-        `Warning while importing Occupation Group row with id:'${row.ID}'. Preferred label '${row.PREFERREDLABEL}' is not in the alt labels.`
+        `Warning while importing Occupation Group row with id:'${
+          row.ID
+        }'. Preferred label (${langKey}) '${preferredLabel.get(
+          langKey as LanguageAPISpecs.Types.LanguageDbKeyName
+        )}' is not in the alt labels.`
       );
     }
 
     const groupType = getOccupationGroupTypeFromCSVObjectType(row.GROUPTYPE);
-
     if (groupType === null) {
-      //check that the occupationType exists
       errorLogger.logWarning(`Failed to import Occupation row with id:'${row.ID}'. OccupationType not found/invalid.`);
       return null;
     }
@@ -59,22 +88,23 @@ function getRowToSpecificationTransformFn(
       UUIDHistory: arrayFromString(row.UUIDHISTORY),
       code: row.CODE,
       groupType: groupType,
-      preferredLabel: row.PREFERREDLABEL,
-      altLabels: uniqueAltLabels,
-      description: row.DESCRIPTION,
+      preferredLabel,
+      altLabels,
+      description: assembleTranslatedString(row, "DESCRIPTION", mode, languages),
       importId: row.ID,
     };
   };
 }
 
-// function to parse from url
 export async function parseOccupationGroupsFromUrl(
   modelId: string,
   url: string,
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string, string>,
+  availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
-  const headersValidator = getHeadersValidator("OccupationGroup");
-  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
+  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const headersValidator = getHeadersValidator("OccupationGroup", availableLanguages, ctx);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processDownloadStream(url, "OccupationGroup", batchRowProcessor);
@@ -83,11 +113,13 @@ export async function parseOccupationGroupsFromUrl(
 export async function parseOccupationGroupsFromFile(
   modelId: string,
   filePath: string,
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string, string>,
+  availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
   const occupationGroupsCSVFileStream = fs.createReadStream(filePath);
-  const headersValidator = getHeadersValidator("OccupationGroup");
-  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
+  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const headersValidator = getHeadersValidator("OccupationGroup", availableLanguages, ctx);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processStream<IOccupationGroupImportRow>(

@@ -144,6 +144,21 @@ export type IUpdateSkillSpec = Pick<
 export type IPartialUpdateSkillSpec = Partial<IUpdateSkillSpec>;
 
 /**
+ * Like INewSkillSpec but with translatable fields already expressed as localized Maps, for the
+ * language-suffixed CSV import path. The repository stores these directly without wrapping.
+ */
+export type INewSkillSpecLocalized = Omit<
+  INewSkillSpec,
+  "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote"
+> & {
+  preferredLabel: ITranslatedStringDoc;
+  altLabels: ITranslatedStringArrayDoc;
+  description: ITranslatedStringDoc;
+  definition: ITranslatedStringDoc;
+  scopeNote: ITranslatedStringDoc;
+};
+
+/**
  * These are service level error codes for validating a model for skill operations
  */
 export enum ModelForSkillValidationErrorCode {

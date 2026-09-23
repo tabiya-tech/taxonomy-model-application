@@ -1,47 +1,77 @@
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { processDownloadStream, processStream } from "import/stream/processStream";
 import fs from "fs";
-import { INewSkillGroupSpec, ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
+import { INewSkillGroupSpecLocalized, ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { BatchProcessor } from "import/batch/BatchProcessor";
 import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/parse/BatchRowProcessor";
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
-import { getStdHeadersValidator } from "import/parse/stdHeadersValidator";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
-import { getProcessEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-import { ISkillGroupImportRow, skillGroupImportHeaders } from "esco/common/entityToCSV.types";
-import { arrayFromString, uniqueArrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
+import { getProcessLocalizedEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
+import { ISkillGroupImportRow } from "esco/common/entityToCSV.types";
+import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import errorLogger from "common/errorLogger/errorLogger";
+import {
+  LocalizedHeaderMode,
+  assembleTranslatedArray,
+  assembleTranslatedString,
+  checkPreferredLabelInAltLabels,
+  getLocalizedHeadersValidator,
+} from "import/parse/localizedHeaders";
+import LanguageAPISpecs from "api-specifications/language";
 
-// expect all columns to be in upper case
-function getHeadersValidator(validatorName: string): HeadersValidatorFunction {
-  return getStdHeadersValidator(validatorName, skillGroupImportHeaders);
+const SKILL_GROUP_NON_LOCALIZABLE_HEADERS = ["ID", "ORIGINURI", "UUIDHISTORY", "CODE"];
+const SKILL_GROUP_LOCALIZABLE_FIELDS = ["PREFERREDLABEL", "ALTLABELS", "DESCRIPTION", "SCOPENOTE"] as const;
+
+function getHeadersValidator(
+  validatorName: string,
+  availableLanguages: string[],
+  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+): HeadersValidatorFunction {
+  return getLocalizedHeadersValidator(
+    validatorName,
+    SKILL_GROUP_NON_LOCALIZABLE_HEADERS,
+    SKILL_GROUP_LOCALIZABLE_FIELDS,
+    availableLanguages,
+    ctx
+  );
 }
 
 function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
   const BATCH_SIZE: number = 5000;
-  const batchProcessFn = getProcessEntityBatchFunction<ISkillGroup, INewSkillGroupSpec>(
+  const batchProcessFn = getProcessLocalizedEntityBatchFunction<ISkillGroup, INewSkillGroupSpecLocalized>(
     "SkillGroup",
     getRepositoryRegistry().skillGroup,
     importIdToDBIdMap
   );
-  return new BatchProcessor<INewSkillGroupSpec>(BATCH_SIZE, batchProcessFn);
+  return new BatchProcessor<INewSkillGroupSpecLocalized>(BATCH_SIZE, batchProcessFn);
 }
 
 function getRowToSpecificationTransformFn(
-  modelId: string
-): TransformRowToSpecificationFunction<ISkillGroupImportRow, INewSkillGroupSpec> {
+  modelId: string,
+  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+): TransformRowToSpecificationFunction<ISkillGroupImportRow, INewSkillGroupSpecLocalized> {
   return (row: ISkillGroupImportRow) => {
-    const { uniqueArray: uniqueAltLabels, duplicateCount } = uniqueArrayFromString(row.ALTLABELS);
-    if (duplicateCount) {
-      errorLogger.logWarning(
-        `Warning while importing SkillGroup row with id:'${row.ID}'. AltLabels contain ${duplicateCount} duplicates.`
-      );
+    const mode = ctx.mode ?? "legacy";
+    const languages = ctx.languages ?? [];
+
+    const { translatedArray: altLabels, duplicateCounts } = assembleTranslatedArray(row, "ALTLABELS", mode, languages);
+    for (const [langKey, count] of duplicateCounts.entries()) {
+      if (count > 0) {
+        errorLogger.logWarning(
+          `Warning while importing SkillGroup row with id:'${row.ID}'. AltLabels (${langKey}) contain ${count} duplicates.`
+        );
+      }
     }
 
-    // warning if the preferred label is not in the alt labels
-    if (row.PREFERREDLABEL && !uniqueAltLabels.includes(row.PREFERREDLABEL)) {
+    const preferredLabel = assembleTranslatedString(row, "PREFERREDLABEL", mode, languages);
+    const missingLangs = checkPreferredLabelInAltLabels(preferredLabel, altLabels);
+    for (const langKey of missingLangs) {
       errorLogger.logWarning(
-        `Warning while importing Skill Group row with id:'${row.ID}'. Preferred label '${row.PREFERREDLABEL}' is not in the alt labels.`
+        `Warning while importing Skill Group row with id:'${
+          row.ID
+        }'. Preferred label (${langKey}) '${preferredLabel.get(
+          langKey as LanguageAPISpecs.Types.LanguageDbKeyName
+        )}' is not in the alt labels.`
       );
     }
 
@@ -50,23 +80,24 @@ function getRowToSpecificationTransformFn(
       modelId: modelId,
       UUIDHistory: arrayFromString(row.UUIDHISTORY),
       code: row.CODE,
-      preferredLabel: row.PREFERREDLABEL,
-      altLabels: uniqueAltLabels,
-      description: row.DESCRIPTION,
-      scopeNote: row.SCOPENOTE,
+      preferredLabel,
+      altLabels,
+      description: assembleTranslatedString(row, "DESCRIPTION", mode, languages),
+      scopeNote: assembleTranslatedString(row, "SCOPENOTE", mode, languages),
       importId: row.ID,
     };
   };
 }
 
-// function to parse from url
 export async function parseSkillGroupsFromUrl(
   modelId: string,
   url: string,
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string, string>,
+  availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
-  const headersValidator = getHeadersValidator("SkillGroup");
-  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
+  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const headersValidator = getHeadersValidator("SkillGroup", availableLanguages, ctx);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processDownloadStream(url, "SkillGroup", batchRowProcessor);
@@ -75,11 +106,13 @@ export async function parseSkillGroupsFromUrl(
 export async function parseSkillGroupsFromFile(
   modelId: string,
   filePath: string,
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string, string>,
+  availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
   const skillGroupsCSVFileStream = fs.createReadStream(filePath);
-  const headersValidator = getHeadersValidator("SkillGroup");
-  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId);
+  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const headersValidator = getHeadersValidator("SkillGroup", availableLanguages, ctx);
+  const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
   const batchRowProcessor = new BatchRowProcessor(headersValidator, transformRowToSpecificationFn, batchProcessor);
   return await processStream<ISkillGroupImportRow>("SkillGroup", skillGroupsCSVFileStream, batchRowProcessor);
