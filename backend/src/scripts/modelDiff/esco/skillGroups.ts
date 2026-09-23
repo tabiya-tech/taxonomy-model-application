@@ -33,8 +33,8 @@ export class SkillGroupsService extends TaxonomyEntityService {
 
     // Compare each field and record differences
     for (const field of comparableFields) {
-      const leftValue = leftSkillGroup.row[field];
-      const rightValue = rightSkillGroup.row[field];
+      const leftValue = leftSkillGroup.row[field]!;
+      const rightValue = rightSkillGroup.row[field]!;
 
       if (leftValue !== rightValue) {
         differences.push(constructDiffObject(field as string, leftValue, rightValue));

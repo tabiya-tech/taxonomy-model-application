@@ -10,6 +10,9 @@ import errorLogger from "common/errorLogger/errorLogger";
 
 export type LocalizedHeaderMode = "legacy" | "localized";
 
+export type LocalizableRow<TFields extends string> = Record<TFields, string> &
+  Partial<Record<`${TFields}_${LanguageAPISpecs.Types.LanguageCsvSuffix}`, string>>;
+
 function getLanguageConfigByShortCode(shortCode: string): LanguageAPISpecs.Types.ILanguageConfig | undefined {
   return LanguageAPISpecs.Constants.Languages.find(
     (l: LanguageAPISpecs.Types.ILanguageConfig) => l.shortCode === shortCode
@@ -178,9 +181,9 @@ export function getLocalizedHeadersValidator(
   };
 }
 
-export function assembleTranslatedString(
-  row: Record<string, string>,
-  field: string,
+export function assembleTranslatedString<TFields extends string>(
+  row: LocalizableRow<TFields>,
+  field: TFields,
   mode: LocalizedHeaderMode,
   languages: LanguageAPISpecs.Types.ILanguageConfig[]
 ): ITranslatedStringDoc {
@@ -191,16 +194,17 @@ export function assembleTranslatedString(
     result.set(fallback.dbKeyName as TranslatedStringKey, value);
   } else {
     for (const lang of languages) {
-      const value = row[`${field}_${lang.csvSuffix}`] ?? "";
+      const suffix = lang.csvSuffix as LanguageAPISpecs.Types.LanguageCsvSuffix;
+      const value = (row as Record<string, string | undefined>)[`${field}_${suffix}`] ?? "";
       result.set(lang.dbKeyName as TranslatedStringKey, value);
     }
   }
   return result;
 }
 
-export function assembleTranslatedArray(
-  row: Record<string, string>,
-  field: string,
+export function assembleTranslatedArray<TFields extends string>(
+  row: LocalizableRow<TFields>,
+  field: TFields,
   mode: LocalizedHeaderMode,
   languages: LanguageAPISpecs.Types.ILanguageConfig[]
 ): { translatedArray: ITranslatedStringArrayDoc; duplicateCounts: Map<string, number> } {
@@ -226,7 +230,8 @@ export function assembleTranslatedArray(
   // Strategy: collect all unique labels per language, then build one translated entry per label position.
   const perLanguage = new Map<string, string[]>();
   for (const lang of languages) {
-    const colValue = row[`${field}_${lang.csvSuffix}`];
+    const suffix = lang.csvSuffix as LanguageAPISpecs.Types.LanguageCsvSuffix;
+    const colValue = (row as Record<string, string | undefined>)[`${field}_${suffix}`];
     const { uniqueArray, duplicateCount } = uniqueArrayFromString(colValue);
     const filtered = uniqueArray.filter((s) => s.length > 0);
     perLanguage.set(lang.dbKeyName, filtered);

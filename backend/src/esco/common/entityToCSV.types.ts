@@ -9,6 +9,15 @@ import {
 import { ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
+import LanguageAPISpecs from "api-specifications/language";
+
+/**
+ * Localized column variants for each field, e.g. PREFERREDLABEL_EN, DESCRIPTION_FR.
+ * Columns are optional because only the languages declared in the model's availableLanguages will be present.
+ */
+type LocalizedColumns<TFields extends string> = Partial<
+  Record<`${TFields}_${LanguageAPISpecs.Types.LanguageCsvSuffix}`, string>
+>;
 
 const HEADER_NAMES = {
   ID: "ID",
@@ -51,7 +60,8 @@ export const OccupationGroupExportHeaders = [
 /*
  * Interface for the occupationGroup row in the CSV file
  */
-export interface IOccupationGroupImportRow {
+export interface IOccupationGroupImportRow
+  extends LocalizedColumns<"PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION"> {
   ID: string;
   ORIGINURI: string;
   UUIDHISTORY: string;
@@ -60,7 +70,6 @@ export interface IOccupationGroupImportRow {
   ALTLABELS: string;
   DESCRIPTION: string;
   GROUPTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.LocalGroup;
-  [key: string]: string;
 }
 
 export interface IOccupationGroupExportRow extends IOccupationGroupImportRow {
@@ -90,7 +99,8 @@ export const skillExportHeaders = [...skillImportHeaders, HEADER_NAMES.CREATED_A
 /*
  * Interface for the skill row in the CSV file
  */
-export interface ISkillImportRow {
+export interface ISkillImportRow
+  extends LocalizedColumns<"PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION" | "DEFINITION" | "SCOPENOTE"> {
   ID: string;
   ORIGINURI: string;
   UUIDHISTORY: string;
@@ -102,7 +112,6 @@ export interface ISkillImportRow {
   REUSELEVEL: ReuseLevel;
   SKILLTYPE: SkillType;
   ISLOCALIZED: string;
-  [key: string]: string;
 }
 
 export interface ISkillExportRow {
@@ -141,7 +150,8 @@ export const skillGroupExportHeaders = [...skillGroupImportHeaders, HEADER_NAMES
  * Interface for the skillGroup row in the CSV file
  */
 
-export interface ISkillGroupImportRow {
+export interface ISkillGroupImportRow
+  extends LocalizedColumns<"PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION" | "SCOPENOTE"> {
   ID: string;
   ORIGINURI: string;
   UUIDHISTORY: string;
@@ -150,7 +160,6 @@ export interface ISkillGroupImportRow {
   ALTLABELS: string;
   DESCRIPTION: string;
   SCOPENOTE: string;
-  [key: string]: string;
 }
 
 export interface ISkillGroupExportRow extends ISkillGroupImportRow {
@@ -184,7 +193,10 @@ export const occupationExportHeaders = [...occupationImportHeaders, HEADER_NAMES
  * Interface for the occupations row in the CSV file
  */
 
-export interface IOccupationImportRow {
+export interface IOccupationImportRow
+  extends LocalizedColumns<
+    "PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION" | "DEFINITION" | "SCOPENOTE" | "REGULATEDPROFESSIONNOTE"
+  > {
   ID: string;
   ORIGINURI: string;
   UUIDHISTORY: string;
@@ -198,7 +210,6 @@ export interface IOccupationImportRow {
   REGULATEDPROFESSIONNOTE: string;
   ISLOCALIZED: string;
   OCCUPATIONTYPE: CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
-  [key: string]: string;
 }
 
 export interface IOccupationExportRow {
