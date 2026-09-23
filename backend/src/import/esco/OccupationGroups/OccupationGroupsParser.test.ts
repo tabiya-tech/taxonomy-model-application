@@ -4,7 +4,10 @@ import "_test_utilities/consoleMock";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { parseOccupationGroupsFromFile, parseOccupationGroupsFromUrl } from "./OccupationGroupsParser";
 import { IOccupationGroupRepository } from "esco/occupationGroup/repository/OccupationGroup.repository";
-import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
+import {
+  INewOccupationGroupSpecLocalized,
+  IOccupationGroup,
+} from "esco/occupationGroup/_shared/OccupationGroup.types";
 import fs from "fs";
 import { StatusCodes } from "server/httpUtils";
 import { isSpecified } from "server/isUnspecified";
@@ -70,21 +73,27 @@ describe("test parseOccupationGroups from", () => {
         setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
         create: jest.fn().mockResolvedValue({}),
         findByIds: jest.fn().mockResolvedValue([]),
-        createMany: jest.fn().mockImplementation((specs: INewOccupationGroupSpec[]): Promise<IOccupationGroup[]> => {
-          return Promise.resolve(
-            specs.map((spec: INewOccupationGroupSpec): IOccupationGroup => {
-              return {
-                ...spec,
-                id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later and check that it was mapped correctly
-                UUID: "",
-                parent: null,
-                children: [],
-                updatedAt: new Date(),
-                createdAt: new Date(),
-              };
-            })
-          );
-        }),
+        createMany: jest.fn().mockResolvedValue([]),
+        createManyLocalized: jest
+          .fn()
+          .mockImplementation((specs: INewOccupationGroupSpecLocalized[]): Promise<IOccupationGroup[]> => {
+            return Promise.resolve(
+              specs.map((spec: INewOccupationGroupSpecLocalized): IOccupationGroup => {
+                return {
+                  ...spec,
+                  id: "DB_ID_" + spec.importId, // add the importId as the id so that we can find it later
+                  UUID: "",
+                  preferredLabel: "",
+                  altLabels: [],
+                  description: "",
+                  parent: null,
+                  children: [],
+                  updatedAt: new Date(),
+                  createdAt: new Date(),
+                };
+              })
+            );
+          }),
         findPaginated: jest.fn().mockResolvedValue({}),
         findById: jest.fn().mockResolvedValue({}),
         findAll: jest.fn(),
@@ -94,7 +103,6 @@ describe("test parseOccupationGroups from", () => {
         findChildren: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
         patch: jest.fn(),
-        createManyLocalized: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenMockRepository);
       // AND a map to map the ids of the CSV givenCSVFile to the database ids
@@ -108,8 +116,8 @@ describe("test parseOccupationGroups from", () => {
       const path = "./_test_data_/expected.ts";
       const expectedResultsModule = await import(path);
       const expectedResults = expectedResultsModule.expected;
-      expectedResults.forEach((expectedSpec: Omit<INewOccupationGroupSpec, "modelId">) => {
-        expect(givenMockRepository.createMany).toHaveBeenLastCalledWith(
+      expectedResults.forEach((expectedSpec: Omit<INewOccupationGroupSpecLocalized, "modelId">) => {
+        expect(givenMockRepository.createManyLocalized).toHaveBeenLastCalledWith(
           expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
         );
       });
@@ -123,8 +131,8 @@ describe("test parseOccupationGroups from", () => {
       // AND the non-empty import ids to have been mapped to the db id
       expect(givenImportIdToDBIdMap.set).toHaveBeenCalledTimes(6);
       expectedResults
-        .filter((res: Omit<INewOccupationGroupSpec, "modelId">) => isSpecified(res.importId))
-        .forEach((expectedSpec: Omit<INewOccupationGroupSpec, "modelId">, index: number) => {
+        .filter((res: Omit<INewOccupationGroupSpecLocalized, "modelId">) => isSpecified(res.importId))
+        .forEach((expectedSpec: Omit<INewOccupationGroupSpecLocalized, "modelId">, index: number) => {
           expect(givenImportIdToDBIdMap.set).toHaveBeenNthCalledWith(
             index + 1,
             expectedSpec.importId,
@@ -133,25 +141,30 @@ describe("test parseOccupationGroups from", () => {
         });
       // AND no error should be logged
       expect(errorLogger.logError).not.toHaveBeenCalled();
+      // AND a deprecation warning for legacy unsuffixed columns is logged first
+      expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
+        1,
+        expect.stringContaining("CSV uses legacy unsuffixed columns")
+      );
       // AND a warning should be logged for the row with duplicate altLabels
       expect(errorLogger.logWarning).toHaveBeenCalledWith(
         "Failed to import Occupation row with id:''. OccupationType not found/invalid."
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        3,
-        "Warning while importing Occupation Group row with id:'key_2'. Preferred label 'preferred\n" +
+        4,
+        "Warning while importing Occupation Group row with id:'key_2'. Preferred label (en) 'preferred\n" +
           "label\n" +
           "with\n" +
           "linebreak' is not in the alt labels."
       );
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        4,
-        "Warning while importing OccupationGroup row with id:'key_4'. AltLabels contain 1 duplicates."
+        5,
+        "Warning while importing OccupationGroup row with id:'key_4'. AltLabels (en) contain 1 duplicates."
       );
       // AND warning should be logged fo reach of the failed rows
       expect(errorLogger.logWarning).toHaveBeenNthCalledWith(
-        5,
-        "Warning while importing Occupation Group row with id:'key_i5'. Preferred label 'ICATUS Occupation group' is not in the alt labels."
+        6,
+        "Warning while importing Occupation Group row with id:'key_i5'. Preferred label (en) 'ICATUS Occupation group' is not in the alt labels."
       );
     }
   );
