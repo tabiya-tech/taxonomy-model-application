@@ -36,8 +36,8 @@ export class OccupationGroupsService extends TaxonomyEntityService {
 
     // Compare each field and record differences
     for (const field of comparableFields) {
-      const leftValue = leftOccupationGroup.row[field];
-      const rightValue = rightOccupationGroup.row[field];
+      const leftValue = leftOccupationGroup.row[field]!;
+      const rightValue = rightOccupationGroup.row[field]!;
 
       if (leftValue !== rightValue) {
         differences.push(constructDiffObject(field as string, leftValue, rightValue));
