@@ -17,6 +17,29 @@ import SkillToSkillRelationToCSVTransform from "export/esco/skillToSkillRelation
 import ModelInfoToCSVTransform from "export/modelInfo/modelInfoToCSVTransform";
 import OccupationsToCSVTransform from "export/esco/occupation/OccupationsToCSVTransform";
 import LicenseToFileTransform from "export/license/licenseToFileTransform";
+import LanguageAPISpecs from "api-specifications/language";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+
+// Resolves a model's availableLanguages to registry entries, in registry order (not the model's order), so exports
+// are always column-consistent. Unknown languages are dropped; falls back to the fallback language if none match.
+function getModelLanguageConfigs(
+  availableLanguages: readonly string[] | undefined | null
+): LanguageAPISpecs.Types.ILanguageConfig[] {
+  const normalizedShortCodes = new Set(
+    Array.isArray(availableLanguages)
+      ? availableLanguages
+          .filter((shortCode): shortCode is string => typeof shortCode === "string")
+          .map((shortCode) => shortCode.trim().toLowerCase())
+          .filter(LanguageAPISpecs.Helpers.isSupportedLanguage)
+      : []
+  );
+  // iterate the registry, not the normalized codes, so the result is always in registry order, not the model's order
+  const languages = LanguageAPISpecs.Constants.Languages.filter((language) =>
+    normalizedShortCodes.has(language.shortCode)
+  );
+  // a model always carries its data in the fall back language, so it is exported even when the model lists none
+  return languages.length > 0 ? languages : [getFallbackLanguageConfig()];
+}
 
 /**
  * Exports a model into a zip file containing all the entities in the database pertaining to that model,
@@ -59,20 +82,35 @@ export const modelToS3 = async (event: AsyncExportEvent) => {
 
     zipper.pipe(passThrough);
 
+    // The translatable fields of the entities are exported as one column per language of the model
+    const modelInfo = await getRepositoryRegistry().modelInfo.getModelById(event.modelId);
+    if (!modelInfo) {
+      throw new Error("ModelInfo not found");
+    }
+    const languages = getModelLanguageConfigs(modelInfo.availableLanguages);
+
     // For each Collection in the DB
     [
       {
         collectionName: "OccupationGroups",
         fileName: FILENAMES.OccupationGroups,
-        csvStream: OccupationGroupsToCSVTransform,
+        csvStream: (modelId: string) => OccupationGroupsToCSVTransform(modelId, languages),
       },
       {
         collectionName: "Occupations",
         fileName: FILENAMES.Occupations,
-        csvStream: OccupationsToCSVTransform,
+        csvStream: (modelId: string) => OccupationsToCSVTransform(modelId, languages),
       },
-      { collectionName: "Skill Groups", fileName: FILENAMES.SkillGroups, csvStream: SkillGroupsToCSVTransform },
-      { collectionName: "Skills", fileName: FILENAMES.Skills, csvStream: SkillsToCSVTransform },
+      {
+        collectionName: "Skill Groups",
+        fileName: FILENAMES.SkillGroups,
+        csvStream: (modelId: string) => SkillGroupsToCSVTransform(modelId, languages),
+      },
+      {
+        collectionName: "Skills",
+        fileName: FILENAMES.Skills,
+        csvStream: (modelId: string) => SkillsToCSVTransform(modelId, languages),
+      },
       {
         collectionName: "Occupation Hierarchy",
         fileName: FILENAMES.OccupationHierarchy,

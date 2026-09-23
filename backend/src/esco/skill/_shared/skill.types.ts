@@ -81,6 +81,19 @@ export interface ISkill extends Omit<ISkillDoc, "modelId" | "embeddingStatus"> {
   requiredByOccupations: OccupationToSkillReferenceWithRelationType<IOccupationReference>[];
 }
 
+// Skill for export: not populated, translatable fields kept in every language instead of flattened to fallback
+export type ISkillWithTranslations = Omit<
+  ISkill,
+  | SkillTranslatableFields
+  | "altLabels"
+  | "parents"
+  | "children"
+  | "requiresSkills"
+  | "requiredBySkills"
+  | "requiredByOccupations"
+> &
+  Pick<ISkillTranslatedDoc, SkillTranslatableFields | "altLabels">;
+
 /**
  * Describes how a new skill is created with the API.
  */

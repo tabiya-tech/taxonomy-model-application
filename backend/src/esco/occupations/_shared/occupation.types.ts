@@ -84,6 +84,22 @@ export interface IOccupation
   requiresSkills: OccupationToSkillReferenceWithRelationType<ISkillReference>[];
 }
 
+// translatable fields of an occupation, stored as translated sub documents (e.g. { en: "Cook" })
+type OccupationTranslatableFields =
+  | "preferredLabel"
+  | "altLabels"
+  | "description"
+  | "definition"
+  | "scopeNote"
+  | "regulatedProfessionNote";
+
+// Occupation for export: not populated, translatable fields kept in every language instead of flattened to fallback
+export type IOccupationWithTranslations = Omit<
+  IOccupation,
+  OccupationTranslatableFields | "parent" | "children" | "requiresSkills"
+> &
+  Pick<IOccupationDoc, OccupationTranslatableFields>;
+
 /**
  *  Describes how new occupations are created in the API
  */
