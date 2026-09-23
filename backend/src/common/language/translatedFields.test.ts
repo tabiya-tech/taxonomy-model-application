@@ -4,6 +4,9 @@ import {
   readExistingTranslations,
   readFallbackLanguageValue,
   readFallbackLanguageValues,
+  readLanguageValue,
+  readLanguageValues,
+  translatedValueReplacer,
   wrapTranslatableFields,
   wrapTranslated,
   wrapTranslatedArray,
@@ -131,6 +134,105 @@ describe("Test readFallbackLanguageValues()", () => {
 
     // WHEN the fall back language is read
     const actualValues = readFallbackLanguageValues(givenTranslatedValues, FALLBACK_DB_KEY_NAME);
+
+    // THEN expect an empty list to be returned
+    expect(actualValues).toEqual([]);
+  });
+});
+
+describe("Test readLanguageValue()", () => {
+  test.each([
+    ["a plain object", { [FALLBACK_DB_KEY_NAME]: "Cook", [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" }],
+    [
+      "a map, as mongoose hydrates it",
+      new Map([
+        [FALLBACK_DB_KEY_NAME, "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ]),
+    ],
+  ])("should return the value of the given language when the value is %s", (_description, givenTranslatedValue) => {
+    // GIVEN a translated value that is translated in the fall back language and in another language
+
+    // WHEN each language is read
+    const actualFallbackValue = readLanguageValue(givenTranslatedValue, FALLBACK_DB_KEY_NAME);
+    const actualOtherValue = readLanguageValue(givenTranslatedValue, OTHER_LANGUAGE_DB_KEY_NAME);
+
+    // THEN expect the value of each language to be returned
+    expect(actualFallbackValue).toBe("Cook");
+    expect(actualOtherValue).toBe("Cuisinier");
+  });
+
+  test("should return an empty string when the language is not translated, instead of falling back", () => {
+    // GIVEN a translated value that is translated in the fall back language only
+    const givenTranslatedValue = new Map([[FALLBACK_DB_KEY_NAME, "Cook"]]);
+
+    // WHEN another language is read
+    const actualValue = readLanguageValue(givenTranslatedValue, OTHER_LANGUAGE_DB_KEY_NAME);
+
+    // THEN expect an empty string to be returned
+    expect(actualValue).toBe("");
+  });
+
+  test("should read a flat string as the value of the fall back language only", () => {
+    // GIVEN a flat string, as a document that predates the localized fields migration carries it
+    const givenTranslatedValue = "Cook";
+
+    // WHEN each language is read
+    const actualFallbackValue = readLanguageValue(givenTranslatedValue, FALLBACK_DB_KEY_NAME);
+    const actualOtherValue = readLanguageValue(givenTranslatedValue, OTHER_LANGUAGE_DB_KEY_NAME);
+
+    // THEN expect the flat string to be the value of the fall back language
+    expect(actualFallbackValue).toBe("Cook");
+    // AND expect every other language to be read as not translated
+    expect(actualOtherValue).toBe("");
+  });
+
+  test.each([
+    ["undefined", undefined],
+    ["null", null],
+    ["a list", [{ [FALLBACK_DB_KEY_NAME]: "Cook" }]],
+  ])("should return an empty string when the value is %s", (_description, givenTranslatedValue) => {
+    // GIVEN a value that is not a translated value
+
+    // WHEN the fall back language is read
+    const actualValue = readLanguageValue(givenTranslatedValue, FALLBACK_DB_KEY_NAME);
+
+    // THEN expect an empty string to be returned
+    expect(actualValue).toBe("");
+  });
+});
+
+describe("Test readLanguageValues()", () => {
+  test("should keep the length and the order of the list, reading a missing translation as an empty string", () => {
+    // GIVEN a list whose second item is not translated in the other language
+    const givenTranslatedValues = [
+      new Map([
+        [FALLBACK_DB_KEY_NAME, "first"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "premier"],
+      ]),
+      new Map([[FALLBACK_DB_KEY_NAME, "second"]]),
+      { [FALLBACK_DB_KEY_NAME]: "third", [OTHER_LANGUAGE_DB_KEY_NAME]: "troisième" },
+    ];
+
+    // WHEN each language is read
+    const actualFallbackValues = readLanguageValues(givenTranslatedValues, FALLBACK_DB_KEY_NAME);
+    const actualOtherValues = readLanguageValues(givenTranslatedValues, OTHER_LANGUAGE_DB_KEY_NAME);
+
+    // THEN expect the values of each language, in the order of the list
+    expect(actualFallbackValues).toEqual(["first", "second", "third"]);
+    // AND expect the missing translation to keep its slot, so that the n-th values of both languages still match
+    expect(actualOtherValues).toEqual(["premier", "", "troisième"]);
+  });
+
+  test.each([
+    ["undefined, e.g. a path that was never written", undefined],
+    ["null", null],
+    ["not a list", { [FALLBACK_DB_KEY_NAME]: "Cook" }],
+  ])("should return an empty list when the values are %s", (_description, givenTranslatedValues) => {
+    // GIVEN no list of translated values
+
+    // WHEN the language is read
+    const actualValues = readLanguageValues(givenTranslatedValues, FALLBACK_DB_KEY_NAME);
 
     // THEN expect an empty list to be returned
     expect(actualValues).toEqual([]);
@@ -321,5 +423,29 @@ describe("Test wrapTranslatableFields()", () => {
 
     // THEN expect the spec to be unchanged
     expect(givenSpec).toEqual({ preferredLabel: "Cook", altLabels: ["Chef"] });
+  });
+});
+
+describe("Test translatedValueReplacer()", () => {
+  test("should serialize a translated value hydrated as a map as a plain object", () => {
+    // GIVEN an object that carries translated values hydrated as maps, alone and in a list
+    const givenObject = {
+      id: "foo",
+      preferredLabel: new Map([
+        [FALLBACK_DB_KEY_NAME, "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ]),
+      altLabels: [new Map([[FALLBACK_DB_KEY_NAME, "Chef"]])],
+    };
+
+    // WHEN the object is serialized with the replacer
+    const actualJSON = JSON.stringify(givenObject, translatedValueReplacer);
+
+    // THEN expect the translations to be serialized as plain objects
+    expect(JSON.parse(actualJSON)).toEqual({
+      id: "foo",
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Cook", [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" },
+      altLabels: [{ [FALLBACK_DB_KEY_NAME]: "Chef" }],
+    });
   });
 });

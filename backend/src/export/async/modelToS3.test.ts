@@ -133,12 +133,20 @@ jest.mock("server/repositoryRegistry/repositoryRegistry", () => {
     findById: jest.fn(),
   };
 
+  // mock the modelInfo repository, the model is in French and English, listed in the reverse order of the registry
+  const _mockModelInfoRepositoryInstance = {
+    getModelById: jest.fn().mockResolvedValue({ availableLanguages: ["fr", "en"] }),
+  };
+
   const actual = jest.requireActual("server/repositoryRegistry/repositoryRegistry");
 
   // Ensure the getRepositoryRegistry always returns the same mock instance
   jest.spyOn(actual, "getRepositoryRegistry").mockReturnValue({
     get exportProcessState() {
       return _mockExportProcessStateRepositoryInstance;
+    },
+    get modelInfo() {
+      return _mockModelInfoRepositoryInstance;
     },
   });
 
@@ -170,6 +178,7 @@ import SkillToSkillRelationToCSVTransform from "export/esco/skillToSkillRelation
 import ModelInfoToCSVTransform from "export/modelInfo/modelInfoToCSVTransform";
 import OccupationsToCSVTransform from "export/esco/occupation/OccupationsToCSVTransform";
 import LicenseToFileTransform from "export/license/licenseToFileTransform";
+import LanguageAPISpecs from "api-specifications/language";
 
 jest.spyOn(errorLogger, "logError");
 jest.spyOn(errorLogger, "logWarning");
@@ -223,21 +232,29 @@ describe("modelToS3", () => {
     const actualZipper: archiver.Archiver = (archiver.create as jest.Mock).mock.results[0].value;
     expect(actualZipper.pipe).toHaveBeenCalledWith(expect.any(stream.PassThrough));
 
+    // AND the languages of the model to have been looked up
+    expect(getRepositoryRegistry().modelInfo.getModelById).toHaveBeenCalledWith(givenEvent.modelId);
+    // AND the languages of the model to be exported in the order of the registry, not in the order of the model
+    const expectedLanguages = [
+      LanguageAPISpecs.Helpers.getLanguageByShortCode("en"),
+      LanguageAPISpecs.Helpers.getLanguageByShortCode("fr"),
+    ];
+
     // AND for each collection in the database
     [
-      [OccupationGroupsToCSVTransform, FILENAMES.OccupationGroups],
-      [OccupationsToCSVTransform, FILENAMES.Occupations],
-      [SkillGroupsToCSVTransform, FILENAMES.SkillGroups],
-      [SkillsToCSVTransform, FILENAMES.Skills],
-      [OccupationHierarchyToCSVTransform, FILENAMES.OccupationHierarchy],
-      [SkillHierarchyToCSVTransform, FILENAMES.SkillHierarchy],
-      [OccupationToSkillRelationToCSVTransform, FILENAMES.OccupationToSkillRelations],
-      [SkillToSkillRelationToCSVTransform, FILENAMES.SkillToSkillRelations],
-      [ModelInfoToCSVTransform, FILENAMES.ModelInfo],
-      [LicenseToFileTransform, FILENAMES.License],
-    ].forEach(([transform, filename]) => {
-      // EXPECT the collection to be transfomred to CSV
-      expect(transform).toHaveBeenCalledWith(givenEvent.modelId);
+      [OccupationGroupsToCSVTransform, FILENAMES.OccupationGroups, [givenEvent.modelId, expectedLanguages]],
+      [OccupationsToCSVTransform, FILENAMES.Occupations, [givenEvent.modelId, expectedLanguages]],
+      [SkillGroupsToCSVTransform, FILENAMES.SkillGroups, [givenEvent.modelId, expectedLanguages]],
+      [SkillsToCSVTransform, FILENAMES.Skills, [givenEvent.modelId, expectedLanguages]],
+      [OccupationHierarchyToCSVTransform, FILENAMES.OccupationHierarchy, [givenEvent.modelId]],
+      [SkillHierarchyToCSVTransform, FILENAMES.SkillHierarchy, [givenEvent.modelId]],
+      [OccupationToSkillRelationToCSVTransform, FILENAMES.OccupationToSkillRelations, [givenEvent.modelId]],
+      [SkillToSkillRelationToCSVTransform, FILENAMES.SkillToSkillRelations, [givenEvent.modelId]],
+      [ModelInfoToCSVTransform, FILENAMES.ModelInfo, [givenEvent.modelId]],
+      [LicenseToFileTransform, FILENAMES.License, [givenEvent.modelId]],
+    ].forEach(([transform, filename, expectedArguments]) => {
+      // EXPECT the collection to be transformed to CSV, the translatable entities in the languages of the model
+      expect(transform).toHaveBeenCalledWith(...(expectedArguments as unknown[]));
       // AND the CSV to be zipped to the correct filename
       expect(CSVtoZipPipeline).toHaveBeenCalledWith(
         expect.any(String),
@@ -284,6 +301,67 @@ describe("modelToS3", () => {
 
     // AND All resources have been released
     await assertThatAllCreatedResourcesAreReleased(true);
+  });
+
+  describe("should resolve the languages the translatable entities are exported in", () => {
+    afterEach(() => {
+      // restore the configuration so that a test does not leak its fall back language into the next one
+      // @ts-ignore
+      Config.setConfiguration(undefined);
+    });
+
+    test("should ignore the case and the surrounding whitespace of the short codes of the model", async () => {
+      // GIVEN a model whose availableLanguages is a sloppily spelled language of the registry
+      const givenLanguage = LanguageAPISpecs.Constants.Languages[1];
+      (getRepositoryRegistry().modelInfo.getModelById as jest.Mock).mockResolvedValueOnce({
+        availableLanguages: [`  ${givenLanguage.shortCode.toUpperCase()} `],
+      });
+
+      // WHEN the modelToS3 function is called
+      await modelToS3(getMockExportEvent());
+
+      // THEN expect the translatable entities to have been exported in that language
+      expect(OccupationsToCSVTransform).toHaveBeenCalledWith(expect.any(String), [givenLanguage]);
+    });
+
+    test("should drop the languages that the registry does not know about", async () => {
+      // GIVEN a model whose availableLanguages has a language of the registry and one the registry does not know
+      const givenLanguage = LanguageAPISpecs.Constants.Languages[1];
+      (getRepositoryRegistry().modelInfo.getModelById as jest.Mock).mockResolvedValueOnce({
+        availableLanguages: ["xx", givenLanguage.shortCode],
+      });
+
+      // WHEN the modelToS3 function is called
+      await modelToS3(getMockExportEvent());
+
+      // THEN expect only the language of the registry to have been used to export the translatable entities
+      expect(OccupationsToCSVTransform).toHaveBeenCalledWith(expect.any(String), [givenLanguage]);
+    });
+
+    test.each([
+      ["undefined", undefined],
+      ["null", null],
+      ["an empty list", []],
+      ["a list of unknown languages", ["xx", "yy"]],
+    ])(
+      "should export the translatable entities in the fall back language when the model's availableLanguages is %s",
+      async (_description, givenAvailableLanguages) => {
+        // GIVEN the environment is configured to fall back to a language of the registry
+        const givenFallbackLanguage = LanguageAPISpecs.Constants.Languages[1];
+        // @ts-ignore
+        Config.setConfiguration({ fallbackLanguage: givenFallbackLanguage.shortCode });
+        // AND a model whose availableLanguages does not resolve to any language of the registry
+        (getRepositoryRegistry().modelInfo.getModelById as jest.Mock).mockResolvedValueOnce({
+          availableLanguages: givenAvailableLanguages,
+        });
+
+        // WHEN the modelToS3 function is called
+        await modelToS3(getMockExportEvent());
+
+        // THEN expect the translatable entities to have been exported in the fall back language
+        expect(OccupationsToCSVTransform).toHaveBeenCalledWith(expect.any(String), [givenFallbackLanguage]);
+      }
+    );
   });
 
   describe("should handle streaming errors emitted during the upstream DB-Collection-ToCSVTransform", () => {
@@ -346,6 +424,22 @@ describe("modelToS3", () => {
           jest.spyOn(archiver, "create").mockImplementationOnce(() => {
             throw new Error("foo");
           });
+        },
+      ],
+      [
+        "the modelInfo repository rejects with an error",
+        "An error occurred while streaming data from the DB to the zip file on S3",
+        "foo",
+        () => {
+          (getRepositoryRegistry().modelInfo.getModelById as jest.Mock).mockRejectedValueOnce(new Error("foo"));
+        },
+      ],
+      [
+        "the model is not found",
+        "An error occurred while streaming data from the DB to the zip file on S3",
+        "ModelInfo not found",
+        () => {
+          (getRepositoryRegistry().modelInfo.getModelById as jest.Mock).mockResolvedValueOnce(null);
         },
       ],
       [

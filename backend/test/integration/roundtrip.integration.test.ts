@@ -30,6 +30,13 @@ import ExportProcessStateApiSpecs from "api-specifications/exportProcessState";
 import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import { CSVObjectTypes } from "esco/common/csvObjectTypes";
 import { Context } from "aws-lambda";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import {
+  occupationTranslatableHeaders,
+  OccupationGroupTranslatableHeaders,
+  skillGroupTranslatableHeaders,
+  skillTranslatableHeaders,
+} from "esco/common/entityToCSV.types";
 
 enum DataTestType {
   SAMPLE = "SAMPLE",
@@ -117,7 +124,9 @@ describe("Test Roundtrip with an in-memory mongodb", () => {
         return;
       }
       // 2.1 Import the exported CSV files from 1.2 into the database
-      const secondImportedModel = await doImport(exportFolderFirst);
+      // the export writes language-suffixed columns (PREFERREDLABEL_EN, ...), so this re-import is in
+      // localized mode and emits no legacy-format deprecation warnings
+      const secondImportedModel = await doImport(exportFolderFirst, 0);
       // 2.2 Export the data from the database into CSV files
       const exportFolderSecond = await doExport(secondImportedModel.id);
       // 2.3 Assert that the exported CSV files have the same content as the imported CSV files from 2.1
@@ -127,7 +136,9 @@ describe("Test Roundtrip with an in-memory mongodb", () => {
   );
 });
 
-async function doImport(dataFolder: string): Promise<IModelInfo> {
+// legacy unsuffixed CSVs emit one deprecation warning per entity parser (4 entity types); language-suffixed
+// CSVs (e.g. a re-import of our own export) emit none.
+async function doImport(dataFolder: string, expectedWarningCount: 0 | 4 = 4): Promise<IModelInfo> {
   errorLogger.clear();
   const newModel: IModelInfo = await getRepositoryRegistry().modelInfo.create({
     name: "CSVImport",
@@ -140,11 +151,17 @@ async function doImport(dataFolder: string): Promise<IModelInfo> {
       shortCode: "en",
     },
   });
+  const availableLanguages = newModel.availableLanguages ?? [];
   const importIdToDBIdMap: Map<string, string> = new Map<string, string>();
-  await parseOccupationGroupsFromFile(newModel.id, `${dataFolder}/occupation_groups.csv`, importIdToDBIdMap);
-  await parseOccupationsFromFile(newModel.id, `${dataFolder}/occupations.csv`, importIdToDBIdMap);
-  await parseSkillGroupsFromFile(newModel.id, `${dataFolder}/skill_groups.csv`, importIdToDBIdMap);
-  await parseSkillsFromFile(newModel.id, `${dataFolder}/skills.csv`, importIdToDBIdMap);
+  await parseOccupationGroupsFromFile(
+    newModel.id,
+    `${dataFolder}/occupation_groups.csv`,
+    importIdToDBIdMap,
+    availableLanguages
+  );
+  await parseOccupationsFromFile(newModel.id, `${dataFolder}/occupations.csv`, importIdToDBIdMap, availableLanguages);
+  await parseSkillGroupsFromFile(newModel.id, `${dataFolder}/skill_groups.csv`, importIdToDBIdMap, availableLanguages);
+  await parseSkillsFromFile(newModel.id, `${dataFolder}/skills.csv`, importIdToDBIdMap, availableLanguages);
   await parseOccupationHierarchyFromFile(newModel.id, `${dataFolder}/occupation_hierarchy.csv`, importIdToDBIdMap);
   await parseSkillHierarchyFromFile(newModel.id, `${dataFolder}/skill_hierarchy.csv`, importIdToDBIdMap);
   await parseSkillToSkillRelationFromFile(newModel.id, `${dataFolder}/skill_to_skill_relations.csv`, importIdToDBIdMap);
@@ -154,10 +171,9 @@ async function doImport(dataFolder: string): Promise<IModelInfo> {
     importIdToDBIdMap
   );
   expect(errorLogger.errorCount).toEqual(0);
-  // legacy unsuffixed CSVs emit one deprecation warning per entity parser (4 entity types)
-  expect(errorLogger.warningCount).toEqual(4);
+  expect(errorLogger.warningCount).toEqual(expectedWarningCount);
   expect(console.error as jest.Mock).not.toHaveBeenCalled();
-  // console.warn is not asserted here: the 4 deprecation warnings fire through console.warn
+  // console.warn is not asserted here: the deprecation warnings (legacy mode only) fire through console.warn
   return newModel;
 }
 
@@ -280,10 +296,14 @@ async function assertCSVFilesHaveTheSameContent(folder1: string, folder2: string
     map2
   );
 
-  compareCSVContent(`${folder1}/occupation_groups.csv`, `${folder2}/occupation_groups.csv`);
+  compareCSVContent(
+    `${folder1}/occupation_groups.csv`,
+    `${folder2}/occupation_groups.csv`,
+    OccupationGroupTranslatableHeaders
+  );
   compareOccupationsContent(`${folder1}/occupations.csv`, `${folder2}/occupations.csv`);
-  compareCSVContent(`${folder1}/skill_groups.csv`, `${folder2}/skill_groups.csv`);
-  compareCSVContent(`${folder1}/skills.csv`, `${folder2}/skills.csv`);
+  compareCSVContent(`${folder1}/skill_groups.csv`, `${folder2}/skill_groups.csv`, skillGroupTranslatableHeaders);
+  compareCSVContent(`${folder1}/skills.csv`, `${folder2}/skills.csv`, skillTranslatableHeaders);
   checkFileIncludesContent(model.license, `${folder2}/LICENSE`);
 }
 
@@ -325,7 +345,21 @@ function normalizeAltLabels(row: any) {
   }
 }
 
-function compareCSVContent(file1: string, file2: string) {
+// Our English-only fixtures use plain columns (PREFERREDLABEL), but export now writes PREFERREDLABEL_EN. Renaming it
+// back lets us compare them. Only valid for single-language data - do not reuse this for multi-language round-trips.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeTranslatableHeaders(row: any, translatableHeaders: readonly string[]) {
+  const fallbackSuffix = getFallbackLanguageConfig().csvSuffix;
+  translatableHeaders.forEach((header) => {
+    const fallbackKey = `${header}_${fallbackSuffix}`;
+    if (fallbackKey in row) row[header] = row[fallbackKey]; // row may already be in the legacy, unsuffixed format
+    Object.keys(row).forEach((key) => {
+      if (key.startsWith(`${header}_`)) delete row[key];
+    });
+  });
+}
+
+function compareCSVContent(file1: string, file2: string, translatableHeaders: readonly string[]) {
   const map1 = new Map<string, unknown>();
   const entitiesMissingUUID1 = []; // entities that have no UUIDHistory from file 1
   const entitiesMissingUUID2 = []; // entities that have no UUIDHistory from file 2
@@ -346,6 +380,7 @@ function compareCSVContent(file1: string, file2: string) {
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    normalizeTranslatableHeaders(row, translatableHeaders);
     normalizeAltLabels(row);
     // Keep only the original UUID field from the parsed CSV data
     const uuidHistory = arrayFromString(row.UUIDHISTORY);
@@ -360,6 +395,7 @@ function compareCSVContent(file1: string, file2: string) {
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    normalizeTranslatableHeaders(row, translatableHeaders);
     normalizeAltLabels(row);
     // Keep only the original UUID field from the parsed CSV data
     const uuidHistory = arrayFromString(row.UUIDHISTORY);
@@ -406,6 +442,7 @@ function compareOccupationsContent(file1: string, file2: string) {
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    normalizeTranslatableHeaders(row, occupationTranslatableHeaders);
     // Keep only the original UUID field from the parsed CSV data
     map1.set(row.CODE, row);
     return row;
@@ -417,6 +454,7 @@ function compareOccupationsContent(file1: string, file2: string) {
     // Remove the created and updated fields from the parsed CSV data
     delete row.CREATEDAT;
     delete row.UPDATEDAT;
+    normalizeTranslatableHeaders(row, occupationTranslatableHeaders);
     // Because UUID can change in cases like.
     // 1. No UUID that was uploaded and the server generated a new one.
     //    In this case, the UUIDHistory will have the generated UUID.

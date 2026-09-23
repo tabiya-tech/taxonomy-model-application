@@ -8,8 +8,10 @@ import {
   ISkill,
   ISkillDoc,
   ISkillReference,
+  ISkillWithTranslations,
   IUpdateSkillSpec,
 } from "../_shared/skill.types";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { getSkillDocReference, SkillDocument, unwrapSkillTranslatableFields } from "../_shared/skillReference";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
@@ -114,6 +116,13 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
    * Rejects with an error if the operation fails.
    */
   findAll(modelId: string): Readable;
+
+  /**
+   * Like findAll(), but keeps every language of the translatable fields instead of flattening to the fallback. Used by export.
+   * @param {string} modelId - The modelId of the Skills.
+   * @return {Readable} - A Readable stream of ISkillWithTranslations
+   */
+  findAllWithTranslations(modelId: string): Readable;
 
   /**
    * Returns paginated Skills with parents, children, requiresSkills, requiredBySkills and requiredByOccupations
@@ -421,6 +430,28 @@ export class SkillRepository implements ISkillRepository {
       const err = new Error("SkillRepository.findAll: findAll failed", { cause: e });
       console.error(err);
       throw e;
+    }
+  }
+
+  findAllWithTranslations(modelId: string): Readable {
+    try {
+      const pipeline = stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.Model.find({ modelId: { $eq: modelId } }).cursor(),
+        // we do not populate the parents, children, and the translatable fields are not flattened
+        new DocumentToObjectTransformer<ISkillWithTranslations>(getGlobalTransformOptions()),
+        () => undefined
+      );
+
+      pipeline.on("error", (e) => {
+        console.error(new Error("SkillRepository.findAllWithTranslations: stream failed", { cause: e }));
+      });
+
+      return pipeline;
+    } catch (e: unknown) {
+      const err = new Error("SkillRepository.findAllWithTranslations: findAllWithTranslations failed", { cause: e });
+      console.error(err);
+      throw err;
     }
   }
 

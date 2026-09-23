@@ -8,9 +8,11 @@ import {
   ISkillGroupChild,
   ISkillGroupDoc,
   ISkillGroupReference,
+  ISkillGroupWithTranslations,
   IPartialUpdateSkillGroupSpec,
   IUpdateSkillGroupSpec,
 } from "../_shared/skillGroup.types";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import {
   populateSkillGroupChildrenOptions,
   populateSkillGroupParentsOptions,
@@ -69,6 +71,14 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
   createManyLocalized(newSkillGroupSpecs: INewSkillGroupSpecLocalized[]): Promise<ISkillGroup[]>;
   findById(id: string): Promise<ISkillGroup | null>;
   findAll(modelId: string): Readable;
+
+  /**
+   * Like findAll(), but keeps every language of the translatable fields instead of flattening to the fallback. Used by export.
+   * @param {string} modelId - The modelId of the SkillGroups.
+   * @return {Readable} - A Readable stream of ISkillGroupWithTranslations
+   */
+  findAllWithTranslations(modelId: string): Readable;
+
   findPaginated(
     modelId: string,
     limit: number,
@@ -445,6 +455,28 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       return pipeline;
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  findAllWithTranslations(modelId: string): Readable {
+    try {
+      const pipeline = stream.pipeline(
+        this.Model.find({ modelId: { $eq: modelId } }).cursor(),
+        // the global transform only, without the transform of the schema that flattens the translatable fields
+        new DocumentToObjectTransformer<ISkillGroupWithTranslations>(getGlobalTransformOptions()),
+        () => undefined
+      );
+      pipeline.on("error", (e) => {
+        console.error(new Error("SkillGroupRepository.findAllWithTranslations: stream failed", { cause: e }));
+      });
+
+      return pipeline;
+    } catch (e: unknown) {
+      const err = new Error("SkillGroupRepository.findAllWithTranslations: findAllWithTranslations failed", {
+        cause: e,
+      });
       console.error(err);
       throw err;
     }

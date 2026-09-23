@@ -92,6 +92,7 @@ describe("test parseSkills from", () => {
         }),
         findById: jest.fn(),
         findAll: jest.fn(),
+        findAllWithTranslations: jest.fn(),
         findPaginated: jest.fn(),
         findParent: jest.fn(),
         findChildren: jest.fn(),

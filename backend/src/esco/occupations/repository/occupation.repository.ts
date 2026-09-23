@@ -6,6 +6,7 @@ import {
   INewOccupationSpecWithoutImportId,
   IOccupation,
   IOccupationDoc,
+  IOccupationWithTranslations,
   IPartialUpdateOccupationSpec,
   ISkillWithRelation,
   IUpdateOccupationSpec,
@@ -43,6 +44,7 @@ import {
 import { wrapTranslatableFields } from "common/language/translatedFields";
 import { buildSearchCondition } from "esco/common/searchCondition";
 import { unwrapSkillTranslatableFields } from "esco/skill/_shared/skillReference";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
 // fields stored as localized sub documents, wrapped/flattened by this repository
 const TRANSLATABLE_STRING_FIELDS = [
@@ -112,6 +114,13 @@ export interface IOccupationRepository extends IEmbeddableEntityRepository {
    * Rejects with an error if the operation fails.
    */
   findAll(modelId: string, filter?: SearchFilter): Readable;
+
+  /**
+   * Like findAll(), but keeps every language of the translatable fields instead of flattening to the fallback. Used by export.
+   * @param {string} modelId - The modelId of the occupations.
+   * @return {Readable} - A Readable stream of IOccupationWithTranslations
+   */
+  findAllWithTranslations(modelId: string): Readable;
 
   /**
    * Returns paginated Occupations, ordered by _id. When a `search` is provided, only Occupations whose
@@ -401,12 +410,34 @@ export class OccupationRepository implements IOccupationRepository {
         () => undefined
       );
       pipeline.on("error", (e) => {
-        console.error("OccupationRepository.findAll: stream failed", e);
+        console.error(new Error("OccupationRepository.findAll: stream failed", { cause: e }));
       });
 
       return pipeline;
     } catch (e: unknown) {
       const err = new Error("OccupationRepository.findAll: findAll failed", { cause: e });
+      throw err;
+    }
+  }
+
+  findAllWithTranslations(modelId: string): Readable {
+    try {
+      const pipeline: Readable = stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.Model.find({ modelId: { $eq: modelId } }).cursor(), // we do not populate the parent, children or requiresSkills
+        // the global transform only, without the transform of the schema that flattens the translatable fields
+        new DocumentToObjectTransformer<IOccupationWithTranslations>(getGlobalTransformOptions()),
+        () => undefined
+      );
+      pipeline.on("error", (e) => {
+        console.error(new Error("OccupationRepository.findAllWithTranslations: stream failed", { cause: e }));
+      });
+
+      return pipeline;
+    } catch (e: unknown) {
+      const err = new Error("OccupationRepository.findAllWithTranslations: findAllWithTranslations failed", {
+        cause: e,
+      });
       throw err;
     }
   }

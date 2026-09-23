@@ -20,6 +20,7 @@ import {
   IUpdateOccupationGroupSpec,
   IPartialUpdateOccupationGroupSpec,
   IOccupationGroupWithoutImportId,
+  IOccupationGroupWithTranslations,
 } from "../_shared/OccupationGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -47,6 +48,7 @@ import {
 import { expectedOccupationGroupReference, expectedOccupationReference } from "esco/_test_utilities/expectedReference";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { Readable } from "node:stream";
+import { wrapTranslated, wrapTranslatedArray } from "common/language/translatedFields";
 import {
   getExpectedPlan,
   setUpFindWithExplain,
@@ -1896,6 +1898,144 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
     TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
       repositoryRegistry.OccupationGroup.findAll(getMockStringId(1))
+    );
+  });
+
+  describe("Test findAllWithTranslations()", () => {
+    // the flat OccupationGroup the repository returns, wrapped back into the translations it is stored as
+    function toTranslatedOccupationGroup(entity: IOccupationGroup): IOccupationGroupWithTranslations {
+      const { parent, children, ...entityData } = entity;
+      return {
+        ...entityData,
+        preferredLabel: wrapTranslated(entityData.preferredLabel),
+        description: wrapTranslated(entityData.description),
+        altLabels: wrapTranslatedArray(entityData.altLabels),
+      };
+    }
+
+    test("should find all OccupationGroups in the correct model, with every translation of their translatable fields", async () => {
+      // Given some modelId
+      const givenModelId = getMockStringId(1);
+      // AND a set of OccupationGroups exist in the database for the given Model
+      const givenEntities = await createOccupationGroupsInDB(givenModelId);
+      // AND some other OccupationGroups exist in the database for a different model
+      await createOccupationGroupsInDB(getMockStringId(2));
+      // AND the first OccupationGroup is also translated in French, stored directly (the flat-string repository API has no
+      // way to write a non fallback language), with its second altLabel not translated in French
+      const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+      const givenTranslatedEntity = givenEntities[0];
+      await repository.Model.updateOne(
+        { _id: givenTranslatedEntity.id },
+        {
+          $set: {
+            "preferredLabel.fr": "fr_preferredLabel",
+            "description.fr": "fr_description",
+            altLabels: [
+              { [fallbackDbKeyName]: "altLabel_1", fr: "fr_altLabel_1" },
+              { [fallbackDbKeyName]: "altLabel_2" },
+            ],
+          },
+        }
+      );
+
+      // WHEN searching for all OccupationGroups with their translations in the given model
+      const actualStream = repository.findAllWithTranslations(givenModelId);
+
+      // THEN the OccupationGroups should be returned as a consumable stream that emits all OccupationGroups of the given model
+      const actualEntities: IOccupationGroupWithTranslations[] = [];
+      for await (const data of actualStream) {
+        actualEntities.push(data);
+      }
+      // AND their translatable fields should not be flattened to the fallback language
+      const expectedEntities = givenEntities.map(toTranslatedOccupationGroup);
+      expectedEntities[0] = {
+        ...expectedEntities[0],
+        preferredLabel: new Map([
+          [fallbackDbKeyName, givenTranslatedEntity.preferredLabel],
+          ["fr", "fr_preferredLabel"],
+        ]),
+        description: new Map([
+          [fallbackDbKeyName, givenTranslatedEntity.description],
+          ["fr", "fr_description"],
+        ]),
+        altLabels: [
+          new Map([
+            [fallbackDbKeyName, "altLabel_1"],
+            ["fr", "fr_altLabel_1"],
+          ]),
+          new Map([[fallbackDbKeyName, "altLabel_2"]]),
+        ],
+        updatedAt: expect.any(Date),
+      } as IOccupationGroupWithTranslations;
+      expect(actualEntities).toIncludeSameMembers(expectedEntities);
+    });
+
+    test("should not return any OccupationGroups when the model does not have any and other models have", async () => {
+      // GIVEN no OccupationGroups exist in the database for the given model
+      const givenModelId = getMockStringId(1);
+      // BUT some other OccupationGroups exist in the database for a different model
+      await createOccupationGroupsInDB(getMockStringId(2));
+
+      // WHEN the findAllWithTranslations method is called
+      const actualStream = repository.findAllWithTranslations(givenModelId);
+
+      // THEN the stream should end without emitting any data
+      const receivedData: IOccupationGroupWithTranslations[] = [];
+      for await (const data of actualStream) {
+        receivedData.push(data);
+      }
+      expect(receivedData).toHaveLength(0);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN an error occurs during the find operation
+      const givenModelId = getMockStringId(1);
+      const givenError = new Error("foo");
+      jest.spyOn(repository.Model, "find").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // THEN the findAllWithTranslations method should throw an error
+      expect(() => repository.findAllWithTranslations(givenModelId)).toThrow(
+        expect.toMatchErrorWithCause(
+          "OccupationGroupRepository.findAllWithTranslations: findAllWithTranslations failed",
+          givenError.message
+        )
+      );
+    });
+
+    test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+      // GIVEN an error occurs during the streaming of the find operation
+      const givenError = new Error("foo");
+      const mockStream = Readable.from([{ toObject: jest.fn() }]);
+      mockStream._read = jest.fn().mockImplementation(() => {
+        throw givenError;
+      });
+      const mockFind = jest.spyOn(repository.Model, "find");
+      // @ts-ignore
+      mockFind.mockReturnValue({
+        cursor: jest.fn().mockImplementationOnce(() => {
+          return mockStream;
+        }),
+      });
+
+      // WHEN searching for all OccupationGroups with their translations in the given model
+      const actualStream = repository.findAllWithTranslations(getMockStringId(1));
+
+      // THEN the OccupationGroups should be returned as a consumable stream that emits an error and ends
+      const actualEntities: IOccupationGroupWithTranslations[] = [];
+      await expect(async () => {
+        for await (const data of actualStream) {
+          actualEntities.push(data);
+        }
+      }).rejects.toThrowError(givenError);
+      expect(actualStream.closed).toBeTruthy();
+      expect(actualEntities).toHaveLength(0);
+      mockFind.mockRestore();
+    });
+
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+      repositoryRegistry.OccupationGroup.findAllWithTranslations(getMockStringId(1))
     );
   });
 

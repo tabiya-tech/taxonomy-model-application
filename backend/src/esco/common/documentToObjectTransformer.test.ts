@@ -24,6 +24,30 @@ describe("documentToObjectTransformer", () => {
     expect(givenDocument.toObject).toHaveBeenCalled();
   });
 
+  test("should pass the given options to the toObject method", async () => {
+    // GIVEN a document with a toObject method
+    const givenDocument = {
+      toObject: jest.fn().mockReturnValue({ foo: "foo" }),
+    };
+    // AND a stream containing the document
+    const givenDocumentsStream = Readable.from([givenDocument]);
+    // AND some toObject options
+    const givenOptions = { virtuals: true, transform: jest.fn() };
+
+    // WHEN the stream is piped to a transformer created with the options
+    const actualStream = givenDocumentsStream.pipe(new DocumentToObjectTransformer(givenOptions));
+    // AND it is consumed
+    const actualObjects = [];
+    for await (const actualObject of actualStream) {
+      actualObjects.push(actualObject);
+    }
+
+    // THEN expect the transformed object to be returned
+    expect(actualObjects).toEqual([{ foo: "foo" }]);
+    // AND the document to have been transformed with the given options
+    expect(givenDocument.toObject).toHaveBeenCalledWith(givenOptions);
+  });
+
   test("should call callback with error toObject method throws an error", async () => {
     // GIVEN a document with a toObject method that throws an error
     const givenDocument = {

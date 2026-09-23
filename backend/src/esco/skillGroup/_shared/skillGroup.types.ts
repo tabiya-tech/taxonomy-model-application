@@ -62,6 +62,13 @@ export interface ISkillGroupWithoutImportId extends Omit<ISkillGroup, "importId"
   importId: string | null;
 }
 
+// translatable fields of a skill group, stored as translated sub documents (e.g. { en: "Managers" })
+type SkillGroupTranslatableFields = "preferredLabel" | "altLabels" | "description" | "scopeNote";
+
+// SkillGroup for export: not populated, translatable fields kept in every language instead of flattened to fallback
+export type ISkillGroupWithTranslations = Omit<ISkillGroup, SkillGroupTranslatableFields | "parents" | "children"> &
+  Pick<ISkillGroupDoc, SkillGroupTranslatableFields>;
+
 /**
  * Describes how a new skill group is created with the API.
  */
