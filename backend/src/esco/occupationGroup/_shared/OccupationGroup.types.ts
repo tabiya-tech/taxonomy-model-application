@@ -89,6 +89,19 @@ export type IUpdateOccupationGroupSpec = Pick<
 export type IPartialUpdateOccupationGroupSpec = Partial<IUpdateOccupationGroupSpec>;
 
 /**
+ * Like INewOccupationGroupSpec but with translatable fields already expressed as localized Maps, for the
+ * language-suffixed CSV import path.
+ */
+export type INewOccupationGroupSpecLocalized = Omit<
+  INewOccupationGroupSpec,
+  "preferredLabel" | "altLabels" | "description"
+> & {
+  preferredLabel: ITranslatedStringDoc;
+  altLabels: ITranslatedStringArrayDoc;
+  description: ITranslatedStringDoc;
+};
+
+/**
  * Describes how a reference to an OccupationGroup is returned from the API.
  */
 export interface IOccupationGroupReference extends Pick<IOccupationGroup, "id" | "UUID" | "code" | "preferredLabel"> {

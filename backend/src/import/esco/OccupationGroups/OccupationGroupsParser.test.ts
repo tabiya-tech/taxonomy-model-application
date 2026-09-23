@@ -94,6 +94,7 @@ describe("test parseOccupationGroups from", () => {
         findChildren: jest.fn().mockResolvedValue([]),
         update: jest.fn(),
         patch: jest.fn(),
+        createManyLocalized: jest.fn().mockResolvedValue([]),
       };
       jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenMockRepository);
       // AND a map to map the ids of the CSV givenCSVFile to the database ids

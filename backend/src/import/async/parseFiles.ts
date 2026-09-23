@@ -42,8 +42,9 @@ const getPresignedUrls = async (
 export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payload): Promise<void> => {
   const modelId = event.modelId;
   // Get the model to import into
-  const importProcessStateId = ((await getRepositoryRegistry().modelInfo.getModelById(event.modelId)) as IModelInfo)
-    .importProcessState.id;
+  const modelInfo = (await getRepositoryRegistry().modelInfo.getModelById(event.modelId)) as IModelInfo;
+  const importProcessStateId = modelInfo.importProcessState.id;
+  const availableLanguages = modelInfo.availableLanguages ?? [];
   // Generate the presigned urls for the files
   const downloadUrls = await getPresignedUrls(event.filePaths);
 
@@ -64,21 +65,36 @@ export const parseFiles = async (event: ImportAPISpecs.Types.POST.Request.Payloa
   // Process the files
   let countOccupationGroups = 0;
   if (downloadUrls.OCCUPATION_GROUPS) {
-    const stats = await parseOccupationGroupsFromUrl(modelId, downloadUrls.OCCUPATION_GROUPS, importIdToDBIdMap);
+    const stats = await parseOccupationGroupsFromUrl(
+      modelId,
+      downloadUrls.OCCUPATION_GROUPS,
+      importIdToDBIdMap,
+      availableLanguages
+    );
     countOccupationGroups = stats.rowsSuccess;
     console.info(`Processed ${JSON.stringify(stats)} Occupation Groups`);
   }
   if (downloadUrls.ESCO_SKILL_GROUPS) {
-    const stats = await parseSkillGroupsFromUrl(modelId, downloadUrls.ESCO_SKILL_GROUPS, importIdToDBIdMap);
+    const stats = await parseSkillGroupsFromUrl(
+      modelId,
+      downloadUrls.ESCO_SKILL_GROUPS,
+      importIdToDBIdMap,
+      availableLanguages
+    );
     console.info(`Processed ${JSON.stringify(stats)} Skill Groups`);
   }
   if (downloadUrls.ESCO_SKILLS) {
-    const stats = await parseSkillsFromUrl(modelId, downloadUrls.ESCO_SKILLS, importIdToDBIdMap);
+    const stats = await parseSkillsFromUrl(modelId, downloadUrls.ESCO_SKILLS, importIdToDBIdMap, availableLanguages);
     console.info(`Processed ${JSON.stringify(stats)} Skills`);
   }
   let countOccupations = 0;
   if (downloadUrls.OCCUPATIONS) {
-    const stats = await parseOccupationsFromUrl(modelId, downloadUrls.OCCUPATIONS, importIdToDBIdMap);
+    const stats = await parseOccupationsFromUrl(
+      modelId,
+      downloadUrls.OCCUPATIONS,
+      importIdToDBIdMap,
+      availableLanguages
+    );
     countOccupations += stats.rowsSuccess;
     console.info(`Processed ${JSON.stringify(stats)}  Occupations`);
   }

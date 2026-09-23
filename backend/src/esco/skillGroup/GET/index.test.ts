@@ -723,6 +723,7 @@ describe("SkillGroupListController", () => {
       patch: jest.fn().mockResolvedValue(null),
       setEntityEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
       setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
+      createManyLocalized: jest.fn().mockResolvedValue([]),
     };
     jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenSkillGroupRepositoryMock);
     const limit = 2;

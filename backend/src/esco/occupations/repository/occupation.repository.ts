@@ -2,6 +2,7 @@ import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
 import {
   INewOccupationSpec,
+  INewOccupationSpecLocalized,
   INewOccupationSpecWithoutImportId,
   IOccupation,
   IOccupationDoc,
@@ -91,6 +92,7 @@ export interface IOccupationRepository extends IEmbeddableEntityRepository {
    * Rejects with an error if any entry cannot be created due to reasons other than validation.
    */
   createMany(newOccupationSpecs: INewOccupationSpec[]): Promise<IOccupation[]>;
+  createManyLocalized(newOccupationSpecs: INewOccupationSpecLocalized[]): Promise<IOccupation[]>;
 
   /**
    * Finds an Occupation entry by its ID.
@@ -308,6 +310,49 @@ export class OccupationRepository implements IOccupationRepository {
       newOccupationsDocs.push(...docs);
     }
 
+    return newOccupationsDocs.map((doc) => {
+      populateEmptyOccupationHierarchy(doc);
+      populateEmptyRequiresSkills(doc);
+      return doc.toObject();
+    });
+  }
+
+  private newLocalizedSpecToModel(spec: INewOccupationSpecLocalized): mongoose.HydratedDocument<IOccupationDoc> {
+    const newUUID = randomUUID();
+    const newModel = new this.Model({ ...spec, UUID: newUUID });
+    newModel.UUIDHistory.unshift(newUUID);
+    return newModel;
+  }
+
+  async createManyLocalized(newOccupationSpecs: INewOccupationSpecLocalized[]): Promise<IOccupation[]> {
+    const newOccupationsDocs: mongoose.Document<unknown, unknown, IOccupationDoc>[] = [];
+    try {
+      const newOccupationModels = newOccupationSpecs
+        .map((spec) => {
+          try {
+            return this.newLocalizedSpecToModel(spec);
+          } catch (e: unknown) {
+            return null;
+          }
+        })
+        .filter(Boolean);
+      const docs = await this.Model.insertMany(newOccupationModels, { ordered: false });
+      newOccupationsDocs.push(...docs);
+    } catch (e: unknown) {
+      const docs = handleInsertManyError<IOccupationDoc>(
+        e,
+        "OccupationRepository.createManyLocalized",
+        newOccupationSpecs.length
+      );
+      newOccupationsDocs.push(...docs);
+    }
+    if (newOccupationSpecs.length !== newOccupationsDocs.length) {
+      console.warn(
+        `OccupationRepository.createManyLocalized: ${
+          newOccupationSpecs.length - newOccupationsDocs.length
+        } invalid entries were not created`
+      );
+    }
     return newOccupationsDocs.map((doc) => {
       populateEmptyOccupationHierarchy(doc);
       populateEmptyRequiresSkills(doc);

@@ -51,6 +51,7 @@ function setupOccupationGroupRepositoryMock(findAllImpl: () => Readable) {
     setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
     update: jest.fn(),
     patch: jest.fn(),
+    createManyLocalized: jest.fn().mockResolvedValue([]),
   };
   OccupationGroupRepository.mockReturnValue(mockOccupationGroupRepository);
 }

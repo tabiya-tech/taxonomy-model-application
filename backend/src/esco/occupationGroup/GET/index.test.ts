@@ -602,6 +602,7 @@ describe("OccupationGroupListController", () => {
       setModelEntitiesEmbeddingStatus: jest.fn().mockResolvedValue(undefined),
       update: jest.fn(),
       patch: jest.fn(),
+      createManyLocalized: jest.fn().mockResolvedValue([]),
     };
     jest.spyOn(getRepositoryRegistry(), "OccupationGroup", "get").mockReturnValue(givenOccupationGroupRepositoryMock);
     const limit = 2;

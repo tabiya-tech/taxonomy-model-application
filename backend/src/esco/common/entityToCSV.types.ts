@@ -60,6 +60,7 @@ export interface IOccupationGroupImportRow {
   ALTLABELS: string;
   DESCRIPTION: string;
   GROUPTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.LocalGroup;
+  [key: string]: string;
 }
 
 export interface IOccupationGroupExportRow extends IOccupationGroupImportRow {
@@ -101,6 +102,7 @@ export interface ISkillImportRow {
   REUSELEVEL: ReuseLevel;
   SKILLTYPE: SkillType;
   ISLOCALIZED: string;
+  [key: string]: string;
 }
 
 export interface ISkillExportRow {
@@ -148,6 +150,7 @@ export interface ISkillGroupImportRow {
   ALTLABELS: string;
   DESCRIPTION: string;
   SCOPENOTE: string;
+  [key: string]: string;
 }
 
 export interface ISkillGroupExportRow extends ISkillGroupImportRow {
@@ -195,6 +198,7 @@ export interface IOccupationImportRow {
   REGULATEDPROFESSIONNOTE: string;
   ISLOCALIZED: string;
   OCCUPATIONTYPE: CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+  [key: string]: string;
 }
 
 export interface IOccupationExportRow {
