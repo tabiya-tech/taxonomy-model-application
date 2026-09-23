@@ -60,8 +60,16 @@ export const OccupationGroupExportHeaders = [
 /*
  * Interface for the occupationGroup row in the CSV file
  */
-export interface IOccupationGroupImportRow
-  extends LocalizedColumns<"PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION"> {
+export const OCCUPATION_GROUP_NON_LOCALIZABLE_HEADERS = [
+  "ID",
+  "ORIGINURI",
+  "UUIDHISTORY",
+  "CODE",
+  "GROUPTYPE",
+] as const;
+export const OCCUPATION_GROUP_LOCALIZABLE_FIELDS = ["PREFERREDLABEL", "ALTLABELS", "DESCRIPTION"] as const;
+
+export interface IOccupationGroupImportRow extends LocalizedColumns<"PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION"> {
   ID: string;
   ORIGINURI: string;
   UUIDHISTORY: string;
@@ -99,6 +107,22 @@ export const skillExportHeaders = [...skillImportHeaders, HEADER_NAMES.CREATED_A
 /*
  * Interface for the skill row in the CSV file
  */
+export const SKILL_NON_LOCALIZABLE_HEADERS = [
+  "ID",
+  "ORIGINURI",
+  "UUIDHISTORY",
+  "REUSELEVEL",
+  "SKILLTYPE",
+  "ISLOCALIZED",
+] as const;
+export const SKILL_LOCALIZABLE_FIELDS = [
+  "PREFERREDLABEL",
+  "ALTLABELS",
+  "DESCRIPTION",
+  "DEFINITION",
+  "SCOPENOTE",
+] as const;
+
 export interface ISkillImportRow
   extends LocalizedColumns<"PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION" | "DEFINITION" | "SCOPENOTE"> {
   ID: string;
@@ -149,6 +173,8 @@ export const skillGroupExportHeaders = [...skillGroupImportHeaders, HEADER_NAMES
 /*
  * Interface for the skillGroup row in the CSV file
  */
+export const SKILL_GROUP_NON_LOCALIZABLE_HEADERS = ["ID", "ORIGINURI", "UUIDHISTORY", "CODE"] as const;
+export const SKILL_GROUP_LOCALIZABLE_FIELDS = ["PREFERREDLABEL", "ALTLABELS", "DESCRIPTION", "SCOPENOTE"] as const;
 
 export interface ISkillGroupImportRow
   extends LocalizedColumns<"PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION" | "SCOPENOTE"> {
@@ -192,6 +218,23 @@ export const occupationExportHeaders = [...occupationImportHeaders, HEADER_NAMES
 /*
  * Interface for the occupations row in the CSV file
  */
+export const OCCUPATION_NON_LOCALIZABLE_HEADERS = [
+  "ID",
+  "ORIGINURI",
+  "UUIDHISTORY",
+  "OCCUPATIONGROUPCODE",
+  "CODE",
+  "OCCUPATIONTYPE",
+  "ISLOCALIZED",
+] as const;
+export const OCCUPATION_LOCALIZABLE_FIELDS = [
+  "PREFERREDLABEL",
+  "ALTLABELS",
+  "DESCRIPTION",
+  "DEFINITION",
+  "SCOPENOTE",
+  "REGULATEDPROFESSIONNOTE",
+] as const;
 
 export interface IOccupationImportRow
   extends LocalizedColumns<

@@ -7,11 +7,15 @@ import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/p
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessLocalizedEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-import { ISkillGroupImportRow } from "esco/common/entityToCSV.types";
+import {
+  ISkillGroupImportRow,
+  SKILL_GROUP_NON_LOCALIZABLE_HEADERS,
+  SKILL_GROUP_LOCALIZABLE_FIELDS,
+} from "esco/common/entityToCSV.types";
 import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import errorLogger from "common/errorLogger/errorLogger";
 import {
-  LocalizedHeaderMode,
+  LocalizedParseContext,
   assembleTranslatedArray,
   assembleTranslatedString,
   checkPreferredLabelInAltLabels,
@@ -19,13 +23,10 @@ import {
 } from "import/parse/localizedHeaders";
 import LanguageAPISpecs from "api-specifications/language";
 
-const SKILL_GROUP_NON_LOCALIZABLE_HEADERS = ["ID", "ORIGINURI", "UUIDHISTORY", "CODE"];
-const SKILL_GROUP_LOCALIZABLE_FIELDS = ["PREFERREDLABEL", "ALTLABELS", "DESCRIPTION", "SCOPENOTE"] as const;
-
 function getHeadersValidator(
   validatorName: string,
   availableLanguages: string[],
-  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+  ctx: LocalizedParseContext
 ): HeadersValidatorFunction {
   return getLocalizedHeadersValidator(
     validatorName,
@@ -48,7 +49,7 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
 
 function getRowToSpecificationTransformFn(
   modelId: string,
-  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+  ctx: LocalizedParseContext
 ): TransformRowToSpecificationFunction<ISkillGroupImportRow, INewSkillGroupSpecLocalized> {
   return (row: ISkillGroupImportRow) => {
     const mode = ctx.mode ?? "legacy";
@@ -95,7 +96,7 @@ export async function parseSkillGroupsFromUrl(
   importIdToDBIdMap: Map<string, string>,
   availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
-  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const ctx: LocalizedParseContext = {};
   const headersValidator = getHeadersValidator("SkillGroup", availableLanguages, ctx);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
@@ -110,7 +111,7 @@ export async function parseSkillGroupsFromFile(
   availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
   const skillGroupsCSVFileStream = fs.createReadStream(filePath);
-  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const ctx: LocalizedParseContext = {};
   const headersValidator = getHeadersValidator("SkillGroup", availableLanguages, ctx);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);

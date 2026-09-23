@@ -1,0 +1,11 @@
+"ORIGINURI","ID","UUIDHISTORY","CODE","PREFERREDLABEL_EN","PREFERREDLABEL_FR","ALTLABELS_EN","ALTLABELS_FR","DESCRIPTION_EN","DESCRIPTION_FR","SCOPENOTE_EN","SCOPENOTE_FR"
+"origin uri 1","key_1","b69710e0-7e7d-43ea-a645-26dab12faf8d","L","preferred label EN","preferred label FR","label1
+label2
+preferred label EN","label1 FR
+label2 FR
+preferred label FR","description EN","description FR","scope note EN","scope note FR"
+"origin uri 2","key_2","b69710e0-7e7d-43ea-a645-26dab12faf8e","L6.6.6","preferred label 2 EN","preferred label 2 FR","alt1 EN
+alt2 EN
+preferred label 2 EN","alt1 FR
+alt2 FR
+preferred label 2 FR","description 2 EN","description 2 FR","scope note 2 EN","scope note 2 FR"

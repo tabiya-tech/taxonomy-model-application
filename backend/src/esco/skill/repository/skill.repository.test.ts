@@ -10,7 +10,16 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { ISkillRepository } from "../repository/skill.repository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
-import { INewSkillSpec, ISkill, ISkillDoc, ISkillReference } from "../_shared/skill.types";
+import {
+  INewSkillSpec,
+  INewSkillSpecLocalized,
+  ISkill,
+  ISkillDoc,
+  ISkillReference,
+  ReuseLevel,
+  SkillType,
+} from "../_shared/skill.types";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { INewOccupationSpec } from "esco/occupations/_shared/occupation.types";
@@ -80,6 +89,53 @@ function expectedFromGivenSpec(givenSpec: INewSkillSpec, newUUID: string): ISkil
     UUID: newUUID,
     UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
     importId: expect.any(String),
+    createdAt: expect.any(Date),
+    updatedAt: expect.any(Date),
+    parents: [],
+    children: [],
+    requiresSkills: [],
+    requiredBySkills: [],
+    requiredByOccupations: [],
+  };
+}
+
+function getNewSkillSpecLocalized(overrides?: Partial<INewSkillSpecLocalized>): INewSkillSpecLocalized {
+  const fallbackKey = getFallbackLanguageConfig().dbKeyName;
+  return {
+    modelId: getMockStringId(2),
+    UUIDHistory: [randomUUID()],
+    originUri: "",
+    skillType: SkillType.Knowledge,
+    reuseLevel: ReuseLevel.CrossSector,
+    isLocalized: false,
+    importId: getMockStringId(Math.floor(Math.random() * 1000)),
+    preferredLabel: new Map([[fallbackKey, "preferred label"]]) as INewSkillSpecLocalized["preferredLabel"],
+    altLabels: [
+      new Map([[fallbackKey, "alt label 1"]]),
+      new Map([[fallbackKey, "alt label 2"]]),
+    ] as INewSkillSpecLocalized["altLabels"],
+    description: new Map([[fallbackKey, "description"]]) as INewSkillSpecLocalized["description"],
+    definition: new Map([[fallbackKey, "definition"]]) as INewSkillSpecLocalized["definition"],
+    scopeNote: new Map([[fallbackKey, "scope note"]]) as INewSkillSpecLocalized["scopeNote"],
+    ...overrides,
+  };
+}
+
+function expectedFromGivenLocalizedSpec(givenSpec: INewSkillSpecLocalized, newUUID: string): ISkill {
+  const fallbackKey = getFallbackLanguageConfig().dbKeyName as Parameters<
+    INewSkillSpecLocalized["preferredLabel"]["get"]
+  >[0];
+  return {
+    ...givenSpec,
+    id: expect.any(String),
+    UUID: newUUID,
+    UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
+    importId: expect.any(String),
+    preferredLabel: givenSpec.preferredLabel.get(fallbackKey) ?? "",
+    altLabels: givenSpec.altLabels.map((m) => m.get(fallbackKey) ?? ""),
+    description: givenSpec.description.get(fallbackKey) ?? "",
+    definition: givenSpec.definition.get(fallbackKey) ?? "",
+    scopeNote: givenSpec.scopeNote.get(fallbackKey) ?? "",
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
     parents: [],
@@ -412,6 +468,150 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.skill.createMany([getNewSkillSpec()]);
+    });
+  });
+
+  describe("Test createManyLocalized() Skill", () => {
+    test("should successfully create a batch of new skills from localized specs", async () => {
+      // GIVEN some valid localized SkillSpecs
+      const givenBatchSize = 3;
+      const givenSpecs: INewSkillSpecLocalized[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenSpecs[i] = getNewSkillSpecLocalized();
+      }
+
+      // WHEN creating the batch
+      const actualNewSkills: ISkill[] = await repository.createManyLocalized(givenSpecs);
+
+      // THEN expect all Skills to be created with the specific attributes
+      expect(actualNewSkills).toEqual(
+        expect.arrayContaining(
+          givenSpecs.map((spec, index) => expectedFromGivenLocalizedSpec(spec, actualNewSkills[index].UUID))
+        )
+      );
+    });
+
+    test("should successfully create a batch even if some don't validate", async () => {
+      // GIVEN two valid localized SkillSpecs
+      const givenValidSpecs: INewSkillSpecLocalized[] = [getNewSkillSpecLocalized(), getNewSkillSpecLocalized()];
+      // AND one invalid spec (unknown extra field)
+      const givenInvalidSpec = getNewSkillSpecLocalized();
+      // @ts-ignore
+      givenInvalidSpec.foo = "invalid";
+
+      // WHEN creating with a mix of valid and invalid
+      const actualNewSkills: ISkill[] = await repository.createManyLocalized([
+        givenValidSpecs[0],
+        givenInvalidSpec,
+        givenValidSpecs[1],
+      ]);
+
+      // THEN expect only the valid Skills to be created
+      expect(actualNewSkills).toHaveLength(givenValidSpecs.length);
+      expect(actualNewSkills).toEqual(
+        expect.arrayContaining(
+          givenValidSpecs.map((spec, index) => expectedFromGivenLocalizedSpec(spec, actualNewSkills[index].UUID))
+        )
+      );
+    });
+
+    test.each([0, 1, 2, 10])(
+      "should successfully create a batch of localized skills when they have UUIDHistory with %i UUIDs",
+      async (count: number) => {
+        // GIVEN some valid localized SkillSpecs with varying UUIDHistory lengths
+        const givenBatchSize = 3;
+        const givenSpecs: INewSkillSpecLocalized[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenSpecs[i] = getNewSkillSpecLocalized();
+          givenSpecs[i].UUIDHistory = generateRandomUUIDs(count);
+        }
+
+        // WHEN creating the batch
+        const actualNewSkills: ISkill[] = await repository.createManyLocalized(givenSpecs);
+
+        // THEN expect all Skills to be created with the specific attributes
+        expect(actualNewSkills).toEqual(
+          expect.arrayContaining(
+            givenSpecs.map((spec, index) => expectedFromGivenLocalizedSpec(spec, actualNewSkills[index].UUID))
+          )
+        );
+      }
+    );
+
+    test("should resolve to an empty array if none of the elements could be validated", async () => {
+      // GIVEN only invalid localized SkillSpecs (unknown extra field)
+      const givenBatchSize = 3;
+      const givenInvalidSpecs: INewSkillSpecLocalized[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenInvalidSpecs[i] = getNewSkillSpecLocalized();
+        // @ts-ignore
+        givenInvalidSpecs[i].foo = "invalid";
+      }
+
+      // WHEN creating the batch
+      const actualNewSkills: ISkill[] = await repository.createManyLocalized(givenInvalidSpecs);
+
+      // THEN expect no Skills to be created
+      expect(actualNewSkills).toHaveLength(0);
+    });
+
+    test("should store the localized Maps directly in the database under the correct language keys", async () => {
+      // GIVEN a localized spec with known translated values
+      const fallbackKey = getFallbackLanguageConfig().dbKeyName;
+      const givenSpec = getNewSkillSpecLocalized({
+        preferredLabel: new Map([[fallbackKey, "my preferred label"]]) as INewSkillSpecLocalized["preferredLabel"],
+        description: new Map([[fallbackKey, "my description"]]) as INewSkillSpecLocalized["description"],
+        definition: new Map([[fallbackKey, "my definition"]]) as INewSkillSpecLocalized["definition"],
+        scopeNote: new Map([[fallbackKey, "my scope note"]]) as INewSkillSpecLocalized["scopeNote"],
+        altLabels: [new Map([[fallbackKey, "my alt label"]])] as INewSkillSpecLocalized["altLabels"],
+      });
+
+      // WHEN creating
+      const [actualCreated] = await repository.createManyLocalized([givenSpec]);
+
+      // THEN expect the raw document to carry them as localized sub documents keyed by the fallback language
+      const actualRawDoc = await repository.Model.findById(actualCreated.id).lean();
+      expect(actualRawDoc?.preferredLabel).toEqual({ [fallbackKey]: "my preferred label" });
+      expect(actualRawDoc?.description).toEqual({ [fallbackKey]: "my description" });
+      expect(actualRawDoc?.definition).toEqual({ [fallbackKey]: "my definition" });
+      expect(actualRawDoc?.scopeNote).toEqual({ [fallbackKey]: "my scope note" });
+      expect(actualRawDoc?.altLabels).toEqual([{ [fallbackKey]: "my alt label" }]);
+
+      // AND expect the repository to have returned them as flat strings (fallback language)
+      expect(actualCreated.preferredLabel).toEqual("my preferred label");
+      expect(actualCreated.description).toEqual("my description");
+      expect(actualCreated.definition).toEqual("my definition");
+      expect(actualCreated.scopeNote).toEqual("my scope note");
+      expect(actualCreated.altLabels).toEqual(["my alt label"]);
+    });
+
+    describe("Test unique indexes", () => {
+      test("should return only documents that did not violate the UUID unique index", async () => {
+        // GIVEN 3 localized SkillSpecs
+        const givenBatchSize = 3;
+        const givenSpecs: INewSkillSpecLocalized[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenSpecs[i] = getNewSkillSpecLocalized();
+        }
+
+        // WHEN creating with a duplicate UUID for the second entry
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        const actualNewSkills: ISkill[] = await repository.createManyLocalized(givenSpecs);
+
+        // THEN expect only the first and third Skills to be created
+        expect(actualNewSkills).toEqual(
+          expect.arrayContaining(
+            givenSpecs
+              .filter((_, index) => index !== 1)
+              .map((spec, index) => expectedFromGivenLocalizedSpec(spec, actualNewSkills[index].UUID))
+          )
+        );
+      });
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skill.createManyLocalized([getNewSkillSpecLocalized()]);
     });
   });
 
