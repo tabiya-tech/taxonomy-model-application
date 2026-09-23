@@ -153,6 +153,78 @@ describe("ModelInfoFileEntry action tests", () => {
     expect(givenMockNotification).toHaveBeenCalledWith(givenDescription);
   });
 
+  it("should correctly notify the notifyOnAvailableLanguagesChange handler when file is selected", async () => {
+    // GIVEN some file
+    const givenFile = new File([], "foo.csv", { type: "text/csv" });
+    // AND a notification handler
+    const givenMockNotification = jest.fn();
+    // AND the file declares some languages
+    const givenAvailableLanguages = ["en", "fr"];
+    jest
+      .spyOn(require("./parseSelectedModelInfoFile"), "default")
+      .mockImplementationOnce(() => Promise.resolve({ availableLanguages: givenAvailableLanguages }));
+
+    // WHEN ModelInfoFileEntry is rendered
+    render(<ModelInfoFileEntry notifyOnAvailableLanguagesChange={givenMockNotification} />);
+    // AND a file is chosen
+    const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
+    fireEvent.change(fileInput, { target: { files: [givenFile] } });
+
+    // THEN expect the parseSelectedModelInfoFile to have been called with the given file
+    await waitFor(() => {
+      expect(parseSelectedModelInfoFile).toHaveBeenCalledWith(givenFile);
+    });
+    // AND expect the notification to have been called with the languages the file declares
+    expect(givenMockNotification).toHaveBeenCalledWith(givenAvailableLanguages);
+  });
+
+  it("should notify the notifyOnAvailableLanguagesChange handler with no language when the file is removed", async () => {
+    // GIVEN some file
+    const givenFile = new File([], "foo.csv", { type: "text/csv" });
+    // AND a notification handler
+    const givenMockNotification = jest.fn();
+    // AND the file declares some languages
+    jest
+      .spyOn(require("./parseSelectedModelInfoFile"), "default")
+      .mockImplementationOnce(() => Promise.resolve({ availableLanguages: ["en", "fr"] }));
+    render(<ModelInfoFileEntry notifyOnAvailableLanguagesChange={givenMockNotification} />);
+    // AND the given file has been selected
+    const fileInput: HTMLInputElement = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
+    fireEvent.change(fileInput, { target: { files: [givenFile] } });
+
+    // WHEN the remove selected file button is clicked
+    const fileRemoverFab = screen.getByTestId(DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON);
+    await clickDebouncedButton(fileRemoverFab);
+
+    // THEN expect the notification to have been called with no language
+    expect(givenMockNotification).toHaveBeenLastCalledWith([]);
+  });
+
+  it("should notify the notifyOnAvailableLanguagesChange handler with no language when the file cannot be parsed", async () => {
+    // GIVEN some file
+    const givenFile = new File([], "foo.csv", { type: "text/csv" });
+    // AND a notification handler
+    const givenMockNotification = jest.fn();
+    // AND a parseSelectedModelInfoFile that fails, e.g. because the file declares an unsupported language
+    const givenError = new Error("LANGUAGES column contains unsupported languages: xx");
+    jest
+      .spyOn(require("./parseSelectedModelInfoFile"), "default")
+      .mockImplementationOnce(() => Promise.reject(givenError));
+
+    // WHEN ModelInfoFileEntry is rendered
+    render(<ModelInfoFileEntry notifyOnAvailableLanguagesChange={givenMockNotification} />);
+    // AND a file is chosen
+    const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
+    fireEvent.change(fileInput, { target: { files: [givenFile] } });
+
+    // THEN expect the notification to have been called with no language
+    await waitFor(() => {
+      expect(givenMockNotification).toHaveBeenCalledWith([]);
+    });
+    // AND expect the error to have been logged to the console
+    expect(console.error).toHaveBeenCalledWith(givenError);
+  });
+
   it("should correctly notify the notifyUUIDHistoryChange handler when file is removed", async () => {
     // GIVEN some file
     const givenFile = new File([], "foo.csv", { type: "text/csv" });

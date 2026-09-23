@@ -4,12 +4,13 @@ import { Chip } from "@mui/material";
 import debounce from "lodash.debounce";
 import { DEBOUNCE_INTERVAL } from "./debouncing";
 import { AddCircleOutlined, RemoveCircleOutlined } from "@mui/icons-material";
-import parseSelectedModelInfoFile from "./parseSelectedModelInfoFile";
+import parseSelectedModelInfoFile, { ModelInfoDetails } from "./parseSelectedModelInfoFile";
 import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 
 export interface ModelInfoFileEntryProps {
   notifyUUIDHistoryChange?: (newUUIDHistory: string[]) => void;
   notifyOnDescriptionChange?: (description: string) => void;
+  notifyOnAvailableLanguagesChange?: (availableLanguages: string[]) => void;
 }
 
 const uniqueId = "16c54d56-b091-48ce-826a-c721b0c3643d";
@@ -43,13 +44,17 @@ export const ModelInfoFileEntry = (props: Readonly<ModelInfoFileEntryProps>) => 
     await updateSelectedFile(null);
   };
 
-  const notifyOnModelInfoChanges = (details: Awaited<ReturnType<typeof parseSelectedModelInfoFile>>) => {
+  const notifyOnModelInfoChanges = (details: ModelInfoDetails) => {
     if (props.notifyUUIDHistoryChange) {
       props.notifyUUIDHistoryChange(details.UUIDHistory);
     }
 
     if (props.notifyOnDescriptionChange) {
       props.notifyOnDescriptionChange(details.description);
+    }
+
+    if (props.notifyOnAvailableLanguagesChange) {
+      props.notifyOnAvailableLanguagesChange(details.availableLanguages);
     }
   };
 
@@ -64,6 +69,7 @@ export const ModelInfoFileEntry = (props: Readonly<ModelInfoFileEntryProps>) => 
         notifyOnModelInfoChanges({
           UUIDHistory: [],
           description: "",
+          availableLanguages: [],
         });
 
         console.error(e);
@@ -76,6 +82,7 @@ export const ModelInfoFileEntry = (props: Readonly<ModelInfoFileEntryProps>) => 
       notifyOnModelInfoChanges({
         UUIDHistory: [],
         description: "",
+        availableLanguages: [],
       });
     }
   };

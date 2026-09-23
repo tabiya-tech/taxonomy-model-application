@@ -140,6 +140,12 @@ jest.mock("import/esco/occupationToSkillRelation/occupationToSkillRelationParser
       .mockResolvedValue(givenOccupationToSkillRelationStats),
   };
 });
+// Mock the validation of the import languages
+jest.mock("import/languages/validateImportLanguages", () => {
+  return {
+    validateImportLanguages: jest.fn().mockResolvedValue({}),
+  };
+});
 // ##############
 import { parseFiles } from "./parseFiles";
 import ImportAPISpecs from "api-specifications/import";
@@ -159,6 +165,7 @@ import { parseSkillHierarchyFromUrl } from "import/esco/skillHierarchy/skillHier
 import { parseSkillToSkillRelationFromUrl } from "import/esco/skillToSkillRelation/skillToSkillRelationParser";
 import { parseOccupationToSkillRelationFromUrl } from "import/esco/occupationToSkillRelation/occupationToSkillRelationParser";
 import { RemoveGeneratedUUID } from "import/removeGeneratedUUID/removeGeneratedUUID";
+import { validateImportLanguages } from "import/languages/validateImportLanguages";
 
 // ##############
 
@@ -178,6 +185,8 @@ describe("Test the main async handler", () => {
     // AND the model to import into with a given modelId and a given importProcessStateId
     const givenModelId = getMockStringId(1);
     const givenImportProcessStateId = getMockStringId(2);
+    // AND the model declares the languages it carries data in
+    const givenAvailableLanguages = ["en", "fr"];
     const givenModelInfoRepositoryMock = {
       Model: undefined as never,
       create: jest.fn().mockResolvedValue(null),
@@ -186,6 +195,7 @@ describe("Test the main async handler", () => {
         importProcessState: {
           id: givenImportProcessStateId,
         },
+        availableLanguages: givenAvailableLanguages,
       }),
       getModelByUUID: jest.fn().mockResolvedValue(null),
       getModels: jest.fn().mockResolvedValue([]),
@@ -239,6 +249,20 @@ describe("Test the main async handler", () => {
         parsingWarnings: false,
       },
     });
+    // AND expect the languages of the files to have been validated against the languages the model declares,
+    // with the presigned URLs of the files, before any file is parsed
+    const expectedDownloadUrls = Object.fromEntries(
+      await Promise.all(
+        Object.entries(givenEvent.filePaths).map(async ([fileType, filePath]) => [
+          fileType,
+          await mockS3PresignerServiceInstance.getPresignedGet(filePath as string),
+        ])
+      )
+    );
+    expect(validateImportLanguages).toHaveBeenCalledWith(givenAvailableLanguages, expectedDownloadUrls);
+    expect((validateImportLanguages as jest.Mock).mock.invocationCallOrder[0]).toBeLessThan(
+      (parseOccupationGroupsFromUrl as jest.Mock).mock.invocationCallOrder[0]
+    );
     // AND for each of the givenEvent.filePaths to call the correct processing function with the giveModelId and the presigned URL for the file path
     for (const entry of Object.entries(givenEvent.filePaths)) {
       const expectedFileType = entry[0];

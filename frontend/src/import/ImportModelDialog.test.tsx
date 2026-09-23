@@ -23,7 +23,9 @@ import parseSelectedModelInfoFile from "./components/parseSelectedModelInfoFile"
 
 // mock the parseSelectedModelInfoFile function
 jest.mock("src/import/components/parseSelectedModelInfoFile", () => {
-  return jest.fn().mockResolvedValue({ UUIDHistory: ["foo", "bar"], description: "" });
+  return jest
+    .fn()
+    .mockResolvedValue({ UUIDHistory: ["foo", "bar"], description: "", availableLanguages: ["en", "fr"] });
 });
 
 jest.mock("src/theme/HelpTip/HelpTip", () => {
@@ -65,6 +67,7 @@ function getImportDataTestValues(): ImportData {
       return acc;
     }, {} as ImportFiles),
     UUIDHistory: ["foo", "bar"],
+    availableLanguages: ["en", "fr"],
     isOriginalESCOModel: true,
   };
 }
@@ -329,6 +332,7 @@ describe("ImportModel dialog action tests", () => {
           locale: givenData.locale,
           selectedFiles: givenData.selectedFiles,
           UUIDHistory: givenData.UUIDHistory,
+          availableLanguages: givenData.availableLanguages,
           isOriginalESCOModel: givenData.isOriginalESCOModel,
         },
       });
@@ -379,6 +383,7 @@ describe("ImportModel dialog action tests", () => {
         locale: givenData.locale,
         selectedFiles: expectedFiles,
         UUIDHistory: givenData.UUIDHistory,
+        availableLanguages: givenData.availableLanguages,
         isOriginalESCOModel: givenData.isOriginalESCOModel,
       },
     });
@@ -396,6 +401,7 @@ describe("ImportModel dialog action tests", () => {
     const givenDescriptionFromFile = "foo model description";
     (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
       UUIDHistory: ["foo", "bar"],
+      availableLanguages: ["en", "fr"],
       description: givenDescriptionFromFile,
     });
 
@@ -422,6 +428,7 @@ describe("ImportModel dialog action tests", () => {
           locale: givenData.locale,
           selectedFiles: givenData.selectedFiles,
           UUIDHistory: givenData.UUIDHistory,
+          availableLanguages: givenData.availableLanguages,
           isOriginalESCOModel: givenData.isOriginalESCOModel,
         },
       });
@@ -440,6 +447,7 @@ describe("ImportModel dialog action tests", () => {
     const givenDescriptionFromFile = "";
     (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
       UUIDHistory: ["foo", "bar"],
+      availableLanguages: ["en", "fr"],
       description: givenDescriptionFromFile,
     });
 
@@ -466,6 +474,7 @@ describe("ImportModel dialog action tests", () => {
           locale: givenData.locale,
           selectedFiles: givenData.selectedFiles,
           UUIDHistory: givenData.UUIDHistory,
+          availableLanguages: givenData.availableLanguages,
           isOriginalESCOModel: givenData.isOriginalESCOModel,
         },
       });
@@ -484,6 +493,7 @@ describe("ImportModel dialog action tests", () => {
     const givenDescriptionFromFile = "bar model description";
     (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
       UUIDHistory: ["foo", "bar"],
+      availableLanguages: ["en", "fr"],
       description: givenDescriptionFromFile,
     });
 
@@ -510,6 +520,7 @@ describe("ImportModel dialog action tests", () => {
           locale: givenData.locale,
           selectedFiles: givenData.selectedFiles,
           UUIDHistory: givenData.UUIDHistory,
+          availableLanguages: givenData.availableLanguages,
           isOriginalESCOModel: givenData.isOriginalESCOModel,
         },
       });
@@ -529,6 +540,7 @@ describe("ImportModel dialog action tests", () => {
     const givenDescriptionFromFile = "bar model description";
     (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
       UUIDHistory: ["foo", "bar"],
+      availableLanguages: ["en", "fr"],
       description: givenDescriptionFromFile,
     });
 
@@ -565,6 +577,7 @@ describe("ImportModel dialog action tests", () => {
           locale: givenData.locale,
           selectedFiles: givenData.selectedFiles,
           UUIDHistory: givenData.UUIDHistory,
+          availableLanguages: givenData.availableLanguages,
           isOriginalESCOModel: givenData.isOriginalESCOModel,
         },
       });
@@ -583,6 +596,7 @@ describe("ImportModel dialog action tests", () => {
     const givenDescriptionFromFile = "bar model description";
     (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
       UUIDHistory: ["foo", "bar"],
+      availableLanguages: ["en", "fr"],
       description: givenDescriptionFromFile,
     });
 
@@ -619,6 +633,7 @@ describe("ImportModel dialog action tests", () => {
           locale: givenData.locale,
           selectedFiles: givenData.selectedFiles,
           UUIDHistory: givenData.UUIDHistory,
+          availableLanguages: givenData.availableLanguages,
           isOriginalESCOModel: givenData.isOriginalESCOModel,
         },
       });

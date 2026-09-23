@@ -84,12 +84,14 @@ describe("ImportFilesSelection action tests", () => {
     // GIVEN some notification functions
     const givenNotifyUUIDHistoryChangeMock = jest.fn();
     const givenNotifyOnDescriptionChangeMock = jest.fn();
+    const givenNotifyOnAvailableLanguagesChangeMock = jest.fn();
 
     // WHEN the import files selection is rendered with the notification functions
     render(
       <ImportFilesSelection
         notifyUUIDHistoryChange={givenNotifyUUIDHistoryChangeMock}
         notifyOnDescriptionChange={givenNotifyOnDescriptionChangeMock}
+        notifyOnAvailableLanguagesChange={givenNotifyOnAvailableLanguagesChangeMock}
       />
     );
 
@@ -99,6 +101,7 @@ describe("ImportFilesSelection action tests", () => {
         {
           notifyUUIDHistoryChange: givenNotifyUUIDHistoryChangeMock,
           notifyOnDescriptionChange: givenNotifyOnDescriptionChangeMock,
+          notifyOnAvailableLanguagesChange: givenNotifyOnAvailableLanguagesChangeMock,
         },
         {}
       );

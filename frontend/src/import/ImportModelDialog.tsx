@@ -40,6 +40,8 @@ export interface ImportData {
   locale: LocaleAPISpecs.Types.Payload;
   selectedFiles: ImportFiles;
   UUIDHistory: string[];
+  /** The short codes of the languages the model carries data in, as declared in the model_info.csv file */
+  availableLanguages: string[];
   isOriginalESCOModel: boolean;
 }
 
@@ -78,6 +80,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     selectedFiles: {},
     license: "",
     UUIDHistory: [],
+    availableLanguages: [],
     isOriginalESCOModel: false,
   });
 
@@ -111,6 +114,10 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
 
   const handleUUIDHistoryChange = (newUUIDHistory: string[]) => {
     data.current.UUIDHistory = newUUIDHistory;
+  };
+
+  const handleAvailableLanguagesChange = (newAvailableLanguages: string[]) => {
+    data.current.availableLanguages = newAvailableLanguages;
   };
 
   const handleLicenseChange = (newLicense: string) => {
@@ -201,6 +208,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
             notifyUUIDHistoryChange={handleUUIDHistoryChange}
             notifyOnLicenseChange={handleLicenseChange}
             notifyOnDescriptionChange={handleFromModelInfoDescriptionChange}
+            notifyOnAvailableLanguagesChange={handleAvailableLanguagesChange}
           />
         </Stack>
       </DialogContent>
