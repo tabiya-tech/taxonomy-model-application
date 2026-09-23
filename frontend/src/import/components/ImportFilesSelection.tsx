@@ -10,6 +10,7 @@ export interface ImportFilesSelectionProps {
   notifyUUIDHistoryChange?: (newUUIDHistory: string[]) => void;
   notifyOnLicenseChange?: (license: string) => void;
   notifyOnDescriptionChange?: (description: string) => void;
+  notifyOnAvailableLanguagesChange?: (availableLanguages: string[]) => void;
 }
 
 const uniqueId = "e60583c2-9ce5-47e0-bb8f-d2a4349dde15";
@@ -51,6 +52,7 @@ const ImportFilesSelection = (props: Readonly<ImportFilesSelectionProps>) => {
           <ModelInfoFileEntry
             notifyUUIDHistoryChange={props.notifyUUIDHistoryChange}
             notifyOnDescriptionChange={props.notifyOnDescriptionChange}
+            notifyOnAvailableLanguagesChange={props.notifyOnAvailableLanguagesChange}
           />
         </Box>
         <Box
