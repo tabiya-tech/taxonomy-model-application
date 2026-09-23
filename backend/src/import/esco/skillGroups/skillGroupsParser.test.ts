@@ -19,22 +19,24 @@ jest.mock("https");
 const parseFromUrlCallback = (
   file: string,
   givenModelId: string,
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string, string>,
+  availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> => {
   //  the first call to https.request is for the HEAD request to check if the file can be downloaded
   setupMockHTTPS_request(Readable.from(""), StatusCodes.PARTIAL_CONTENT);
   // the second call to https.get is for the actual GET request to download the file and process it
   const mockResponse = fs.createReadStream(file);
   setupMockHTTPS_get(mockResponse, StatusCodes.OK);
-  return parseSkillGroupsFromUrl(givenModelId, "someUrl", importIdToDBIdMap);
+  return parseSkillGroupsFromUrl(givenModelId, "someUrl", importIdToDBIdMap, availableLanguages);
 };
 
 const parseFromFileCallback = (
   file: string,
   givenModelId: string,
-  importIdToDBIdMap: Map<string, string>
+  importIdToDBIdMap: Map<string, string>,
+  availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> => {
-  return parseSkillGroupsFromFile(givenModelId, file, importIdToDBIdMap);
+  return parseSkillGroupsFromFile(givenModelId, file, importIdToDBIdMap, availableLanguages);
 };
 
 describe("test parseSkillGroups from", () => {
@@ -155,6 +157,99 @@ describe("test parseSkillGroups from", () => {
         5,
         "Failed to import SkillGroup from row:2 with importId:"
       );
+    }
+  );
+
+  test.each([
+    ["url file", "./src/import/esco/skillGroups/_test_data_/given_localized.csv", parseFromUrlCallback],
+    ["csv file", "./src/import/esco/skillGroups/_test_data_/given_localized.csv", parseFromFileCallback],
+  ])(
+    "should create SkillGroups with language-suffixed columns (localized mode) from %s",
+    async (
+      description,
+      givenCSVFile,
+      parseCallBack: (
+        file: string,
+        givenModelId: string,
+        importIdToDBIdMap: Map<string, string>,
+        availableLanguages: string[]
+      ) => Promise<RowsProcessedStats>
+    ) => {
+      // GIVEN a model id
+      const givenModelId = "foo-model-id";
+      // AND available languages that match the CSV suffixes
+      const givenAvailableLanguages = ["en", "fr"];
+      // AND a SkillGroup repository
+      const givenMockRepository: ISkillGroupRepository = {
+        // @ts-ignore
+        Model: undefined,
+        create: jest.fn().mockResolvedValue({}),
+        createMany: jest.fn().mockResolvedValue([]),
+        createManyLocalized: jest
+          .fn()
+          .mockImplementation((specs: INewSkillGroupSpecLocalized[]): Promise<ISkillGroup[]> => {
+            return Promise.resolve(
+              specs.map((spec: INewSkillGroupSpecLocalized): ISkillGroup => {
+                return {
+                  ...spec,
+                  id: "DB_ID_" + spec.importId,
+                  UUID: "",
+                  preferredLabel: "",
+                  altLabels: [],
+                  description: "",
+                  scopeNote: "",
+                  children: [],
+                  parents: [],
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                };
+              })
+            );
+          }),
+      };
+      jest.spyOn(getRepositoryRegistry(), "skillGroup", "get").mockReturnValue(givenMockRepository);
+      // AND a map to map the ids of the CSV givenCSVFile to the database ids
+      const givenImportIdToDBIdMap = new Map<string, string>();
+      jest.spyOn(givenImportIdToDBIdMap, "set");
+
+      // WHEN the data are parsed with the localized CSV and the available languages
+      const actualStats = await parseCallBack(
+        givenCSVFile,
+        givenModelId,
+        givenImportIdToDBIdMap,
+        givenAvailableLanguages
+      );
+
+      // THEN expect the repository to have been called with the expected localized specs
+      const path = "./_test_data_/expected_localized.ts";
+      const expectedResultsModule = await import(path);
+      const expectedResults = expectedResultsModule.expected;
+      expectedResults.forEach((expectedSpec: Omit<INewSkillGroupSpecLocalized, "modelId">) => {
+        expect(givenMockRepository.createManyLocalized).toHaveBeenLastCalledWith(
+          expect.arrayContaining([{ ...expectedSpec, modelId: givenModelId }])
+        );
+      });
+      // AND all the expected rows to have been processed successfully
+      const expectedCSVFileRowCount = countCSVRecords(givenCSVFile);
+      expect(actualStats).toEqual({
+        rowsProcessed: expectedCSVFileRowCount,
+        rowsSuccess: expectedResults.length,
+        rowsFailed: expectedCSVFileRowCount - expectedResults.length,
+      });
+      // AND the import ids to have been mapped to the db ids
+      expectedResults
+        .filter((res: Omit<INewSkillGroupSpecLocalized, "modelId">) => isSpecified(res.importId))
+        .forEach((expectedSpec: Omit<INewSkillGroupSpecLocalized, "modelId">, index: number) => {
+          expect(givenImportIdToDBIdMap.set).toHaveBeenNthCalledWith(
+            index + 1,
+            expectedSpec.importId,
+            "DB_ID_" + expectedSpec.importId
+          );
+        });
+      // AND no errors or unexpected warnings should be logged
+      expect(errorLogger.logError).not.toHaveBeenCalled();
+      // AND a warning about preferredLabel not in altLabels for each row
+      expect(errorLogger.logWarning).toHaveBeenCalledTimes(0);
     }
   );
 });

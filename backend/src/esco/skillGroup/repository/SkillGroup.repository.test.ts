@@ -12,6 +12,7 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import {
   INewSkillGroupSpec,
+  INewSkillGroupSpecLocalized,
   INewSkillGroupSpecWithoutImportId,
   ISkillGroup,
   ISkillGroupDoc,
@@ -88,6 +89,45 @@ function expectedFromGivenSpecWithoutImportId(
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
     importId: expect.toBeNil(),
+  };
+}
+
+function getNewSkillGroupSpecLocalized(overrides?: Partial<INewSkillGroupSpecLocalized>): INewSkillGroupSpecLocalized {
+  const fallbackKey = getFallbackLanguageConfig().dbKeyName;
+  return {
+    code: getTestSkillGroupCode(100),
+    modelId: getMockStringId(2),
+    UUIDHistory: [randomUUID()],
+    originUri: "",
+    preferredLabel: new Map([[fallbackKey, "preferred label"]]) as INewSkillGroupSpecLocalized["preferredLabel"],
+    altLabels: [
+      new Map([[fallbackKey, "alt label 1"]]),
+      new Map([[fallbackKey, "alt label 2"]]),
+    ] as INewSkillGroupSpecLocalized["altLabels"],
+    description: new Map([[fallbackKey, "description"]]) as INewSkillGroupSpecLocalized["description"],
+    scopeNote: new Map([[fallbackKey, "scope note"]]) as INewSkillGroupSpecLocalized["scopeNote"],
+    importId: getMockStringId(Math.floor(Math.random() * 1000)),
+    ...overrides,
+  };
+}
+
+function expectedFromGivenLocalizedSpec(givenSpec: INewSkillGroupSpecLocalized, newUUID: string): ISkillGroup {
+  const fallbackKey = getFallbackLanguageConfig().dbKeyName as Parameters<
+    INewSkillGroupSpecLocalized["preferredLabel"]["get"]
+  >[0];
+  return {
+    children: [],
+    parents: [],
+    ...givenSpec,
+    id: expect.any(String),
+    UUID: newUUID,
+    UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
+    preferredLabel: givenSpec.preferredLabel.get(fallbackKey) ?? "",
+    altLabels: givenSpec.altLabels.map((m) => m.get(fallbackKey) ?? ""),
+    description: givenSpec.description.get(fallbackKey) ?? "",
+    scopeNote: givenSpec.scopeNote.get(fallbackKey) ?? "",
+    createdAt: expect.any(Date),
+    updatedAt: expect.any(Date),
   };
 }
 
@@ -370,6 +410,148 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.skillGroup.createMany([getNewSkillGroupSpec()]);
+    });
+  });
+
+  describe("Test createManyLocalized() skill group", () => {
+    test("should successfully create a batch of new skill groups from localized specs", async () => {
+      // GIVEN some valid localized SkillGroupSpecs
+      const givenBatchSize = 3;
+      const givenSpecs: INewSkillGroupSpecLocalized[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenSpecs[i] = getNewSkillGroupSpecLocalized();
+      }
+
+      // WHEN creating the batch
+      const actualNewSkillGroups: ISkillGroup[] = await repository.createManyLocalized(givenSpecs);
+
+      // THEN expect all Skill Groups to be created with the specific attributes
+      expect(actualNewSkillGroups).toEqual(
+        expect.arrayContaining(
+          givenSpecs.map((spec, index) => expectedFromGivenLocalizedSpec(spec, actualNewSkillGroups[index].UUID))
+        )
+      );
+    });
+
+    test("should successfully create a batch even if some don't validate", async () => {
+      // GIVEN two valid localized SkillGroupSpecs
+      const givenValidSpecs: INewSkillGroupSpecLocalized[] = [
+        getNewSkillGroupSpecLocalized(),
+        getNewSkillGroupSpecLocalized(),
+      ];
+      // AND one invalid spec (bad code)
+      const givenInvalidSpec = getNewSkillGroupSpecLocalized();
+      givenInvalidSpec.code = "invalid code";
+
+      // WHEN creating with a mix of valid and invalid
+      const actualNewSkillGroups: ISkillGroup[] = await repository.createManyLocalized([
+        givenValidSpecs[0],
+        givenInvalidSpec,
+        givenValidSpecs[1],
+      ]);
+
+      // THEN expect only the valid Skill Groups to be created
+      expect(actualNewSkillGroups).toHaveLength(givenValidSpecs.length);
+      expect(actualNewSkillGroups).toEqual(
+        expect.arrayContaining(
+          givenValidSpecs.map((spec, index) => expectedFromGivenLocalizedSpec(spec, actualNewSkillGroups[index].UUID))
+        )
+      );
+    });
+
+    test.each([0, 1, 2, 10])(
+      "should successfully create a batch of localized skill groups when they have UUIDHistory with %i UUIDs",
+      async (count: number) => {
+        // GIVEN some valid localized SkillGroupSpecs with varying UUIDHistory lengths
+        const givenBatchSize = 3;
+        const givenSpecs: INewSkillGroupSpecLocalized[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenSpecs[i] = getNewSkillGroupSpecLocalized();
+          givenSpecs[i].UUIDHistory = generateRandomUUIDs(count);
+        }
+
+        // WHEN creating the batch
+        const actualNewSkillGroups: ISkillGroup[] = await repository.createManyLocalized(givenSpecs);
+
+        // THEN expect all Skill Groups to be created with the specific attributes
+        expect(actualNewSkillGroups).toEqual(
+          expect.arrayContaining(
+            givenSpecs.map((spec, index) => expectedFromGivenLocalizedSpec(spec, actualNewSkillGroups[index].UUID))
+          )
+        );
+      }
+    );
+
+    test("should resolve to an empty array if none of the elements could be validated", async () => {
+      // GIVEN only invalid localized SkillGroupSpecs
+      const givenBatchSize = 3;
+      const givenInvalidSpecs: INewSkillGroupSpecLocalized[] = [];
+      for (let i = 0; i < givenBatchSize; i++) {
+        givenInvalidSpecs[i] = getNewSkillGroupSpecLocalized();
+        givenInvalidSpecs[i].code = "invalid code";
+      }
+
+      // WHEN creating the batch
+      const actualNewSkillGroups: ISkillGroup[] = await repository.createManyLocalized(givenInvalidSpecs);
+
+      // THEN expect no Skill Groups to be created
+      expect(actualNewSkillGroups).toHaveLength(0);
+    });
+
+    test("should store the localized Maps directly in the database under the correct language keys", async () => {
+      // GIVEN a localized spec with known translated values
+      const fallbackKey = getFallbackLanguageConfig().dbKeyName;
+      const givenSpec = getNewSkillGroupSpecLocalized({
+        preferredLabel: new Map([[fallbackKey, "my preferred label"]]) as INewSkillGroupSpecLocalized["preferredLabel"],
+        description: new Map([[fallbackKey, "my description"]]) as INewSkillGroupSpecLocalized["description"],
+        scopeNote: new Map([[fallbackKey, "my scope note"]]) as INewSkillGroupSpecLocalized["scopeNote"],
+        altLabels: [new Map([[fallbackKey, "my alt label"]])] as INewSkillGroupSpecLocalized["altLabels"],
+      });
+
+      // WHEN creating
+      const [actualCreated] = await repository.createManyLocalized([givenSpec]);
+
+      // THEN expect the raw document to carry them as localized sub documents keyed by the fallback language
+      const actualRawDoc = await repository.Model.findById(actualCreated.id).lean();
+      expect(actualRawDoc?.preferredLabel).toEqual({ [fallbackKey]: "my preferred label" });
+      expect(actualRawDoc?.description).toEqual({ [fallbackKey]: "my description" });
+      expect(actualRawDoc?.scopeNote).toEqual({ [fallbackKey]: "my scope note" });
+      expect(actualRawDoc?.altLabels).toEqual([{ [fallbackKey]: "my alt label" }]);
+
+      // AND expect the repository to have returned them as flat strings (fallback language)
+      expect(actualCreated.preferredLabel).toEqual("my preferred label");
+      expect(actualCreated.description).toEqual("my description");
+      expect(actualCreated.scopeNote).toEqual("my scope note");
+      expect(actualCreated.altLabels).toEqual(["my alt label"]);
+    });
+
+    describe("Test unique indexes", () => {
+      test("should return only documents that did not violate the UUID unique index", async () => {
+        // GIVEN 3 localized SkillGroupSpecs
+        const givenBatchSize = 3;
+        const givenSpecs: INewSkillGroupSpecLocalized[] = [];
+        for (let i = 0; i < givenBatchSize; i++) {
+          givenSpecs[i] = getNewSkillGroupSpecLocalized();
+        }
+
+        // WHEN creating with a duplicate UUID for the second entry
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        (randomUUID as jest.Mock).mockReturnValueOnce("014b0bd8-120d-4ca4-b4c6-40953b170219");
+        const actualNewSkillGroups: ISkillGroup[] = await repository.createManyLocalized(givenSpecs);
+
+        // THEN expect only the first and third Skill Groups to be created
+        expect(actualNewSkillGroups).toEqual(
+          expect.arrayContaining(
+            givenSpecs
+              .filter((_, index) => index !== 1)
+              .map((spec, index) => expectedFromGivenLocalizedSpec(spec, actualNewSkillGroups[index].UUID))
+          )
+        );
+      });
+    });
+
+    TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
+      return repositoryRegistry.skillGroup.createManyLocalized([getNewSkillGroupSpecLocalized()]);
     });
   });
 

@@ -7,12 +7,16 @@ import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/p
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessLocalizedEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-import { IOccupationGroupImportRow } from "esco/common/entityToCSV.types";
+import {
+  IOccupationGroupImportRow,
+  OCCUPATION_GROUP_NON_LOCALIZABLE_HEADERS,
+  OCCUPATION_GROUP_LOCALIZABLE_FIELDS,
+} from "esco/common/entityToCSV.types";
 import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import errorLogger from "common/errorLogger/errorLogger";
 import { getOccupationGroupTypeFromCSVObjectType } from "import/esco/common/getEntityTypeFromCSVObjectType";
 import {
-  LocalizedHeaderMode,
+  LocalizedParseContext,
   assembleTranslatedArray,
   assembleTranslatedString,
   checkPreferredLabelInAltLabels,
@@ -20,13 +24,10 @@ import {
 } from "import/parse/localizedHeaders";
 import LanguageAPISpecs from "api-specifications/language";
 
-const OCCUPATION_GROUP_NON_LOCALIZABLE_HEADERS = ["ID", "ORIGINURI", "UUIDHISTORY", "CODE", "GROUPTYPE"];
-const OCCUPATION_GROUP_LOCALIZABLE_FIELDS = ["PREFERREDLABEL", "ALTLABELS", "DESCRIPTION"] as const;
-
 function getHeadersValidator(
   validatorName: string,
   availableLanguages: string[],
-  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+  ctx: LocalizedParseContext
 ): HeadersValidatorFunction {
   return getLocalizedHeadersValidator(
     validatorName,
@@ -49,7 +50,7 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
 
 function getRowToSpecificationTransformFn(
   modelId: string,
-  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+  ctx: LocalizedParseContext
 ): TransformRowToSpecificationFunction<IOccupationGroupImportRow, INewOccupationGroupSpecLocalized> {
   return (row: IOccupationGroupImportRow): INewOccupationGroupSpecLocalized | null => {
     const mode = ctx.mode ?? "legacy";
@@ -102,7 +103,7 @@ export async function parseOccupationGroupsFromUrl(
   importIdToDBIdMap: Map<string, string>,
   availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
-  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const ctx: LocalizedParseContext = {};
   const headersValidator = getHeadersValidator("OccupationGroup", availableLanguages, ctx);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
@@ -117,7 +118,7 @@ export async function parseOccupationGroupsFromFile(
   availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
   const occupationGroupsCSVFileStream = fs.createReadStream(filePath);
-  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const ctx: LocalizedParseContext = {};
   const headersValidator = getHeadersValidator("OccupationGroup", availableLanguages, ctx);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);

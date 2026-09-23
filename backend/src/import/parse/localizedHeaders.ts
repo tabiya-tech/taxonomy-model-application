@@ -10,7 +10,12 @@ import errorLogger from "common/errorLogger/errorLogger";
 
 export type LocalizedHeaderMode = "legacy" | "localized";
 
-export type LocalizableRow<TFields extends string> = Record<TFields, string> &
+export type LocalizedParseContext = {
+  mode?: LocalizedHeaderMode;
+  languages?: LanguageAPISpecs.Types.ILanguageConfig[];
+};
+
+type LocalizableRow<TFields extends string> = Record<TFields, string> &
   Partial<Record<`${TFields}_${LanguageAPISpecs.Types.LanguageCsvSuffix}`, string>>;
 
 function getLanguageConfigByShortCode(shortCode: string): LanguageAPISpecs.Types.ILanguageConfig | undefined {
@@ -23,13 +28,6 @@ function getLanguageConfigByCsvSuffix(suffix: string): LanguageAPISpecs.Types.IL
   return LanguageAPISpecs.Constants.Languages.find(
     (l: LanguageAPISpecs.Types.ILanguageConfig) => l.csvSuffix === suffix
   );
-}
-
-export function getLocalizedColumnNames(
-  fields: readonly string[],
-  languages: LanguageAPISpecs.Types.ILanguageConfig[]
-): string[] {
-  return fields.flatMap((field) => languages.map((lang) => `${field}_${lang.csvSuffix}`));
 }
 
 export function detectHeaderMode(
@@ -125,10 +123,10 @@ export function detectHeaderMode(
 
 export function getLocalizedHeadersValidator(
   validatorName: string,
-  nonLocalizableHeaders: string[],
+  nonLocalizableHeaders: readonly string[],
   localizableFields: readonly string[],
   availableLanguages: string[],
-  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+  ctx: LocalizedParseContext
 ): (actualHeaders: string[]) => Promise<boolean> {
   return async (actualHeaders: string[]): Promise<boolean> => {
     let valid = true;

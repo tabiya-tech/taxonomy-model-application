@@ -8,12 +8,16 @@ import { BatchRowProcessor, TransformRowToSpecificationFunction } from "import/p
 import { HeadersValidatorFunction } from "import/parse/RowProcessor.types";
 import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessLocalizedEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
-import { ISkillImportRow } from "esco/common/entityToCSV.types";
+import {
+  ISkillImportRow,
+  SKILL_NON_LOCALIZABLE_HEADERS,
+  SKILL_LOCALIZABLE_FIELDS,
+} from "esco/common/entityToCSV.types";
 import { getReuseLevelFromCSVReuseLevel, getSkillTypeFromCSVSkillType } from "esco/common/csvObjectTypes";
 import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import errorLogger from "common/errorLogger/errorLogger";
 import {
-  LocalizedHeaderMode,
+  LocalizedParseContext,
   assembleTranslatedArray,
   assembleTranslatedString,
   checkPreferredLabelInAltLabels,
@@ -21,13 +25,10 @@ import {
 } from "import/parse/localizedHeaders";
 import LanguageAPISpecs from "api-specifications/language";
 
-const SKILL_NON_LOCALIZABLE_HEADERS = ["ID", "ORIGINURI", "UUIDHISTORY", "REUSELEVEL", "SKILLTYPE", "ISLOCALIZED"];
-const SKILL_LOCALIZABLE_FIELDS = ["PREFERREDLABEL", "ALTLABELS", "DESCRIPTION", "DEFINITION", "SCOPENOTE"] as const;
-
 function getHeadersValidator(
   validatorName: string,
   availableLanguages: string[],
-  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+  ctx: LocalizedParseContext
 ): HeadersValidatorFunction {
   return getLocalizedHeadersValidator(
     validatorName,
@@ -50,7 +51,7 @@ function getBatchProcessor(importIdToDBIdMap: Map<string, string>) {
 
 function getRowToSpecificationTransformFn(
   modelId: string,
-  ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] }
+  ctx: LocalizedParseContext
 ): TransformRowToSpecificationFunction<ISkillImportRow, INewSkillSpecLocalized> {
   return (row: ISkillImportRow) => {
     const mode = ctx.mode ?? "legacy";
@@ -111,7 +112,7 @@ export async function parseSkillsFromUrl(
   importIdToDBIdMap: Map<string, string>,
   availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
-  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const ctx: LocalizedParseContext = {};
   const headersValidator = getHeadersValidator("Skill", availableLanguages, ctx);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
@@ -126,7 +127,7 @@ export async function parseSkillsFromFile(
   availableLanguages: string[] = []
 ): Promise<RowsProcessedStats> {
   const skillsCSVFileStream = fs.createReadStream(filePath);
-  const ctx: { mode?: LocalizedHeaderMode; languages?: LanguageAPISpecs.Types.ILanguageConfig[] } = {};
+  const ctx: LocalizedParseContext = {};
   const headersValidator = getHeadersValidator("Skill", availableLanguages, ctx);
   const transformRowToSpecificationFn = getRowToSpecificationTransformFn(modelId, ctx);
   const batchProcessor = getBatchProcessor(importIdToDBIdMap);
