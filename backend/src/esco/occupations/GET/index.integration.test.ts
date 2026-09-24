@@ -14,26 +14,36 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { IOccupation } from "../_shared/occupation.types";
+import { INewOccupationSpecWithoutImportId, IOccupation } from "../_shared/occupation.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
-async function createOccupationInDB(modelId: string = getMockStringId(1), spec?: Partial<IOccupation>) {
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
+
+async function createOccupationInDB(
+  modelId: string = getMockStringId(1),
+  spec?: Partial<INewOccupationSpecWithoutImportId>
+) {
   return await getRepositoryRegistry().occupation.create({
     modelId: modelId,
     code: getMockRandomOccupationCode(false),
     occupationType: ObjectTypes.ESCOOccupation,
-    preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    preferredLabel: {
+      [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    },
+    description: { [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+    altLabels: [{ [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
     originUri: `http://some/path/to/api/resources/${randomUUID()}`,
     UUIDHistory: [randomUUID()],
     occupationGroupCode: getMockRandomISCOGroupCode(),
-    definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-    scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-    regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+    definition: { [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+    scopeNote: { [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+    regulatedProfessionNote: {
+      [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+    },
     isLocalized: false,
     ...spec,
   });
@@ -133,9 +143,13 @@ describe("Test for occupation List GET handler with a DB", () => {
       UUIDHistory: [],
     });
     const givenModelId = givenModel.id;
-    const givenSoftwareEngineer = await createOccupationInDB(givenModelId, { preferredLabel: "Software Engineer" });
-    const givenSoftwareArchitect = await createOccupationInDB(givenModelId, { preferredLabel: "software architect" });
-    await createOccupationInDB(givenModelId, { preferredLabel: "Nurse" });
+    const givenSoftwareEngineer = await createOccupationInDB(givenModelId, {
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Software Engineer" },
+    });
+    const givenSoftwareArchitect = await createOccupationInDB(givenModelId, {
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "software architect" },
+    });
+    await createOccupationInDB(givenModelId, { preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Nurse" } });
 
     // WHEN searching for "software" on preferredLabel
     const givenEvent = {

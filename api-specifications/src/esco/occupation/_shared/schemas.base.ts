@@ -1,4 +1,5 @@
 import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID, RegExp_Str_URI } from "../../../regex";
+import LanguageAPISpecs from "../../../language";
 import OccupationConstants from "./constants";
 import OccupationEnums from "./enums";
 import OccupationRegexes from "./regex";
@@ -84,6 +85,45 @@ export const _baseProperties = {
     type: "string",
     pattern: RegExp_Str_ID,
   },
+};
+
+// Multilingual variant of the translatable fields, used by request schemas that accept the full
+// per-language object (preferredLabel, altLabels, definition, description, regulatedProfessionNote,
+// scopeNote). Kept separate from _baseProperties since the latter also backs the response schema,
+// which stays flat-string (resolved to the fallback language).
+export const _baseRequestProperties = {
+  ..._baseProperties,
+  preferredLabel: LanguageAPISpecs.Schemas.getTranslatedString({
+    description: "The preferred label of the occupation.",
+    maxLength: OccupationConstants.PREFERRED_LABEL_MAX_LENGTH,
+    pattern: RegExp_Str_NotEmptyString,
+    required: true,
+  }),
+  altLabels: LanguageAPISpecs.Schemas.getTranslatedStringArray({
+    description: "Alternative labels for the occupation.",
+    maxLength: OccupationConstants.ALT_LABEL_MAX_LENGTH,
+    maxItems: OccupationConstants.ALT_LABELS_MAX_ITEMS,
+  }),
+  definition: LanguageAPISpecs.Schemas.getTranslatedString({
+    description: "The formal definition of the occupation.",
+    maxLength: OccupationConstants.DEFINITION_MAX_LENGTH,
+    required: true,
+  }),
+  description: LanguageAPISpecs.Schemas.getTranslatedString({
+    description: "Additional descriptive information about the occupation.",
+    maxLength: OccupationConstants.DESCRIPTION_MAX_LENGTH,
+    required: true,
+  }),
+  regulatedProfessionNote: LanguageAPISpecs.Schemas.getTranslatedString({
+    description: "Regulatory information for legally regulated professions.",
+    maxLength: OccupationConstants.REGULATED_PROFESSION_NOTE_MAX_LENGTH,
+    required: true,
+  }),
+  scopeNote: LanguageAPISpecs.Schemas.getTranslatedString({
+    description: "Scope clarification for the occupation's application.",
+    maxLength: OccupationConstants.SCOPE_NOTE_MAX_LENGTH,
+    required: true,
+  }),
 };
 
 export const _baseOccupationURLParameter = {

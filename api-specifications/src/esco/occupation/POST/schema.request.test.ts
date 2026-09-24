@@ -1,6 +1,4 @@
 import {
-  testStringField,
-  testNonEmptyStringField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
@@ -25,6 +23,55 @@ import { getMockId } from "_test_utilities/mockMongoId";
 import LocaleAPISpecs from "locale";
 import ModelInfoAPISpecs from "modelInfo";
 import OccupationEnums from "../_shared/enums";
+import LanguageAPISpecs from "language";
+
+const givenFallbackDbKeyName = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName;
+
+// GIVEN a function to test a translatable field of the POST request schema (an object keyed by language)
+function testTranslatedStringField(fieldName: string, maxLength: number) {
+  test.each([
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError("", "required", `must have required property '${fieldName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be object")],
+    [CaseType.Success, "a single language value", { [givenFallbackDbKeyName]: getTestString(maxLength) }, undefined],
+    [
+      CaseType.Success,
+      "a multi language value",
+      { [givenFallbackDbKeyName]: getTestString(maxLength), fr: getTestString(maxLength) },
+      undefined,
+    ],
+    [
+      CaseType.Failure,
+      "a value missing the fallback language",
+      { fr: getTestString(maxLength) },
+      constructSchemaError(`/${fieldName}`, "required", `must have required property '${givenFallbackDbKeyName}'`),
+    ],
+    [
+      CaseType.Failure,
+      "a value translated in a language that is not in the registry",
+      { [givenFallbackDbKeyName]: getTestString(maxLength), tlh: "nuqneH" },
+      constructSchemaError(`/${fieldName}`, "additionalProperties", "must NOT have additional properties"),
+    ],
+    [
+      CaseType.Failure,
+      "a value longer than the maximum length in one language only",
+      { [givenFallbackDbKeyName]: getTestString(maxLength), fr: getTestString(maxLength + 1) },
+      constructSchemaError(`/${fieldName}/fr`, "maxLength", "must NOT have more than " + maxLength + " characters"),
+    ],
+  ] as const)(`(%s) Validate '${fieldName}' when it is %s`, (caseType, _description, givenValue, failure) => {
+    assertCaseForProperty(
+      fieldName,
+      { [fieldName]: givenValue },
+      OccupationAPISpecs.POST.Schemas.Request.Payload,
+      caseType,
+      failure
+    );
+  });
+}
 
 describe("OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload schema", () => {
   // WHEN the OccupationAPISpecs.POSTOccupation.Schemas.Request.Payload schema
@@ -47,12 +94,14 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
       occupationType === OccupationEnums.OccupationType.ESCOOccupation
         ? getTestISCOGroupCode()
         : getTestLocalGroupCode(),
-    description: getTestString(OccupationConstants.DESCRIPTION_MAX_LENGTH),
-    preferredLabel: getTestString(OccupationConstants.PREFERRED_LABEL_MAX_LENGTH),
-    altLabels: [getTestString(OccupationConstants.ALT_LABEL_MAX_LENGTH)],
-    definition: getTestString(OccupationConstants.DEFINITION_MAX_LENGTH),
-    regulatedProfessionNote: getTestString(OccupationConstants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
-    scopeNote: getTestString(OccupationConstants.SCOPE_NOTE_MAX_LENGTH),
+    description: { [givenFallbackDbKeyName]: getTestString(OccupationConstants.DESCRIPTION_MAX_LENGTH) },
+    preferredLabel: { [givenFallbackDbKeyName]: getTestString(OccupationConstants.PREFERRED_LABEL_MAX_LENGTH) },
+    altLabels: [{ [givenFallbackDbKeyName]: getTestString(OccupationConstants.ALT_LABEL_MAX_LENGTH) }],
+    definition: { [givenFallbackDbKeyName]: getTestString(OccupationConstants.DEFINITION_MAX_LENGTH) },
+    regulatedProfessionNote: {
+      [givenFallbackDbKeyName]: getTestString(OccupationConstants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+    },
+    scopeNote: { [givenFallbackDbKeyName]: getTestString(OccupationConstants.SCOPE_NOTE_MAX_LENGTH) },
     modelId: getMockId(1),
     UUIDHistory: [randomUUID(), randomUUID()],
     occupationType,
@@ -322,19 +371,11 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
     });
 
     describe("Test validation of description", () => {
-      testStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
-        "description",
-        OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
-        OccupationAPISpecs.POST.Schemas.Request.Payload
-      );
+      testTranslatedStringField("description", OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH);
     });
 
     describe("Test validation of preferredLabel", () => {
-      testNonEmptyStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
-        "preferredLabel",
-        OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
-        OccupationAPISpecs.POST.Schemas.Request.Payload
-      );
+      testTranslatedStringField("preferredLabel", OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH);
     });
 
     describe("Test validation of 'altLabels'", () => {
@@ -349,31 +390,40 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
         [CaseType.Failure, "empty string", "", constructSchemaError("/altLabels", "type", "must be array")],
         [
           CaseType.Failure,
-          "array of objects",
-          [{}, {}],
-          [
-            constructSchemaError("/altLabels/0", "type", "must be string"),
-            constructSchemaError("/altLabels/1", "type", "must be string"),
-          ],
+          "array of items missing the fallback language",
+          [{ fr: "foo" }],
+          constructSchemaError("/altLabels/0", "required", `must have required property '${givenFallbackDbKeyName}'`),
         ],
         [
           CaseType.Failure,
-          "an array of same strings",
-          ["foo", "foo"],
+          "an array of the same translated value",
+          [{ [givenFallbackDbKeyName]: "foo" }, { [givenFallbackDbKeyName]: "foo" }],
           constructSchemaError(
             "/altLabels",
             "uniqueItems",
-            "must NOT have duplicate items (items ## 1 and 0 are identical)"
+            "must NOT have duplicate items (items ## 0 and 1 are identical)"
           ),
         ],
         [
           CaseType.Success,
-          "an array of valid strings",
+          "an array of single language values",
           [
-            getTestString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
-            getTestString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH - 1),
+            { [givenFallbackDbKeyName]: getTestString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) },
+            { [givenFallbackDbKeyName]: getTestString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH - 1) },
           ],
           undefined,
+        ],
+        [
+          CaseType.Success,
+          "an array of multi language values",
+          [{ [givenFallbackDbKeyName]: "Chef", fr: "Chef" }],
+          undefined,
+        ],
+        [
+          CaseType.Failure,
+          "an array with an item translated in a language that is not in the registry",
+          [{ [givenFallbackDbKeyName]: "Chef", tlh: "nuqneH" }],
+          constructSchemaError("/altLabels/0", "additionalProperties", "must NOT have additional properties"),
         ],
       ])("(%s) Validate 'altLabels' when %s", (caseType, _desc, value, failure) => {
         assertCaseForProperty(
@@ -387,27 +437,18 @@ describe("Test objects against the OccupationAPISpecs.POSTOccupation.Schemas.Req
     });
 
     describe("Test validation of 'definition'", () => {
-      testStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
-        "definition",
-        OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH,
-        OccupationAPISpecs.POST.Schemas.Request.Payload
-      );
+      testTranslatedStringField("definition", OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH);
     });
 
     describe("Test validation of 'regulatedProfessionNote'", () => {
-      testStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
+      testTranslatedStringField(
         "regulatedProfessionNote",
-        OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH,
-        OccupationAPISpecs.POST.Schemas.Request.Payload
+        OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH
       );
     });
 
     describe("Test validation of 'scopeNote'", () => {
-      testStringField<OccupationAPISpecs.POST.Types.Request.Payload>(
-        "scopeNote",
-        OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH,
-        OccupationAPISpecs.POST.Schemas.Request.Payload
-      );
+      testTranslatedStringField("scopeNote", OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH);
     });
 
     describe("Test validation of 'modelId'", () => {

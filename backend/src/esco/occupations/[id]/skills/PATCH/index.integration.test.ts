@@ -12,6 +12,9 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
 import { SignallingValueLabel } from "esco/common/objectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
@@ -87,17 +90,17 @@ describe("Test for occupation Skills PATCH handler with a DB", () => {
     const givenChild = await getRepositoryRegistry().occupation.create({
       modelId: givenModelId,
       code: "1234.1.1",
-      preferredLabel: "Child",
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Child" },
       occupationType: ObjectTypes.ESCOOccupation,
       originUri: "http://example.com/child",
       UUIDHistory: [randomUUID()],
       isLocalized: false,
-      description: "child description",
+      description: { [FALLBACK_DB_KEY_NAME]: "child description" },
       occupationGroupCode: "1234",
       altLabels: [],
-      definition: "child definition",
-      scopeNote: "child scopeNote",
-      regulatedProfessionNote: "child regulatedProfessionNote",
+      definition: { [FALLBACK_DB_KEY_NAME]: "child definition" },
+      scopeNote: { [FALLBACK_DB_KEY_NAME]: "child scopeNote" },
+      regulatedProfessionNote: { [FALLBACK_DB_KEY_NAME]: "child regulatedProfessionNote" },
     });
 
     const givenSkill = await getRepositoryRegistry().skill.create({

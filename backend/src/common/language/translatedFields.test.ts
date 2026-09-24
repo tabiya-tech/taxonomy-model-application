@@ -5,8 +5,11 @@ import {
   readFallbackLanguageValue,
   readFallbackLanguageValues,
   wrapTranslatableFields,
+  wrapTranslatableFieldsFromObjects,
   wrapTranslated,
   wrapTranslatedArray,
+  wrapTranslatedArrayFromObjects,
+  wrapTranslatedFromObject,
 } from "./translatedFields";
 
 const FALLBACK_DB_KEY_NAME = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName;
@@ -321,5 +324,123 @@ describe("Test wrapTranslatableFields()", () => {
 
     // THEN expect the spec to be unchanged
     expect(givenSpec).toEqual({ preferredLabel: "Cook", altLabels: ["Chef"] });
+  });
+});
+
+describe("Test wrapTranslatedFromObject()", () => {
+  test("should wrap a single language object into a translated value with that one key", () => {
+    // GIVEN a multilingual object translated in a single language
+    const givenValue = { [FALLBACK_DB_KEY_NAME]: "Cook" };
+
+    // WHEN the value is wrapped
+    const actualTranslatedValue = wrapTranslatedFromObject(givenValue);
+
+    // THEN expect a map with that one key
+    expect(actualTranslatedValue).toEqual(new Map([[FALLBACK_DB_KEY_NAME, "Cook"]]));
+  });
+
+  test("should wrap a multi language object into a translated value with every key", () => {
+    // GIVEN a multilingual object translated in more than one language
+    const givenValue = { [FALLBACK_DB_KEY_NAME]: "Cook", [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" };
+
+    // WHEN the value is wrapped
+    const actualTranslatedValue = wrapTranslatedFromObject(givenValue);
+
+    // THEN expect a map with every key of the object
+    expect(actualTranslatedValue).toEqual(
+      new Map([
+        [FALLBACK_DB_KEY_NAME, "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ])
+    );
+  });
+});
+
+describe("Test wrapTranslatedArrayFromObjects()", () => {
+  test("should wrap every item of a list, preserving each item's own languages, in the order of the list", () => {
+    // GIVEN a list of multilingual objects, each translated in its own languages
+    const givenValues = [
+      { [FALLBACK_DB_KEY_NAME]: "Chef" },
+      { [FALLBACK_DB_KEY_NAME]: "Line cook", [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier de ligne" },
+    ];
+
+    // WHEN the values are wrapped
+    const actualTranslatedValues = wrapTranslatedArrayFromObjects(givenValues);
+
+    // THEN expect every item to be a map of its own languages, in the order of the list
+    expect(actualTranslatedValues).toEqual([
+      new Map([[FALLBACK_DB_KEY_NAME, "Chef"]]),
+      new Map([
+        [FALLBACK_DB_KEY_NAME, "Line cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier de ligne"],
+      ]),
+    ]);
+  });
+
+  test("should return an empty list when the list is empty", () => {
+    // GIVEN an empty list of multilingual objects
+    const givenValues: LanguageAPISpecs.Types.ITranslatedStringArray = [];
+
+    // WHEN the values are wrapped
+    const actualTranslatedValues = wrapTranslatedArrayFromObjects(givenValues);
+
+    // THEN expect an empty list to be returned
+    expect(actualTranslatedValues).toEqual([]);
+  });
+});
+
+describe("Test wrapTranslatableFieldsFromObjects()", () => {
+  const givenTranslatableStringFields = ["preferredLabel", "description"] as const;
+
+  test("should wrap every translatable field of the spec, keeping every language it carries", () => {
+    // GIVEN a create spec whose translatable fields are full multilingual objects
+    const givenSpec = {
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Cook", [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" },
+      description: { [FALLBACK_DB_KEY_NAME]: "Prepares food" },
+      altLabels: [{ [FALLBACK_DB_KEY_NAME]: "Chef" }],
+      code: "1234",
+    };
+
+    // WHEN the translatable fields are wrapped, for a new entity
+    const actualWrapped = wrapTranslatableFieldsFromObjects(givenSpec, givenTranslatableStringFields);
+
+    // THEN expect every translatable field to carry every language it was given, the rest untouched
+    expect(actualWrapped).toEqual({
+      preferredLabel: new Map([
+        [FALLBACK_DB_KEY_NAME, "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ]),
+      description: new Map([[FALLBACK_DB_KEY_NAME, "Prepares food"]]),
+      altLabels: [new Map([[FALLBACK_DB_KEY_NAME, "Chef"]])],
+      code: "1234",
+    });
+  });
+
+  test("should leave a translatable field the spec does not carry absent", () => {
+    // GIVEN a spec that carries one of the translatable fields only
+    const givenSpec = { preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Cook" } };
+
+    // WHEN the translatable fields are wrapped
+    const actualWrapped = wrapTranslatableFieldsFromObjects(givenSpec, givenTranslatableStringFields);
+
+    // THEN expect the field the spec does not carry to stay absent
+    expect(actualWrapped).toEqual({ preferredLabel: new Map([[FALLBACK_DB_KEY_NAME, "Cook"]]) });
+  });
+
+  test("should not mutate the spec it is given", () => {
+    // GIVEN a spec whose translatable fields are full multilingual objects
+    const givenSpec = {
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Cook" },
+      altLabels: [{ [FALLBACK_DB_KEY_NAME]: "Chef" }],
+    };
+
+    // WHEN the translatable fields are wrapped
+    wrapTranslatableFieldsFromObjects(givenSpec, givenTranslatableStringFields);
+
+    // THEN expect the spec to be unchanged
+    expect(givenSpec).toEqual({
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Cook" },
+      altLabels: [{ [FALLBACK_DB_KEY_NAME]: "Chef" }],
+    });
   });
 });

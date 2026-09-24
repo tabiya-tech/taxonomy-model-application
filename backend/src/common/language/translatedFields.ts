@@ -1,5 +1,6 @@
 import { getFallbackLanguageConfig } from "./fallbackLanguage";
 import { ITranslatedStringArrayDoc, ITranslatedStringDoc, TranslatedStringKey } from "./translatedString.types";
+import LanguageAPISpecs from "api-specifications/language";
 
 /**
  * Reads the value a plain object carries under a key, or undefined when the value is not a plain object.
@@ -118,6 +119,52 @@ export function wrapTranslatableFields<Field extends string>(
   });
   if (spec.altLabels !== undefined) {
     wrapped.altLabels = wrapTranslatedArray(spec.altLabels);
+  }
+  return wrapped;
+}
+
+/**
+ * Wraps a full multilingual object into a translated value, keyed by every language it carries, e.g.
+ * { en: "Cook", fr: "Cuisinier" } into a Map with both keys.
+ */
+export function wrapTranslatedFromObject(value: LanguageAPISpecs.Types.ITranslatedString): ITranslatedStringDoc {
+  return new Map(Object.entries(value) as [TranslatedStringKey, string][]);
+}
+
+/**
+ * Wraps a list of multilingual objects into a list of translated values.
+ */
+export function wrapTranslatedArrayFromObjects(
+  values: LanguageAPISpecs.Types.ITranslatedStringArray
+): ITranslatedStringArrayDoc {
+  return values.map(wrapTranslatedFromObject);
+}
+
+/**
+ * Wraps the translatable fields of a create spec, already full multilingual objects, into translated values.
+ *
+ * Unlike wrapTranslatableFields, this is create-only: a brand new document has no existing translations to merge
+ * into, every language of the input becomes a key of the Map as-is.
+ *
+ * @param spec the create spec, its translatable fields full multilingual objects
+ * @param translatableStringFields the fields of the spec that carry a translated value
+ * @returns the spec, with its translatable fields wrapped
+ */
+export function wrapTranslatableFieldsFromObjects<Field extends string>(
+  spec: Partial<Record<Field, LanguageAPISpecs.Types.ITranslatedString>> & {
+    altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  },
+  translatableStringFields: readonly Field[]
+): Record<string, unknown> {
+  const wrapped: Record<string, unknown> = { ...spec };
+  translatableStringFields.forEach((field) => {
+    const value = spec[field];
+    if (value !== undefined) {
+      wrapped[field] = wrapTranslatedFromObject(value);
+    }
+  });
+  if (spec.altLabels !== undefined) {
+    wrapped.altLabels = wrapTranslatedArrayFromObjects(spec.altLabels);
   }
   return wrapped;
 }

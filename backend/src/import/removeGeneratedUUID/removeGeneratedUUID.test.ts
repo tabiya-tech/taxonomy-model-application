@@ -20,11 +20,35 @@ import {
   getNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { IOccupation } from "esco/occupations/_shared/occupation.types";
+import {
+  INewOccupationSpec,
+  INewOccupationSpecWithoutImportId,
+  IOccupation,
+} from "esco/occupations/_shared/occupation.types";
 import { ISkill } from "esco/skill/_shared/skill.types";
 import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
+
+/**
+ * Wraps a flat INewOccupationSpec (as the spec builders produce) into the multilingual shape
+ * create() expects, translatable fields in the fall back language only.
+ */
+function toOccupationCreateSpec(spec: INewOccupationSpec): INewOccupationSpecWithoutImportId {
+  const wrap = (value: string) => ({ [FALLBACK_DB_KEY_NAME]: value });
+  return {
+    ...spec,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    definition: wrap(spec.definition),
+    scopeNote: wrap(spec.scopeNote),
+    regulatedProfessionNote: wrap(spec.regulatedProfessionNote),
+  };
+}
 
 /**
  * Helper function to create an INewModelInfoSpec with random values
@@ -198,7 +222,9 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewOccupationSpec = getNewESCOOccupationSpec();
     givenNewOccupationSpec.modelId = givenCreatedModel.id;
     givenNewOccupationSpec.UUIDHistory = generateRandomUUIDs(0);
-    const givenCreatedOccupation = await repositoryRegistry.occupation.create(givenNewOccupationSpec);
+    const givenCreatedOccupation = await repositoryRegistry.occupation.create(
+      toOccupationCreateSpec(givenNewOccupationSpec)
+    );
     // AND a new UUID Item is added
     expect(givenCreatedOccupation.UUIDHistory).toHaveLength(1);
 
@@ -206,7 +232,9 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewLocalOccupationSpec = getNewLocalOccupationSpec();
     givenNewLocalOccupationSpec.modelId = givenCreatedModel.id;
     givenNewLocalOccupationSpec.UUIDHistory = generateRandomUUIDs(0);
-    const givenCreatedLocalOccupation = await repositoryRegistry.occupation.create(givenNewLocalOccupationSpec);
+    const givenCreatedLocalOccupation = await repositoryRegistry.occupation.create(
+      toOccupationCreateSpec(givenNewLocalOccupationSpec)
+    );
     // AND a new UUID Item is added
     expect(givenCreatedLocalOccupation.UUIDHistory).toHaveLength(1);
 
@@ -317,7 +345,9 @@ describe("RemoveGeneratedUUID", () => {
       const givenNewOccupationSpec = getNewESCOOccupationSpec();
       givenNewOccupationSpec.modelId = givenCreatedModel.id;
       givenNewOccupationSpec.UUIDHistory = generateRandomUUIDs(count);
-      const givenCreatedOccupation = await repositoryRegistry.occupation.create(givenNewOccupationSpec);
+      const givenCreatedOccupation = await repositoryRegistry.occupation.create(
+        toOccupationCreateSpec(givenNewOccupationSpec)
+      );
       // AND UUIDHistory is increaased by 1 (1 new UUID is added)
       expect(givenCreatedOccupation.UUIDHistory).toHaveLength(count + 1);
       // AND the givenUUIDHistory is added on the bottom.
@@ -329,7 +359,9 @@ describe("RemoveGeneratedUUID", () => {
       const givenNewLocalOccupationSpec = getNewLocalOccupationSpec();
       givenNewLocalOccupationSpec.modelId = givenCreatedModel.id;
       givenNewLocalOccupationSpec.UUIDHistory = generateRandomUUIDs(count);
-      const givenCreatedLocalOccupation = await repositoryRegistry.occupation.create(givenNewLocalOccupationSpec);
+      const givenCreatedLocalOccupation = await repositoryRegistry.occupation.create(
+        toOccupationCreateSpec(givenNewLocalOccupationSpec)
+      );
       // AND UUIDHistory is increaased by 1 (1 new UUID is added)
       expect(givenCreatedLocalOccupation.UUIDHistory).toHaveLength(count + 1);
       // AND the givenUUIDHistory is added on the bottom.
@@ -471,12 +503,16 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewOccupationSpec = getNewESCOOccupationSpec();
     givenNewOccupationSpec.modelId = actualNewModel.id;
     givenNewOccupationSpec.UUIDHistory = [randomUUID()];
-    const actualNewESCOOccupation = await repositoryRegistry.occupation.create(givenNewOccupationSpec);
+    const actualNewESCOOccupation = await repositoryRegistry.occupation.create(
+      toOccupationCreateSpec(givenNewOccupationSpec)
+    );
     // AND a local occupation is created with the modelId and a single item in the UUIDHistory
     const givenNewLocalOccupationSpec = getNewLocalOccupationSpec();
     givenNewLocalOccupationSpec.modelId = actualNewModel.id;
     givenNewLocalOccupationSpec.UUIDHistory = [randomUUID()];
-    const actualNewLocalOccupation = await repositoryRegistry.occupation.create(givenNewLocalOccupationSpec);
+    const actualNewLocalOccupation = await repositoryRegistry.occupation.create(
+      toOccupationCreateSpec(givenNewLocalOccupationSpec)
+    );
     // AND a skill is created with the modelId and a single item in the UUIDHistory
     const givenNewSkillSpec = getNewSkillSpec();
     givenNewSkillSpec.modelId = actualNewModel.id;

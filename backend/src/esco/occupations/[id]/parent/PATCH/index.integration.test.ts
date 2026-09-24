@@ -12,7 +12,10 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { usersRequestContext } from "_test_utilities/dataModel";
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
 
 describe("Test for occupation Parent PATCH handler with a DB", () => {
   const ajv = new Ajv({
@@ -85,33 +88,33 @@ describe("Test for occupation Parent PATCH handler with a DB", () => {
     const givenParent = await repository.create({
       modelId: givenModelId,
       code: "1234.1",
-      preferredLabel: "Parent",
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Parent" },
       occupationType: ObjectTypes.ESCOOccupation,
       originUri: "http://example.com/parent",
       UUIDHistory: [randomUUID()],
       isLocalized: false,
-      description: "parent description",
+      description: { [FALLBACK_DB_KEY_NAME]: "parent description" },
       occupationGroupCode: "1234",
       altLabels: [],
-      definition: "parent definition",
-      scopeNote: "parent scopeNote",
-      regulatedProfessionNote: "parent regulatedProfessionNote",
+      definition: { [FALLBACK_DB_KEY_NAME]: "parent definition" },
+      scopeNote: { [FALLBACK_DB_KEY_NAME]: "parent scopeNote" },
+      regulatedProfessionNote: { [FALLBACK_DB_KEY_NAME]: "parent regulatedProfessionNote" },
     });
 
     const givenChild = await repository.create({
       modelId: givenModelId,
       code: "1234.1.1",
-      preferredLabel: "Child",
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Child" },
       occupationType: ObjectTypes.ESCOOccupation,
       originUri: "http://example.com/child",
       UUIDHistory: [randomUUID()],
       isLocalized: false,
-      description: "child description",
+      description: { [FALLBACK_DB_KEY_NAME]: "child description" },
       occupationGroupCode: "1234",
       altLabels: [],
-      definition: "child definition",
-      scopeNote: "child scopeNote",
-      regulatedProfessionNote: "child regulatedProfessionNote",
+      definition: { [FALLBACK_DB_KEY_NAME]: "child definition" },
+      scopeNote: { [FALLBACK_DB_KEY_NAME]: "child scopeNote" },
+      regulatedProfessionNote: { [FALLBACK_DB_KEY_NAME]: "child regulatedProfessionNote" },
     });
 
     // Create an existing child-parent link in the DB, which the PATCH should update

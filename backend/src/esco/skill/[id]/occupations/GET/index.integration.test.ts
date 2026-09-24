@@ -20,6 +20,9 @@ import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
 
 async function createModelInDB() {
   return await getRepositoryRegistry().modelInfo.create({
@@ -54,18 +57,22 @@ async function createSkillInDB(modelId: string = getMockStringId(1)): Promise<IS
 async function createOccupationInDB(modelId: string = getMockStringId(1)) {
   return await getRepositoryRegistry().occupation.create({
     modelId: modelId,
-    preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    preferredLabel: {
+      [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    },
+    description: { [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+    altLabels: [{ [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
     originUri: `http://some/path/to/api/resources/${randomUUID()}`,
     UUIDHistory: [randomUUID()],
     code: "1234." + Math.floor(Math.random() * 100),
     occupationGroupCode: "1234",
     occupationType: ObjectTypes.ESCOOccupation,
     isLocalized: true,
-    definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-    scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-    regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+    definition: { [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+    scopeNote: { [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+    regulatedProfessionNote: {
+      [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+    },
   });
 }
 

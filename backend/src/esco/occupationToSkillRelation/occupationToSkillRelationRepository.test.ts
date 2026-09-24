@@ -33,6 +33,27 @@ import {
 } from "./occupationToSkillRelation.types";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import { INewOccupationSpec, INewOccupationSpecWithoutImportId } from "esco/occupations/_shared/occupation.types";
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
+
+/**
+ * Wraps a flat INewOccupationSpec (as the spec builders produce) into the multilingual shape
+ * create() expects, translatable fields in the fall back language only.
+ */
+function toOccupationCreateSpec(spec: INewOccupationSpec): INewOccupationSpecWithoutImportId {
+  const wrap = (value: string) => ({ [FALLBACK_DB_KEY_NAME]: value });
+  return {
+    ...spec,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    definition: wrap(spec.definition),
+    scopeNote: wrap(spec.scopeNote),
+    regulatedProfessionNote: wrap(spec.regulatedProfessionNote),
+  };
+}
 
 describe("Test the OccupationToSkillRelation Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -77,7 +98,9 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
   async function createOccupationToSkillRelationsInDB(modelId: string, batchSize: number = 3) {
     const newOccupationToSkillPairSpecs: INewOccupationToSkillPairSpec[] = [];
     for (let i = 0; i < batchSize; i++) {
-      const occupation = await repositoryRegistry.occupation.create(getSimpleNewESCOOccupationSpec(modelId, "skill_1"));
+      const occupation = await repositoryRegistry.occupation.create(
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "skill_1"))
+      );
       const skill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_2"));
       newOccupationToSkillPairSpecs.push({
         requiringOccupationId: occupation.id,
@@ -126,10 +149,10 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       // GIVEN 2 Occupations and 2 Skillls exist in the database in the same model
       const givenModelId = getMockStringId(1);
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenOccupation_2 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
@@ -182,11 +205,15 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       // GIVEN Occupations that are of different types exist in the same model
       const givenModelId = getMockStringId(2);
       const escoOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "ESCO Occupation");
-      const escoOccupation = await repositoryRegistry.occupation.create(escoOccupationSpecs);
+      const escoOccupation = await repositoryRegistry.occupation.create(toOccupationCreateSpec(escoOccupationSpecs));
       const localOccupation1Specs = getSimpleNewLocalOccupationSpec(givenModelId, "Local Occupation 1");
-      const localOccupation1 = await repositoryRegistry.occupation.create(localOccupation1Specs);
+      const localOccupation1 = await repositoryRegistry.occupation.create(
+        toOccupationCreateSpec(localOccupation1Specs)
+      );
       const localOccupation2Specs = getSimpleNewLocalOccupationSpec(givenModelId, "Local Occupation 2");
-      const localOccupation2 = await repositoryRegistry.occupation.create(localOccupation2Specs);
+      const localOccupation2 = await repositoryRegistry.occupation.create(
+        toOccupationCreateSpec(localOccupation2Specs)
+      );
 
       // AND a skill in the same model which is a child of each of the occupations
       const childSkillSpecs = getSimpleNewSkillSpec(givenModelId, "childSkill");
@@ -234,7 +261,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const escoOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "ESCO Occupation");
       //@ts-ignore
       escoOccupationSpecs.id = givenObjectId;
-      const escoOccupation = await repositoryRegistry.occupation.create(escoOccupationSpecs);
+      const escoOccupation = await repositoryRegistry.occupation.create(toOccupationCreateSpec(escoOccupationSpecs));
       // AND a skill in the same model and with the same id as the occupation
       const childSkillSpecs = getSimpleNewSkillSpec(givenModelId, "childSkill");
       //@ts-ignore
@@ -266,10 +293,10 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       // GIVEN 2 Occupations and 2 Skillls exist in the database in the same model
       const givenModelId = getMockStringId(1);
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenOccupation_2 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
       const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
@@ -339,7 +366,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenModelId = getMockStringId(1);
       // AND an occupation and a skill exist in the db
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
 
@@ -401,7 +428,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenModelId = getMockStringId(1);
       // AND an occupation and a skill exist in the db
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
 
@@ -437,7 +464,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenModelId_2 = getMockStringId(2);
       // AND an occupation and a skill that are in different models
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId_1, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId_1, "occupation_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId_2, "skill_1"));
 
@@ -489,7 +516,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       // GIVEN a valid modelId
       const givenModelId = getMockStringId(1);
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenInvalidObject_1 = await repositoryRegistry.OccupationGroup.create(
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
@@ -522,10 +549,10 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         // GIVEN 2 ESCO occupations and 2 Skills exist in the database in the same model
         const givenModelId = getMockStringId(1);
         const givenOccupation_1 = await repositoryRegistry.occupation.create(
-          getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+          toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
         );
         const givenOccupation_2 = await repositoryRegistry.occupation.create(
-          getSimpleNewESCOOccupationSpec(givenModelId, "occuoation_2")
+          toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occuoation_2"))
         );
         const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
         const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
@@ -565,7 +592,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       // GIVEN a valid modelId, occupation and skill exist in the database
       const givenModelId = getMockStringId(1);
       const givenOccupation = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation"))
       );
       const givenSkill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill"));
       const givenSpec: INewOccupationToSkillPairSpec = {
@@ -591,7 +618,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
     test("should update an existing occupation to skill relation", async () => {
       const givenModelId = getMockStringId(1);
       const givenOccupation = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation"))
       );
       const givenSkill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill"));
       const givenSpec: INewOccupationToSkillPairSpec = {

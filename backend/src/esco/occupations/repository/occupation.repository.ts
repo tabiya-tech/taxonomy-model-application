@@ -39,7 +39,7 @@ import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
-import { wrapTranslatableFields } from "common/language/translatedFields";
+import { wrapTranslatableFields, wrapTranslatableFieldsFromObjects } from "common/language/translatedFields";
 import { buildSearchCondition } from "esco/common/searchCondition";
 import { unwrapSkillTranslatableFields } from "esco/skill/_shared/skillReference";
 
@@ -255,7 +255,7 @@ export class OccupationRepository implements IOccupationRepository {
   ): mongoose.HydratedDocument<IOccupationDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec, TRANSLATABLE_STRING_FIELDS),
+      ...wrapTranslatableFieldsFromObjects(newSpec, TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: null,
     });

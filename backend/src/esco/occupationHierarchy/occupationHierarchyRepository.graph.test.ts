@@ -10,7 +10,31 @@ import { IOccupationHierarchyRepository } from "./occupationHierarchyRepository"
 import { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { INewOccupationGroupSpec, IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
-import { INewOccupationSpec, IOccupation } from "esco/occupations/_shared/occupation.types";
+import {
+  INewOccupationSpec,
+  INewOccupationSpecWithoutImportId,
+  IOccupation,
+} from "esco/occupations/_shared/occupation.types";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
+
+/**
+ * Wraps a flat INewOccupationSpec (as the local spec builders in this file produce) into the multilingual shape
+ * create() expects, translatable fields in the fall back language only.
+ */
+function toOccupationCreateSpec(spec: INewOccupationSpec): INewOccupationSpecWithoutImportId {
+  const wrap = (value: string) => ({ [FALLBACK_DB_KEY_NAME]: value });
+  return {
+    ...spec,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    definition: wrap(spec.definition),
+    scopeNote: wrap(spec.scopeNote),
+    regulatedProfessionNote: wrap(spec.regulatedProfessionNote),
+  };
+}
 
 /*
  * This test constructs a graph structure with varying relationship dynamics and tests the rules for creating a hierarchy
@@ -159,11 +183,13 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     // AND an ESCOOccupation under the root level ISCOGroup with a code that does not match the parent code (0000.1) //INVALID
     const ESCOOccupation_0000_1 = await repositoryRegistry.occupation.create(
       // an esco occupation with code 0.1 cannot be created here, so we are creating one that is valid, but still should not be allowed to create a hierarchy
-      createESCOOccupationSpec(
-        givenModelId,
-        `${ISCOGroup_0.code.padStart(4, "0")}.1`,
-        ISCOGroup_0.code,
-        "ESCOOccupation: 0.1"
+      toOccupationCreateSpec(
+        createESCOOccupationSpec(
+          givenModelId,
+          `${ISCOGroup_0.code.padStart(4, "0")}.1`,
+          ISCOGroup_0.code,
+          "ESCOOccupation: 0.1"
+        )
       )
     );
     givenESCOOccupations.push(ESCOOccupation_0000_1);
@@ -210,22 +236,40 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     givenISCOGroups.push(ISCOGroup_0111);
     // AND an esco occupation with a code that does not match the parent code (0200.1) //INVALID
     const ESCOOccupation_0200_1 = await repositoryRegistry.occupation.create(
-      createESCOOccupationSpec(givenModelId, "0200.1", ISCOGroup_011.code, "ESCOOccupation: 0200.1")
+      toOccupationCreateSpec(
+        createESCOOccupationSpec(givenModelId, "0200.1", ISCOGroup_011.code, "ESCOOccupation: 0200.1")
+      )
     );
     givenESCOOccupations.push(ESCOOccupation_0200_1);
     // AND a local occupation with a code that does not match the parent code (0200_1) //INVALID
     const LocalOccupation_0200_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(givenModelId, "0200_1", ISCOGroup_011.code, "LocalOccupation: 0200_1")
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(givenModelId, "0200_1", ISCOGroup_011.code, "LocalOccupation: 0200_1")
+      )
     );
     givenLocalOccupations.push(LocalOccupation_0200_1);
     // AND a local occupation with code LocalOccupation: 0111_1
     const LocalOccupation_0111_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(givenModelId, `${ISCOGroup_0111.code}_1`, ISCOGroup_011.code, "LocalOccupation: 0111_1")
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(
+          givenModelId,
+          `${ISCOGroup_0111.code}_1`,
+          ISCOGroup_011.code,
+          "LocalOccupation: 0111_1"
+        )
+      )
     );
     givenLocalOccupations.push(LocalOccupation_0111_1);
     // AND an esco occupation with code 0111.1
     const ESCOOccupation_0111_1 = await repositoryRegistry.occupation.create(
-      createESCOOccupationSpec(givenModelId, `${ISCOGroup_0111.code}.1`, ISCOGroup_0111.code, "ESCOOccupation: 0111.1")
+      toOccupationCreateSpec(
+        createESCOOccupationSpec(
+          givenModelId,
+          `${ISCOGroup_0111.code}.1`,
+          ISCOGroup_0111.code,
+          "ESCOOccupation: 0111.1"
+        )
+      )
     );
     givenESCOOccupations.push(ESCOOccupation_0111_1);
     // AND a 4th level local group with code 0111A
@@ -235,54 +279,68 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     givenLocalGroups.push(LocalGroup_0111A);
     // AND a local occupation with code 01AB_1
     const LocalOccupation_01AB_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(givenModelId, "01AB_1", LocalGroup_01AB.code, "LocalOccupation: 01AB_1")
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(givenModelId, "01AB_1", LocalGroup_01AB.code, "LocalOccupation: 01AB_1")
+      )
     );
     givenLocalOccupations.push(LocalOccupation_01AB_1);
     // AND an esco occupation with code 2222.1
     const ESCOOccupation_2222_1 = await repositoryRegistry.occupation.create(
       // an esco occupation with code 01ab.1 cannot be created, so we create an esco occupation that is valid, but should not be allowed to create a hierarchy
-      createESCOOccupationSpec(givenModelId, "2222.1", ISCOGroup_011.code, "ESCOOccupation: 2222.1")
+      toOccupationCreateSpec(
+        createESCOOccupationSpec(givenModelId, "2222.1", ISCOGroup_011.code, "ESCOOccupation: 2222.1")
+      )
     );
     givenESCOOccupations.push(ESCOOccupation_2222_1);
     // AND a local occupation with a code that does not match the parent code (02XYZ_1) //INVALID
     const LocalOccupation_02XYZ_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(givenModelId, "02XYZ_1", LocalGroup_01AB.code, "LocalOccupation: 02XYZ_1")
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(givenModelId, "02XYZ_1", LocalGroup_01AB.code, "LocalOccupation: 02XYZ_1")
+      )
     );
     givenLocalOccupations.push(LocalOccupation_02XYZ_1);
     // AND a local occupation with code 0111_1_1
     const LocalOccupation_0111_1_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(
-        givenModelId,
-        `${LocalOccupation_0111_1.code}_1`,
-        ISCOGroup_0111.code,
-        "LocalOccupation: 0111_1_1"
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(
+          givenModelId,
+          `${LocalOccupation_0111_1.code}_1`,
+          ISCOGroup_0111.code,
+          "LocalOccupation: 0111_1_1"
+        )
       )
     );
     givenLocalOccupations.push(LocalOccupation_0111_1_1);
     // AND an esco occupation with code 0111.1.1
     const ESCOOccupation_0111_1_1 = await repositoryRegistry.occupation.create(
-      createESCOOccupationSpec(
-        givenModelId,
-        `${ESCOOccupation_0111_1.code}.1`,
-        ISCOGroup_0111.code,
-        "ESCOOccupation: 0111.1_1"
+      toOccupationCreateSpec(
+        createESCOOccupationSpec(
+          givenModelId,
+          `${ESCOOccupation_0111_1.code}.1`,
+          ISCOGroup_0111.code,
+          "ESCOOccupation: 0111.1_1"
+        )
       )
     );
     givenESCOOccupations.push(ESCOOccupation_0111_1_1);
     // AND a local occupation with code 0111.1_1
     const LocalOccupation_0111_DOT_1_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(
-        givenModelId,
-        `${ESCOOccupation_0111_1.code}_1`,
-        ISCOGroup_0111.code,
-        "LocalOccupation: 0111.1_1"
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(
+          givenModelId,
+          `${ESCOOccupation_0111_1.code}_1`,
+          ISCOGroup_0111.code,
+          "LocalOccupation: 0111.1_1"
+        )
       )
     );
     givenLocalOccupations.push(LocalOccupation_0111_DOT_1_1);
     // AND an esco occupation with code 3333.1
     const ESCOOccupation_3333_1 = await repositoryRegistry.occupation.create(
       // an esco occupation with code 01ab_1.1 cannot be created, so we create an esco occupation that is valid, but should not be allowed to create a hierarchy
-      createESCOOccupationSpec(givenModelId, "3333.1", ISCOGroup_011.code, "ESCOOccupation: 3333.1")
+      toOccupationCreateSpec(
+        createESCOOccupationSpec(givenModelId, "3333.1", ISCOGroup_011.code, "ESCOOccupation: 3333.1")
+      )
     );
     givenESCOOccupations.push(ESCOOccupation_3333_1);
     // AND a local group with code DDD
@@ -307,31 +365,37 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     givenISCOGroups.push(ISCOGroup_8888);
     // AND an esco occupation with a code that does not match the parent code (0111.1.2.1) //INVALID
     const ESCOOccupation_0111_1_2_1 = await repositoryRegistry.occupation.create(
-      createESCOOccupationSpec(
-        givenModelId,
-        `${ESCOOccupation_0111_1.code}.2.1`,
-        ISCOGroup_0111.code,
-        "ESCOOccupation: 0111.2.1"
+      toOccupationCreateSpec(
+        createESCOOccupationSpec(
+          givenModelId,
+          `${ESCOOccupation_0111_1.code}.2.1`,
+          ISCOGroup_0111.code,
+          "ESCOOccupation: 0111.2.1"
+        )
       )
     );
     givenESCOOccupations.push(ESCOOccupation_0111_1_2_1);
     // AND a local occupation with a code that does not match the parent code (0111.1.2_1) //INVALID
     const LocalOccupation_0111_DOT_1_DOT_2_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(
-        givenModelId,
-        `${ESCOOccupation_0111_1.code}.2_1`,
-        ISCOGroup_0111.code,
-        "LocalOccupation: 0111.2_1"
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(
+          givenModelId,
+          `${ESCOOccupation_0111_1.code}.2_1`,
+          ISCOGroup_0111.code,
+          "LocalOccupation: 0111.2_1"
+        )
       )
     );
     givenLocalOccupations.push(LocalOccupation_0111_DOT_1_DOT_2_1);
     // AND a local occupation with a code that does not match the parent code (0111.1_2_1) //INVALID
     const LocalOccupation_0111_DOT_1_2_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(
-        givenModelId,
-        `${ESCOOccupation_0111_1.code}_2_1`,
-        ISCOGroup_0111.code,
-        "LocalOccupation: 0111.2_1"
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(
+          givenModelId,
+          `${ESCOOccupation_0111_1.code}_2_1`,
+          ISCOGroup_0111.code,
+          "LocalOccupation: 0111.2_1"
+        )
       )
     );
     givenLocalOccupations.push(LocalOccupation_0111_DOT_1_2_1);
@@ -611,7 +675,9 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     givenLocalGroups.push(LocalGroup_AA);
     // AND a local occupation with code LocalOccupation: A_1
     const LocalOccupation_A_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(givenModelId, `${LocalGroup_A.code}_1`, LocalGroup_A.code, "LocalOccupation: A_1")
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(givenModelId, `${LocalGroup_A.code}_1`, LocalGroup_A.code, "LocalOccupation: A_1")
+      )
     );
     givenLocalOccupations.push(LocalOccupation_A_1);
     // AND an isco group with code 4444
@@ -628,7 +694,9 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     givenISCOGroups.push(ISCOGroup_5555);
     // AND a local occupation with code AA_1
     const LocalOccupation_AA_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(givenModelId, `${LocalGroup_AA.code}_1`, LocalGroup_AA.code, "LocalOccupation: AA_1")
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(givenModelId, `${LocalGroup_AA.code}_1`, LocalGroup_AA.code, "LocalOccupation: AA_1")
+      )
     );
     givenLocalOccupations.push(LocalOccupation_AA_1);
     // AND an isco group with code 6666
@@ -640,12 +708,16 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     // AND an esco occupation with code 7777.1
     const ESCOOccupation_7777_1 = await repositoryRegistry.occupation.create(
       // an esco occupation with code AA_1.1 cannot be created, so we create an esco occupation that is valid, but should not be allowed to create a hierarchy
-      createESCOOccupationSpec(givenModelId, "7777.1", LocalGroup_AA.code, "ESCOOccupation: 7777.1")
+      toOccupationCreateSpec(
+        createESCOOccupationSpec(givenModelId, "7777.1", LocalGroup_AA.code, "ESCOOccupation: 7777.1")
+      )
     );
     givenESCOOccupations.push(ESCOOccupation_7777_1);
     // AND a local occupation with code BBB_1
     const LocalOccupation_BBB_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(givenModelId, "BBB_1", LocalGroup_A.code, "LocalOccupation: BBB_1")
+      toOccupationCreateSpec(
+        createLocalOccupationSpec(givenModelId, "BBB_1", LocalGroup_A.code, "LocalOccupation: BBB_1")
+      )
     );
     givenLocalOccupations.push(LocalOccupation_BBB_1);
     // AND all the entities are created
@@ -764,12 +836,14 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     givenLocalGroups.push(LocalGroup_C);
     // AND a local occupation with code 9_1
     const LocalOccupation_D_1 = await repositoryRegistry.occupation.create(
-      createLocalOccupationSpec(givenModelId, "D_1", LocalGroup_C.code, "LocalOccupation: D_1")
+      toOccupationCreateSpec(createLocalOccupationSpec(givenModelId, "D_1", LocalGroup_C.code, "LocalOccupation: D_1"))
     );
     givenLocalOccupations.push(LocalOccupation_D_1);
     // AND an esco occupation with code 9.1
     const ESCOOccupation_9999_1 = await repositoryRegistry.occupation.create(
-      createESCOOccupationSpec(givenModelId, "9999.1", LocalGroup_C.code, "ESCOOccupation: 9999.1")
+      toOccupationCreateSpec(
+        createESCOOccupationSpec(givenModelId, "9999.1", LocalGroup_C.code, "ESCOOccupation: 9999.1")
+      )
     );
     givenESCOOccupations.push(ESCOOccupation_9999_1);
 

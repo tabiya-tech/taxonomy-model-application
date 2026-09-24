@@ -17,6 +17,9 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { SkillType, ReuseLevel } from "esco/skill/_shared/skill.types";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
 
 describe("Test for occupation Skills GET handler with a DB", () => {
   const ajv = new Ajv({
@@ -59,17 +62,17 @@ describe("Test for occupation Skills GET handler with a DB", () => {
     const givenOccupation = await repository.create({
       modelId: givenModelId,
       code: "1234.1",
-      preferredLabel: "Occupation",
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Occupation" },
       occupationType: ObjectTypes.ESCOOccupation,
       originUri: "http://example.com/occupation1",
       UUIDHistory: [randomUUID()],
       isLocalized: false,
-      description: "description",
+      description: { [FALLBACK_DB_KEY_NAME]: "description" },
       occupationGroupCode: "1234",
       altLabels: [],
-      definition: "definition",
-      scopeNote: "scopeNote",
-      regulatedProfessionNote: "regulatedProfessionNote",
+      definition: { [FALLBACK_DB_KEY_NAME]: "definition" },
+      scopeNote: { [FALLBACK_DB_KEY_NAME]: "scopeNote" },
+      regulatedProfessionNote: { [FALLBACK_DB_KEY_NAME]: "regulatedProfessionNote" },
     });
     const givenSkill = await getRepositoryRegistry().skill.create({
       modelId: givenModelId,

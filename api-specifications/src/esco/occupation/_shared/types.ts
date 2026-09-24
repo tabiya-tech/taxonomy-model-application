@@ -2,6 +2,7 @@ import OccupationEnums from "./enums";
 import SkillTypes from "../../skill/_shared/types";
 import OccupationGroupTypes from "../../occupationGroup/_shared/types";
 import ModelInfoTypes from "../../../modelInfo/types";
+import LanguageAPISpecs from "../../../language";
 
 interface IOccupationParent {
   id: string;
@@ -90,6 +91,21 @@ interface IOccupationRequest {
   isLocalized: boolean;
 }
 
+// POST-only request shape: translatable fields accept the full multilingual object instead of a
+// flat string. PUT and PATCH keep using IOccupationRequest until they are migrated too.
+interface IOccupationPOSTRequest
+  extends Omit<
+    IOccupationRequest,
+    "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote" | "regulatedProfessionNote"
+  > {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  definition: LanguageAPISpecs.Types.ITranslatedString;
+  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
+  regulatedProfessionNote: LanguageAPISpecs.Types.ITranslatedString;
+}
+
 interface PaginatedOccupationResponse {
   data: IOccupationResponse[];
   limit: number;
@@ -146,7 +162,7 @@ namespace OccupationTypes {
 
   export namespace POSTOccupation {
     export namespace Request {
-      export type Payload = IOccupationRequest;
+      export type Payload = IOccupationPOSTRequest;
     }
     export namespace Response {
       export type Payload = IOccupationResponse;

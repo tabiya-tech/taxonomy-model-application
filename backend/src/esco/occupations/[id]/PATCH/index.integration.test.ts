@@ -19,6 +19,9 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
 
 describe("Test for occupation PATCH handler with a DB", () => {
   const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
@@ -83,15 +86,17 @@ describe("Test for occupation PATCH handler with a DB", () => {
       modelId: givenModelId,
       code: getMockRandomOccupationCode(false),
       occupationType: ObjectTypes.ESCOOccupation,
-      preferredLabel: givenOriginalLabel,
-      description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-      altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+      preferredLabel: { [FALLBACK_DB_KEY_NAME]: givenOriginalLabel },
+      description: { [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [{ [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
       originUri: `http://some/path/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
       occupationGroupCode: getMockRandomISCOGroupCode(),
-      definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-      scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-      regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      definition: { [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        [FALLBACK_DB_KEY_NAME]: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
       isLocalized: false,
     });
 

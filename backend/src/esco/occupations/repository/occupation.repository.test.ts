@@ -12,6 +12,7 @@ import { IOccupationRepository, SearchFilter } from "./occupation.repository";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import {
   INewOccupationSpec,
+  INewOccupationSpecWithoutImportId,
   IOccupation,
   IOccupationDoc,
   IPartialUpdateOccupationSpec,
@@ -75,6 +76,25 @@ jest.mock("crypto", () => {
     randomUUID: jest.fn().mockImplementation(actual.randomUUID),
   };
 });
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
+
+/**
+ * Wraps a flat INewOccupationSpec (as the existing spec builders produce, for createMany/import) into the
+ * multilingual shape create() expects, translatable fields in the fall back language only.
+ */
+function toCreateSpec(spec: INewOccupationSpec): INewOccupationSpecWithoutImportId {
+  const wrap = (value: string) => ({ [FALLBACK_DB_KEY_NAME]: value });
+  return {
+    ...spec,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    definition: wrap(spec.definition),
+    scopeNote: wrap(spec.scopeNote),
+    regulatedProfessionNote: wrap(spec.regulatedProfessionNote),
+  };
+}
 
 /**
  * Helper function to create an expected Occupation from a given INewOccupationSpec,
@@ -212,7 +232,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // GIVEN a valid OccupationSpec
         const givenNewOccupationSpec: INewOccupationSpec = getNewOccupation(givenOccupationType);
         // WHEN Creating a new occupation with given specifications
-        const actualNewOccupation: IOccupation = await repository.create(givenNewOccupationSpec);
+        const actualNewOccupation: IOccupation = await repository.create(toCreateSpec(givenNewOccupationSpec));
 
         // THEN expect the new occupation to be created with the specific attributes
         const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
@@ -229,7 +249,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         givenNewOccupationSpec.UUIDHistory = [];
 
         // WHEN Creating a new occupation with given specifications
-        const actualNewOccupation: IOccupation = await repository.create(givenNewOccupationSpec);
+        const actualNewOccupation: IOccupation = await repository.create(toCreateSpec(givenNewOccupationSpec));
 
         // THEN expect the new occupation to be created with the specific attributes
         const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
@@ -246,7 +266,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         givenNewOccupationSpec.UUIDHistory = generateRandomUUIDs(10);
 
         // WHEN Creating a new occupation with given specifications
-        const actualNewOccupation: IOccupation = await repository.create(givenNewOccupationSpec);
+        const actualNewOccupation: IOccupation = await repository.create(toCreateSpec(givenNewOccupationSpec));
 
         // THEN expect the new occupation to be created with the specific attributes
         const expectedNewISCO: IOccupation = expectedFromGivenSpec(givenNewOccupationSpec, actualNewOccupation.UUID);
@@ -259,10 +279,10 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenNewOccupationSpec: INewOccupationSpec = getNewESCOOccupationSpec();
 
       // WHEN Creating a new Occupation with a provided UUID
-      const actualNewOccupationPromise = repository.create({
+      const actualNewOccupationPromise = repository.create(toCreateSpec({
         ...givenNewOccupationSpec, //@ts-ignore
         UUID: randomUUID(),
-      });
+      }));
 
       // Then expect the promise to reject with an error
       await expect(actualNewOccupationPromise).rejects.toThrowError(/UUID should not be provided/);
@@ -272,13 +292,13 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should reject with an error when creating model with an existing UUID", async () => {
         // GIVEN an Occupation record exists in the database
         const givenNewOccupationSpec: INewOccupationSpec = getNewESCOOccupationSpec();
-        const givenNewOccupation = await repository.create(givenNewOccupationSpec);
+        const givenNewOccupation = await repository.create(toCreateSpec(givenNewOccupationSpec));
 
         // WHEN Creating a new Occupation with the same UUID as the one the existing Occupation
         const actualSecondNewOccupationSpec: INewOccupationSpec = getNewESCOOccupationSpec();
 
         (randomUUID as jest.Mock).mockReturnValueOnce(givenNewOccupation.UUID);
-        const actualSecondNewOccupationPromise = repository.create(actualSecondNewOccupationSpec);
+        const actualSecondNewOccupationPromise = repository.create(toCreateSpec(actualSecondNewOccupationSpec));
 
         // THEN expect it to throw an error
         await expect(actualSecondNewOccupationPromise).rejects.toThrow(
@@ -292,7 +312,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should successfully create a second Identical Occupation in a different model", async () => {
         // GIVEN an Occupation record exists in the database
         const givenNewOccupationSpec: INewOccupationSpec = getNewESCOOccupationSpec();
-        await repository.create(givenNewOccupationSpec);
+        await repository.create(toCreateSpec(givenNewOccupationSpec));
 
         // WHEN Creating an identical Occupation in a new model (new modelId)
         // @ts-ignore
@@ -300,7 +320,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           ...givenNewOccupationSpec,
         };
         actualSecondNewOccupationSpec.modelId = getMockStringId(3);
-        const actualSecondNewOccupationPromise = repository.create(actualSecondNewOccupationSpec);
+        const actualSecondNewOccupationPromise = repository.create(toCreateSpec(actualSecondNewOccupationSpec));
 
         // THEN expect the new Occupation to be created
         await expect(actualSecondNewOccupationPromise).resolves.toBeDefined();
@@ -309,13 +329,13 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should reject with an error when creating a pair of (modelId and code) is duplicated", async () => {
         // GIVEN an Occupation record exists in the database
         const givenNewOccupationSpec: INewOccupationSpec = getNewESCOOccupationSpec();
-        const givenNewModel = await repository.create(givenNewOccupationSpec);
+        const givenNewModel = await repository.create(toCreateSpec(givenNewOccupationSpec));
 
         // WHEN Creating a new Occupation with the same pair of modelId and code as the ones the existing Occupation
         const actualSecondNewOccupationSpec: INewOccupationSpec = getNewESCOOccupationSpec();
         actualSecondNewOccupationSpec.code = givenNewModel.code;
         actualSecondNewOccupationSpec.modelId = givenNewModel.modelId;
-        const actualSecondNewModelPromise = repository.create(actualSecondNewOccupationSpec);
+        const actualSecondNewModelPromise = repository.create(toCreateSpec(actualSecondNewOccupationSpec));
 
         // THEN expect it to throw an error
         await expect(actualSecondNewModelPromise).rejects.toThrow(
@@ -328,7 +348,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-      return repositoryRegistry.occupation.create(getNewESCOOccupationSpec());
+      return repositoryRegistry.occupation.create(toCreateSpec(getNewESCOOccupationSpec()));
     });
   });
 
@@ -522,7 +542,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenOccupations: IOccupation[] = [];
       for (let i = 0; i < 3; i++) {
         const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, `occupation_${i + 1}`);
-        const givenOccupation = await repository.create(givenOccupationSpecs);
+        const givenOccupation = await repository.create(toCreateSpec(givenOccupationSpecs));
         givenOccupations.push(givenOccupation);
       }
 
@@ -556,7 +576,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenOccupations = [];
       for (let i = 0; i < 3; i++) {
         const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, `occupation_${i + 1}`);
-        const givenOccupation = await repository.create(givenOccupationSpecs);
+        const givenOccupation = await repository.create(toCreateSpec(givenOccupationSpecs));
         givenOccupations.push(givenOccupation);
       }
       // WHEN retrieving the occupations with sort for descending order and a limit of 2
@@ -605,9 +625,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should paginate consistently across mixed limits and cursor flow", async () => {
       // GIVEN a modelId and three occupations created in order
       const givenModelId = getMockStringId(1);
-      const given_occupation1 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o1"));
-      const given_occupation2 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o2"));
-      const given_occupation3 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o3"));
+      const given_occupation1 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o1")));
+      const given_occupation2 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o2")));
+      const given_occupation3 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o3")));
 
       // WHEN requesting first page with limit=3 and desc sort (_id => newest first)
       const page2 = await repository.findPaginated(givenModelId, 3, -1);
@@ -626,7 +646,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN a unique modelId and some occupations
       const givenModelId = getMockStringId(999); // Use a unique modelId to avoid conflicts
       const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "test_occupation");
-      const createdOccupation = await repository.create(givenOccupationSpecs);
+      const createdOccupation = await repository.create(toCreateSpec(givenOccupationSpecs));
 
       // WHEN finding paginated occupations with desc sort
       const result = await repository.findPaginated(givenModelId, 2, -1);
@@ -641,15 +661,15 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(321);
 
       // Parent occupation
-      const parent = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "parent"));
+      const parent = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "parent")));
       // Subject occupation
-      const subject = await repository.create(
+      const subject = await repository.create(toCreateSpec(
         getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "subject", parent.code)
-      );
+      ));
       // Child occupation
-      const child = await repository.create(
+      const child = await repository.create(toCreateSpec(
         getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", subject.code)
-      );
+      ));
 
       // Build hierarchy relations explicitly
       const hierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -685,7 +705,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       const givenOccupations = [];
       for (let i = 0; i < 3; i++) {
-        givenOccupations.push(await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, `o${i + 1}`)));
+        givenOccupations.push(await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, `o${i + 1}`))));
       }
 
       // WHEN requesting first page with limit=2 and ascending sort (_id: 1)
@@ -706,7 +726,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should ignore invalid cursor ID", async () => {
       // GIVEN a modelId and some occupations
       const givenModelId = getMockStringId(1);
-      const givenOccupation = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "occupation"));
+      const givenOccupation = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation")));
 
       // WHEN retrieving paginated results with an invalid cursor ID
       const actual = await repository.findPaginated(givenModelId, 10, -1, "invalid-id");
@@ -720,13 +740,13 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should only return the Occupations whose requested field matches the search value (case-insensitive)", async () => {
         // GIVEN a model with three occupations, two of which match the search value on preferredLabel
         const givenModelId = getMockStringId(1);
-        const givenSoftwareEngineer = await repository.create(
+        const givenSoftwareEngineer = await repository.create(toCreateSpec(
           getSimpleNewESCOOccupationSpec(givenModelId, "Software Engineer")
-        );
-        const givenSoftwareArchitect = await repository.create(
+        ));
+        const givenSoftwareArchitect = await repository.create(toCreateSpec(
           getSimpleNewESCOOccupationSpec(givenModelId, "SOFTWARE architect")
-        );
-        await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "Nurse"));
+        ));
+        await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "Nurse")));
 
         // WHEN searching for "software" on preferredLabel
         const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -741,8 +761,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should treat the search value literally (regex special characters are escaped)", async () => {
         // GIVEN a model with an occupation whose label contains regex special characters
         const givenModelId = getMockStringId(1);
-        const givenOccupation = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "a.b.c"));
-        await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "axbxc"));
+        const givenOccupation = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "a.b.c")));
+        await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "axbxc")));
 
         // WHEN searching for the literal value "a.b.c"
         const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -758,7 +778,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should return an empty array when nothing matches the search value", async () => {
         // GIVEN a model with an occupation
         const givenModelId = getMockStringId(1);
-        await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "Nurse"));
+        await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "Nurse")));
 
         // WHEN searching for a value that matches nothing
         const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -776,9 +796,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should return the Occupations of the model with the given ids", async () => {
       // GIVEN a model with three occupations
       const givenModelId = getMockStringId(1);
-      const given1 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o1"));
-      const given2 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o2"));
-      await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o3"));
+      const given1 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o1")));
+      const given2 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o2")));
+      await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o3")));
 
       // WHEN finding two of them by id
       const actual = await repository.findByIds(givenModelId, [given1.id, given2.id]);
@@ -791,8 +811,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN a model with one occupation, and another occupation in a different model
       const givenModelId = getMockStringId(1);
       const givenOtherModelId = getMockStringId(2);
-      const given = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "o1"));
-      const givenOther = await repository.create(getSimpleNewESCOOccupationSpec(givenOtherModelId, "other"));
+      const given = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o1")));
+      const givenOther = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenOtherModelId, "other")));
 
       // WHEN finding by a mix of a valid id, an invalid id and an id from another model
       const actual = await repository.findByIds(givenModelId, [given.id, "not-an-id", givenOther.id]);
@@ -833,7 +853,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("Should return an existing occupation by occupation uuid", async () => {
       // GIVEN an Occupation exists in the database
       const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_2");
-      const givenOccupation = await repository.create(givenOccupationSpecs);
+      const givenOccupation = await repository.create(toCreateSpec(givenOccupationSpecs));
 
       // WHEN search for the Occupation by its uuid
       const actualFoundOccupation = await repository.getOccupationByUUID(givenOccupation.UUID);
@@ -867,7 +887,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // The parent (Occupation)
         const givenParentSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "parent");
-        const givenParent = await repository.create(givenParentSpecs);
+        const givenParent = await repository.create(toCreateSpec(givenParentSpecs));
 
         // THE subject (Occupation)
         const givenSubjectSpecs = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -875,7 +895,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           "subject",
           givenParent.code
         );
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toCreateSpec(givenSubjectSpecs));
 
         // The child Occupation
         const givenChildSpecs_1 = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -883,7 +903,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           "child_1",
           givenSubject.code
         );
-        const givenChild_1 = await repository.create(givenChildSpecs_1);
+        const givenChild_1 = await repository.create(toCreateSpec(givenChildSpecs_1));
 
         // The child Occupation
         const givenChildSpecs_2 = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -891,7 +911,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           "child_2",
           givenSubject.code
         );
-        const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+        const givenChild_2 = await repositoryRegistry.occupation.create(toCreateSpec(givenChildSpecs_2));
 
         // AND the subject Occupation has a parent and two children
         const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -979,8 +999,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN two occupations in different models
       const givenModelId1 = getMockStringId(1);
       const givenModelId2 = getMockStringId(2);
-      const givenOccupation1 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId1, "occupation_1"));
-      const givenOccupation2 = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId2, "occupation_2"));
+      const givenOccupation1 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId1, "occupation_1")));
+      const givenOccupation2 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId2, "occupation_2")));
       const givenMissingUUID = randomUUID();
 
       // WHEN resolving a set of UUIDs that includes both occupations' UUIDs plus a non-existent UUID
@@ -1024,7 +1044,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
     test("should null-fill every entry when none of the given UUIDs match an occupation", async () => {
       // GIVEN an occupation exists
-      await repository.create(getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1"));
+      await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1")));
       const givenUUIDs = [randomUUID(), randomUUID()];
 
       // WHEN resolving UUIDs that do not match any occupation
@@ -1036,7 +1056,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
     test("should return an empty array when given an empty list of UUIDs", async () => {
       // GIVEN an occupation exists
-      await repository.create(getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1"));
+      await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1")));
 
       // WHEN resolving an empty list of UUIDs
       const actual = await repository.findHistoryReferencesByUUIDs([]);
@@ -1047,12 +1067,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
     test("should use the UUID index and not do a collection scan", async () => {
       // GIVEN two occupations exist in the database
-      const givenOccupation1 = await repository.create(
+      const givenOccupation1 = await repository.create(toCreateSpec(
         getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1")
-      );
-      const givenOccupation2 = await repository.create(
+      ));
+      const givenOccupation2 = await repository.create(toCreateSpec(
         getSimpleNewESCOOccupationSpec(getMockStringId(2), "occupation_2")
-      );
+      ));
 
       // WHEN resolving their UUIDs
       // setup find with explain to assert the query plan uses the UUID index and is not doing a collection scan
@@ -1082,7 +1102,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should find an Occupation by its id", async () => {
       // GIVEN an Occupation exists in the database
       const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1");
-      const givenOccupation = await repository.create(givenOccupationSpecs);
+      const givenOccupation = await repository.create(toCreateSpec(givenOccupationSpecs));
 
       // WHEN searching for the Occupation by its id
       const actualFoundOccupation = await repository.findById(givenOccupation.id);
@@ -1121,7 +1141,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // THE subject (Occupation)
       const givenSubjectSpecs = getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "subject", givenParent.code);
-      const givenSubject = await repository.create(givenSubjectSpecs);
+      const givenSubject = await repository.create(toCreateSpec(givenSubjectSpecs));
 
       // The child Occupation
       const givenChildSpecs_1 = getSimpleNewLocalOccupationSpecWithParentCode(
@@ -1129,7 +1149,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         "child_1",
         givenSubject.code
       );
-      const givenChild_1 = await repository.create(givenChildSpecs_1);
+      const givenChild_1 = await repository.create(toCreateSpec(givenChildSpecs_1));
 
       // The child Occupation
       const givenChildSpecs_2 = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -1137,7 +1157,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         "child_2",
         givenSubject.code
       );
-      const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+      const givenChild_2 = await repositoryRegistry.occupation.create(toCreateSpec(givenChildSpecs_2));
 
       // AND the subject Occupation has a parent and two children
       const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -1227,7 +1247,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         "subject",
         givenParent.code
       );
-      const givenSubject = await repository.create(givenSubjectSpecs);
+      const givenSubject = await repository.create(toCreateSpec(givenSubjectSpecs));
 
       // The child Occupation
       const givenChildSpecs_1 = getSimpleNewLocalOccupationSpecWithParentCode(
@@ -1235,7 +1255,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         "child_1",
         givenSubject.code
       );
-      const givenChild_1 = await repository.create(givenChildSpecs_1);
+      const givenChild_1 = await repository.create(toCreateSpec(givenChildSpecs_1));
 
       // AND the subject Occupation has a parent and two children
       const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -1307,11 +1327,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // The parent (Occupation)
       const givenParentSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "parent");
-      const givenParent = await repository.create(givenParentSpecs);
+      const givenParent = await repository.create(toCreateSpec(givenParentSpecs));
 
       // THE subject (Occupation)
       const givenSubjectSpecs = getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "subject", givenParent.code);
-      const givenSubject = await repository.create(givenSubjectSpecs);
+      const givenSubject = await repository.create(toCreateSpec(givenSubjectSpecs));
 
       // The child Occupation
       const givenChildSpecs_1 = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -1319,7 +1339,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         "child_1",
         givenSubject.code
       );
-      const givenChild_1 = await repository.create(givenChildSpecs_1);
+      const givenChild_1 = await repository.create(toCreateSpec(givenChildSpecs_1));
 
       // The child Occupation
       const givenChildSpecs_2 = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -1327,7 +1347,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         "child_2",
         givenSubject.code
       );
-      const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+      const givenChild_2 = await repositoryRegistry.occupation.create(toCreateSpec(givenChildSpecs_2));
 
       // AND the subject Occupation has a parent and two children
       const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -1407,11 +1427,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN an Occupation with two required Skills in the database
       const givenModelId = getMockStringId(1);
       const givenSubjectSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "Subject Occupation");
-      const givenSubject = await repositoryRegistry.occupation.create(givenSubjectSpecs);
+      const givenSubject = await repositoryRegistry.occupation.create(toCreateSpec(givenSubjectSpecs));
 
       // AND Some other occupation
       const givenOtherOccupationSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "Other Occupation");
-      const givenOtherOccupation = await repositoryRegistry.occupation.create(givenOtherOccupationSpecs);
+      const givenOtherOccupation = await repositoryRegistry.occupation.create(toCreateSpec(givenOtherOccupationSpecs));
 
       // The requiredSkill 1
       const givenRequiredSkillSpecs_1 = getSimpleNewSkillSpec(givenModelId, "Required Skill 1");
@@ -1496,7 +1516,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and non-Occupation document is a child of an Occupation
         // The Occupation
         const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1");
-        const givenOccupation = await repository.create(givenOccupationSpecs);
+        const givenOccupation = await repository.create(toCreateSpec(givenOccupationSpecs));
         // The non-Occupation in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
         const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
@@ -1527,7 +1547,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and non-OccupationGroup or Occupation document is a parent of an Occupation
         // The Occupation
         const givenOccupationSpecs = getSimpleNewESCOOccupationSpec(getMockStringId(1), "group_1");
-        const givenOccupation = await repository.create(givenOccupationSpecs);
+        const givenOccupation = await repository.create(toCreateSpec(givenOccupationSpecs));
         // The non-Occupation in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
         const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
@@ -1558,11 +1578,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // The Occupation 1
         const givenModelId_1 = getMockStringId(1);
         const givenOccupationSpecs_1 = getSimpleNewESCOOccupationSpec(givenModelId_1, "group_1");
-        const givenOccupation_1 = await repository.create(givenOccupationSpecs_1);
+        const givenOccupation_1 = await repository.create(toCreateSpec(givenOccupationSpecs_1));
         // The Occupation 2
         const givenModelId_2 = getMockStringId(2);
         const givenOccupationSpecs_2 = getSimpleNewESCOOccupationSpec(givenModelId_2, "group_2");
-        const givenOccupation_2 = await repository.create(givenOccupationSpecs_2);
+        const givenOccupation_2 = await repository.create(toCreateSpec(givenOccupationSpecs_2));
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         // the third model
@@ -1604,11 +1624,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // The Occupation 1
         const givenModelId_1 = getMockStringId(1);
         const givenOccupationSpecs_1 = getSimpleNewESCOOccupationSpec(givenModelId_1, "group_1");
-        const givenOccupation_1 = await repository.create(givenOccupationSpecs_1);
+        const givenOccupation_1 = await repository.create(toCreateSpec(givenOccupationSpecs_1));
         // The Occupation 2
         const givenModelId_2 = getMockStringId(2);
         const givenOccupationSpecs_2 = getSimpleNewESCOOccupationSpec(givenModelId_2, "group_2");
-        const givenOccupation_2 = await repository.create(givenOccupationSpecs_2);
+        const givenOccupation_2 = await repository.create(toCreateSpec(givenOccupationSpecs_2));
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
 
@@ -1643,11 +1663,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // The Occupation 1
         const givenModelId_1 = getMockStringId(1);
         const givenOccupationSpecs_1 = getSimpleNewESCOOccupationSpec(givenModelId_1, "group_1");
-        const givenOccupation_1 = await repository.create(givenOccupationSpecs_1);
+        const givenOccupation_1 = await repository.create(toCreateSpec(givenOccupationSpecs_1));
         // The Occupation 2
         const givenModelId_2 = getMockStringId(2);
         const givenOccupationSpecs_2 = getSimpleNewESCOOccupationSpec(givenModelId_2, "group_2");
-        const givenOccupation_2 = await repository.create(givenOccupationSpecs_2);
+        const givenOccupation_2 = await repository.create(toCreateSpec(givenOccupationSpecs_2));
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
 
@@ -1689,7 +1709,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenSubjectSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "subject");
         // @ts-ignore
         givenSubjectSpecs.id = givenID.toHexString();
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toCreateSpec(givenSubjectSpecs));
         // guard to ensure the id is the given one
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
@@ -1707,7 +1727,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           "occupation_1",
           givenOccupationGroup.code
         );
-        const givenOccupation_1 = await repository.create(givenOccupationSpecs_1);
+        const givenOccupation_1 = await repository.create(toCreateSpec(givenOccupationSpecs_1));
 
         // AND a third occupation O_2 with some ID in the given model
         const givenOccupationSpecs_2 = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -1715,7 +1735,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
           "occupation_2",
           givenSubject.code
         );
-        const givenOccupation_2 = await repository.create(givenOccupationSpecs_2);
+        const givenOccupation_2 = await repository.create(toCreateSpec(givenOccupationSpecs_2));
 
         // AND the OccupationGroup G1 is the parent of O_1
         // AND the subject occupation  is the parent of O_2
@@ -1759,7 +1779,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // AND another occupation with some ID in the given model
         const givenOccupationSpecs_1 = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1");
-        const givenOccupation_1 = await repository.create(givenOccupationSpecs_1);
+        const givenOccupation_1 = await repository.create(toCreateSpec(givenOccupationSpecs_1));
 
         // AND a subject occupation with a given ID in the given model
         const givenSubjectSpecs = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -1769,7 +1789,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         );
         // @ts-ignore
         givenSubjectSpecs.id = givenID.toHexString();
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toCreateSpec(givenSubjectSpecs));
         // guard to ensure the id is the given one
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
@@ -1818,7 +1838,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // The subject (Occupation)
       const givenSubjectSpecs = getSimpleNewESCOOccupationSpec(givenModelId, "subject");
-      const givenSubject = await repository.create(givenSubjectSpecs);
+      const givenSubject = await repository.create(toCreateSpec(givenSubjectSpecs));
 
       // The first skill
       const givenSkillSpecs_1: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
@@ -1875,7 +1895,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should ignore requiresSkills that are not Skills", async () => {
         // GIVEN an inconsistency was introduced, and non-Skill document has a requiresSkill relation with an occupation
         const givenOccupationSpecs = getNewESCOOccupationSpec();
-        const givenOccupation = await repository.create(givenOccupationSpecs);
+        const givenOccupation = await repository.create(toCreateSpec(givenOccupationSpecs));
 
         // The non-Skill in this case an OccupationGroup
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewISCOGroupSpecs();
@@ -1909,7 +1929,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and the requiringOccupation and requiredSkills are in a different model than the relation
 
         const givenOccupationSpecs = getNewESCOOccupationSpec();
-        const givenOccupation = await repository.create(givenOccupationSpecs);
+        const givenOccupation = await repository.create(toCreateSpec(givenOccupationSpecs));
         const givenSkillSpecs = getNewSkillSpec();
         const givenSkill = await repositoryRegistry.skill.create(givenSkillSpecs);
 
@@ -1943,7 +1963,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and the requiredSkill and the requiringOccupation are in different models
 
         const givenOccupationSpecs = getNewESCOOccupationSpec();
-        const givenOccupation = await repository.create(givenOccupationSpecs);
+        const givenOccupation = await repository.create(toCreateSpec(givenOccupationSpecs));
         const givenSkillSpecs = getNewSkillSpec();
         givenSkillSpecs.modelId = getMockStringId(99); // <-- this is the inconsistency
         const givenSkill = await repositoryRegistry.skill.create(givenSkillSpecs);
@@ -2154,11 +2174,11 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const modelId = getMockStringId(1);
       // AND a parent occupation
-      const parent = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "parent_1"));
+      const parent = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "parent_1")));
       // AND a child occupation
-      const child = await repository.create(
+      const child = await repository.create(toCreateSpec(
         getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_1", parent.code)
-      );
+      ));
       // AND they are linked in hierarchy
       await repositoryRegistry.occupationHierarchy.createMany(modelId, [
         {
@@ -2182,7 +2202,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const modelId = getMockStringId(1);
       // AND an occupation with no parent
-      const occupation = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "orphan"));
+      const occupation = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "orphan")));
 
       // WHEN calling findParent
       const result = await repository.findParent(modelId, occupation.id);
@@ -2199,9 +2219,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         getSimpleNewISCOGroupSpec(modelId, "parent_group", true)
       );
       // AND a child occupation
-      const child = await repository.create(
+      const child = await repository.create(toCreateSpec(
         getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_1", parent.code)
-      );
+      ));
       // AND they are linked in hierarchy
       await repositoryRegistry.occupationHierarchy.createMany(modelId, [
         {
@@ -2225,7 +2245,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const modelId = getMockStringId(1);
       // AND a child occupation
-      const child = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "child_1"));
+      const child = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "child_1")));
 
       // AND two parent mocks we want to simulate
       const parent1 = { _id: new mongoose.Types.ObjectId(), occupationType: ObjectTypes.ESCOOccupation };
@@ -2255,14 +2275,14 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const modelId = getMockStringId(1);
       // AND a parent occupation
-      const parent = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "parent_c"));
+      const parent = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "parent_c")));
 
       // AND 3 children
       const children = [];
       for (let i = 0; i < 3; i++) {
-        const child = await repository.create(
+        const child = await repository.create(toCreateSpec(
           getSimpleNewESCOOccupationSpecWithParentCode(modelId, `child_${i}`, parent.code)
-        );
+        ));
         children.push(child);
       }
 
@@ -2298,7 +2318,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const modelId = getMockStringId(1);
       // AND a parent occupation
-      const parent = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "parent_1"));
+      const parent = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "parent_1")));
 
       // AND the aggregate method throws an error
       const aggregateSpy = jest.spyOn(dbConnection.models[MongooseModelName.OccupationHierarchy], "aggregate");
@@ -2319,7 +2339,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const modelId = getMockStringId(1);
       // AND a parent occupation
-      const parent = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "parent_1"));
+      const parent = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "parent_1")));
 
       // AND the aggregate method throws an error
       const aggregateSpy = jest.spyOn(dbConnection.models[MongooseModelName.OccupationHierarchy], "aggregate");
@@ -2340,7 +2360,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
   describe("findSkillsForOccupation", () => {
     test("should return skills for an occupation", async () => {
       const modelId = getMockStringId(1);
-      const occupation = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "occ"));
+      const occupation = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "occ")));
 
       const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
       const SkillModel = dbConnection.model(MongooseModelName.Skill);
@@ -2379,7 +2399,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
     test("should support pagination with cursor", async () => {
       const modelId = getMockStringId(1);
-      const occupation = await repository.create(getSimpleNewESCOOccupationSpec(modelId, "occ"));
+      const occupation = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "occ")));
 
       const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
       const SkillModel = dbConnection.model(MongooseModelName.Skill);
@@ -2454,7 +2474,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN an occupation exists in the database
       const modelId = getMockStringId(1);
       const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_to_update");
-      const occupation = await repository.create(givenSpec);
+      const occupation = await repository.create(toCreateSpec(givenSpec));
 
       // WHEN updating the occupation
       const newSpec = getNewESCOOccupationSpec();
@@ -2493,7 +2513,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN an occupation exists in the database
       const modelId = getMockStringId(1);
       const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_with_french");
-      const occupation = await repository.create(givenSpec);
+      const occupation = await repository.create(toCreateSpec(givenSpec));
       // AND its preferredLabel also carries a French translation, stored directly (the flat-string repository API
       // has no way to write a non fallback language)
       await repository.Model.updateOne({ _id: occupation.id }, { $set: { "preferredLabel.fr": "Cuisinier" } });
@@ -2597,7 +2617,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN an occupation exists in the database
       const modelId = getMockStringId(1);
       const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_to_patch");
-      const occupation = await repository.create(givenSpec);
+      const occupation = await repository.create(toCreateSpec(givenSpec));
 
       // WHEN patching the occupation
       const patchSpec: IPartialUpdateOccupationSpec = {
@@ -2617,7 +2637,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN an occupation exists in the database
       const modelId = getMockStringId(1);
       const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_with_french");
-      const occupation = await repository.create(givenSpec);
+      const occupation = await repository.create(toCreateSpec(givenSpec));
       // AND its preferredLabel and description also carry a French translation, stored directly (the flat-string
       // repository API has no way to write a non fallback language)
       await repository.Model.updateOne(

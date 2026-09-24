@@ -2,6 +2,7 @@ import { ImportIdentifiable, ObjectTypes, SignallingValueLabel } from "esco/comm
 import mongoose from "mongoose";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
+import LanguageAPISpecs from "api-specifications/language";
 import { IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ISkill, ISkillReference } from "esco/skill/_shared/skill.types";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
@@ -94,8 +95,20 @@ export type INewOccupationSpec = Omit<
 
 /**
  * Describes how an OccupationGroup is created with the API without import action.
+ * Translatable fields accept the full multilingual object (POST accepts every language in one call),
+ * unlike INewOccupationSpec's flat strings used by the CSV import path.
  */
-export type INewOccupationSpecWithoutImportId = Omit<INewOccupationSpec, "importId">;
+export type INewOccupationSpecWithoutImportId = Omit<
+  INewOccupationSpec,
+  "importId" | "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote" | "regulatedProfessionNote"
+> & {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  definition: LanguageAPISpecs.Types.ITranslatedString;
+  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
+  regulatedProfessionNote: LanguageAPISpecs.Types.ITranslatedString;
+};
 
 export interface IOccupationWithoutImportId extends Omit<IOccupation, "importId"> {
   importId: string | null;

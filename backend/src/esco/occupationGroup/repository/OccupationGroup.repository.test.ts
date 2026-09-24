@@ -25,6 +25,7 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { INewSkillSpec } from "esco/skill/_shared/skill.types";
+import { INewOccupationSpec, INewOccupationSpecWithoutImportId } from "esco/occupations/_shared/occupation.types";
 import {
   getNewISCOGroupSpecs,
   getSimpleNewESCOOccupationSpec,
@@ -62,6 +63,25 @@ jest.mock("crypto", () => {
     randomUUID: jest.fn().mockImplementation(actual.randomUUID),
   };
 });
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
+
+/**
+ * Wraps a flat INewOccupationSpec (as the spec builders produce) into the multilingual shape
+ * create() expects, translatable fields in the fall back language only.
+ */
+function toOccupationCreateSpec(spec: INewOccupationSpec): INewOccupationSpecWithoutImportId {
+  const wrap = (value: string) => ({ [FALLBACK_DB_KEY_NAME]: value });
+  return {
+    ...spec,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    definition: wrap(spec.definition),
+    scopeNote: wrap(spec.scopeNote),
+    regulatedProfessionNote: wrap(spec.regulatedProfessionNote),
+  };
+}
 
 /**
  * Helper function to create an expected OccupationGroup from a given INewOccupationGroupSpec,
@@ -631,7 +651,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           "child_2",
           givenSubject.code
         );
-        const givenChild_1 = await repositoryRegistry.occupation.create(givenChildSpecs_1);
+        const givenChild_1 = await repositoryRegistry.occupation.create(toOccupationCreateSpec(givenChildSpecs_1));
 
         // The child Local Occupation
         const givenChildSpecs_2 = getSimpleNewLocalOccupationSpecWithParentCode(
@@ -639,7 +659,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           "child_3",
           givenSubject.code
         );
-        const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+        const givenChild_2 = await repositoryRegistry.occupation.create(toOccupationCreateSpec(givenChildSpecs_2));
 
         // AND the subject OccupationGroup has a parent and two children
         const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -931,7 +951,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           "child_1",
           givenSubject.code
         );
-        const givenChild_1 = await repositoryRegistry.occupation.create(givenChildSpecs_1);
+        const givenChild_1 = await repositoryRegistry.occupation.create(toOccupationCreateSpec(givenChildSpecs_1));
 
         // The 2nd child (LocalOccupation)
         const givenChildSpecs_2 = getSimpleNewLocalOccupationSpecWithParentCode(
@@ -939,7 +959,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           "child_2",
           givenSubject.code
         );
-        const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+        const givenChild_2 = await repositoryRegistry.occupation.create(toOccupationCreateSpec(givenChildSpecs_2));
 
         // AND the subject OccupationGroup has a parent and two children
         const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -1243,7 +1263,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenOccupation1Specs = getSimpleNewESCOOccupationSpec(givenModelId, "Occupation_1");
         // @ts-ignore
         givenOccupation1Specs.id = givenID.toHexString();
-        const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupation1Specs);
+        const givenOccupation_1 = await repositoryRegistry.occupation.create(
+          toOccupationCreateSpec(givenOccupation1Specs)
+        );
         // guard to ensure the id is the given one
         expect(givenOccupation_1.id).toEqual(givenID.toHexString());
 
@@ -1253,7 +1275,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           "occupation_2",
           givenOccupation_1.code
         );
-        const givenOccupation_2 = await repositoryRegistry.occupation.create(givenOccupationSpecs_2);
+        const givenOccupation_2 = await repositoryRegistry.occupation.create(
+          toOccupationCreateSpec(givenOccupationSpecs_2)
+        );
 
         // AND a third occupation_3 with some ID in the given model
         const givenOccupationSpecs_3 = getSimpleNewLocalOccupationSpecWithParentCode(
@@ -1261,7 +1285,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           "occupation_3",
           givenSubject.code
         );
-        const givenOccupation_3 = await repositoryRegistry.occupation.create(givenOccupationSpecs_3);
+        const givenOccupation_3 = await repositoryRegistry.occupation.create(
+          toOccupationCreateSpec(givenOccupationSpecs_3)
+        );
 
         // AND the occupation occupation_1  is the parent of occupation_2
         // AND the subject OccupationGroup  is the parent of Occupation_3
@@ -1317,7 +1343,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         );
         // @ts-ignore
         givenOccupation1Specs.id = givenID.toHexString();
-        const givenOccupation_1 = await repositoryRegistry.occupation.create(givenOccupation1Specs);
+        const givenOccupation_1 = await repositoryRegistry.occupation.create(
+          toOccupationCreateSpec(givenOccupation1Specs)
+        );
         // guard to ensure the id is the given one
         expect(givenOccupation_1.id).toEqual(givenID.toHexString());
 
@@ -1401,7 +1429,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         "child_2",
         givenSubject.code
       );
-      const givenChild_1 = await repositoryRegistry.occupation.create(givenChildSpecs_1);
+      const givenChild_1 = await repositoryRegistry.occupation.create(toOccupationCreateSpec(givenChildSpecs_1));
       // AND the subject OccupationGroup has a parent and two children
       const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
         {
@@ -1496,7 +1524,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         "child_4",
         givenChild_3.code
       );
-      const givenChild_4 = await repositoryRegistry.occupation.create(givenChildSpecs_4);
+      const givenChild_4 = await repositoryRegistry.occupation.create(toOccupationCreateSpec(givenChildSpecs_4));
       // AND the subject OccupationGroup has a parent and two children
       const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
         {
@@ -1568,7 +1596,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       const givenParent = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "parent", true));
       // AND an ESCO Occupation child of that parent, whose translatable fields are stored as localized sub documents
       const givenOccupationChild = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", givenParent.code)
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", givenParent.code))
       );
       await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
         {
@@ -2171,7 +2199,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           "child_2",
           givenSubject.code
         );
-        const givenChild_1 = await repositoryRegistry.occupation.create(givenChildSpecs_1);
+        const givenChild_1 = await repositoryRegistry.occupation.create(toOccupationCreateSpec(givenChildSpecs_1));
 
         // The child Local Occupation
         const givenChildSpecs_2 = getSimpleNewLocalOccupationSpecWithParentCode(
@@ -2179,7 +2207,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           "child_3",
           givenSubject.code
         );
-        const givenChild_2 = await repositoryRegistry.occupation.create(givenChildSpecs_2);
+        const givenChild_2 = await repositoryRegistry.occupation.create(toOccupationCreateSpec(givenChildSpecs_2));
 
         // AND the subject OccupationGroup has a parent and two children
         const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [

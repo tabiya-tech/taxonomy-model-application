@@ -3,8 +3,10 @@ import {
   IOccupationService,
   ISkillWithRelation,
   ModelForOccupationValidationErrorCode,
+  OccupationLanguageValidationError,
   OccupationModelValidationError,
 } from "./occupation.service.types";
+import { findUnsupportedLanguage } from "./validateOccupationLanguages";
 import {
   INewOccupationSpecWithoutImportId,
   IOccupation,
@@ -39,6 +41,16 @@ export class OccupationService implements IOccupationService {
     const errorCode = await this.validateModelForOccupation(newOccupationSpec.modelId);
     if (errorCode != null) {
       throw new OccupationModelValidationError(errorCode);
+    }
+
+    // Validate that every translated language is one the model has enabled
+    const model = await this.modelRepository.getModelById(newOccupationSpec.modelId);
+    if (model == null) {
+      throw new OccupationModelValidationError(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+    }
+    const unsupportedLanguage = findUnsupportedLanguage(newOccupationSpec, model.availableLanguages);
+    if (unsupportedLanguage !== null) {
+      throw new OccupationLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
     }
 
     return this.occupationRepository.create(newOccupationSpec);

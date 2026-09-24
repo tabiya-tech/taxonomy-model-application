@@ -27,6 +27,27 @@ import {
 
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import { INewOccupationSpec, INewOccupationSpecWithoutImportId } from "esco/occupations/_shared/occupation.types";
+
+const FALLBACK_DB_KEY_NAME = getFallbackLanguageConfig().dbKeyName;
+
+/**
+ * Wraps a flat INewOccupationSpec (as the spec builders produce) into the multilingual shape
+ * create() expects, translatable fields in the fall back language only.
+ */
+function toOccupationCreateSpec(spec: INewOccupationSpec): INewOccupationSpecWithoutImportId {
+  const wrap = (value: string) => ({ [FALLBACK_DB_KEY_NAME]: value });
+  return {
+    ...spec,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    definition: wrap(spec.definition),
+    scopeNote: wrap(spec.scopeNote),
+    regulatedProfessionNote: wrap(spec.regulatedProfessionNote),
+  };
+}
 
 describe("Test the OccupationHierarchy Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -71,10 +92,10 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
     const newOccupationHierarchyPairSpecs: INewOccupationHierarchyPairSpec[] = [];
     for (let i = 0; i < batchSize; i++) {
       const occupation1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(modelId, `occupation_${i}`)
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(modelId, `occupation_${i}`))
       );
       const occupation2 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(modelId, `occupation_${i + 1}`)
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(modelId, `occupation_${i + 1}`))
       );
       newOccupationHierarchyPairSpecs.push({
         parentId: occupation1.id,
@@ -133,7 +154,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       // @ts-ignore
       givenOccupationSpec._id = givenObjectId;
 
-      const givenOccupation = await repositoryRegistry.occupation.create(givenOccupationSpec);
+      const givenOccupation = await repositoryRegistry.occupation.create(toOccupationCreateSpec(givenOccupationSpec));
       // guard to make sure the ids are the same
       expect(givenGroup.id).toEqual(givenOccupation.id);
 
@@ -243,7 +264,9 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         getSimpleNewISCOGroupSpec(givenModelId, "group_1", true)
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "occupation_1", givenGroup_1.code)
+        toOccupationCreateSpec(
+          getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "occupation_1", givenGroup_1.code)
+        )
       );
       const handleInsertManyErrorSpy = jest.spyOn(HandleInsertManyErrors, "handleInsertManyError");
 
@@ -302,7 +325,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
         {
@@ -334,7 +357,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
         {
@@ -360,7 +383,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
         {
@@ -392,7 +415,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
         {
@@ -418,7 +441,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
         {
@@ -444,7 +467,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
@@ -482,7 +505,7 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
@@ -575,10 +598,10 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       // GIVEN a valid modelId, parent and child occupation exist in the database
       const givenModelId = getMockStringId(1);
       const givenParent = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "parent")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "parent"))
       );
       const givenChild = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", givenParent.code)
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", givenParent.code))
       );
       const givenSpec: INewOccupationHierarchyPairSpec = {
         parentId: givenParent.id,
@@ -601,13 +624,15 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
     test("should replace an existing parent relationship for a child", async () => {
       const givenModelId = getMockStringId(1);
       const givenParent = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "parent")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "parent"))
       );
       const givenReplacementParent = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "replacement-parent")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "replacement-parent"))
       );
       const givenChild = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", givenReplacementParent.code)
+        toOccupationCreateSpec(
+          getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", givenReplacementParent.code)
+        )
       );
       await repository.hierarchyModel.create({
         modelId: givenModelId,
