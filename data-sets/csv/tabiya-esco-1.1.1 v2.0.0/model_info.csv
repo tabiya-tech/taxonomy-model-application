@@ -1,4 +1,4 @@
-"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
+"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES","LANGUAGES"
 "7e245bcb-f564-4bba-9ba3-68184164d250
 1ea8093e-819d-4321-bcf6-61d4f6093c82
 4ed45ec6-6235-40a3-acec-f65cae78611a
@@ -54,4 +54,4 @@ The [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae
 - Fix: Several alt-labels had duplicate entries
 - Fix: Several text fields have invisible characters such as \t, nbsp and others
 - Fix: Several text fields have leading and trailing spaces or new lines
-- Fix: Reformat the scope notes of occupations and skills"
+- Fix: Reformat the scope notes of occupations and skills","en"
