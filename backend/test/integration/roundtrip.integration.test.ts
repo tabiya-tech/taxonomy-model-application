@@ -123,11 +123,12 @@ describe("Test Roundtrip with an in-memory mongodb", () => {
       // 2.3 Assert that the exported CSV files have the same content as the imported CSV files from 2.1
       await assertCSVFilesHaveTheSameContent(exportFolderFirst, exportFolderSecond, firstImportedModel);
     },
-    90000 // Approximate timeout for the one-pass roundtrip full ESCO test is 1.5 minutes
+    300000 // 5 minutes: covers ESCO one-pass (~2-3 min) and SAMPLE two-pass (~2-3 min)
   );
 });
 
 async function doImport(dataFolder: string): Promise<IModelInfo> {
+  errorLogger.clear();
   const newModel: IModelInfo = await getRepositoryRegistry().modelInfo.create({
     name: "CSVImport",
     description: "CSVImport",
