@@ -1,4 +1,4 @@
-"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES"
+"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES","LANGUAGES"
 "1ea8093e-819d-4321-bcf6-61d4f6093c82
 4ed45ec6-6235-40a3-acec-f65cae78611a
 2e00af88-dc74-43e1-a0e0-caed41c95bce","Tabiya (ESCO 1.1.1)","EU-en","This model builds on [ESCO v1.1.1](https://esco.ec.europa.eu/en), with numerous enhancements by Tabiya, including the addition of new occupations and labels to create a more inclusive taxonomy of jobs and skills. It incorporates previously overlooked activities such as micro-entrepreneurship and housework, which are often absent from conventional taxonomies. To ensure greater accessibility, we also introduced alternative labels, making this version more semantically approachable. See the release notes for more details.","v1.0.1","true","Minor changes to the [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae78611a) model:
@@ -18,4 +18,4 @@ The [Tabiya (ESCO 1.1.1) v1.0.0](urn:tabiya:model:4ed45ec6-6235-40a3-acec-f65cae
 - Fix: Several alt-labels had duplicate entries
 - Fix: Several text fields have invisible characters such as \t, nbsp and others
 - Fix: Several text fields have leading and trailing spaces or new lines
-- Fix: Reformat the scope notes of occupations and skills"
+- Fix: Reformat the scope notes of occupations and skills","en"
