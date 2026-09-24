@@ -115,10 +115,10 @@ export interface IOccupationWithoutImportId extends Omit<IOccupation, "importId"
 }
 
 /**
- * Describes the mutable fields for a full occupation replacement (PUT).
- * Excludes server-managed fields: id, UUID, importId, parent, children, requiresSkills, createdAt, updatedAt.
+ * The mutable fields shared by a full replacement (PUT) and a partial update (PATCH), before either
+ * verb's own treatment of the translatable fields is applied.
  */
-export type IUpdateOccupationSpec = Pick<
+type IUpdateOccupationBaseFields = Pick<
   IOccupation,
   | "code"
   | "occupationGroupCode"
@@ -136,7 +136,26 @@ export type IUpdateOccupationSpec = Pick<
 >;
 
 /**
- * Describes the mutable fields for a partial occupation update (PATCH).
- * All fields are optional.
+ * Describes the mutable fields for a full occupation replacement (PUT).
+ * Excludes server-managed fields: id, UUID, importId, parent, children, requiresSkills, createdAt, updatedAt.
+ * Translatable fields accept the full multilingual object: PUT replaces the whole localized value, so a
+ * language absent from the object is removed from the stored occupation.
  */
-export type IPartialUpdateOccupationSpec = Partial<IUpdateOccupationSpec>;
+export type IUpdateOccupationSpec = Omit<
+  IUpdateOccupationBaseFields,
+  "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote" | "regulatedProfessionNote"
+> & {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  definition: LanguageAPISpecs.Types.ITranslatedString;
+  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
+  regulatedProfessionNote: LanguageAPISpecs.Types.ITranslatedString;
+};
+
+/**
+ * Describes the mutable fields for a partial occupation update (PATCH).
+ * All fields are optional. Kept flat-string and decoupled from IUpdateOccupationSpec (rather than
+ * Partial<IUpdateOccupationSpec>) since PATCH has not been migrated to multilingual objects yet.
+ */
+export type IPartialUpdateOccupationSpec = Partial<IUpdateOccupationBaseFields>;

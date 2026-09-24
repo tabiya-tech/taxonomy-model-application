@@ -741,7 +741,7 @@ export class OccupationRepository implements IOccupationRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
+      doc.set(wrapTranslatableFieldsFromObjects(spec, TRANSLATABLE_STRING_FIELDS));
       await doc.save();
       await doc.populate([
         populateOccupationParentOptions,

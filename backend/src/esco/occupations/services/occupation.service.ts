@@ -312,6 +312,17 @@ export class OccupationService implements IOccupationService {
     if (errorCode != null) {
       throw new OccupationModelValidationError(errorCode);
     }
+
+    // Validate that every translated language is one the model has enabled
+    const model = await this.modelRepository.getModelById(modelId);
+    if (model == null) {
+      throw new OccupationModelValidationError(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+    }
+    const unsupportedLanguage = findUnsupportedLanguage(spec, model.availableLanguages);
+    if (unsupportedLanguage !== null) {
+      throw new OccupationLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
+    }
+
     return this.occupationRepository.update(id, modelId, spec);
   }
 

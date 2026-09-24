@@ -97,6 +97,29 @@ function toCreateSpec(spec: INewOccupationSpec): INewOccupationSpecWithoutImport
 }
 
 /**
+ * Wraps a flat INewOccupationSpec (as the existing spec builders produce) into the multilingual shape
+ * update() expects, translatable fields in the fall back language only.
+ */
+function toUpdateSpec(spec: INewOccupationSpec): IUpdateOccupationSpec {
+  const wrap = (value: string) => ({ [FALLBACK_DB_KEY_NAME]: value });
+  return {
+    modelId: spec.modelId,
+    code: spec.code,
+    occupationGroupCode: spec.occupationGroupCode,
+    originUri: spec.originUri,
+    occupationType: spec.occupationType,
+    UUIDHistory: spec.UUIDHistory,
+    isLocalized: spec.isLocalized,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    definition: wrap(spec.definition),
+    scopeNote: wrap(spec.scopeNote),
+    regulatedProfessionNote: wrap(spec.regulatedProfessionNote),
+  };
+}
+
+/**
  * Helper function to create an expected Occupation from a given INewOccupationSpec,
  * that can ebe used for assertions
  * @param givenSpec
@@ -279,10 +302,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenNewOccupationSpec: INewOccupationSpec = getNewESCOOccupationSpec();
 
       // WHEN Creating a new Occupation with a provided UUID
-      const actualNewOccupationPromise = repository.create(toCreateSpec({
-        ...givenNewOccupationSpec, //@ts-ignore
-        UUID: randomUUID(),
-      }));
+      const actualNewOccupationPromise = repository.create(
+        toCreateSpec({
+          ...givenNewOccupationSpec, //@ts-ignore
+          UUID: randomUUID(),
+        })
+      );
 
       // Then expect the promise to reject with an error
       await expect(actualNewOccupationPromise).rejects.toThrowError(/UUID should not be provided/);
@@ -625,9 +650,15 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should paginate consistently across mixed limits and cursor flow", async () => {
       // GIVEN a modelId and three occupations created in order
       const givenModelId = getMockStringId(1);
-      const given_occupation1 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o1")));
-      const given_occupation2 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o2")));
-      const given_occupation3 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o3")));
+      const given_occupation1 = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o1"))
+      );
+      const given_occupation2 = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o2"))
+      );
+      const given_occupation3 = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o3"))
+      );
 
       // WHEN requesting first page with limit=3 and desc sort (_id => newest first)
       const page2 = await repository.findPaginated(givenModelId, 3, -1);
@@ -663,13 +694,13 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // Parent occupation
       const parent = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "parent")));
       // Subject occupation
-      const subject = await repository.create(toCreateSpec(
-        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "subject", parent.code)
-      ));
+      const subject = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "subject", parent.code))
+      );
       // Child occupation
-      const child = await repository.create(toCreateSpec(
-        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", subject.code)
-      ));
+      const child = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", subject.code))
+      );
 
       // Build hierarchy relations explicitly
       const hierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -705,7 +736,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       const givenOccupations = [];
       for (let i = 0; i < 3; i++) {
-        givenOccupations.push(await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, `o${i + 1}`))));
+        givenOccupations.push(
+          await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, `o${i + 1}`)))
+        );
       }
 
       // WHEN requesting first page with limit=2 and ascending sort (_id: 1)
@@ -726,7 +759,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should ignore invalid cursor ID", async () => {
       // GIVEN a modelId and some occupations
       const givenModelId = getMockStringId(1);
-      const givenOccupation = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation")));
+      const givenOccupation = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation"))
+      );
 
       // WHEN retrieving paginated results with an invalid cursor ID
       const actual = await repository.findPaginated(givenModelId, 10, -1, "invalid-id");
@@ -740,12 +775,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should only return the Occupations whose requested field matches the search value (case-insensitive)", async () => {
         // GIVEN a model with three occupations, two of which match the search value on preferredLabel
         const givenModelId = getMockStringId(1);
-        const givenSoftwareEngineer = await repository.create(toCreateSpec(
-          getSimpleNewESCOOccupationSpec(givenModelId, "Software Engineer")
-        ));
-        const givenSoftwareArchitect = await repository.create(toCreateSpec(
-          getSimpleNewESCOOccupationSpec(givenModelId, "SOFTWARE architect")
-        ));
+        const givenSoftwareEngineer = await repository.create(
+          toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "Software Engineer"))
+        );
+        const givenSoftwareArchitect = await repository.create(
+          toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "SOFTWARE architect"))
+        );
         await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "Nurse")));
 
         // WHEN searching for "software" on preferredLabel
@@ -761,7 +796,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       test("should treat the search value literally (regex special characters are escaped)", async () => {
         // GIVEN a model with an occupation whose label contains regex special characters
         const givenModelId = getMockStringId(1);
-        const givenOccupation = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "a.b.c")));
+        const givenOccupation = await repository.create(
+          toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "a.b.c"))
+        );
         await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "axbxc")));
 
         // WHEN searching for the literal value "a.b.c"
@@ -812,7 +849,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       const givenOtherModelId = getMockStringId(2);
       const given = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "o1")));
-      const givenOther = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenOtherModelId, "other")));
+      const givenOther = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpec(givenOtherModelId, "other"))
+      );
 
       // WHEN finding by a mix of a valid id, an invalid id and an id from another model
       const actual = await repository.findByIds(givenModelId, [given.id, "not-an-id", givenOther.id]);
@@ -999,8 +1038,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN two occupations in different models
       const givenModelId1 = getMockStringId(1);
       const givenModelId2 = getMockStringId(2);
-      const givenOccupation1 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId1, "occupation_1")));
-      const givenOccupation2 = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId2, "occupation_2")));
+      const givenOccupation1 = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId1, "occupation_1"))
+      );
+      const givenOccupation2 = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId2, "occupation_2"))
+      );
       const givenMissingUUID = randomUUID();
 
       // WHEN resolving a set of UUIDs that includes both occupations' UUIDs plus a non-existent UUID
@@ -1067,12 +1110,12 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
     test("should use the UUID index and not do a collection scan", async () => {
       // GIVEN two occupations exist in the database
-      const givenOccupation1 = await repository.create(toCreateSpec(
-        getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1")
-      ));
-      const givenOccupation2 = await repository.create(toCreateSpec(
-        getSimpleNewESCOOccupationSpec(getMockStringId(2), "occupation_2")
-      ));
+      const givenOccupation1 = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpec(getMockStringId(1), "occupation_1"))
+      );
+      const givenOccupation2 = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpec(getMockStringId(2), "occupation_2"))
+      );
 
       // WHEN resolving their UUIDs
       // setup find with explain to assert the query plan uses the UUID index and is not doing a collection scan
@@ -2176,9 +2219,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // AND a parent occupation
       const parent = await repository.create(toCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "parent_1")));
       // AND a child occupation
-      const child = await repository.create(toCreateSpec(
-        getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_1", parent.code)
-      ));
+      const child = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_1", parent.code))
+      );
       // AND they are linked in hierarchy
       await repositoryRegistry.occupationHierarchy.createMany(modelId, [
         {
@@ -2219,9 +2262,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         getSimpleNewISCOGroupSpec(modelId, "parent_group", true)
       );
       // AND a child occupation
-      const child = await repository.create(toCreateSpec(
-        getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_1", parent.code)
-      ));
+      const child = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_1", parent.code))
+      );
       // AND they are linked in hierarchy
       await repositoryRegistry.occupationHierarchy.createMany(modelId, [
         {
@@ -2280,9 +2323,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // AND 3 children
       const children = [];
       for (let i = 0; i < 3; i++) {
-        const child = await repository.create(toCreateSpec(
-          getSimpleNewESCOOccupationSpecWithParentCode(modelId, `child_${i}`, parent.code)
-        ));
+        const child = await repository.create(
+          toCreateSpec(getSimpleNewESCOOccupationSpecWithParentCode(modelId, `child_${i}`, parent.code))
+        );
         children.push(child);
       }
 
@@ -2478,89 +2521,51 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // WHEN updating the occupation
       const newSpec = getNewESCOOccupationSpec();
-      const updateSpec: IUpdateOccupationSpec = {
-        modelId,
-        preferredLabel: newSpec.preferredLabel,
-        code: newSpec.code,
-        altLabels: newSpec.altLabels,
-        description: newSpec.description,
-        definition: newSpec.definition,
-        scopeNote: newSpec.scopeNote,
-        regulatedProfessionNote: newSpec.regulatedProfessionNote,
-        occupationType: ObjectTypes.ESCOOccupation,
-        isLocalized: false,
-        originUri: newSpec.originUri,
-        occupationGroupCode: newSpec.occupationGroupCode,
-        UUIDHistory: newSpec.UUIDHistory,
-      };
+      const updateSpec: IUpdateOccupationSpec = toUpdateSpec({ ...newSpec, modelId });
       const actual = await repository.update(occupation.id, modelId, updateSpec);
 
       // THEN expect it to be updated
       expect(actual).not.toBeNull();
-      expect(actual?.preferredLabel).toEqual(updateSpec.preferredLabel);
+      expect(actual?.preferredLabel).toEqual(updateSpec.preferredLabel.en);
       expect(actual?.code).toEqual(updateSpec.code);
-      expect(actual?.altLabels).toEqual(updateSpec.altLabels);
-      expect(actual?.description).toEqual(updateSpec.description);
-      expect(actual?.definition).toEqual(updateSpec.definition);
-      expect(actual?.scopeNote).toEqual(updateSpec.scopeNote);
-      expect(actual?.regulatedProfessionNote).toEqual(updateSpec.regulatedProfessionNote);
+      expect(actual?.altLabels).toEqual(updateSpec.altLabels.map((v) => v.en));
+      expect(actual?.description).toEqual(updateSpec.description.en);
+      expect(actual?.definition).toEqual(updateSpec.definition.en);
+      expect(actual?.scopeNote).toEqual(updateSpec.scopeNote.en);
+      expect(actual?.regulatedProfessionNote).toEqual(updateSpec.regulatedProfessionNote.en);
       expect(actual?.originUri).toEqual(updateSpec.originUri);
       expect(actual?.occupationGroupCode).toEqual(updateSpec.occupationGroupCode);
       expect(actual?.UUIDHistory).toEqual(updateSpec.UUIDHistory);
     });
 
-    test("should preserve a non fallback language translation of a field when updating it", async () => {
+    test("should remove a non fallback language translation of a field when it is omitted from the update spec", async () => {
       // GIVEN an occupation exists in the database
       const modelId = getMockStringId(1);
       const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_with_french");
       const occupation = await repository.create(toCreateSpec(givenSpec));
-      // AND its preferredLabel also carries a French translation, stored directly (the flat-string repository API
+      // AND its preferredLabel also carries a French translation, stored directly (the create spec builder
       // has no way to write a non fallback language)
       await repository.Model.updateOne({ _id: occupation.id }, { $set: { "preferredLabel.fr": "Cuisinier" } });
+      // AND a sanity check that French is actually stored before the update
+      const beforeDoc = await repository.Model.findById(occupation.id).lean();
+      expect(beforeDoc?.preferredLabel).toMatchObject({ fr: "Cuisinier" });
 
-      // WHEN updating the occupation, setting only the fallback (English) language through the public API
+      // WHEN updating the occupation, setting only the fallback (English) language, French omitted
       const newSpec = getNewESCOOccupationSpec();
-      const updateSpec: IUpdateOccupationSpec = {
-        modelId,
-        preferredLabel: newSpec.preferredLabel,
-        code: newSpec.code,
-        altLabels: newSpec.altLabels,
-        description: newSpec.description,
-        definition: newSpec.definition,
-        scopeNote: newSpec.scopeNote,
-        regulatedProfessionNote: newSpec.regulatedProfessionNote,
-        occupationType: ObjectTypes.ESCOOccupation,
-        isLocalized: false,
-        originUri: newSpec.originUri,
-        occupationGroupCode: newSpec.occupationGroupCode,
-        UUIDHistory: newSpec.UUIDHistory,
-      };
+      const updateSpec: IUpdateOccupationSpec = toUpdateSpec({ ...newSpec, modelId });
       await repository.update(occupation.id, modelId, updateSpec);
 
-      // THEN expect the fallback language to have been updated, and the French translation to still be there
+      // THEN expect the fallback language to have been updated, and the French translation to have been removed
       const actualRawDoc = await repository.Model.findById(occupation.id).lean();
-      expect(actualRawDoc?.preferredLabel).toEqual({ en: updateSpec.preferredLabel, fr: "Cuisinier" });
+      expect(actualRawDoc?.preferredLabel).toEqual({ [FALLBACK_DB_KEY_NAME]: updateSpec.preferredLabel.en });
+      expect(actualRawDoc?.preferredLabel).not.toHaveProperty("fr");
     });
 
     test("should return null if occupation does not exist", async () => {
       // GIVEN a non-existent occupation ID
       const nonExistentId = getMockStringId(2);
       const newSpec = getNewESCOOccupationSpec();
-      const updateSpec: IUpdateOccupationSpec = {
-        modelId: getMockStringId(1),
-        preferredLabel: newSpec.preferredLabel,
-        code: newSpec.code,
-        altLabels: newSpec.altLabels,
-        description: newSpec.description,
-        definition: newSpec.definition,
-        scopeNote: newSpec.scopeNote,
-        regulatedProfessionNote: newSpec.regulatedProfessionNote,
-        occupationType: ObjectTypes.ESCOOccupation,
-        isLocalized: false,
-        originUri: newSpec.originUri,
-        occupationGroupCode: newSpec.occupationGroupCode,
-        UUIDHistory: newSpec.UUIDHistory,
-      };
+      const updateSpec: IUpdateOccupationSpec = toUpdateSpec({ ...newSpec, modelId: getMockStringId(1) });
 
       // WHEN updating
       const actual = await repository.update(nonExistentId, getMockStringId(1), updateSpec);
@@ -2581,13 +2586,13 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const modelId = getMockStringId(1);
       const updateSpec: IUpdateOccupationSpec = {
         modelId,
-        preferredLabel: "new label",
+        preferredLabel: { [FALLBACK_DB_KEY_NAME]: "new label" },
         code: "1234.5.6",
         altLabels: [],
-        description: "new desc",
-        definition: "new def",
-        scopeNote: "new scope",
-        regulatedProfessionNote: "new note",
+        description: { [FALLBACK_DB_KEY_NAME]: "new desc" },
+        definition: { [FALLBACK_DB_KEY_NAME]: "new def" },
+        scopeNote: { [FALLBACK_DB_KEY_NAME]: "new scope" },
+        regulatedProfessionNote: { [FALLBACK_DB_KEY_NAME]: "new note" },
         occupationType: ObjectTypes.ESCOOccupation,
         isLocalized: false,
         originUri: "http://example.com",

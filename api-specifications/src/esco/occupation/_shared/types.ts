@@ -92,8 +92,24 @@ interface IOccupationRequest {
 }
 
 // POST-only request shape: translatable fields accept the full multilingual object instead of a
-// flat string. PUT and PATCH keep using IOccupationRequest until they are migrated too.
+// flat string. PATCH keeps using IOccupationRequest until it is migrated too.
 interface IOccupationPOSTRequest
+  extends Omit<
+    IOccupationRequest,
+    "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote" | "regulatedProfessionNote"
+  > {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  definition: LanguageAPISpecs.Types.ITranslatedString;
+  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
+  regulatedProfessionNote: LanguageAPISpecs.Types.ITranslatedString;
+}
+
+// PUT-only request shape: translatable fields accept the full multilingual object, full-replace
+// semantics (omitting a language removes it). PATCH keeps using IOccupationRequest until it is
+// migrated too.
+interface IOccupationPUTRequest
   extends Omit<
     IOccupationRequest,
     "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote" | "regulatedProfessionNote"
@@ -194,7 +210,7 @@ namespace OccupationTypes {
 
   export namespace Detail.PUT {
     export namespace Request {
-      export type Payload = IOccupationRequest;
+      export type Payload = IOccupationPUTRequest;
     }
     export namespace Response {
       export type Payload = IOccupationResponse;

@@ -911,15 +911,16 @@ describe("Test the OccupationService", () => {
   });
 
   describe("update", () => {
+    // GIVEN a function to build a valid update spec, translatable fields in the fall back language only
     const buildSpec = (): IUpdateOccupationSpec => ({
       modelId: getMockStringId(1),
-      preferredLabel: getRandomString(10),
+      preferredLabel: { en: getRandomString(10) },
       code: getRandomString(5),
-      altLabels: [getRandomString(5)],
-      description: getRandomString(20),
-      definition: getRandomString(20),
-      scopeNote: getRandomString(20),
-      regulatedProfessionNote: getRandomString(20),
+      altLabels: [{ en: getRandomString(5) }],
+      description: { en: getRandomString(20) },
+      definition: { en: getRandomString(20) },
+      scopeNote: { en: getRandomString(20) },
+      regulatedProfessionNote: { en: getRandomString(20) },
       occupationType: ObjectTypes.ESCOOccupation,
       isLocalized: false,
       originUri: getRandomString(10),
@@ -932,23 +933,24 @@ describe("Test the OccupationService", () => {
       const givenId = getMockStringId(2);
       const givenSpec = buildSpec();
 
-      // AND the model is not released
+      // AND the model is not released, and every language of the spec is available
       mockModelRepository.getModelById.mockResolvedValue({
         id: givenSpec.modelId,
         released: false,
+        availableLanguages: ["en"],
       } as unknown as IModelInfo);
 
       // AND the repository returns the updated occupation
       const givenUpdatedOccupation: IOccupation = {
+        ...getIOccupationMockData(),
         ...givenSpec,
+        preferredLabel: givenSpec.preferredLabel.en as string,
+        altLabels: [givenSpec.altLabels[0].en as string],
+        description: givenSpec.description.en as string,
+        definition: givenSpec.definition.en as string,
+        scopeNote: givenSpec.scopeNote.en as string,
+        regulatedProfessionNote: givenSpec.regulatedProfessionNote.en as string,
         id: givenId,
-        UUID: getRandomString(10),
-        parent: null,
-        children: [],
-        requiresSkills: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        importId: "",
       };
       mockRepository.update = jest.fn().mockResolvedValue(givenUpdatedOccupation);
 
@@ -966,10 +968,11 @@ describe("Test the OccupationService", () => {
       const givenId = getMockStringId(2);
       const givenSpec = buildSpec();
 
-      // AND the model is not released
+      // AND the model is not released, and every language of the spec is available
       mockModelRepository.getModelById.mockResolvedValue({
         id: givenSpec.modelId,
         released: false,
+        availableLanguages: ["en"],
       } as unknown as IModelInfo);
 
       // AND the repository returns null (occupation not found)
@@ -1020,10 +1023,11 @@ describe("Test the OccupationService", () => {
       const givenId = getMockStringId(2);
       const givenSpec = buildSpec();
 
-      // AND the model is not released
+      // AND the model is not released, and every language of the spec is available
       mockModelRepository.getModelById.mockResolvedValue({
         id: givenSpec.modelId,
         released: false,
+        availableLanguages: ["en"],
       } as unknown as IModelInfo);
 
       // AND the repository throws
@@ -1033,6 +1037,48 @@ describe("Test the OccupationService", () => {
       // WHEN calling service.update
       // THEN expect it to rethrow
       await expect(service.update(givenId, givenSpec.modelId, givenSpec)).rejects.toThrow(givenError);
+    });
+
+    test("should throw OccupationLanguageValidationError when a field carries a language not in the model's availableLanguages", async () => {
+      // GIVEN a full update spec whose preferredLabel is translated in a language the model does not have
+      const givenId = getMockStringId(2);
+      const givenSpec = buildSpec();
+      givenSpec.preferredLabel = { en: "Cook", fr: "Cuisinier" };
+
+      // AND the model is not released, but only has the fall back language available
+      mockModelRepository.getModelById.mockResolvedValue({
+        id: givenSpec.modelId,
+        released: false,
+        availableLanguages: ["en"],
+      } as unknown as IModelInfo);
+
+      // WHEN calling service.update
+      const promise = service.update(givenId, givenSpec.modelId, givenSpec);
+
+      // THEN expect it to throw, naming the field and the unsupported language
+      await expect(promise).rejects.toThrow(OccupationLanguageValidationError);
+      await expect(promise).rejects.toMatchObject({ field: "preferredLabel", language: "fr" });
+      // AND expect the repository to never be called
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
+
+    test("should throw if the model cannot be found when checking availableLanguages", async () => {
+      // GIVEN a full update spec
+      const givenId = getMockStringId(2);
+      const givenSpec = buildSpec();
+
+      // AND the model validation passes, but the model is no longer found on the second fetch
+      mockModelRepository.getModelById.mockResolvedValueOnce({
+        id: givenSpec.modelId,
+        released: false,
+      } as unknown as IModelInfo);
+      mockModelRepository.getModelById.mockResolvedValueOnce(null);
+
+      // WHEN calling service.update
+      // THEN expect it to throw
+      await expect(service.update(givenId, givenSpec.modelId, givenSpec)).rejects.toThrow(
+        OccupationModelValidationError
+      );
     });
   });
 

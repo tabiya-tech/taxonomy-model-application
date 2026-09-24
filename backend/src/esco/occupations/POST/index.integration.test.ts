@@ -129,10 +129,12 @@ describe("Test for occupation POST handler with a DB", () => {
     expect(validatePOSTResponse(JSON.parse(actualResponse.body))).toBeTruthy();
 
     // AND the persisted occupation carries every language, not only the fallback
-    const actualDoc = await getRepositoryRegistry().occupation.Model.findOne({
-      code: givenPayload.code,
-      modelId: givenModelId,
-    }).lean();
+    const actualDoc = await getRepositoryRegistry()
+      .occupation.Model.findOne({
+        code: givenPayload.code,
+        modelId: givenModelId,
+      })
+      .lean();
     expect(actualDoc).not.toBeNull();
     expect(actualDoc!.preferredLabel).toMatchObject({
       [givenFallbackDbKeyName]: givenPayload.preferredLabel[givenFallbackDbKeyName],
@@ -307,10 +309,12 @@ describe("Test for occupation POST handler with a DB", () => {
     expect(actualResponse.statusCode).toEqual(StatusCodes.CREATED);
     expect(validatePOSTResponse(JSON.parse(actualResponse.body))).toBeTruthy();
 
-    const actualDoc = await getRepositoryRegistry().occupation.Model.findOne({
-      code: givenPayload.code,
-      modelId: givenModelId,
-    }).lean();
+    const actualDoc = await getRepositoryRegistry()
+      .occupation.Model.findOne({
+        code: givenPayload.code,
+        modelId: givenModelId,
+      })
+      .lean();
     expect(actualDoc).not.toBeNull();
     expect(actualDoc!.regulatedProfessionNote).toMatchObject({
       [givenFallbackDbKeyName]: "Not a regulated profession.",

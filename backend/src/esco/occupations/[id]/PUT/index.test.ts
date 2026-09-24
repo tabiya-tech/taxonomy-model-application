@@ -17,9 +17,11 @@ import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode"
 import {
   IOccupationService,
   ModelForOccupationValidationErrorCode,
+  OccupationLanguageValidationError,
   OccupationModelValidationError,
 } from "../../services/occupation.service.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 const transformSpy = jest.spyOn(transformModule, "transform");
@@ -27,19 +29,29 @@ const transformSpy = jest.spyOn(transformModule, "transform");
 jest.mock("server/serviceRegistry/serviceRegistry");
 const mockGetServiceRegistry = jest.mocked(getServiceRegistry);
 
+const givenFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+
+// GIVEN a function to wrap a flat string into a single language translated value
+const wrapFallback = (value: string) => ({ [givenFallbackDbKeyName]: value });
+
 const givenValidPayload = (): OccupationAPISpecs.Occupation.PUT.Types.Request.Payload => ({
   modelId: getMockStringId(1),
   code: getMockRandomOccupationCode(false),
   occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-  preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-  description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-  altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+  preferredLabel: {
+    [givenFallbackDbKeyName]: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    fr: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+  },
+  description: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)),
+  altLabels: [wrapFallback(getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH))],
   originUri: `http://some/path/to/api/resources/${randomUUID()}`,
   UUIDHistory: [randomUUID()],
   occupationGroupCode: getMockRandomISCOGroupCode(),
-  definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-  scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-  regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+  definition: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH)),
+  scopeNote: wrapFallback(getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH)),
+  regulatedProfessionNote: wrapFallback(
+    getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH)
+  ),
   isLocalized: false,
 });
 
@@ -133,6 +145,44 @@ describe("Test for occupation PUT handler", () => {
       expect(transformModule.transform).toHaveBeenCalledWith(givenOccupation, givenBaseUrl);
       // AND expect the response body
       expect(JSON.parse(actualResponse.body)).toMatchObject(transformSpy.mock.results[0].value);
+      // AND expect the service to have been called with the multilingual payload unchanged
+      expect(givenOccupationServiceMock.update).toHaveBeenCalledWith(
+        givenOccupationId,
+        givenModelId,
+        expect.objectContaining({ preferredLabel: givenPayload.preferredLabel })
+      );
+    });
+
+    test("should respond with BAD_REQUEST when a field uses a language not available in the model", async () => {
+      // GIVEN a valid request whose preferredLabel carries a language not available in the model
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenPayload = givenValidPayload();
+      givenPayload.modelId = givenModelId;
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.PUT,
+        body: JSON.stringify(givenPayload),
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+      } as unknown as APIGatewayProxyEvent;
+
+      // AND the service rejects because 'fr' is not one of the model's availableLanguages
+      const givenOccupationServiceMock = {
+        update: jest.fn().mockRejectedValue(new OccupationLanguageValidationError("preferredLabel", "fr")),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      // WHEN the handler is invoked
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect BAD_REQUEST, naming the field and the language
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      const body = JSON.parse(actualResponse.body);
+      expect(body.errorCode).toEqual(
+        OccupationAPISpecs.Occupation.PUT.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE
+      );
+      expect(body.message).toEqual("Field 'preferredLabel' uses a language not available in this model");
+      expect(body.details).toEqual("Unsupported language: 'fr'");
     });
 
     test("should respond with NOT_FOUND when occupation is not found", async () => {

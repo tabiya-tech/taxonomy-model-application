@@ -141,12 +141,15 @@ export function wrapTranslatedArrayFromObjects(
 }
 
 /**
- * Wraps the translatable fields of a create spec, already full multilingual objects, into translated values.
+ * Wraps the translatable fields of a spec, already full multilingual objects, into translated values,
+ * replacing whatever the field previously held.
  *
- * Unlike wrapTranslatableFields, this is create-only: a brand new document has no existing translations to merge
- * into, every language of the input becomes a key of the Map as-is.
+ * Used by create (a new document has nothing to merge into) and by PUT's full replace (every language of
+ * the input becomes the new set of keys; a language absent from the input is dropped). Unlike
+ * wrapTranslatableFields, there is no existingDoc to merge into — the caller is expected to want a full
+ * replace.
  *
- * @param spec the create spec, its translatable fields full multilingual objects
+ * @param spec the spec, its translatable fields full multilingual objects
  * @param translatableStringFields the fields of the spec that carry a translated value
  * @returns the spec, with its translatable fields wrapped
  */
