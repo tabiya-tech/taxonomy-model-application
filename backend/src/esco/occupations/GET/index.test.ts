@@ -8,6 +8,7 @@ import { StatusCodes } from "server/httpUtils";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 
 import OccupationAPISpecs from "api-specifications/esco/occupation";
+import LanguageAPISpecs from "api-specifications/language";
 
 import * as authenticatorModule from "auth/authorizer";
 import { IOccupation } from "../_shared/occupation.types";
@@ -259,7 +260,9 @@ describe("Test for occupation List GET handler", () => {
 
     describe("language negotiation", () => {
       const givenModelId = getMockStringId(1);
-      const givenAvailableLanguages = ["en", "fr"];
+      const FALLBACK_LANG = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE;
+      const SECONDARY_LANG = LanguageAPISpecs.Constants.Languages[1]; // French
+      const givenAvailableLanguages = [FALLBACK_LANG.shortCode, SECONDARY_LANG.shortCode];
 
       function buildEvent(headers?: Record<string, string>): APIGatewayProxyEvent {
         return {
@@ -291,7 +294,7 @@ describe("Test for occupation List GET handler", () => {
         // THEN expect OK
         expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
         // AND the fallback language is served
-        expect(actualResponse.headers?.["Content-Language"]).toEqual("en");
+        expect(actualResponse.headers?.["Content-Language"]).toEqual(FALLBACK_LANG.shortCode);
         expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
         // AND the service receives the fallback language
         expect(givenOccupationServiceMock.findPaginated).toHaveBeenCalledWith(
@@ -299,44 +302,66 @@ describe("Test for occupation List GET handler", () => {
           undefined,
           expect.any(Number),
           true,
-          "en"
+          FALLBACK_LANG.dbKeyName
         );
       });
 
       test.each([
         // [description, acceptLanguage header, expected Content-Language served, expected dbKeyName passed to service]
-        ["serve the fallback language when the client explicitly requests it", "en", "en", "en"],
-        ["serve a secondary language when the model has it and the client requests it", "fr", "fr", "fr"],
-        ["fall back to the fallback language when the client requests an unsupported language", "es", "en", "en"],
-        ["fall back to the fallback language when the Accept-Language header is malformed", ";;;not-a-language;;;", "en", "en"],
-        ["serve the highest-quality language from a quality-value header", "en;q=0.5, fr;q=0.9", "fr", "fr"],
-      ])(
-        "GET should %s",
-        async (_description, givenAcceptLanguage, expectedContentLanguage, expectedDbKeyName) => {
-          // GIVEN a model with [en, fr] and the client sends Accept-Language: ${givenAcceptLanguage}
-          const givenEvent = buildEvent({ "accept-language": givenAcceptLanguage });
-          const givenOccupationServiceMock = buildServiceMock();
-          mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+        [
+          "serve the fallback language when the client explicitly requests it",
+          FALLBACK_LANG.shortCode,
+          FALLBACK_LANG.shortCode,
+          FALLBACK_LANG.dbKeyName,
+        ],
+        [
+          "serve a secondary language when the model has it and the client requests it",
+          SECONDARY_LANG.shortCode,
+          SECONDARY_LANG.shortCode,
+          SECONDARY_LANG.dbKeyName,
+        ],
+        [
+          "fall back to the fallback language when the client requests an unsupported language",
+          "es",
+          FALLBACK_LANG.shortCode,
+          FALLBACK_LANG.dbKeyName,
+        ],
+        [
+          "fall back to the fallback language when the Accept-Language header is malformed",
+          ";;;not-a-language;;;",
+          FALLBACK_LANG.shortCode,
+          FALLBACK_LANG.dbKeyName,
+        ],
+        [
+          "serve the highest-quality language from a quality-value header",
+          `${FALLBACK_LANG.shortCode};q=0.5, ${SECONDARY_LANG.shortCode};q=0.9`,
+          SECONDARY_LANG.shortCode,
+          SECONDARY_LANG.dbKeyName,
+        ],
+      ])("GET should %s", async (_description, givenAcceptLanguage, expectedContentLanguage, expectedDbKeyName) => {
+        // GIVEN a model with [en, fr] and the client sends Accept-Language: ${givenAcceptLanguage}
+        const givenEvent = buildEvent({ "accept-language": givenAcceptLanguage });
+        const givenOccupationServiceMock = buildServiceMock();
+        mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
-          // WHEN the handler is called
-          const actualResponse = await occupationHandler(givenEvent);
+        // WHEN the handler is called
+        const actualResponse = await occupationHandler(givenEvent);
 
-          // THEN it responds OK and serves ${expectedContentLanguage} to both the client and repository
-          expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-          expect(actualResponse.headers?.["Content-Language"]).toEqual(expectedContentLanguage);
-          expect(givenOccupationServiceMock.findPaginated).toHaveBeenCalledWith(
-            givenModelId,
-            undefined,
-            expect.any(Number),
-            true,
-            expectedDbKeyName
-          );
-        }
-      );
+        // THEN it responds OK and serves ${expectedContentLanguage} to both the client and repository
+        expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+        expect(actualResponse.headers?.["Content-Language"]).toEqual(expectedContentLanguage);
+        expect(givenOccupationServiceMock.findPaginated).toHaveBeenCalledWith(
+          givenModelId,
+          undefined,
+          expect.any(Number),
+          true,
+          expectedDbKeyName
+        );
+      });
 
       test("GET should serve the fallback language when availableLanguages is empty (MODEL_IS_RELEASED)", async () => {
         // GIVEN the model returns availableLanguages: [] (as MODEL_IS_RELEASED does)
-        const givenEvent = buildEvent({ "accept-language": "fr" });
+        const givenEvent = buildEvent({ "accept-language": SECONDARY_LANG.shortCode });
         const givenOccupationServiceMock = {
           findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
           validateModelForOccupation: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
@@ -348,14 +373,14 @@ describe("Test for occupation List GET handler", () => {
 
         // THEN the fallback language is served regardless of the Accept-Language header
         expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-        expect(actualResponse.headers?.["Content-Language"]).toEqual("en");
+        expect(actualResponse.headers?.["Content-Language"]).toEqual(FALLBACK_LANG.shortCode);
         // AND the service receives the fallback language
         expect(givenOccupationServiceMock.findPaginated).toHaveBeenCalledWith(
           givenModelId,
           undefined,
           expect.any(Number),
           true,
-          "en"
+          FALLBACK_LANG.dbKeyName
         );
       });
     });
