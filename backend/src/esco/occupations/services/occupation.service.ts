@@ -6,7 +6,7 @@ import {
   OccupationLanguageValidationError,
   OccupationModelValidationError,
 } from "./occupation.service.types";
-import { findUnsupportedLanguage } from "./validateOccupationLanguages";
+import { findUnsupportedLanguage, findUnsupportedLanguageInPartialSpec } from "./validateOccupationLanguages";
 import {
   INewOccupationSpecWithoutImportId,
   IOccupation,
@@ -331,6 +331,19 @@ export class OccupationService implements IOccupationService {
     if (errorCode != null) {
       throw new OccupationModelValidationError(errorCode);
     }
+
+    // Validate that every newly-set (non-null) translated language is one the model has enabled. A null value
+    // deletes a translation and is never rejected as unsupported, since removing a language cannot make the
+    // model's supported set outdated the way adding one can.
+    const model = await this.modelRepository.getModelById(modelId);
+    if (model == null) {
+      throw new OccupationModelValidationError(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+    }
+    const unsupportedLanguage = findUnsupportedLanguageInPartialSpec(spec, model.availableLanguages);
+    if (unsupportedLanguage !== null) {
+      throw new OccupationLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
+    }
+
     return this.occupationRepository.patch(id, modelId, spec);
   }
 }

@@ -50,6 +50,58 @@ exports[`Test the translated string schema factory Test getTranslatedStringArray
 }
 `;
 
+exports[`Test the translated string schema factory Test getTranslatedStringSchema() Test allowNullToDelete the schema should match the snapshot 1`] = `
+{
+  "additionalProperties": false,
+  "description": "The preferred label",
+  "properties": {
+    "am": {
+      "description": "The preferred label (Amharic)",
+      "maxLength": 10,
+      "pattern": "\\S",
+      "type": [
+        "string",
+        "null",
+      ],
+    },
+    "en": {
+      "description": "The preferred label (English)",
+      "maxLength": 10,
+      "pattern": "\\S",
+      "type": "string",
+    },
+    "es": {
+      "description": "The preferred label (Spanish)",
+      "maxLength": 10,
+      "pattern": "\\S",
+      "type": [
+        "string",
+        "null",
+      ],
+    },
+    "fr": {
+      "description": "The preferred label (French)",
+      "maxLength": 10,
+      "pattern": "\\S",
+      "type": [
+        "string",
+        "null",
+      ],
+    },
+    "pt": {
+      "description": "The preferred label (Portuguese)",
+      "maxLength": 10,
+      "pattern": "\\S",
+      "type": [
+        "string",
+        "null",
+      ],
+    },
+  },
+  "type": "object",
+}
+`;
+
 exports[`Test the translated string schema factory Test getTranslatedStringSchema() the schema should match the snapshot 1`] = `
 {
   "additionalProperties": false,

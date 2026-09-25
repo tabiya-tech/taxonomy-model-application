@@ -39,7 +39,11 @@ import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
-import { wrapTranslatableFields, wrapTranslatableFieldsFromObjects } from "common/language/translatedFields";
+import {
+  mergeTranslatableFieldsFromPartialObjects,
+  wrapTranslatableFields,
+  wrapTranslatableFieldsFromObjects,
+} from "common/language/translatedFields";
 import { buildSearchCondition } from "esco/common/searchCondition";
 import { unwrapSkillTranslatableFields } from "esco/skill/_shared/skillReference";
 
@@ -760,7 +764,7 @@ export class OccupationRepository implements IOccupationRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
+      doc.set(mergeTranslatableFieldsFromPartialObjects(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([
         populateOccupationParentOptions,

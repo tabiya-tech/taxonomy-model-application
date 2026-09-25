@@ -1,5 +1,5 @@
-import { findUnsupportedLanguage } from "./validateOccupationLanguages";
-import { INewOccupationSpecWithoutImportId } from "../_shared/occupation.types";
+import { findUnsupportedLanguage, findUnsupportedLanguageInPartialSpec } from "./validateOccupationLanguages";
+import { INewOccupationSpecWithoutImportId, IPartialUpdateOccupationSpec } from "../_shared/occupation.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getRandomString } from "_test_utilities/getMockRandomData";
@@ -70,5 +70,51 @@ describe("Test findUnsupportedLanguage()", () => {
 
     // THEN expect regulatedProfessionNote and the unsupported language to be returned
     expect(actual).toEqual({ field: "regulatedProfessionNote", language: "fr" });
+  });
+});
+
+describe("Test findUnsupportedLanguageInPartialSpec()", () => {
+  test("should return null when a field is entirely absent from the spec", () => {
+    // GIVEN a partial spec that does not carry preferredLabel at all
+    const givenSpec: IPartialUpdateOccupationSpec = { description: { en: "Prepares food" } };
+
+    // WHEN checking the spec against a model that only has the fall back language available
+    const actual = findUnsupportedLanguageInPartialSpec(givenSpec, ["en"]);
+
+    // THEN expect no unsupported language to be found
+    expect(actual).toBeNull();
+  });
+
+  test("should return the field and language when a present field sets a string value in an unavailable language", () => {
+    // GIVEN a partial spec whose preferredLabel sets a language the model does not have
+    const givenSpec: IPartialUpdateOccupationSpec = { preferredLabel: { fr: "Cuisinier" } };
+
+    // WHEN checking the spec against a model that only has the fall back language available
+    const actual = findUnsupportedLanguageInPartialSpec(givenSpec, ["en"]);
+
+    // THEN expect the field and the unsupported language to be returned
+    expect(actual).toEqual({ field: "preferredLabel", language: "fr" });
+  });
+
+  test("should return null when a present field only deletes a language via null, even if that language is unavailable", () => {
+    // GIVEN a partial spec that deletes a language the model does not have
+    const givenSpec: IPartialUpdateOccupationSpec = { preferredLabel: { fr: null } };
+
+    // WHEN checking the spec against a model that only has the fall back language available
+    const actual = findUnsupportedLanguageInPartialSpec(givenSpec, ["en"]);
+
+    // THEN expect no unsupported language to be found, deleting a language is never rejected
+    expect(actual).toBeNull();
+  });
+
+  test("should return the field and language when altLabels carries an item translated in an unavailable language", () => {
+    // GIVEN a partial spec whose altLabels carry a language the model does not have
+    const givenSpec: IPartialUpdateOccupationSpec = { altLabels: [{ en: "Chef", fr: "Chef" }] };
+
+    // WHEN checking the spec against a model that only has the fall back language available
+    const actual = findUnsupportedLanguageInPartialSpec(givenSpec, ["en"]);
+
+    // THEN expect altLabels and the unsupported language to be returned
+    expect(actual).toEqual({ field: "altLabels", language: "fr" });
   });
 });

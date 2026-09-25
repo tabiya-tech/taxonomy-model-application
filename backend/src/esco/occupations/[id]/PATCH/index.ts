@@ -14,6 +14,7 @@ import { RoleRequired } from "auth/authorizer";
 import { ObjectTypes } from "esco/common/objectTypes";
 import {
   ModelForOccupationValidationErrorCode,
+  OccupationLanguageValidationError,
   OccupationModelValidationError,
 } from "../../services/occupation.service.types";
 import { extractAndValidateIdParams } from "../../_shared/params";
@@ -28,7 +29,12 @@ export class OccupationPATCHController {
    *     tags:
    *       - occupations
    *     summary: Partially update an occupation by its ID.
-   *     description: Update one or more fields of an existing occupation in a specific taxonomy model. Only provided fields are updated.
+   *     description: |
+   *       Update one or more fields of an existing occupation in a specific taxonomy model. Only fields present
+   *       in the payload are changed. For translatable fields, the update merges per language: a language
+   *       present in the field's object is set (or, if null, deleted); a language absent from the object is
+   *       left untouched. The fallback language (en) can never be deleted. altLabels, when present, replaces
+   *       the whole list.
    *     security:
    *       - api_key: []
    *       - jwt_auth: []
@@ -152,6 +158,15 @@ export class OccupationPATCHController {
       return responseJSON(StatusCodes.OK, buildPATCHResponse(updatedOccupation, getResourcesBaseUrl()));
     } catch (error: unknown) {
       console.error("Failed to patch occupation:", error);
+
+      if (error instanceof OccupationLanguageValidationError) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          OccupationAPISpecs.Occupation.PATCH.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+          `Field '${error.field}' uses a language not available in this model`,
+          `Unsupported language: '${error.language}'`
+        );
+      }
 
       if (error instanceof OccupationModelValidationError) {
         switch (error.code) {

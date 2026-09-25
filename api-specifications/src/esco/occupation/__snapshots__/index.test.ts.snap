@@ -1858,6 +1858,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
             "INVALID_MODEL_ID": "INVALID_MODEL_ID",
             "OCCUPATION_COULD_NOT_VALIDATE": "OCCUPATION_COULD_NOT_VALIDATE",
             "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+            "UNSUPPORTED_LANGUAGE": "UNSUPPORTED_LANGUAGE",
           },
         },
         "Status404": {
@@ -1877,6 +1878,7 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
           "Payload": {
             "$id": "/components/schemas/OccupationRequestSchemaPATCH",
             "additionalProperties": false,
+            "description": "Partially updates the mutable fields of an occupation. Only fields present in the payload are changed; omitting a field entirely leaves it untouched. For each translatable field (preferredLabel, altLabels, definition, description, regulatedProfessionNote, scopeNote), the request merges per language: only the languages present in the field's object are changed, any language already stored but not mentioned in the object is left untouched. Setting a language's value to null deletes that language's translation. The fallback language (en) can never be deleted: omitting it from the object is fine (English is left untouched), but explicitly sending en: null is rejected. altLabels has no stable per-item identity, so when present it always replaces the whole list, it is not merged per language.",
             "else": {
               "if": {
                 "properties": {
@@ -1903,6 +1905,20 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                 },
               },
             },
+            "examples": [
+              {
+                "description": {
+                  "en": "Updated description.",
+                  "fr": null,
+                },
+                "preferredLabel": {
+                  "fr": "Cuisinier",
+                },
+                "regulatedProfessionNote": {
+                  "es": "Nota regulada.",
+                },
+              },
+            ],
             "if": {
               "properties": {
                 "occupationType": {
@@ -1929,8 +1945,39 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
               "altLabels": {
                 "description": "Alternative labels for the occupation.",
                 "items": {
-                  "maxLength": 256,
-                  "type": "string",
+                  "additionalProperties": false,
+                  "description": "Alternative labels for the occupation.",
+                  "properties": {
+                    "am": {
+                      "description": "Alternative labels for the occupation. (Amharic)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "en": {
+                      "description": "Alternative labels for the occupation. (English)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "es": {
+                      "description": "Alternative labels for the occupation. (Spanish)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "fr": {
+                      "description": "Alternative labels for the occupation. (French)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "pt": {
+                      "description": "Alternative labels for the occupation. (Portuguese)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "en",
+                  ],
+                  "type": "object",
                 },
                 "maxItems": 200,
                 "minItems": 0,
@@ -1943,14 +1990,92 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                 "type": "string",
               },
               "definition": {
+                "additionalProperties": false,
                 "description": "The formal definition of the occupation.",
-                "maxLength": 4000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The formal definition of the occupation. (Amharic)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "The formal definition of the occupation. (English)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The formal definition of the occupation. (Spanish)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "The formal definition of the occupation. (French)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "The formal definition of the occupation. (Portuguese)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "description": {
+                "additionalProperties": false,
                 "description": "Additional descriptive information about the occupation.",
-                "maxLength": 6000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "Additional descriptive information about the occupation. (Amharic)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "Additional descriptive information about the occupation. (English)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "Additional descriptive information about the occupation. (Spanish)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "Additional descriptive information about the occupation. (French)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "Additional descriptive information about the occupation. (Portuguese)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "isLocalized": {
                 "description": "Indicates if the occupation has localized variants. Must be false for LocalOccupation.",
@@ -1982,20 +2107,141 @@ exports[`Test the Occupation module The export module matches the snapshot 1`] =
                 "type": "string",
               },
               "preferredLabel": {
+                "additionalProperties": false,
                 "description": "The preferred label of the occupation.",
-                "maxLength": 256,
-                "pattern": "\\S",
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The preferred label of the occupation. (Amharic)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "The preferred label of the occupation. (English)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The preferred label of the occupation. (Spanish)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "The preferred label of the occupation. (French)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "The preferred label of the occupation. (Portuguese)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "regulatedProfessionNote": {
+                "additionalProperties": false,
                 "description": "Regulatory information for legally regulated professions.",
-                "maxLength": 4000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "Regulatory information for legally regulated professions. (Amharic)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "Regulatory information for legally regulated professions. (English)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "Regulatory information for legally regulated professions. (Spanish)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "Regulatory information for legally regulated professions. (French)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "Regulatory information for legally regulated professions. (Portuguese)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "scopeNote": {
+                "additionalProperties": false,
                 "description": "Scope clarification for the occupation's application.",
-                "maxLength": 4000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "Scope clarification for the occupation's application. (Amharic)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "Scope clarification for the occupation's application. (English)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "Scope clarification for the occupation's application. (Spanish)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "Scope clarification for the occupation's application. (French)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "Scope clarification for the occupation's application. (Portuguese)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
             },
             "then": {

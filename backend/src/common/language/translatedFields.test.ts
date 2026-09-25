@@ -1,6 +1,7 @@
 import LanguageAPISpecs from "api-specifications/language";
 import { setConfiguration } from "server/config/config";
 import {
+  mergeTranslatableFieldsFromPartialObjects,
   readExistingTranslations,
   readFallbackLanguageValue,
   readFallbackLanguageValues,
@@ -442,5 +443,159 @@ describe("Test wrapTranslatableFieldsFromObjects()", () => {
       preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Cook" },
       altLabels: [{ [FALLBACK_DB_KEY_NAME]: "Chef" }],
     });
+  });
+});
+
+describe("Test mergeTranslatableFieldsFromPartialObjects()", () => {
+  const givenTranslatableStringFields = ["preferredLabel", "description"] as const;
+
+  test("should merge a new language into the translations the document already carries", () => {
+    // GIVEN a patch spec that sets a new language for preferredLabel
+    const givenSpec = { preferredLabel: { [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" } };
+    // AND a document already translated in the fall back language
+    const givenExistingDoc = { preferredLabel: new Map([[FALLBACK_DB_KEY_NAME, "Cook"]]) };
+
+    // WHEN the translatable fields are merged against that document
+    const actualMerged = mergeTranslatableFieldsFromPartialObjects(
+      givenSpec,
+      givenTranslatableStringFields,
+      givenExistingDoc
+    );
+
+    // THEN expect the existing language to be kept and the new language to be added
+    expect(actualMerged).toEqual({
+      preferredLabel: new Map([
+        [FALLBACK_DB_KEY_NAME, "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ]),
+    });
+  });
+
+  test("should overwrite a language already present in the document", () => {
+    // GIVEN a patch spec that overwrites the fall back language
+    const givenSpec = { preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Chef" } };
+    // AND a document already translated in the fall back language and in another language
+    const givenExistingDoc = {
+      preferredLabel: new Map([
+        [FALLBACK_DB_KEY_NAME, "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ]),
+    };
+
+    // WHEN the translatable fields are merged against that document
+    const actualMerged = mergeTranslatableFieldsFromPartialObjects(
+      givenSpec,
+      givenTranslatableStringFields,
+      givenExistingDoc
+    );
+
+    // THEN expect the fall back language to be overwritten and the other language to be kept
+    expect(actualMerged).toEqual({
+      preferredLabel: new Map([
+        [FALLBACK_DB_KEY_NAME, "Chef"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ]),
+    });
+  });
+
+  test("should delete a language from the document when its value is explicitly null", () => {
+    // GIVEN a patch spec that sets a language to null
+    const givenSpec = { preferredLabel: { [OTHER_LANGUAGE_DB_KEY_NAME]: null } };
+    // AND a document already translated in the fall back language and in that other language
+    const givenExistingDoc = {
+      preferredLabel: new Map([
+        [FALLBACK_DB_KEY_NAME, "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ]),
+    };
+
+    // WHEN the translatable fields are merged against that document
+    const actualMerged = mergeTranslatableFieldsFromPartialObjects(
+      givenSpec,
+      givenTranslatableStringFields,
+      givenExistingDoc
+    );
+
+    // THEN expect the language to be removed, the rest kept
+    expect(actualMerged).toEqual({ preferredLabel: new Map([[FALLBACK_DB_KEY_NAME, "Cook"]]) });
+  });
+
+  test("should leave a field the spec does not carry completely untouched", () => {
+    // GIVEN a patch spec that carries one of the translatable fields only
+    const givenSpec = { preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Chef" } };
+    // AND a document with an existing description
+    const givenExistingDoc = { description: new Map([[FALLBACK_DB_KEY_NAME, "Prepares food"]]) };
+
+    // WHEN the translatable fields are merged against that document
+    const actualMerged = mergeTranslatableFieldsFromPartialObjects(
+      givenSpec,
+      givenTranslatableStringFields,
+      givenExistingDoc
+    );
+
+    // THEN expect the field the spec does not carry to be entirely absent from the result
+    expect(actualMerged).toEqual({ preferredLabel: new Map([[FALLBACK_DB_KEY_NAME, "Chef"]]) });
+    expect(actualMerged).not.toHaveProperty("description");
+  });
+
+  test("should replace altLabels wholesale when present, since an item has no identity to merge by", () => {
+    // GIVEN a patch spec that carries new altLabels
+    const givenSpec = { altLabels: [{ [FALLBACK_DB_KEY_NAME]: "Chef" }] };
+    // AND a document whose altLabels are translated differently
+    const givenExistingDoc = {
+      altLabels: [new Map([[OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"]])],
+    };
+
+    // WHEN the translatable fields are merged against that document
+    const actualMerged = mergeTranslatableFieldsFromPartialObjects(
+      givenSpec,
+      givenTranslatableStringFields,
+      givenExistingDoc
+    );
+
+    // THEN expect the altLabels of the spec to replace the ones of the document
+    expect(actualMerged).toEqual({ altLabels: [new Map([[FALLBACK_DB_KEY_NAME, "Chef"]])] });
+  });
+
+  test("should leave altLabels untouched when absent from the spec", () => {
+    // GIVEN a patch spec that does not carry altLabels
+    const givenSpec = { preferredLabel: { [FALLBACK_DB_KEY_NAME]: "Chef" } };
+    const givenExistingDoc = {};
+
+    // WHEN the translatable fields are merged against that document
+    const actualMerged = mergeTranslatableFieldsFromPartialObjects(
+      givenSpec,
+      givenTranslatableStringFields,
+      givenExistingDoc
+    );
+
+    // THEN expect altLabels to be entirely absent from the result
+    expect(actualMerged).not.toHaveProperty("altLabels");
+  });
+
+  test("should not mutate the translations of the document it is given", () => {
+    // GIVEN a patch spec that sets a new language
+    const givenSpec = { preferredLabel: { [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" } };
+    // AND a document already translated in the fall back language
+    const givenExistingTranslations = new Map([[FALLBACK_DB_KEY_NAME, "Cook"]]);
+    const givenExistingDoc = { preferredLabel: givenExistingTranslations };
+
+    // WHEN the translatable fields are merged against that document
+    mergeTranslatableFieldsFromPartialObjects(givenSpec, givenTranslatableStringFields, givenExistingDoc);
+
+    // THEN expect the translations of the document to be unchanged
+    expect(givenExistingTranslations).toEqual(new Map([[FALLBACK_DB_KEY_NAME, "Cook"]]));
+  });
+
+  test("should not mutate the spec it is given", () => {
+    // GIVEN a patch spec whose translatable fields are partial multilingual objects
+    const givenSpec = { preferredLabel: { [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" } };
+    const givenExistingDoc = {};
+
+    // WHEN the translatable fields are merged
+    mergeTranslatableFieldsFromPartialObjects(givenSpec, givenTranslatableStringFields, givenExistingDoc);
+
+    // THEN expect the spec to be unchanged
+    expect(givenSpec).toEqual({ preferredLabel: { [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" } });
   });
 });

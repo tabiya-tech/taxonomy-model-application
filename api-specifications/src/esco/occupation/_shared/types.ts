@@ -91,8 +91,7 @@ interface IOccupationRequest {
   isLocalized: boolean;
 }
 
-// POST-only request shape: translatable fields accept the full multilingual object instead of a
-// flat string. PATCH keeps using IOccupationRequest until it is migrated too.
+// POST-only request shape: translatable fields accept the full multilingual object instead of a flat string.
 interface IOccupationPOSTRequest
   extends Omit<
     IOccupationRequest,
@@ -107,8 +106,7 @@ interface IOccupationPOSTRequest
 }
 
 // PUT-only request shape: translatable fields accept the full multilingual object, full-replace
-// semantics (omitting a language removes it). PATCH keeps using IOccupationRequest until it is
-// migrated too.
+// semantics (omitting a language removes it).
 interface IOccupationPUTRequest
   extends Omit<
     IOccupationRequest,
@@ -120,6 +118,23 @@ interface IOccupationPUTRequest
   definition: LanguageAPISpecs.Types.ITranslatedString;
   scopeNote: LanguageAPISpecs.Types.ITranslatedString;
   regulatedProfessionNote: LanguageAPISpecs.Types.ITranslatedString;
+}
+
+// PATCH-only request shape: translatable fields accept a partial multilingual object, whose per-language
+// values may be null to delete that language. A field omitted entirely from the payload is left untouched.
+interface IOccupationPATCHRequest
+  extends Partial<
+    Omit<
+      IOccupationRequest,
+      "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote" | "regulatedProfessionNote"
+    >
+  > {
+  preferredLabel?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  definition?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  scopeNote?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  regulatedProfessionNote?: LanguageAPISpecs.Types.IPartialTranslatedString;
 }
 
 interface PaginatedOccupationResponse {
@@ -219,7 +234,7 @@ namespace OccupationTypes {
 
   export namespace Detail.PATCH {
     export namespace Request {
-      export type Payload = Partial<IOccupationRequest>;
+      export type Payload = IOccupationPATCHRequest;
     }
     export namespace Response {
       export type Payload = IOccupationResponse;

@@ -57,6 +57,13 @@ namespace LanguageTypes {
   export type ITranslatedStringArray = ITranslatedString[];
 
   /**
+   * A translated value as accepted by a PATCH request: like ITranslatedString, but the value of a language may
+   * also be explicitly null, meaning "delete this language's translation". A language that is absent from the
+   * object (as opposed to present with a null value) means "leave this language's stored value untouched".
+   */
+  export type IPartialTranslatedString = Partial<Record<LanguageDbKeyName, string | null>>;
+
+  /**
    * The options of the translated string schema factory.
    */
   export type ITranslatedStringSchemaOptions = {
@@ -64,6 +71,8 @@ namespace LanguageTypes {
     maxLength: number;
     pattern?: string;
     required?: boolean;
+    /** When true, every language except the fallback may be explicitly null to delete that translation (PATCH). */
+    allowNullToDelete?: boolean;
   };
 
   export type ITranslatedStringArraySchemaOptions = Omit<ITranslatedStringSchemaOptions, "required"> & {

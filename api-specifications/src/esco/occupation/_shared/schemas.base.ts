@@ -126,6 +126,44 @@ export const _baseRequestProperties = {
   }),
 };
 
+// PATCH variant of the multilingual translatable fields: same per-language shape as _baseRequestProperties,
+// but every non-fallback language may additionally be null to delete that language's translation, and none
+// of the 6 fields are themselves required (PATCH may omit a field entirely to leave it untouched).
+export const _basePatchRequestProperties = {
+  ..._baseProperties,
+  preferredLabel: LanguageAPISpecs.Schemas.getTranslatedString({
+    description: "The preferred label of the occupation.",
+    maxLength: OccupationConstants.PREFERRED_LABEL_MAX_LENGTH,
+    pattern: RegExp_Str_NotEmptyString,
+    allowNullToDelete: true,
+  }),
+  altLabels: LanguageAPISpecs.Schemas.getTranslatedStringArray({
+    description: "Alternative labels for the occupation.",
+    maxLength: OccupationConstants.ALT_LABEL_MAX_LENGTH,
+    maxItems: OccupationConstants.ALT_LABELS_MAX_ITEMS,
+  }),
+  definition: LanguageAPISpecs.Schemas.getTranslatedString({
+    description: "The formal definition of the occupation.",
+    maxLength: OccupationConstants.DEFINITION_MAX_LENGTH,
+    allowNullToDelete: true,
+  }),
+  description: LanguageAPISpecs.Schemas.getTranslatedString({
+    description: "Additional descriptive information about the occupation.",
+    maxLength: OccupationConstants.DESCRIPTION_MAX_LENGTH,
+    allowNullToDelete: true,
+  }),
+  regulatedProfessionNote: LanguageAPISpecs.Schemas.getTranslatedString({
+    description: "Regulatory information for legally regulated professions.",
+    maxLength: OccupationConstants.REGULATED_PROFESSION_NOTE_MAX_LENGTH,
+    allowNullToDelete: true,
+  }),
+  scopeNote: LanguageAPISpecs.Schemas.getTranslatedString({
+    description: "Scope clarification for the occupation's application.",
+    maxLength: OccupationConstants.SCOPE_NOTE_MAX_LENGTH,
+    allowNullToDelete: true,
+  }),
+};
+
 export const _baseOccupationURLParameter = {
   modelId: {
     description: "The identifier of the model for occupation.",

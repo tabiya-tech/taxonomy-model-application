@@ -2626,46 +2626,87 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // WHEN patching the occupation
       const patchSpec: IPartialUpdateOccupationSpec = {
-        preferredLabel: "patched label",
-        description: "patched desc",
+        preferredLabel: { [FALLBACK_DB_KEY_NAME]: "patched label" },
+        description: { [FALLBACK_DB_KEY_NAME]: "patched desc" },
       };
       const actual = await repository.patch(occupation.id, modelId, patchSpec);
 
       // THEN expect it to be patched
       expect(actual).not.toBeNull();
-      expect(actual?.preferredLabel).toEqual(patchSpec.preferredLabel);
-      expect(actual?.description).toEqual(patchSpec.description);
+      expect(actual?.preferredLabel).toEqual(patchSpec.preferredLabel?.en);
+      expect(actual?.description).toEqual(patchSpec.description?.en);
       expect(actual?.code).toEqual(occupation.code); // Unchanged
     });
 
-    test("should preserve a non fallback language translation of a field when patching it, and leave other translatable fields untouched", async () => {
+    test("should merge a non fallback language translation of a field when patching it, and leave other translatable fields untouched", async () => {
       // GIVEN an occupation exists in the database
       const modelId = getMockStringId(1);
       const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_with_french");
       const occupation = await repository.create(toCreateSpec(givenSpec));
-      // AND its preferredLabel and description also carry a French translation, stored directly (the flat-string
-      // repository API has no way to write a non fallback language)
-      await repository.Model.updateOne(
-        { _id: occupation.id },
-        { $set: { "preferredLabel.fr": "Cuisinier", "description.fr": "Une description" } }
-      );
+      // AND its description already carries a French translation, stored directly (the create spec builder has
+      // no way to write a non fallback language)
+      await repository.Model.updateOne({ _id: occupation.id }, { $set: { "description.fr": "Une description" } });
 
-      // WHEN patching only preferredLabel through the public API
-      const patchSpec: IPartialUpdateOccupationSpec = { preferredLabel: "patched label" };
+      // WHEN patching preferredLabel with a French translation through the public API, description untouched
+      const patchSpec: IPartialUpdateOccupationSpec = { preferredLabel: { fr: "Cuisinier" } };
       await repository.patch(occupation.id, modelId, patchSpec);
 
-      // THEN expect preferredLabel's fallback language to have been updated, and its French translation preserved
+      // THEN expect preferredLabel to carry both the existing fallback language and the newly merged French
       const actualRawDoc = await repository.Model.findById(occupation.id).lean();
-      expect(actualRawDoc?.preferredLabel).toEqual({ en: "patched label", fr: "Cuisinier" });
+      expect(actualRawDoc?.preferredLabel).toEqual({
+        [FALLBACK_DB_KEY_NAME]: occupation.preferredLabel,
+        fr: "Cuisinier",
+      });
       // AND expect description, which was not part of the patch, to be completely untouched
-      expect(actualRawDoc?.description).toEqual({ en: occupation.description, fr: "Une description" });
+      expect(actualRawDoc?.description).toEqual({
+        [FALLBACK_DB_KEY_NAME]: occupation.description,
+        fr: "Une description",
+      });
+    });
+
+    test("should delete a non fallback language translation of a field when it is set to null", async () => {
+      // GIVEN an occupation exists whose preferredLabel carries a French translation
+      const modelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_to_delete_french");
+      const occupation = await repository.create(toCreateSpec(givenSpec));
+      await repository.Model.updateOne({ _id: occupation.id }, { $set: { "preferredLabel.fr": "Cuisinier" } });
+
+      // WHEN patching preferredLabel with French set to null
+      const patchSpec: IPartialUpdateOccupationSpec = { preferredLabel: { fr: null } };
+      await repository.patch(occupation.id, modelId, patchSpec);
+
+      // THEN expect French to have been removed, and the fallback language to be untouched
+      const actualRawDoc = await repository.Model.findById(occupation.id).lean();
+      expect(actualRawDoc?.preferredLabel).toEqual({ [FALLBACK_DB_KEY_NAME]: occupation.preferredLabel });
+      expect(actualRawDoc?.preferredLabel).not.toHaveProperty("fr");
+    });
+
+    test("should replace altLabels wholesale when patched, it is not merged per language", async () => {
+      // GIVEN an occupation exists whose altLabels carry a French translation
+      const modelId = getMockStringId(1);
+      const givenSpec = getSimpleNewESCOOccupationSpec(modelId, "occ_with_altlabels");
+      const occupation = await repository.create(toCreateSpec(givenSpec));
+      await repository.Model.updateOne(
+        { _id: occupation.id },
+        { $set: { altLabels: [{ [FALLBACK_DB_KEY_NAME]: "Chef", fr: "Cuisinier" }] } }
+      );
+
+      // WHEN patching altLabels with a completely different list
+      const patchSpec: IPartialUpdateOccupationSpec = {
+        altLabels: [{ [FALLBACK_DB_KEY_NAME]: "Line cook" }],
+      };
+      await repository.patch(occupation.id, modelId, patchSpec);
+
+      // THEN expect the whole altLabels list to have been replaced, not merged
+      const actualRawDoc = await repository.Model.findById(occupation.id).lean();
+      expect(actualRawDoc?.altLabels).toEqual([{ [FALLBACK_DB_KEY_NAME]: "Line cook" }]);
     });
 
     test("should return null if occupation does not exist", async () => {
       // GIVEN a non-existent occupation ID
       const nonExistentId = getMockStringId(2);
       const patchSpec: IPartialUpdateOccupationSpec = {
-        preferredLabel: "patched label",
+        preferredLabel: { [FALLBACK_DB_KEY_NAME]: "patched label" },
       };
 
       // WHEN patching
@@ -2685,7 +2726,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should throw if save fails during patch", async () => {
       // GIVEN a valid ID and spec
       const patchSpec: IPartialUpdateOccupationSpec = {
-        preferredLabel: "patched label",
+        preferredLabel: { [FALLBACK_DB_KEY_NAME]: "patched label" },
       };
 
       // AND findById returns a mock doc whose save will fail

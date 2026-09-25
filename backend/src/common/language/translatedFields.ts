@@ -171,3 +171,48 @@ export function wrapTranslatableFieldsFromObjects<Field extends string>(
   }
   return wrapped;
 }
+
+/**
+ * Merges the translatable fields of a PATCH spec into the translations a document already carries.
+ *
+ * Per field, per language: a language present in the spec's object with a string value is set/overwritten; a
+ * language present with an explicit null value is deleted from the merged Map; a language absent from the
+ * spec's object is left exactly as the existing document has it. A field absent from the spec entirely is not
+ * touched at all (the existing document's value for that field is not even read). altLabels, when present in
+ * the spec, replaces the whole list wholesale — it has no stable per-item identity to merge by, so "per
+ * language merge" does not apply to it the way it does to a scalar translatable field.
+ *
+ * @param spec the PATCH spec, its translatable fields (when present) partial multilingual objects that may
+ *             carry null to signal deletion of that language
+ * @param translatableStringFields the scalar translatable fields of the spec (excludes altLabels)
+ * @param existingDoc the document being patched, its stored translations read via readExistingTranslations
+ * @returns the spec, with its translatable fields merged into wrapped Maps ready for doc.set()
+ */
+export function mergeTranslatableFieldsFromPartialObjects<Field extends string>(
+  spec: Partial<Record<Field, LanguageAPISpecs.Types.IPartialTranslatedString>> & {
+    altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  },
+  translatableStringFields: readonly Field[],
+  existingDoc: object
+): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...spec };
+  translatableStringFields.forEach((field) => {
+    const patchValue = spec[field];
+    if (patchValue === undefined) {
+      return;
+    }
+    const translations = readExistingTranslations((existingDoc as Record<string, unknown>)[field]);
+    Object.entries(patchValue).forEach(([dbKeyName, value]) => {
+      if (value === null) {
+        translations.delete(dbKeyName as TranslatedStringKey);
+      } else if (value !== undefined) {
+        translations.set(dbKeyName as TranslatedStringKey, value);
+      }
+    });
+    merged[field] = translations;
+  });
+  if (spec.altLabels !== undefined) {
+    merged.altLabels = wrapTranslatedArrayFromObjects(spec.altLabels);
+  }
+  return merged;
+}

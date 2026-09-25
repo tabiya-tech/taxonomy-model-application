@@ -155,7 +155,20 @@ export type IUpdateOccupationSpec = Omit<
 
 /**
  * Describes the mutable fields for a partial occupation update (PATCH).
- * All fields are optional. Kept flat-string and decoupled from IUpdateOccupationSpec (rather than
- * Partial<IUpdateOccupationSpec>) since PATCH has not been migrated to multilingual objects yet.
+ * All fields are optional, and are left untouched when absent. Translatable fields accept a partial
+ * multilingual object: only the languages present in the object are changed, a language whose value is
+ * explicitly null is deleted from the stored occupation, and a language absent from the object is left as-is.
+ * altLabels has no stable per-item identity to merge by, so when present it is replaced wholesale (same as
+ * POST/PUT), it is not merged per language.
  */
-export type IPartialUpdateOccupationSpec = Partial<IUpdateOccupationBaseFields>;
+export type IPartialUpdateOccupationSpec = Omit<
+  Partial<IUpdateOccupationBaseFields>,
+  "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote" | "regulatedProfessionNote"
+> & {
+  preferredLabel?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  definition?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  scopeNote?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  regulatedProfessionNote?: LanguageAPISpecs.Types.IPartialTranslatedString;
+};
