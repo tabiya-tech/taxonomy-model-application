@@ -17,12 +17,14 @@ import {
   ISkillGroup,
   ISkillGroupDoc,
   ISkillGroupReference,
+  ISkillGroupWithTranslations,
   IPartialUpdateSkillGroupSpec,
   IUpdateSkillGroupSpec,
 } from "../_shared/skillGroup.types";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import { wrapTranslated, wrapTranslatedArray } from "common/language/translatedFields";
 import { INewSkillSpec, ISkillReference } from "esco/skill/_shared/skill.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
@@ -1151,6 +1153,145 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
       repositoryRegistry.skillGroup.findAll(getMockStringId(1))
+    );
+  });
+
+  describe("Test findAllWithTranslations()", () => {
+    // the flat SkillGroup the repository returns, wrapped back into the translations it is stored as
+    function toTranslatedSkillGroup(entity: ISkillGroup): ISkillGroupWithTranslations {
+      const { parents, children, ...entityData } = entity;
+      return {
+        ...entityData,
+        preferredLabel: wrapTranslated(entityData.preferredLabel),
+        description: wrapTranslated(entityData.description),
+        scopeNote: wrapTranslated(entityData.scopeNote),
+        altLabels: wrapTranslatedArray(entityData.altLabels),
+      };
+    }
+
+    test("should find all SkillGroups in the correct model, with every translation of their translatable fields", async () => {
+      // Given some modelId
+      const givenModelId = getMockStringId(1);
+      // AND a set of SkillGroups exist in the database for the given Model
+      const givenEntities = await createSkillGroupsInDB(givenModelId);
+      // AND some other SkillGroups exist in the database for a different model
+      await createSkillGroupsInDB(getMockStringId(2));
+      // AND the first SkillGroup is also translated in French, stored directly (the flat-string repository API has
+      // no way to write a non fallback language), with its second altLabel not translated in French
+      const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+      const givenTranslatedEntity = givenEntities[0];
+      await repository.Model.updateOne(
+        { _id: givenTranslatedEntity.id },
+        {
+          $set: {
+            "preferredLabel.fr": "fr_preferredLabel",
+            "description.fr": "fr_description",
+            altLabels: [
+              { [fallbackDbKeyName]: "altLabel_1", fr: "fr_altLabel_1" },
+              { [fallbackDbKeyName]: "altLabel_2" },
+            ],
+          },
+        }
+      );
+
+      // WHEN searching for all SkillGroups with their translations in the given model
+      const actualStream = repository.findAllWithTranslations(givenModelId);
+
+      // THEN the SkillGroups should be returned as a consumable stream that emits all SkillGroups of the given model
+      const actualEntities: ISkillGroupWithTranslations[] = [];
+      for await (const data of actualStream) {
+        actualEntities.push(data);
+      }
+      // AND their translatable fields should not be flattened to the fallback language
+      const expectedEntities = givenEntities.map(toTranslatedSkillGroup);
+      expectedEntities[0] = {
+        ...expectedEntities[0],
+        preferredLabel: new Map([
+          [fallbackDbKeyName, givenTranslatedEntity.preferredLabel],
+          ["fr", "fr_preferredLabel"],
+        ]),
+        description: new Map([
+          [fallbackDbKeyName, givenTranslatedEntity.description],
+          ["fr", "fr_description"],
+        ]),
+        altLabels: [
+          new Map([
+            [fallbackDbKeyName, "altLabel_1"],
+            ["fr", "fr_altLabel_1"],
+          ]),
+          new Map([[fallbackDbKeyName, "altLabel_2"]]),
+        ],
+        updatedAt: expect.any(Date),
+      } as ISkillGroupWithTranslations;
+      expect(actualEntities).toIncludeSameMembers(expectedEntities);
+    });
+
+    test("should not return any SkillGroups when the model does not have any and other models have", async () => {
+      // GIVEN no SkillGroups exist in the database for the given model
+      const givenModelId = getMockStringId(1);
+      // BUT some other SkillGroups exist in the database for a different model
+      await createSkillGroupsInDB(getMockStringId(2));
+
+      // WHEN the findAllWithTranslations method is called
+      const actualStream = repository.findAllWithTranslations(givenModelId);
+
+      // THEN the stream should end without emitting any data
+      const receivedData: ISkillGroupWithTranslations[] = [];
+      for await (const data of actualStream) {
+        receivedData.push(data);
+      }
+      expect(receivedData).toHaveLength(0);
+    });
+
+    test("should handle errors during data retrieval", async () => {
+      // GIVEN an error occurs during the find operation
+      const givenModelId = getMockStringId(1);
+      const givenError = new Error("foo");
+      jest.spyOn(repository.Model, "find").mockImplementationOnce(() => {
+        throw givenError;
+      });
+
+      // THEN the findAllWithTranslations method should throw an error
+      expect(() => repository.findAllWithTranslations(givenModelId)).toThrow(
+        expect.toMatchErrorWithCause(
+          "SkillGroupRepository.findAllWithTranslations: findAllWithTranslations failed",
+          givenError.message
+        )
+      );
+    });
+
+    test("should end and emit an error if an error occurs during data retrieval in the upstream", async () => {
+      // GIVEN an error occurs during the streaming of the find operation
+      const givenError = new Error("foo");
+      const mockStream = Readable.from([{ toObject: jest.fn() }]);
+      mockStream._read = jest.fn().mockImplementation(() => {
+        throw givenError;
+      });
+      const mockFind = jest.spyOn(repository.Model, "find");
+      // @ts-ignore
+      mockFind.mockReturnValue({
+        cursor: jest.fn().mockImplementationOnce(() => {
+          return mockStream;
+        }),
+      });
+
+      // WHEN searching for all SkillGroups with their translations in the given model
+      const actualStream = repository.findAllWithTranslations(getMockStringId(1));
+
+      // THEN the SkillGroups should be returned as a consumable stream that emits an error and ends
+      const actualEntities: ISkillGroupWithTranslations[] = [];
+      await expect(async () => {
+        for await (const data of actualStream) {
+          actualEntities.push(data);
+        }
+      }).rejects.toThrowError(givenError);
+      expect(actualStream.closed).toBeTruthy();
+      expect(actualEntities).toHaveLength(0);
+      mockFind.mockRestore();
+    });
+
+    TestStreamDBConnectionFailureNoSetup((repositoryRegistry) =>
+      repositoryRegistry.skillGroup.findAllWithTranslations(getMockStringId(1))
     );
   });
 

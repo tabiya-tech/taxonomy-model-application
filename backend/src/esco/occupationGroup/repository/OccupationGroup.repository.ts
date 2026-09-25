@@ -1,4 +1,9 @@
-import { IOccupationGroup, IOccupationGroupReference } from "esco/occupationGroup/_shared/OccupationGroup.types";
+import {
+  IOccupationGroup,
+  IOccupationGroupReference,
+  IOccupationGroupWithTranslations,
+} from "esco/occupationGroup/_shared/OccupationGroup.types";
+import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { getOccupationGroupDocReference, OccupationGroupDocument } from "../_shared/OccupationGroupReference";
 import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
@@ -117,6 +122,13 @@ export interface IOccupationGroupRepository extends IEmbeddableEntityRepository 
    * Rejects with an error if the operation fails.
    */
   findAll(modelId: string): Readable;
+
+  /**
+   * Like findAll(), but keeps every language of the translatable fields instead of flattening to the fallback. Used by export.
+   * @param {string} modelId - The modelId of the OccupationGroups.
+   * @return {Readable} - A Readable stream of IOccupationGroupWithTranslations
+   */
+  findAllWithTranslations(modelId: string): Readable;
 
   /**
    * Returns paginated OccupationGroups. The OccupationGroups are transformed to objects (via .lean()), however
@@ -540,6 +552,32 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       return pipeline;
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.findAll: findAll failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  findAllWithTranslations(modelId: string): Readable {
+    try {
+      const pipeline = stream.pipeline(
+        // use $eq to prevent NoSQL injection
+        this.Model.find({ modelId: { $eq: modelId } }).cursor(),
+        // we do not populate the parent, children
+        // the global transform only, without the transform of the schema that flattens the translatable fields
+        new DocumentToObjectTransformer<IOccupationGroupWithTranslations>(getGlobalTransformOptions()),
+        () => undefined
+      );
+
+      pipeline.on("error", (e) => {
+        const err = new Error("OccupationGroupRepository.findAllWithTranslations: stream failed", { cause: e });
+        console.error(err);
+      });
+
+      return pipeline;
+    } catch (e: unknown) {
+      const err = new Error("OccupationGroupRepository.findAllWithTranslations: findAllWithTranslations failed", {
+        cause: e,
+      });
       console.error(err);
       throw err;
     }

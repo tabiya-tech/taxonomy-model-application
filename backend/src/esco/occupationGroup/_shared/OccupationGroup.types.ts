@@ -60,6 +60,16 @@ export interface IOccupationGroupWithoutImportId extends Omit<IOccupationGroup, 
   importId: string | null;
 }
 
+// translatable fields of an OccupationGroup, stored as translated sub documents (e.g. { en: "Managers" })
+type OccupationGroupTranslatableFields = "preferredLabel" | "altLabels" | "description";
+
+// OccupationGroup for export: not populated, translatable fields kept in every language instead of flattened to fallback
+export type IOccupationGroupWithTranslations = Omit<
+  IOccupationGroup,
+  OccupationGroupTranslatableFields | "parent" | "children"
+> &
+  Pick<IOccupationGroupDoc, OccupationGroupTranslatableFields>;
+
 /**
  * Describes how a new OccupationGroup is created with the API.
  */

@@ -55,6 +55,43 @@ export function readFallbackLanguageValues(translatedValues: unknown, fallbackDb
 }
 
 /**
+ * Reads the value of a language out of a translated value, as it is stored.
+ *
+ * Unlike resolveTranslated(), a language that is not translated is read as an empty string, it does not fall back to
+ * another language, so that every language is read as exactly what it carries.
+ *
+ * @param translatedValue the translated value, a Map as mongoose hydrates it, a plain object for a lean query, or a
+ *                        flat string for a document that predates the localized fields migration
+ * @param dbKeyName the dbKeyName of the language to read
+ * @returns the value of the language, or an empty string when the language is not translated
+ */
+export function readLanguageValue(translatedValue: unknown, dbKeyName: string): string {
+  // a flat string predates the localized fields migration, it only ever carried the fall back language
+  if (typeof translatedValue === "string") {
+    return dbKeyName === getFallbackLanguageConfig().dbKeyName ? translatedValue : "";
+  }
+  return readFallbackLanguageValue(translatedValue, dbKeyName);
+}
+
+/**
+ * Reads the values of a language out of a list of translated values.
+ *
+ * An item that is not translated in the language is read as an empty string rather than being dropped, so that the
+ * values of every language keep the length and the order of the list, and the n-th value of a language is the
+ * translation of the n-th value of any other language.
+ *
+ * @param translatedValues the list of translated values, absent on a document that never carried the path
+ * @param dbKeyName the dbKeyName of the language to read
+ * @returns the values of the language, an empty list when there is no list to read
+ */
+export function readLanguageValues(translatedValues: unknown, dbKeyName: string): string[] {
+  if (!Array.isArray(translatedValues)) {
+    return [];
+  }
+  return translatedValues.map((item: unknown) => readLanguageValue(item, dbKeyName));
+}
+
+/**
  * Wraps a flat string into a translated value keyed by the fall back language, e.g. "Cook" into { en: "Cook" }.
  */
 export function wrapTranslated(value: string): ITranslatedStringDoc {
@@ -120,4 +157,12 @@ export function wrapTranslatableFields<Field extends string>(
     wrapped.altLabels = wrapTranslatedArray(spec.altLabels);
   }
   return wrapped;
+}
+
+/**
+ * A JSON.stringify() replacer that serializes a translated value hydrated as a Map as a plain object, since
+ * JSON.stringify() serializes a Map as {} and would hide the translations, e.g. in an error message.
+ */
+export function translatedValueReplacer(_key: string, value: unknown): unknown {
+  return value instanceof Map ? Object.fromEntries(value) : value;
 }

@@ -10,6 +10,8 @@ import { ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import LanguageAPISpecs from "api-specifications/language";
+import { readLanguageValue, readLanguageValues } from "common/language/translatedFields";
+import { stringFromArray } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 /**
  * Localized column variants for each field, e.g. PREFERREDLABEL_EN, DESCRIPTION_FR.
@@ -29,7 +31,101 @@ const HEADER_NAMES = {
   ISLOCALIZED: "ISLOCALIZED",
   UPDATED_AT: "UPDATEDAT",
   CREATED_AT: "CREATEDAT",
-};
+} as const;
+
+/*
+ * Translatable fields get one column per language, e.g. PREFERREDLABEL_EN, PREFERREDLABEL_FR.
+ * Suffixed even for a single language. Import headers are not suffixed yet.
+ */
+
+// e.g. PREFERREDLABEL_EN
+export type LanguageSuffixedHeader<Header extends string> = `${Header}_${string}`;
+
+// The export row shape shared by every translatable entity: one column per language per translatable header,
+// plus whatever non-localizable fields (id, code, timestamps, ...) that entity carries as-is.
+export type ExportRow<TranslatableHeader extends string, NonLocalizableFields> = Record<
+  LanguageSuffixedHeader<TranslatableHeader>,
+  string
+> &
+  NonLocalizableFields;
+
+export function getLanguageSuffixedHeader<Header extends string>(
+  header: Header,
+  language: LanguageAPISpecs.Types.ILanguageConfig
+): LanguageSuffixedHeader<Header> {
+  return `${header}_${language.csvSuffix}`;
+}
+
+// Expands each translatable header into one per language, in place. Field order first, then language order.
+function expandTranslatableHeaders(
+  headers: readonly string[],
+  translatableHeaders: readonly string[],
+  languages: readonly LanguageAPISpecs.Types.ILanguageConfig[]
+): string[] {
+  return headers.flatMap((header) =>
+    translatableHeaders.includes(header)
+      ? languages.map((language) => getLanguageSuffixedHeader(header, language))
+      : [header]
+  );
+}
+
+// e.g. { en: "Cook" } -> { PREFERREDLABEL_EN: "Cook", PREFERREDLABEL_FR: "" }. Missing translation -> "".
+export function getLanguageSuffixedColumns<Header extends string>(
+  header: Header,
+  translatedValue: unknown,
+  languages: readonly LanguageAPISpecs.Types.ILanguageConfig[]
+): Record<LanguageSuffixedHeader<Header>, string> {
+  return Object.fromEntries(
+    languages.map((language) => [
+      getLanguageSuffixedHeader(header, language),
+      readLanguageValue(translatedValue, language.dbKeyName),
+    ])
+  ) as Record<LanguageSuffixedHeader<Header>, string>;
+}
+
+// same as above but for a list (e.g. altLabels): one newline-joined column per language, missing entries as "".
+export function getLanguageSuffixedArrayColumns<Header extends string>(
+  header: Header,
+  translatedValues: unknown,
+  languages: readonly LanguageAPISpecs.Types.ILanguageConfig[]
+): Record<LanguageSuffixedHeader<Header>, string> {
+  return Object.fromEntries(
+    languages.map((language) => [
+      getLanguageSuffixedHeader(header, language),
+      stringFromArray(readLanguageValues(translatedValues, language.dbKeyName)),
+    ])
+  ) as Record<LanguageSuffixedHeader<Header>, string>;
+}
+
+// Builds an entity's getXExportHeaders function: every import header, translatable ones expanded per language, then the timestamps.
+function makeGetExportHeaders(importHeaders: readonly string[], translatableHeaders: readonly string[]) {
+  return (languages: readonly LanguageAPISpecs.Types.ILanguageConfig[]): string[] => [
+    ...expandTranslatableHeaders(importHeaders, translatableHeaders, languages),
+    HEADER_NAMES.CREATED_AT,
+    HEADER_NAMES.UPDATED_AT,
+  ];
+}
+
+type TranslatableFieldValue = unknown | unknown[];
+
+// Spreads every translatable field of a row at once. translatedValuesByHeader must carry every header of Header, so a
+// field left out is a compile error instead of a silently missing column.
+export function getLanguageSuffixedRowColumns<Header extends string>(
+  translatedValuesByHeader: Record<Header, TranslatableFieldValue>,
+  arrayHeaders: readonly Header[],
+  languages: readonly LanguageAPISpecs.Types.ILanguageConfig[]
+): Record<LanguageSuffixedHeader<Header>, string> {
+  const columns = {} as Record<LanguageSuffixedHeader<Header>, string>;
+  (Object.keys(translatedValuesByHeader) as Header[]).forEach((header) => {
+    const translatedValue = translatedValuesByHeader[header];
+    const headerColumns = arrayHeaders.includes(header)
+      ? getLanguageSuffixedArrayColumns(header, translatedValue, languages)
+      : getLanguageSuffixedColumns(header, translatedValue, languages);
+    Object.assign(columns, headerColumns);
+  });
+  return columns;
+}
+
 /*
  * ----------------------------- *
  * This pair of interface and headers should be a 1 to 1 mapping
@@ -51,11 +147,18 @@ export const OccupationGroupImportHeaders = [
   HEADER_NAMES.DESCRIPTION,
 ];
 
-export const OccupationGroupExportHeaders = [
-  ...OccupationGroupImportHeaders,
-  HEADER_NAMES.CREATED_AT,
-  HEADER_NAMES.UPDATED_AT,
-];
+export const OccupationGroupTranslatableHeaders = [
+  HEADER_NAMES.PREFERREDLABEL,
+  HEADER_NAMES.ALTLABELS,
+  HEADER_NAMES.DESCRIPTION,
+] as const;
+
+export type OccupationGroupTranslatableHeader = (typeof OccupationGroupTranslatableHeaders)[number];
+
+export const getOccupationGroupExportHeaders = makeGetExportHeaders(
+  OccupationGroupImportHeaders,
+  OccupationGroupTranslatableHeaders
+);
 
 /*
  * Interface for the occupationGroup row in the CSV file
@@ -80,10 +183,18 @@ export interface IOccupationGroupImportRow extends LocalizedColumns<"PREFERREDLA
   GROUPTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.LocalGroup;
 }
 
-export interface IOccupationGroupExportRow extends IOccupationGroupImportRow {
-  CREATEDAT: string;
-  UPDATEDAT: string;
-}
+export type IOccupationGroupExportRow = ExportRow<
+  OccupationGroupTranslatableHeader,
+  {
+    ID: string;
+    ORIGINURI: string;
+    UUIDHISTORY: string;
+    CODE: string;
+    GROUPTYPE: CSVObjectTypes.ISCOGroup | CSVObjectTypes.LocalGroup;
+    CREATEDAT: string;
+    UPDATEDAT: string;
+  }
+>;
 
 /*
  * Headers for the skill CSV file
@@ -102,7 +213,17 @@ export const skillImportHeaders = [
   HEADER_NAMES.ISLOCALIZED,
 ];
 
-export const skillExportHeaders = [...skillImportHeaders, HEADER_NAMES.CREATED_AT, HEADER_NAMES.UPDATED_AT];
+export const skillTranslatableHeaders = [
+  "DEFINITION",
+  "SCOPENOTE",
+  HEADER_NAMES.PREFERREDLABEL,
+  HEADER_NAMES.ALTLABELS,
+  HEADER_NAMES.DESCRIPTION,
+] as const;
+
+export type SkillTranslatableHeader = (typeof skillTranslatableHeaders)[number];
+
+export const getSkillExportHeaders = makeGetExportHeaders(skillImportHeaders, skillTranslatableHeaders);
 
 /*
  * Interface for the skill row in the CSV file
@@ -138,21 +259,19 @@ export interface ISkillImportRow
   ISLOCALIZED: string;
 }
 
-export interface ISkillExportRow {
-  ID: string;
-  ORIGINURI: string;
-  UUIDHISTORY: string;
-  PREFERREDLABEL: string;
-  ALTLABELS: string;
-  DESCRIPTION: string;
-  DEFINITION: string;
-  SCOPENOTE: string;
-  REUSELEVEL: CSVReuseLevel;
-  SKILLTYPE: CSVSkillType;
-  CREATEDAT: string;
-  UPDATEDAT: string;
-  ISLOCALIZED: string;
-}
+export type ISkillExportRow = ExportRow<
+  SkillTranslatableHeader,
+  {
+    ID: string;
+    ORIGINURI: string;
+    UUIDHISTORY: string;
+    REUSELEVEL: CSVReuseLevel;
+    SKILLTYPE: CSVSkillType;
+    CREATEDAT: string;
+    UPDATEDAT: string;
+    ISLOCALIZED: string;
+  }
+>;
 
 /*
  * Headers for the skillGroup CSV file
@@ -168,7 +287,16 @@ export const skillGroupImportHeaders = [
   HEADER_NAMES.DESCRIPTION,
 ];
 
-export const skillGroupExportHeaders = [...skillGroupImportHeaders, HEADER_NAMES.CREATED_AT, HEADER_NAMES.UPDATED_AT];
+export const skillGroupTranslatableHeaders = [
+  "SCOPENOTE",
+  HEADER_NAMES.PREFERREDLABEL,
+  HEADER_NAMES.ALTLABELS,
+  HEADER_NAMES.DESCRIPTION,
+] as const;
+
+export type SkillGroupTranslatableHeader = (typeof skillGroupTranslatableHeaders)[number];
+
+export const getSkillGroupExportHeaders = makeGetExportHeaders(skillGroupImportHeaders, skillGroupTranslatableHeaders);
 
 /*
  * Interface for the skillGroup row in the CSV file
@@ -188,10 +316,17 @@ export interface ISkillGroupImportRow
   SCOPENOTE: string;
 }
 
-export interface ISkillGroupExportRow extends ISkillGroupImportRow {
-  CREATEDAT: string;
-  UPDATEDAT: string;
-}
+export type ISkillGroupExportRow = ExportRow<
+  SkillGroupTranslatableHeader,
+  {
+    ID: string;
+    ORIGINURI: string;
+    UUIDHISTORY: string;
+    CODE: string;
+    CREATEDAT: string;
+    UPDATEDAT: string;
+  }
+>;
 
 /*
  * Headers for the occupations CSV file
@@ -213,7 +348,18 @@ export const occupationImportHeaders = [
   HEADER_NAMES.DESCRIPTION,
 ];
 
-export const occupationExportHeaders = [...occupationImportHeaders, HEADER_NAMES.CREATED_AT, HEADER_NAMES.UPDATED_AT];
+export const occupationTranslatableHeaders = [
+  "DEFINITION",
+  "SCOPENOTE",
+  "REGULATEDPROFESSIONNOTE",
+  HEADER_NAMES.PREFERREDLABEL,
+  HEADER_NAMES.ALTLABELS,
+  HEADER_NAMES.DESCRIPTION,
+] as const;
+
+export type OccupationTranslatableHeader = (typeof occupationTranslatableHeaders)[number];
+
+export const getOccupationExportHeaders = makeGetExportHeaders(occupationImportHeaders, occupationTranslatableHeaders);
 
 /*
  * Interface for the occupations row in the CSV file
@@ -255,23 +401,20 @@ export interface IOccupationImportRow
   OCCUPATIONTYPE: CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
 }
 
-export interface IOccupationExportRow {
-  ID: string;
-  ORIGINURI: string;
-  UUIDHISTORY: string;
-  OCCUPATIONGROUPCODE: string;
-  CODE: string;
-  PREFERREDLABEL: string;
-  ALTLABELS: string;
-  DESCRIPTION: string;
-  DEFINITION: string;
-  SCOPENOTE: string;
-  REGULATEDPROFESSIONNOTE: string;
-  OCCUPATIONTYPE: CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
-  ISLOCALIZED: string;
-  CREATEDAT: string;
-  UPDATEDAT: string;
-}
+export type IOccupationExportRow = ExportRow<
+  OccupationTranslatableHeader,
+  {
+    ID: string;
+    ORIGINURI: string;
+    UUIDHISTORY: string;
+    OCCUPATIONGROUPCODE: string;
+    CODE: string;
+    OCCUPATIONTYPE: CSVObjectTypes.ESCOOccupation | CSVObjectTypes.LocalOccupation;
+    ISLOCALIZED: string;
+    CREATEDAT: string;
+    UPDATEDAT: string;
+  }
+>;
 
 /*
  * Headers for the for skill-to-skill relation CSV file
