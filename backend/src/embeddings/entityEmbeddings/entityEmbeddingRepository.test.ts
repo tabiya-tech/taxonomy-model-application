@@ -216,5 +216,82 @@ describe.each([
         );
       });
     });
+
+    describe("Test delete() entity embeddings", () => {
+      test("should delete all embeddings of the given entity in the given model", async () => {
+        // GIVEN embeddings for an entity in the database
+        const givenModelId = getMockStringId(1);
+        const givenEntityId = getMockStringId(2);
+        const givenSpec1 = getNewEntityEmbeddingSpec({
+          modelId: givenModelId,
+          entityId: givenEntityId,
+          sourceField: EmbeddableField.preferredLabel,
+        });
+        const givenSpec2 = getNewEntityEmbeddingSpec({
+          modelId: givenModelId,
+          entityId: givenEntityId,
+          sourceField: EmbeddableField.description,
+        });
+        await repository.upsert(givenSpec1);
+        await repository.upsert(givenSpec2);
+
+        // AND embeddings for a different entity
+        const otherEntitySpec = getNewEntityEmbeddingSpec({
+          modelId: givenModelId,
+          entityId: getMockStringId(3),
+        });
+        await repository.upsert(otherEntitySpec);
+
+        // AND embeddings for the same entity in a different model
+        const otherModelSpec = getNewEntityEmbeddingSpec({
+          modelId: getMockStringId(4),
+          entityId: givenEntityId,
+        });
+        await repository.upsert(otherModelSpec);
+
+        // WHEN deleting the embeddings for the given entity and model
+        await repository.delete(givenModelId, givenEntityId);
+
+        // THEN expect embeddings for the given entity and model to be deleted
+        const found = await repository.findByEntity(givenModelId, givenEntityId, givenSpec1.embeddingServiceId);
+        expect(found).toEqual([]);
+
+        // AND expect embeddings for other entities and models to remain
+        const remainingTotal = await repository.Model.countDocuments({}).exec();
+        expect(remainingTotal).toBe(2);
+      });
+
+      test("should gracefully do nothing if modelId or entityId is invalid", async () => {
+        // GIVEN an embedding in the database
+        await repository.upsert(getNewEntityEmbeddingSpec());
+
+        // WHEN deleting with invalid modelId or entityId
+        await repository.delete("invalid-id", getMockStringId(2));
+        await repository.delete(getMockStringId(1), "invalid-id");
+
+        // THEN expect no documents to be deleted
+        const remainingTotal = await repository.Model.countDocuments({}).exec();
+        expect(remainingTotal).toBe(1);
+      });
+
+      test("should throw wrapped error when unexpected error occurs", async () => {
+        // GIVEN deleteMany throws an error
+        const deleteManySpy = jest.spyOn(repository.Model, "deleteMany").mockImplementationOnce(() => {
+          throw new Error("DB failure");
+        });
+
+        // WHEN calling delete
+        const actualPromise = repository.delete(getMockStringId(1), getMockStringId(2));
+
+        // THEN expect it to throw a wrapped error
+        await expect(actualPromise).rejects.toThrow("EntityEmbeddingRepository.delete: delete failed");
+
+        deleteManySpy.mockRestore();
+      });
+
+      TestDBConnectionFailureNoSetup((repositoryRegistry) => {
+        return repositoryRegistry[registryKey as "skillEmbedding"].delete(getMockStringId(1), getMockStringId(2));
+      });
+    });
   }
 );

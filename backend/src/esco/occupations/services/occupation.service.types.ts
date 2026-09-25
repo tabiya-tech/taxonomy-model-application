@@ -34,6 +34,29 @@ export interface IOccupationHistoryEntry {
   model: IModelInfoReference;
 }
 
+export class OccupationHasChildrenError extends Error {
+  constructor(message?: string) {
+    super(message ?? "Cannot delete occupation with children");
+    this.name = "OccupationHasChildrenError";
+  }
+}
+
+export enum OccupationServiceErrorCode {
+  OCCUPATION_NOT_FOUND,
+  CANNOT_DELETE_NON_LEAF_OCCUPATION,
+  FAILED_TO_DELETE_OCCUPATION,
+}
+
+export class OccupationServiceError extends Error {
+  constructor(
+    public code: OccupationServiceErrorCode,
+    message?: string
+  ) {
+    super(message);
+    this.name = "OccupationServiceError";
+  }
+}
+
 export interface IOccupationService {
   /**
    * Creates a new Occupation entry.
@@ -102,6 +125,12 @@ export interface IOccupationService {
    * Partially updates an Occupation (PATCH semantics).
    */
   patch(id: string, modelId: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null>;
+
+  /**
+   * Deletes an Occupation and its junction relations (DELETE semantics).
+   * Throws OccupationHasChildrenError if the occupation has children.
+   */
+  delete(id: string, modelId: string): Promise<void>;
 
   /**
    * Resolves the history of the models an Occupation appeared in, based on its UUIDHistory.

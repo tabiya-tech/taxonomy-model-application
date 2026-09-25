@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { TxContext } from "common/transactional";
 import {
   EntityEmbeddingIdPath,
   IEntityEmbedding,
@@ -39,6 +40,17 @@ export interface IEntityEmbeddingRepository<
    * Rejects with an error if the operation fails.
    */
   findByEntity(modelId: string, entityId: string, embeddingServiceId: string): Promise<Entity[]>;
+
+  /**
+   * Deletes all embeddings of the given entity in the given model.
+   *
+   * @param {string} modelId - The unique ID of the model the entity belongs to.
+   * @param {string} entityId - The unique ID of the entity.
+   * @param {TxContext} [ctx] - Supplied by the @Transactional() decorator or passed directly; optional.
+   * @return {Promise<void>} - A Promise that resolves when the embeddings are deleted.
+   * Rejects with an error if the operation fails.
+   */
+  delete(modelId: string, entityId: string, ctx?: TxContext): Promise<void>;
 
   /**
    * Runs a vector (embeddings) similarity search over the collection and returns the matched entities,
@@ -112,6 +124,26 @@ export class EntityEmbeddingRepository<
       return docs.map((doc) => this.toEntityEmbedding(doc));
     } catch (e: unknown) {
       const err = new Error("EntityEmbeddingRepository.findByEntity: findByEntity failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async delete(modelId: string, entityId: string, ctx: TxContext = {}): Promise<void> {
+    const { session } = ctx;
+    try {
+      if (!mongoose.Types.ObjectId.isValid(modelId) || !mongoose.Types.ObjectId.isValid(entityId)) return;
+      const modelIdObj = new mongoose.Types.ObjectId(modelId);
+      const entityIdObj = new mongoose.Types.ObjectId(entityId);
+      await this.Model.deleteMany(
+        {
+          modelId: modelIdObj,
+          [this.entityIdPath]: entityIdObj,
+        },
+        { session }
+      ).exec();
+    } catch (e: unknown) {
+      const err = new Error("EntityEmbeddingRepository.delete: delete failed", { cause: e });
       console.error(err);
       throw err;
     }

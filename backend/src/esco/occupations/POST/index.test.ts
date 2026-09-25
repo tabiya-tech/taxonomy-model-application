@@ -61,6 +61,7 @@ describe("Test for occupation POST handler", () => {
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         update: jest.fn(),
         patch: jest.fn(),
+        delete: jest.fn(),
         getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService,
       initialize: jest.fn(),
@@ -149,6 +150,7 @@ describe("Test for occupation POST handler", () => {
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         update: jest.fn(),
         patch: jest.fn(),
+        delete: jest.fn(),
         getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
@@ -279,6 +281,7 @@ describe("Test for occupation POST handler", () => {
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         update: jest.fn(),
         patch: jest.fn(),
+        delete: jest.fn(),
         getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
@@ -437,6 +440,7 @@ describe("Test for occupation POST handler", () => {
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         update: jest.fn(),
         patch: jest.fn(),
+        delete: jest.fn(),
         getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
@@ -488,6 +492,7 @@ describe("Test for occupation POST handler", () => {
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         update: jest.fn(),
         patch: jest.fn(),
+        delete: jest.fn(),
         getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
@@ -563,6 +568,7 @@ describe("Test for occupation POST handler", () => {
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         update: jest.fn(),
         patch: jest.fn(),
+        delete: jest.fn(),
         getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
@@ -612,6 +618,7 @@ describe("Test for occupation POST handler", () => {
         getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
         update: jest.fn(),
         patch: jest.fn(),
+        delete: jest.fn(),
         getHistory: jest.fn().mockResolvedValue(null),
       } as IOccupationService;
       const mockServiceRegistry = mockGetServiceRegistry();
