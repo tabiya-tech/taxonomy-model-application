@@ -300,31 +300,33 @@ describe("Test for occupation Children GET handler", () => {
         ["serve the fallback language when the client explicitly requests it", "en", "en", "en"],
         ["serve a secondary language when the model has it and the client requests it", "fr", "fr", "fr"],
         ["fall back to the fallback language when the client requests an unsupported language", "es", "en", "en"],
-        ["fall back to the fallback language when the Accept-Language header is malformed", ";;;not-a-language;;;", "en", "en"],
+        [
+          "fall back to the fallback language when the Accept-Language header is malformed",
+          ";;;not-a-language;;;",
+          "en",
+          "en",
+        ],
         ["serve the highest-quality language from a quality-value header", "en;q=0.5, fr;q=0.9", "fr", "fr"],
-      ])(
-        "GET should %s",
-        async (_description, givenAcceptLanguage, expectedContentLanguage, expectedDbKeyName) => {
-          // GIVEN a model with [en, fr] and the client sends Accept-Language: ${givenAcceptLanguage}
-          const givenEvent = buildEvent({ "accept-language": givenAcceptLanguage });
-          const givenOccupationServiceMock = buildServiceMock();
-          mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+      ])("GET should %s", async (_description, givenAcceptLanguage, expectedContentLanguage, expectedDbKeyName) => {
+        // GIVEN a model with [en, fr] and the client sends Accept-Language: ${givenAcceptLanguage}
+        const givenEvent = buildEvent({ "accept-language": givenAcceptLanguage });
+        const givenOccupationServiceMock = buildServiceMock();
+        mockGetServiceRegistry().occupation = givenOccupationServiceMock;
 
-          // WHEN the handler is called
-          const actualResponse = await occupationHandler(givenEvent);
+        // WHEN the handler is called
+        const actualResponse = await occupationHandler(givenEvent);
 
-          // THEN it responds OK and serves ${expectedContentLanguage} to both the client and repository
-          expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
-          expect(actualResponse.headers?.["Content-Language"]).toEqual(expectedContentLanguage);
-          expect(givenOccupationServiceMock.getChildren).toHaveBeenCalledWith(
-            givenModelId,
-            givenOccupationId,
-            undefined,
-            expect.any(Number),
-            expectedDbKeyName
-          );
-        }
-      );
+        // THEN it responds OK and serves ${expectedContentLanguage} to both the client and repository
+        expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+        expect(actualResponse.headers?.["Content-Language"]).toEqual(expectedContentLanguage);
+        expect(givenOccupationServiceMock.getChildren).toHaveBeenCalledWith(
+          givenModelId,
+          givenOccupationId,
+          undefined,
+          expect.any(Number),
+          expectedDbKeyName
+        );
+      });
     });
   });
 });
