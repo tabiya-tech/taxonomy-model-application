@@ -70,7 +70,7 @@ describe("Test for occupation Detail GET handler", () => {
       const givenOccupationServiceMock = {
         findById: jest.fn().mockResolvedValue(givenOccupation),
         searchPaginated: jest.fn(),
-        validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        validateModelForOccupation: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
         getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -98,7 +98,7 @@ describe("Test for occupation Detail GET handler", () => {
       const givenOccupationServiceMock = {
         findById: jest.fn().mockResolvedValue(null),
         searchPaginated: jest.fn(),
-        validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        validateModelForOccupation: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
         getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -123,7 +123,7 @@ describe("Test for occupation Detail GET handler", () => {
         searchPaginated: jest.fn(),
         validateModelForOccupation: jest
           .fn()
-          .mockResolvedValue(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID),
+          .mockResolvedValue({ errorCode: ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID }),
         getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -148,7 +148,7 @@ describe("Test for occupation Detail GET handler", () => {
         searchPaginated: jest.fn(),
         validateModelForOccupation: jest
           .fn()
-          .mockResolvedValue(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+          .mockResolvedValue({ errorCode: ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB }),
         getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -173,7 +173,7 @@ describe("Test for occupation Detail GET handler", () => {
       const givenOccupationServiceMock = {
         findById: jest.fn().mockRejectedValue(new Error("foo")),
         searchPaginated: jest.fn(),
-        validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        validateModelForOccupation: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
         getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -194,7 +194,7 @@ describe("Test for occupation Detail GET handler", () => {
       const givenOccupationServiceMock = {
         findById: jest.fn().mockRejectedValue("some string error"),
         searchPaginated: jest.fn(),
-        validateModelForOccupation: jest.fn().mockResolvedValue(null),
+        validateModelForOccupation: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
         getHistory: jest.fn().mockResolvedValue(null),
       } as unknown as IOccupationService;
       mockGetServiceRegistry().occupation = givenOccupationServiceMock;
@@ -215,6 +215,75 @@ describe("Test for occupation Detail GET handler", () => {
 
       const actualResponse = await occupationHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    });
+
+    describe("language negotiation", () => {
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenAvailableLanguages = ["en", "fr"];
+
+      function buildEvent(headers?: Record<string, string>): APIGatewayProxyEvent {
+        return {
+          httpMethod: "GET",
+          path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+          pathParameters: { modelId: givenModelId, id: givenOccupationId },
+          headers: headers ?? {},
+        } as unknown as APIGatewayProxyEvent;
+      }
+
+      function buildServiceMock(): IOccupationService {
+        return {
+          findById: jest.fn().mockResolvedValue(getIOccupationMockData()),
+          searchPaginated: jest.fn(),
+          validateModelForOccupation: jest
+            .fn()
+            .mockResolvedValue({ errorCode: null, availableLanguages: givenAvailableLanguages }),
+          getHistory: jest.fn().mockResolvedValue(null),
+        } as unknown as IOccupationService;
+      }
+
+      test("GET should serve the fallback language and set headers when no Accept-Language header is present", async () => {
+        // GIVEN a request without an Accept-Language header
+        const givenEvent = buildEvent();
+        const givenOccupationServiceMock = buildServiceMock();
+        mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+        // WHEN calling the handler
+        const actualResponse = await occupationHandler(givenEvent);
+
+        // THEN expect OK
+        expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+        // AND the fallback language is served
+        expect(actualResponse.headers?.["Content-Language"]).toEqual("en");
+        expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
+        // AND the service receives the fallback language
+        expect(givenOccupationServiceMock.findById).toHaveBeenCalledWith(givenOccupationId, "en");
+      });
+
+      test.each([
+        // [description, acceptLanguage header, expected Content-Language served, expected dbKeyName passed to service]
+        ["serve the fallback language when the client explicitly requests it", "en", "en", "en"],
+        ["serve a secondary language when the model has it and the client requests it", "fr", "fr", "fr"],
+        ["fall back to the fallback language when the client requests an unsupported language", "es", "en", "en"],
+        ["fall back to the fallback language when the Accept-Language header is malformed", ";;;not-a-language;;;", "en", "en"],
+        ["serve the highest-quality language from a quality-value header", "en;q=0.5, fr;q=0.9", "fr", "fr"],
+      ])(
+        "GET should %s",
+        async (_description, givenAcceptLanguage, expectedContentLanguage, expectedDbKeyName) => {
+          // GIVEN a model with [en, fr] and the client sends Accept-Language: ${givenAcceptLanguage}
+          const givenEvent = buildEvent({ "accept-language": givenAcceptLanguage });
+          const givenOccupationServiceMock = buildServiceMock();
+          mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+          // WHEN the handler is called
+          const actualResponse = await occupationHandler(givenEvent);
+
+          // THEN it responds OK and serves ${expectedContentLanguage} to both the client and repository
+          expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+          expect(actualResponse.headers?.["Content-Language"]).toEqual(expectedContentLanguage);
+          expect(givenOccupationServiceMock.findById).toHaveBeenCalledWith(givenOccupationId, expectedDbKeyName);
+        }
+      );
     });
   });
 });

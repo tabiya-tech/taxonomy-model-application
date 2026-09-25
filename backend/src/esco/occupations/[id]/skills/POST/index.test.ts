@@ -98,7 +98,10 @@ describe("Test for occupation Skills POST handler", () => {
 
       checkRole.mockResolvedValue(true);
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockSkill: ISkillWithRelation = {
         ...getISkillMockData(2),
@@ -145,7 +148,10 @@ describe("Test for occupation Skills POST handler", () => {
 
       checkRole.mockResolvedValue(true);
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockSkill: ISkillWithRelation = {
         ...getISkillMockData(2),
@@ -193,7 +199,10 @@ describe("Test for occupation Skills POST handler", () => {
 
       checkRole.mockResolvedValue(true);
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockSkill: ISkillWithRelation = {
         ...getISkillMockData(2),
@@ -322,9 +331,9 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(
-        ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID
-      );
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID,
+      });
 
       const actualResponse = await postOccupationSkillsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
@@ -346,9 +355,9 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(
-        ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB
-      );
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB,
+      });
 
       const actualResponse = await postOccupationSkillsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -372,9 +381,9 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(
-        ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED
-      );
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED,
+      });
 
       const actualResponse = await postOccupationSkillsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -396,7 +405,10 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.OCCUPATION_NOT_FOUND)
       );
@@ -421,7 +433,10 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.SKILL_NOT_FOUND)
       );
@@ -446,7 +461,10 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_RELATION_TYPE)
       );
@@ -471,7 +489,10 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.INVALID_SIGNALLING_VALUE_LABEL)
       );
@@ -496,7 +517,10 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.RELATION_CODE_INCONSISTENT)
       );
@@ -521,7 +545,10 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
         new OccupationSkillValidationError(SkillForOccupationValidationErrorCode.MUTUALLY_EXCLUSIVE_VALUES)
       );
@@ -546,7 +573,10 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(
         new OccupationSkillValidationError(
           SkillForOccupationValidationErrorCode.DB_FAILED_TO_CREATE_OCCUPATION_SKILL_RELATION
@@ -575,7 +605,10 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue(new Error("generic error"));
 
       const actualResponse = await postOccupationSkillsHandler(givenEvent);
@@ -620,7 +653,10 @@ describe("Test for occupation Skills POST handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       mockServiceRegistry.occupationToSkillRelation.addSkill.mockRejectedValue("string generic DB error");
 
       const actualResponse = await postOccupationSkillsHandler(givenEvent);

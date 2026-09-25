@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
@@ -8,12 +8,12 @@ import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { getResourcesBaseUrl } from "server/config/config";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForOccupationValidationErrorCode } from "../../../services/occupation.service.types";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { buildSkillsResponse } from "./response";
 import { parseSkillsQuery } from "./query";
 import { encodeCursor } from "../../../_shared/pagination/encodeCursor";
 import { extractAndValidateIdParams } from "../../../_shared/params";
+import { resolveLanguageFromModelResult } from "../../../_shared/resolveLanguageFromModelResult";
 
 export class OccupationSkillsController {
   /**
@@ -91,22 +91,9 @@ export class OccupationSkillsController {
 
       const service = getServiceRegistry().occupation;
       const validationResult = await service.validateModelForOccupation(params.modelId);
-      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.GET.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${params.modelId}`
-        );
-      }
-      if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
+      const langResult = resolveLanguageFromModelResult(event, validationResult, params.modelId);
+      if ("statusCode" in langResult) return langResult;
+      const { languageConfig } = langResult;
 
       const paginationParams = parseSkillsQuery(event);
       if ("statusCode" in paginationParams) {
@@ -117,7 +104,8 @@ export class OccupationSkillsController {
         params.modelId,
         params.id,
         paginationParams.decodedCursor,
-        paginationParams.limit
+        paginationParams.limit,
+        languageConfig.dbKeyName
       );
 
       let nextCursor: string | null = null;
@@ -125,9 +113,10 @@ export class OccupationSkillsController {
         nextCursor = encodeCursor(currentPageSkills.nextCursor._id, currentPageSkills.nextCursor.createdAt);
       }
 
-      return responseJSON(
+      return response(
         StatusCodes.OK,
-        buildSkillsResponse(currentPageSkills.items, getResourcesBaseUrl(), paginationParams.limit, nextCursor)
+        buildSkillsResponse(currentPageSkills.items, getResourcesBaseUrl(), paginationParams.limit, nextCursor),
+        { "Content-Type": "application/json", "Content-Language": languageConfig.shortCode, Vary: "Accept-Language" }
       );
     } catch (error: unknown) {
       console.error("Failed to get occupation skills:", error);

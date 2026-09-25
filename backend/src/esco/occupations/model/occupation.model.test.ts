@@ -59,8 +59,9 @@ describe("Test the definition of the Occupation Model", () => {
   });
 
   const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-  // Wraps a flat string into a localized sub document keyed by the fallback language, e.g. "Cook" -> { en: "Cook" }.
-  const wrapTranslated = (value: string) => ({ [fallbackDbKeyName]: value });
+  // Wraps a flat string into a localized Map keyed by the fallback language, e.g. "Cook" -> Map { "en" => "Cook" }.
+  // toObject() on a mongoose Map path returns a Map, not a plain object.
+  const wrapTranslated = (value: string) => new Map([[fallbackDbKeyName, value]]);
 
   test.each([
     [
@@ -207,10 +208,16 @@ describe("Test the definition of the Occupation Model", () => {
     // AND the document to be saved successfully
     await givenOccupationDocument.save();
 
-    // AND the toObject() transformation to return the correct properties, with the translatable fields flattened
-    // back to the fallback language string, since that is what the schema's transform does.
+    // AND the toObject() transformation to return the correct properties, with the translatable fields as
+    // plain objects (unwrapping to the flat language string is now done by the repository, not the model).
     expect(givenOccupationDocument.toObject()).toEqual({
       ...givenFlatObject,
+      preferredLabel: givenObject.preferredLabel,
+      altLabels: givenObject.altLabels,
+      description: givenObject.description,
+      definition: givenObject.definition,
+      scopeNote: givenObject.scopeNote,
+      regulatedProfessionNote: givenObject.regulatedProfessionNote,
       modelId: givenObject.modelId.toString(),
       id: givenOccupationDocument._id.toString(),
       createdAt: expect.any(Date),
@@ -245,8 +252,9 @@ describe("Test the definition of the Occupation Model", () => {
     await givenOccupationDocument.save();
     const actualObject = givenOccupationDocument.toObject();
 
-    // THEN expect scopeNote to be returned exactly as stored, not treated as untranslated and defaulted to ""
-    expect(actualObject.scopeNote).toEqual(givenWhitespaceOnlyValue);
+    // THEN expect scopeNote to be returned as a plain object (the model no longer flattens to a string;
+    // the repository does that). The value stored is the fallback-language wrapper.
+    expect(actualObject.scopeNote).toEqual(wrapTranslated(givenWhitespaceOnlyValue));
   });
 
   test("should not drop an altLabels item that lacks the fallback language, e.g. from data written before validation existed", async () => {
@@ -281,9 +289,9 @@ describe("Test the definition of the Occupation Model", () => {
     const actualDoc = await OccupationModel.findById(givenOccupationDocument._id).exec();
     const actualObject = actualDoc!.toObject();
 
-    // THEN expect both items to be present, the one lacking the fallback language read as an empty string rather
-    // than being silently dropped from the array
-    expect(actualObject.altLabels).toEqual(["kept", ""]);
+    // THEN expect both items to be present as Maps (mongoose Map paths serialise as Maps in toObject()).
+    // The item that lacks the fallback language key is included as-is without being silently dropped.
+    expect(actualObject.altLabels).toEqual([new Map([["en", "kept"]]), new Map([["fr", "sans anglais"]])]);
   });
 
   describe("Validate Occupation fields", () => {

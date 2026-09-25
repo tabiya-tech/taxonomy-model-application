@@ -34,6 +34,10 @@ export interface IOccupationHistoryEntry {
   model: IModelInfoReference;
 }
 
+export type ValidateModelResult =
+  | { errorCode: null; availableLanguages: string[] }
+  | { errorCode: ModelForOccupationValidationErrorCode; availableLanguages?: never };
+
 export interface IOccupationService {
   /**
    * Creates a new Occupation entry.
@@ -41,13 +45,14 @@ export interface IOccupationService {
   create(newOccupationSpec: INewOccupationSpecWithoutImportId): Promise<IOccupation>;
 
   /** Finds an Occupation entry by its ID. */
-  findById(id: string): Promise<IOccupation | null>;
+  findById(id: string, language?: string): Promise<IOccupation | null>;
 
   findPaginated(
     modelId: string,
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
-    desc?: boolean
+    desc?: boolean,
+    language?: string
   ): Promise<{ items: IOccupation[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   /**
@@ -63,6 +68,7 @@ export interface IOccupationService {
    * @param {EmbeddableField[]} searchFields - The fields to search the value on.
    * @param {string | undefined} cursor - The opaque pagination cursor from a previous page, if any.
    * @param {number} limit - The maximum number of Occupations to return.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<{ items: IOccupation[]; nextCursor: string | null }>} - The page of Occupations (ordered by
    * relevance for vector search) and the encoded cursor of the next page, if any.
    */
@@ -71,25 +77,32 @@ export interface IOccupationService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: IOccupation[]; nextCursor: string | null }>;
 
-  validateModelForOccupation(modelId: string): Promise<ModelForOccupationValidationErrorCode | null>;
+  /**
+   * Validates the model exists and is not released.
+   * On success, also returns the model's availableLanguages for language resolution.
+   */
+  validateModelForOccupation(modelId: string): Promise<ValidateModelResult>;
 
-  getParent(modelId: string, occupationId: string): Promise<IOccupation | IOccupationGroup | null>;
+  getParent(modelId: string, occupationId: string, language?: string): Promise<IOccupation | IOccupationGroup | null>;
 
   getChildren(
     modelId: string,
     occupationId: string,
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: IOccupation[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   getSkills(
     modelId: string,
     occupationId: string,
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkillWithRelation[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   /**
@@ -109,5 +122,5 @@ export interface IOccupationService {
    * returns the model reference and the occupation reference as it appeared in that model.
    * UUIDs that do not resolve to an existing model are skipped.
    */
-  getHistory(occupationId: string): Promise<IOccupationHistoryEntry[] | null>;
+  getHistory(occupationId: string, language?: string): Promise<IOccupationHistoryEntry[] | null>;
 }
