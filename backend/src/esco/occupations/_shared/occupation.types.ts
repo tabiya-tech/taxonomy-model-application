@@ -132,6 +132,15 @@ export type IPartialUpdateOccupationSpec = Partial<IUpdateOccupationSpec>;
  * Like INewOccupationSpec but with translatable fields already expressed as localized Maps, for the
  * language-suffixed CSV import path.
  */
+// The translatable string fields of an occupation (excludes altLabels, which is an array).
+export const OCCUPATION_TRANSLATABLE_STRING_FIELDS = [
+  "preferredLabel",
+  "description",
+  "definition",
+  "scopeNote",
+  "regulatedProfessionNote",
+] as const satisfies ReadonlyArray<keyof IOccupationDoc>;
+
 export type INewOccupationSpecLocalized = Omit<
   INewOccupationSpec,
   "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote" | "regulatedProfessionNote"

@@ -14,8 +14,6 @@ import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTrans
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { RegExp_UUIDv4 } from "server/regex";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import { readFallbackLanguageValue, readFallbackLanguageValues } from "common/language/translatedFields";
 
 export const OccupationGroupModelPaths = {
   parent: "parent",
@@ -89,6 +87,9 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
 
   return dbConnection.model<IOccupationGroupDoc>(MongooseModelName.OccupationGroup, OccupationGroupSchema);
 }
+
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import { readFallbackLanguageValue, readFallbackLanguageValues } from "common/language/translatedFields";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _TransformFn = (doc: any, ret: any) => {

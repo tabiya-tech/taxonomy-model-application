@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
@@ -8,10 +8,11 @@ import { buildGETResponse } from "./response";
 import { parseGETQuery } from "./query";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForOccupationValidationErrorCode } from "../services/occupation.service.types";
 import { encodeCursor } from "../_shared/pagination/encodeCursor";
+import { decodeCursor } from "../_shared/pagination/decodeCursor";
 import { extractAndValidateModelIdParam } from "../_shared/params";
 import { getResourcesBaseUrl } from "server/config/config";
+import { resolveLanguageFromModelResult } from "../_shared/resolveLanguageFromModelResult";
 
 export class OccupationGetController {
   /**
@@ -100,22 +101,15 @@ export class OccupationGetController {
 
       const service = getServiceRegistry().occupation;
       const validationResult = await service.validateModelForOccupation(params.modelId);
-      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.GET.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${params.modelId}`
-        );
-      }
-      if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
+      const langResult = resolveLanguageFromModelResult(event, validationResult, params.modelId);
+      if ("statusCode" in langResult) return langResult;
+      const { languageConfig } = langResult;
+      const language = languageConfig.dbKeyName;
+      const languageHeaders = {
+        "Content-Type": "application/json",
+        "Content-Language": languageConfig.shortCode,
+        Vary: "Accept-Language",
+      };
 
       const queryParams = parseGETQuery(event);
       if ("statusCode" in queryParams) {
@@ -131,31 +125,38 @@ export class OccupationGetController {
           queryParams.searchValue,
           queryParams.searchFields,
           event.queryStringParameters?.cursor ?? undefined,
-          queryParams.limit
+          queryParams.limit,
+          language
         );
-        return responseJSON(
+        return response(
           StatusCodes.OK,
-          buildGETResponse(searchPage.items, getResourcesBaseUrl(), queryParams.limit, searchPage.nextCursor)
+          buildGETResponse(searchPage.items, getResourcesBaseUrl(), queryParams.limit, searchPage.nextCursor),
+          languageHeaders
         );
       }
 
       let decodedCursorObj: { id: string; createdAt: Date } | undefined = undefined;
       if (event.queryStringParameters?.cursor) {
-        // Decode cursor for findPaginated
-        const { decodeCursor } = await import("../_shared/pagination/decodeCursor");
         decodedCursorObj = decodeCursor(event.queryStringParameters.cursor);
       }
 
-      const currentPageOccupations = await service.findPaginated(params.modelId, decodedCursorObj, queryParams.limit);
+      const currentPageOccupations = await service.findPaginated(
+        params.modelId,
+        decodedCursorObj,
+        queryParams.limit,
+        true,
+        language
+      );
 
       let nextCursor: string | null = null;
       if (currentPageOccupations?.nextCursor?._id) {
         nextCursor = encodeCursor(currentPageOccupations.nextCursor._id, currentPageOccupations.nextCursor.createdAt);
       }
 
-      return responseJSON(
+      return response(
         StatusCodes.OK,
-        buildGETResponse(currentPageOccupations.items, getResourcesBaseUrl(), queryParams.limit, nextCursor)
+        buildGETResponse(currentPageOccupations.items, getResourcesBaseUrl(), queryParams.limit, nextCursor),
+        languageHeaders
       );
     } catch (error: unknown) {
       return errorResponseGET(

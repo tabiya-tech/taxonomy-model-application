@@ -96,7 +96,10 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
@@ -179,9 +182,9 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(
-        ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID
-      );
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID,
+      });
 
       const actualResponse = await patchOccupationParentHandler(givenEvent);
       expect(actualResponse.statusCode).not.toEqual(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
@@ -267,9 +270,9 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(
-        ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID
-      );
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID,
+      });
 
       const actualResponse = await patchOccupationParentHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
@@ -292,9 +295,9 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(
-        ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB
-      );
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB,
+      });
 
       const actualResponse = await patchOccupationParentHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -318,9 +321,9 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(
-        ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED
-      );
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED,
+      });
 
       const actualResponse = await patchOccupationParentHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -343,7 +346,10 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       mockServiceRegistry.occupationHierarchy.replaceParent.mockRejectedValue(
         new OccupationParentValidationError(ParentForOccupationValidationErrorCode.OCCUPATION_NOT_FOUND)
       );
@@ -369,7 +375,10 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
@@ -398,7 +407,10 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
@@ -427,7 +439,10 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
@@ -457,7 +472,10 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
@@ -489,7 +507,10 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);
@@ -537,7 +558,10 @@ describe("Test for occupation Parent PATCH handler", () => {
         }),
       } as unknown as APIGatewayProxyEvent;
 
-      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue(null);
+      mockServiceRegistry.occupation.validateModelForOccupation.mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
       const mockChild = getIOccupationMockData(1);
       mockChild.modelId = givenModelId;
       mockServiceRegistry.occupation.findById.mockResolvedValue(mockChild);

@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
@@ -8,9 +8,9 @@ import { buildDetailResponse } from "./response";
 import { getResourcesBaseUrl } from "server/config/config";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForOccupationValidationErrorCode } from "../../services/occupation.service.types";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { extractAndValidateIdParams } from "../../_shared/params";
+import { resolveLanguageFromModelResult } from "../../_shared/resolveLanguageFromModelResult";
 
 export class OccupationDetailController {
   /**
@@ -79,23 +79,10 @@ export class OccupationDetailController {
 
       const service = getServiceRegistry().occupation;
       const validationResult = await service.validateModelForOccupation(params.modelId);
-      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.GET.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${params.modelId}`
-        );
-      }
-      if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
-      const occupation = await service.findById(params.id);
+      const langResult = resolveLanguageFromModelResult(event, validationResult, params.modelId);
+      if ("statusCode" in langResult) return langResult;
+      const { languageConfig } = langResult;
+      const occupation = await service.findById(params.id, languageConfig.dbKeyName);
       if (!occupation) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
@@ -104,9 +91,12 @@ export class OccupationDetailController {
           `No occupation found with id: ${params.id}`
         );
       }
-      return responseJSON(StatusCodes.OK, buildDetailResponse(occupation, getResourcesBaseUrl()));
+      return response(StatusCodes.OK, buildDetailResponse(occupation, getResourcesBaseUrl()), {
+        "Content-Type": "application/json",
+        "Content-Language": languageConfig.shortCode,
+        Vary: "Accept-Language",
+      });
     } catch (error: unknown) {
-      console.error("Failed to get occupation by id:", error);
       errorLoggerInstance.logError(
         "Failed to retrieve the occupation from the DB",
         error instanceof Error ? error.name : "Unknown error"

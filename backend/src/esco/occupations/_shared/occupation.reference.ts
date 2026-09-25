@@ -1,4 +1,5 @@
 import { IBaseOccupationDoc, IOccupationReference, IOccupationReferenceDoc } from "./occupationReference.types";
+import { OCCUPATION_TRANSLATABLE_STRING_FIELDS } from "./occupation.types";
 import mongoose from "mongoose";
 import {
   OccupationToSkillReferenceWithRelationType,
@@ -7,7 +8,7 @@ import {
 import { SignallingValueLabel } from "esco/common/objectTypes";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { ITranslatedStringDoc } from "common/language/translatedString.types";
-import { resolveTranslated } from "common/language/resolveTranslated";
+import { resolveTranslated, resolveTranslatedArray } from "common/language/resolveTranslated";
 
 type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
 // the raw hydrated document, before the repository flattens preferredLabel to a string
@@ -15,16 +16,33 @@ export type OccupationDocument = _Document<Omit<IBaseOccupationDoc, "preferredLa
   preferredLabel: ITranslatedStringDoc;
 };
 
-export function getOccupationDocReference(occupation: OccupationDocument): IOccupationReferenceDoc {
+/**
+ * Flattens all translatable fields of a plain occupation object to the given language, falling back per field.
+ * Mutates the object in place and returns it.
+ */
+export function unwrapOccupationTranslatableFields<T extends object>(occupation: T, language: string): T {
+  const target = occupation as Record<string, unknown>;
+  const fallback = getFallbackLanguageConfig().dbKeyName;
+  for (const field of OCCUPATION_TRANSLATABLE_STRING_FIELDS) {
+    if (field in target) {
+      target[field] = resolveTranslated(target[field] as ITranslatedStringDoc, language, fallback);
+    }
+  }
+  if (Array.isArray(target.altLabels)) {
+    target.altLabels = resolveTranslatedArray(target.altLabels as ITranslatedStringDoc[], language, fallback);
+  }
+  return occupation;
+}
+
+export function getOccupationDocReference(occupation: OccupationDocument, language?: string): IOccupationReferenceDoc {
+  const lang = language ?? getFallbackLanguageConfig().dbKeyName;
   return {
     modelId: occupation.modelId,
     id: occupation.id,
     UUID: occupation.UUID,
     occupationGroupCode: occupation.occupationGroupCode,
     code: occupation.code,
-    // a reference carries the fall back language only; the sub document is keyed by the languages of the registry,
-    // while the configured fall back language is a runtime string, so it is read through resolveTranslated
-    preferredLabel: resolveTranslated(occupation.preferredLabel, getFallbackLanguageConfig().dbKeyName),
+    preferredLabel: resolveTranslated(occupation.preferredLabel, lang),
     occupationType: occupation.occupationType,
     isLocalized: occupation.isLocalized,
   };
