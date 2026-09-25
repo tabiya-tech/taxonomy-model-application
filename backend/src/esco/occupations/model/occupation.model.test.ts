@@ -39,6 +39,7 @@ import {
 } from "esco/_test_utilities/modelSchemaTestFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import LanguageAPISpecs from "api-specifications/language";
 
 describe("Test the definition of the Occupation Model", () => {
   let dbConnection: Connection;
@@ -282,7 +283,14 @@ describe("Test the definition of the Occupation Model", () => {
     // language entirely, e.g. data that predates the validation this schema now enforces at write time
     await OccupationModel.collection.updateOne(
       { _id: givenOccupationDocument._id },
-      { $set: { altLabels: [{ en: "kept" }, { fr: "sans anglais" }] } }
+      {
+        $set: {
+          altLabels: [
+            { [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName]: "kept" },
+            { [LanguageAPISpecs.Constants.Languages[1].dbKeyName]: "sans anglais" },
+          ],
+        },
+      }
     );
 
     // WHEN reading the document back
@@ -291,7 +299,10 @@ describe("Test the definition of the Occupation Model", () => {
 
     // THEN expect both items to be present as Maps (mongoose Map paths serialise as Maps in toObject()).
     // The item that lacks the fallback language key is included as-is without being silently dropped.
-    expect(actualObject.altLabels).toEqual([new Map([["en", "kept"]]), new Map([["fr", "sans anglais"]])]);
+    expect(actualObject.altLabels).toEqual([
+      new Map([[LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName, "kept"]]),
+      new Map([[LanguageAPISpecs.Constants.Languages[1].dbKeyName, "sans anglais"]]),
+    ]);
   });
 
   describe("Validate Occupation fields", () => {

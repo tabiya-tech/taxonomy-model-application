@@ -7,6 +7,7 @@ import {
 import { makePopulateOccupationToSkillRelationRequiredSkill } from "./occupationToSkillRequiredSkillOptions";
 import { populateOccupationToSkillRelationRequiredSkill } from "./occupationToSkillRequiredSkillOptions";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
+import LanguageAPISpecs from "api-specifications/language";
 
 jest.mock("esco/occupations/_shared/occupation.reference", () => ({
   getOccupationDocReference: jest.fn().mockReturnValue({ preferredLabel: "mock-occupation" }),
@@ -20,7 +21,7 @@ import { getOccupationGroupDocReference } from "esco/occupationGroup/_shared/Occ
 
 describe("Populate Options Coverage", () => {
   describe("makePopulateOccupationParentOptions — language forwarding", () => {
-    const givenLanguage = "fr";
+    const givenLanguage = LanguageAPISpecs.Constants.Languages[1].dbKeyName; // French
 
     test("forwards language to getOccupationGroupDocReference when parent is an OccupationGroup", () => {
       const opts = makePopulateOccupationParentOptions(givenLanguage);
@@ -40,7 +41,7 @@ describe("Populate Options Coverage", () => {
   });
 
   describe("makePopulateOccupationChildrenOptions — language forwarding", () => {
-    const givenLanguage = "es";
+    const givenLanguage = LanguageAPISpecs.Constants.Languages[2].dbKeyName; // Spanish
 
     test("forwards language to getOccupationDocReference when child is an Occupation", () => {
       const opts = makePopulateOccupationChildrenOptions(givenLanguage);
@@ -53,7 +54,7 @@ describe("Populate Options Coverage", () => {
 
   describe("makePopulateOccupationToSkillRelationRequiredSkill — language forwarding", () => {
     test("uses the provided language key in the transform path", () => {
-      const givenLanguage = "pt";
+      const givenLanguage = LanguageAPISpecs.Constants.Languages[3].dbKeyName; // Portuguese
       const opts = makePopulateOccupationToSkillRelationRequiredSkill(givenLanguage);
       // The transform is a closure over language; verify the path is set and transform is a function
       expect(typeof opts.transform).toBe("function");
