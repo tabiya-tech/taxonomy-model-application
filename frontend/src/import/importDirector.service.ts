@@ -1,4 +1,5 @@
 import LocaleAPISpecs from "api-specifications/locale";
+import LanguageAPISpecs from "api-specifications/language";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import PresignedService from "./presigned/presigned.service";
 import UploadService from "./upload/upload.service";
@@ -21,12 +22,24 @@ export default class ImportDirectorService {
     locale: LocaleAPISpecs.Types.Payload,
     files: ImportFiles,
     UUIDHistory: string[],
+    availableLanguages: string[],
     isOriginalESCOModel: boolean
   ): Promise<ModelInfoTypes.ModelInfo> {
+    // When the model_info.csv file does not declare the languages, the model is created with the fall back language
+    // of the registry, so that the languages the model carries data in are always sent to the backend.
+    const modelLanguages =
+      availableLanguages.length > 0 ? availableLanguages : [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode];
     const modelService = new ModelInfoService(this.apiServerUrl);
     const presignedService = new PresignedService(this.apiServerUrl);
     const [newModel, presigned] = await Promise.all([
-      modelService.createModel({ name, description, locale, UUIDHistory, license }),
+      modelService.createModel({
+        name,
+        description,
+        locale,
+        UUIDHistory,
+        license,
+        availableLanguages: modelLanguages,
+      }),
       presignedService.getPresignedPost(),
     ]);
 

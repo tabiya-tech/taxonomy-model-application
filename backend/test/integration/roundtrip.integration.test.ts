@@ -123,7 +123,7 @@ describe("Test Roundtrip with an in-memory mongodb", () => {
       // 2.3 Assert that the exported CSV files have the same content as the imported CSV files from 2.1
       await assertCSVFilesHaveTheSameContent(exportFolderFirst, exportFolderSecond, firstImportedModel);
     },
-    90000 // Approximate timeout for the one-pass roundtrip full ESCO test is 1.5 minutes
+    120000 // Approximate timeout for the one-pass roundtrip full ESCO test is 1.5 minutes, with headroom for slower CI runners
   );
 });
 

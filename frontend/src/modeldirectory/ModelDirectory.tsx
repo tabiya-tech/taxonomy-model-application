@@ -132,6 +132,7 @@ const ModelDirectory = () => {
           importData.locale,
           importData.selectedFiles,
           importData.UUIDHistory,
+          importData.availableLanguages,
           importData.isOriginalESCOModel
         );
         enqueueSnackbar(`The model '${importData.name}' import has started.`, {
