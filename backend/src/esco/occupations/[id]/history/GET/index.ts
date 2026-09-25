@@ -1,15 +1,15 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
 import { buildHistoryResponse } from "./response";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForOccupationValidationErrorCode } from "esco/occupations/services/occupation.service.types";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { extractAndValidateIdParams } from "esco/occupations/_shared/params";
+import { resolveLanguageFromModelResult } from "esco/occupations/_shared/resolveLanguageFromModelResult";
 
 export class OccupationHistoryController {
   /**
@@ -40,9 +40,28 @@ export class OccupationHistoryController {
    *        schema:
    *          type: string
    *          description: The unique ID of the occupation.
+   *      - in: header
+   *        name: Accept-Language
+   *        required: false
+   *        schema:
+   *          type: string
+   *          example: "fr, en;q=0.9"
+   *        description: >
+   *          Preferred response language. The server picks the best match from the model's available languages
+   *          and falls back to the default language if none match.
    *    responses:
    *      '200':
    *        description: Successfully retrieved the occupation history.
+   *        headers:
+   *          Content-Language:
+   *            schema:
+   *              type: string
+   *              example: "fr"
+   *            description: The language of the response body.
+   *          Vary:
+   *            schema:
+   *              type: string
+   *              example: "Accept-Language"
    *        content:
    *          application/json:
    *            schema:
@@ -83,24 +102,11 @@ export class OccupationHistoryController {
       // The occupation's own model must exist, but unlike write operations a released model is valid here:
       // the history intentionally includes released models, so MODEL_IS_RELEASED (and null) are accepted.
       const validationResult = await service.validateModelForOccupation(params.modelId);
-      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationAPISpecs.GET.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${params.modelId}`
-        );
-      }
-      if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATIONS,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
+      const langResult = resolveLanguageFromModelResult(event, validationResult, params.modelId);
+      if ("statusCode" in langResult) return langResult;
+      const { languageConfig } = langResult;
 
-      const history = await service.getHistory(params.id);
+      const history = await service.getHistory(params.id, languageConfig.dbKeyName);
       if (history === null) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
@@ -110,9 +116,12 @@ export class OccupationHistoryController {
         );
       }
 
-      return responseJSON(StatusCodes.OK, buildHistoryResponse(history));
+      return response(StatusCodes.OK, buildHistoryResponse(history), {
+        "Content-Type": "application/json",
+        "Content-Language": languageConfig.shortCode,
+        Vary: "Accept-Language",
+      });
     } catch (error: unknown) {
-      console.error("Failed to get occupation history:", error);
       errorLoggerInstance.logError(
         "Failed to retrieve the occupation history from the DB",
         error instanceof Error ? error.name : "Unknown error"

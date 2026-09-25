@@ -4,6 +4,7 @@ import {
   ISkillWithRelation,
   ModelForOccupationValidationErrorCode,
   OccupationModelValidationError,
+  ValidateModelResult,
 } from "./occupation.service.types";
 import {
   INewOccupationSpecWithoutImportId,
@@ -36,26 +37,35 @@ export class OccupationService implements IOccupationService {
 
   async create(newOccupationSpec: INewOccupationSpecWithoutImportId): Promise<IOccupation> {
     // Validate model exists and is not released
-    const errorCode = await this.validateModelForOccupation(newOccupationSpec.modelId);
-    if (errorCode != null) {
-      throw new OccupationModelValidationError(errorCode);
+    const result = await this.validateModelForOccupation(newOccupationSpec.modelId);
+    if (result.errorCode != null) {
+      throw new OccupationModelValidationError(result.errorCode);
     }
 
     return this.occupationRepository.create(newOccupationSpec);
   }
 
-  async findById(id: string): Promise<IOccupation | null> {
-    return this.occupationRepository.findById(id);
+  async findById(id: string, language?: string): Promise<IOccupation | null> {
+    return this.occupationRepository.findById(id, language);
   }
 
   async findPaginated(
     modelId: string,
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
-    desc: boolean = true
+    desc: boolean = true,
+    language?: string
   ): Promise<{ items: IOccupation[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     const sortOrder = desc ? -1 : 1;
-    const items = await this.occupationRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id);
+    const items = await this.occupationRepository.findPaginated(
+      modelId,
+      limit + 1,
+      sortOrder,
+      cursor?.id,
+      undefined,
+      undefined,
+      language
+    );
 
     // Check if there's a next page
     const hasMore = items.length > limit;
@@ -82,7 +92,8 @@ export class OccupationService implements IOccupationService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: IOccupation[]; nextCursor: string | null }> {
     // Vector (embeddings) similarity on released, already-embedded models; a case-insensitive regex otherwise.
     const model = await this.modelRepository.getModelById(modelId);
@@ -95,13 +106,14 @@ export class OccupationService implements IOccupationService {
           searchValue,
           searchFields,
           cursor,
-          limit
+          limit,
+          language
         );
       }
       // The model is released but its embeddings have not been generated (completed) yet, so there is nothing to
       // search with vectors. Fall back to regex so the endpoint still returns useful results.
     }
-    return this.regexSearchPaginated(modelId, searchValue, searchFields, cursor, limit);
+    return this.regexSearchPaginated(modelId, searchValue, searchFields, cursor, limit, language);
   }
 
   /**
@@ -113,7 +125,8 @@ export class OccupationService implements IOccupationService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: IOccupation[]; nextCursor: string | null }> {
     // Newest first, consistent with the plain list endpoint's default order.
     const sortOrder = -1;
@@ -128,7 +141,8 @@ export class OccupationService implements IOccupationService {
       {
         value: searchValue,
         fields: searchFields,
-      }
+      },
+      language
     );
 
     const hasMore = items.length > limit;
@@ -153,7 +167,8 @@ export class OccupationService implements IOccupationService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: IOccupation[]; nextCursor: string | null }> {
     const offset = cursor ? decodeSearchCursor(cursor) : 0;
 
@@ -175,7 +190,7 @@ export class OccupationService implements IOccupationService {
 
     // Hydrate the ranked ids to full occupations and re-apply the relevance order (findByIds does not preserve it).
     const ids = pageHits.map((hit) => hit.entityId);
-    const occupations = await this.occupationRepository.findByIds(modelId, ids);
+    const occupations = await this.occupationRepository.findByIds(modelId, ids, language);
     const occupationById = new Map(occupations.map((occupation) => [occupation.id, occupation]));
     const items = ids
       .map((id) => occupationById.get(id))
@@ -186,32 +201,37 @@ export class OccupationService implements IOccupationService {
     return { items, nextCursor };
   }
 
-  async validateModelForOccupation(modelId: string): Promise<ModelForOccupationValidationErrorCode | null> {
+  async validateModelForOccupation(modelId: string): Promise<ValidateModelResult> {
     try {
       const model = await this.modelRepository.getModelById(modelId);
       if (model == null) {
-        return ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
+        return { errorCode: ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID };
       }
       if (model.released) {
-        return ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED;
+        return { errorCode: ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED };
       }
-      return null;
+      return { errorCode: null, availableLanguages: model.availableLanguages ?? [] };
     } catch (e: unknown) {
-      return ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
+      return { errorCode: ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB };
     }
   }
 
-  async getParent(modelId: string, occupationId: string): Promise<IOccupation | IOccupationGroup | null> {
-    return this.occupationRepository.findParent(modelId, occupationId);
+  async getParent(
+    modelId: string,
+    occupationId: string,
+    language?: string
+  ): Promise<IOccupation | IOccupationGroup | null> {
+    return this.occupationRepository.findParent(modelId, occupationId, language);
   }
 
   async getChildren(
     modelId: string,
     occupationId: string,
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: IOccupation[]; nextCursor: { _id: string; createdAt: Date } | null }> {
-    const items = await this.occupationRepository.findChildren(modelId, occupationId, limit + 1, cursor);
+    const items = await this.occupationRepository.findChildren(modelId, occupationId, limit + 1, cursor, language);
 
     // Check if there's a next page
     const hasMore = items.length > limit;
@@ -237,9 +257,16 @@ export class OccupationService implements IOccupationService {
     modelId: string,
     occupationId: string,
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkillWithRelation[]; nextCursor: { _id: string; createdAt: Date } | null }> {
-    const items = await this.occupationRepository.findSkillsForOccupation(modelId, occupationId, limit + 1, cursor);
+    const items = await this.occupationRepository.findSkillsForOccupation(
+      modelId,
+      occupationId,
+      limit + 1,
+      cursor,
+      language
+    );
 
     // Check if there's a next page
     const hasMore = items.length > limit;
@@ -261,8 +288,8 @@ export class OccupationService implements IOccupationService {
     };
   }
 
-  async getHistory(occupationId: string): Promise<IOccupationHistoryEntry[] | null> {
-    const occupation = await this.occupationRepository.findById(occupationId);
+  async getHistory(occupationId: string, language?: string): Promise<IOccupationHistoryEntry[] | null> {
+    const occupation = await this.occupationRepository.findById(occupationId, language);
     if (!occupation) {
       return null;
     }
@@ -270,7 +297,7 @@ export class OccupationService implements IOccupationService {
     const uuidHistory = occupation.UUIDHistory ?? [];
     if (uuidHistory.length === 0) return [];
 
-    const historyReferences = await this.occupationRepository.findHistoryReferencesByUUIDs(uuidHistory);
+    const historyReferences = await this.occupationRepository.findHistoryReferencesByUUIDs(uuidHistory, language);
     const referenceByUUID = new Map(historyReferences.map((entry) => [entry.UUID, entry]));
 
     const modelIds = Array.from(
@@ -296,17 +323,17 @@ export class OccupationService implements IOccupationService {
   }
 
   async update(id: string, modelId: string, spec: IUpdateOccupationSpec): Promise<IOccupation | null> {
-    const errorCode = await this.validateModelForOccupation(modelId);
-    if (errorCode != null) {
-      throw new OccupationModelValidationError(errorCode);
+    const result = await this.validateModelForOccupation(modelId);
+    if (result.errorCode != null) {
+      throw new OccupationModelValidationError(result.errorCode);
     }
     return this.occupationRepository.update(id, modelId, spec);
   }
 
   async patch(id: string, modelId: string, spec: IPartialUpdateOccupationSpec): Promise<IOccupation | null> {
-    const errorCode = await this.validateModelForOccupation(modelId);
-    if (errorCode != null) {
-      throw new OccupationModelValidationError(errorCode);
+    const result = await this.validateModelForOccupation(modelId);
+    if (result.errorCode != null) {
+      throw new OccupationModelValidationError(result.errorCode);
     }
     return this.occupationRepository.patch(id, modelId, spec);
   }

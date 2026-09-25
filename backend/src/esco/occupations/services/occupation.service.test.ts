@@ -270,8 +270,8 @@ describe("Test the OccupationService", () => {
       // WHEN calling service.findById
       const actual = await service.findById(givenId);
 
-      // THEN expect repository.findById to be called with the id
-      expect(mockRepository.findById).toHaveBeenCalledWith(givenId);
+      // THEN expect repository.findById to be called with the id and no language
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenId, undefined);
       // AND expect the returned occupation
       expect(actual).toEqual(expectedOccupation);
     });
@@ -286,8 +286,8 @@ describe("Test the OccupationService", () => {
       // WHEN calling service.findById
       const actual = await service.findById(givenId);
 
-      // THEN expect repository.findById to be called with the id
-      expect(mockRepository.findById).toHaveBeenCalledWith(givenId);
+      // THEN expect repository.findById to be called with the id and no language
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenId, undefined);
       // AND expect null to be returned
       expect(actual).toBeNull();
     });
@@ -305,6 +305,19 @@ describe("Test the OccupationService", () => {
 
       // THEN expect it to throw the error
       await expect(promise).rejects.toThrow(givenError);
+    });
+
+    test("should forward language to repository.findById", async () => {
+      // GIVEN an id and a language
+      const givenId = getMockStringId(1);
+      const givenLanguage = "fr";
+      mockRepository.findById.mockResolvedValue(null);
+
+      // WHEN calling service.findById with a language
+      await service.findById(givenId, givenLanguage);
+
+      // THEN expect repository.findById to be called with the language
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenId, givenLanguage);
     });
   });
 
@@ -360,7 +373,15 @@ describe("Test the OccupationService", () => {
       );
 
       // THEN expect repository.findPaginated to be called with the parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        -1,
+        getMockStringId(10),
+        undefined,
+        undefined,
+        undefined
+      );
       // AND expect the returned result to have items and nextCursor
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
@@ -417,7 +438,15 @@ describe("Test the OccupationService", () => {
       );
 
       // AND expect repository.findPaginated to be called with the parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10));
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        -1,
+        getMockStringId(10),
+        undefined,
+        undefined,
+        undefined
+      );
       // AND expect the returned result to have items and nextCursor
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();
@@ -464,7 +493,15 @@ describe("Test the OccupationService", () => {
       const actual = await service.findPaginated(givenModelId, givenCursor, givenLimit, givenDesc);
 
       // THEN expect repository.findPaginated to be called with ascending sort and correct cursor
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, givenCursor.id);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        1,
+        givenCursor.id,
+        undefined,
+        undefined,
+        undefined
+      );
       // AND expect the returned result
       expect(actual.items).toHaveLength(5);
     });
@@ -571,7 +608,8 @@ describe("Test the OccupationService", () => {
           {
             value: givenSearchValue,
             fields: givenSearchFields,
-          }
+          },
+          undefined
         );
         expect(mockOccupationEmbeddingRepository.vectorSearch).not.toHaveBeenCalled();
         // AND expect a page of `limit` items and a keyset nextCursor pointing at the last item
@@ -614,7 +652,8 @@ describe("Test the OccupationService", () => {
           {
             value: givenSearchValue,
             fields: givenSearchFields,
-          }
+          },
+          undefined
         );
       });
 
@@ -629,10 +668,18 @@ describe("Test the OccupationService", () => {
         const actual = await service.searchPaginated(givenModelId, givenSearchValue, givenSearchFields, undefined, 10);
 
         // THEN expect the regex search to have been used and no vector search attempted
-        expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, undefined, undefined, {
-          value: givenSearchValue,
-          fields: givenSearchFields,
-        });
+        expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+          givenModelId,
+          11,
+          -1,
+          undefined,
+          undefined,
+          {
+            value: givenSearchValue,
+            fields: givenSearchFields,
+          },
+          undefined
+        );
         expect(mockOccupationEmbeddingRepository.vectorSearch).not.toHaveBeenCalled();
         expect(actual.items).toHaveLength(1);
       });
@@ -745,13 +792,14 @@ describe("Test the OccupationService", () => {
       mockModelRepository.getModelById.mockResolvedValue({
         id: givenModelId,
         released: false,
+        availableLanguages: ["en"],
       } as unknown as IModelInfo);
 
       // WHEN calling service.validateModelForOccupation
       const actual = await service.validateModelForOccupation(givenModelId);
 
-      // THEN expect it to return valid
-      expect(actual).toEqual(null);
+      // THEN expect it to return valid with availableLanguages
+      expect(actual).toEqual({ errorCode: null, availableLanguages: ["en"] });
     });
 
     test("should return invalid when model does not exist", async () => {
@@ -765,7 +813,7 @@ describe("Test the OccupationService", () => {
       const actual = await service.validateModelForOccupation(givenModelId);
 
       // THEN expect it to return invalid with error message
-      expect(actual).toEqual(ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+      expect(actual).toEqual({ errorCode: ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID });
     });
 
     test("should return invalid when model is released", async () => {
@@ -782,7 +830,7 @@ describe("Test the OccupationService", () => {
       const actual = await service.validateModelForOccupation(givenModelId);
 
       // THEN expect it to return invalid with error message
-      expect(actual).toEqual(ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED);
+      expect(actual).toEqual({ errorCode: ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED });
     });
 
     test("should return invalid when getModelById throws", async () => {
@@ -797,7 +845,7 @@ describe("Test the OccupationService", () => {
       const actual = await service.validateModelForOccupation(givenModelId);
 
       // THEN expect it to return invalid with error message
-      expect(actual).toEqual(ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
+      expect(actual).toEqual({ errorCode: ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB });
     });
   });
 
@@ -814,8 +862,20 @@ describe("Test the OccupationService", () => {
       const result = await service.getParent(modelId, occupationId);
 
       // THEN expect repository to be called correctly
-      expect(mockRepository.findParent).toHaveBeenCalledWith(modelId, occupationId);
+      expect(mockRepository.findParent).toHaveBeenCalledWith(modelId, occupationId, undefined);
       expect(result).toEqual(expectedResult);
+    });
+
+    test("should forward language to repository.findParent", async () => {
+      // GIVEN a language
+      const givenLanguage = "es";
+      (mockRepository.findParent as jest.Mock).mockResolvedValue(null);
+
+      // WHEN calling getParent with a language
+      await service.getParent(getMockStringId(1), getMockStringId(2), givenLanguage);
+
+      // THEN expect repository to be called with the language
+      expect(mockRepository.findParent).toHaveBeenCalledWith(getMockStringId(1), getMockStringId(2), givenLanguage);
     });
   });
 
@@ -841,7 +901,7 @@ describe("Test the OccupationService", () => {
       const result = await service.getChildren(modelId, occupationId, cursor, limit);
 
       // THEN expect repository called with limit + 1
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(modelId, occupationId, limit + 1, cursor);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(modelId, occupationId, limit + 1, cursor, undefined);
 
       // AND result should handle pagination logic
       expect(result.items).toHaveLength(limit); // sliced
@@ -864,6 +924,24 @@ describe("Test the OccupationService", () => {
       expect(result.items).toHaveLength(1);
       expect(result.nextCursor).toBeNull();
     });
+
+    test("should forward language to repository.findChildren", async () => {
+      // GIVEN a language
+      const givenLanguage = "pt";
+      (mockRepository.findChildren as jest.Mock).mockResolvedValue([]);
+
+      // WHEN calling getChildren with a language
+      await service.getChildren(getMockStringId(1), getMockStringId(2), undefined, 10, givenLanguage);
+
+      // THEN expect repository to be called with the language
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(
+        getMockStringId(1),
+        getMockStringId(2),
+        11,
+        undefined,
+        givenLanguage
+      );
+    });
   });
 
   describe("getSkills", () => {
@@ -884,7 +962,13 @@ describe("Test the OccupationService", () => {
       const result = await service.getSkills(modelId, occupationId, cursor, limit);
 
       // THEN expect repository called with limit + 1
-      expect(mockRepository.findSkillsForOccupation).toHaveBeenCalledWith(modelId, occupationId, limit + 1, cursor);
+      expect(mockRepository.findSkillsForOccupation).toHaveBeenCalledWith(
+        modelId,
+        occupationId,
+        limit + 1,
+        cursor,
+        undefined
+      );
 
       // AND result should handle pagination logic
       expect(result.items).toHaveLength(limit); // sliced
@@ -906,6 +990,24 @@ describe("Test the OccupationService", () => {
       // THEN
       expect(result.items).toHaveLength(1);
       expect(result.nextCursor).toBeNull();
+    });
+
+    test("should forward language to repository.findSkillsForOccupation", async () => {
+      // GIVEN a language
+      const givenLanguage = "am";
+      (mockRepository.findSkillsForOccupation as jest.Mock).mockResolvedValue([]);
+
+      // WHEN calling getSkills with a language
+      await service.getSkills(getMockStringId(1), getMockStringId(2), undefined, 10, givenLanguage);
+
+      // THEN expect repository to be called with the language
+      expect(mockRepository.findSkillsForOccupation).toHaveBeenCalledWith(
+        getMockStringId(1),
+        getMockStringId(2),
+        11,
+        undefined,
+        givenLanguage
+      );
     });
   });
 

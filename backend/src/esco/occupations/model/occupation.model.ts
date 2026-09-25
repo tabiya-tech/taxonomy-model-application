@@ -19,8 +19,6 @@ import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTrans
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
 import { OccupationToSkillRelationModelPaths } from "esco/occupationToSkillRelation/occupationToSkillRelationModel";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import { readFallbackLanguageValue, readFallbackLanguageValues } from "common/language/translatedFields";
 
 export const OccupationModelPaths = {
   parent: "parent",
@@ -148,13 +146,8 @@ export const INDEX_FOR_UUID_HISTORY: mongoose.IndexDefinition = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const _TransformFn = (doc: any, ret: any) => {
-  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-  ret.preferredLabel = readFallbackLanguageValue(ret.preferredLabel, fallbackDbKeyName);
-  ret.description = readFallbackLanguageValue(ret.description, fallbackDbKeyName);
-  ret.definition = readFallbackLanguageValue(ret.definition, fallbackDbKeyName);
-  ret.scopeNote = readFallbackLanguageValue(ret.scopeNote, fallbackDbKeyName);
-  ret.regulatedProfessionNote = readFallbackLanguageValue(ret.regulatedProfessionNote, fallbackDbKeyName);
-  ret.altLabels = readFallbackLanguageValues(ret.altLabels, fallbackDbKeyName);
+const _TransformFn = (_doc: any, ret: any) => {
+  // Translatable fields (preferredLabel, description, definition, scopeNote, regulatedProfessionNote, altLabels)
+  // are left as plain objects here; repositories call unwrapOccupationTranslatableFields with the resolved language.
   return ret;
 };

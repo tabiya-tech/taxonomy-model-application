@@ -103,7 +103,7 @@ export class OccupationSkillsPATCHController {
       // 3. Validate model state (exists & is not released)
       const service = getServiceRegistry().occupation;
       const validationResult = await service.validateModelForOccupation(params.modelId);
-      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+      if (validationResult.errorCode === ModelForOccupationValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponse(
           StatusCodes.NOT_FOUND,
           OccupationAPISpecs.Occupation.Skills.PATCH.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
@@ -111,7 +111,7 @@ export class OccupationSkillsPATCHController {
           `No model found with id: ${params.modelId}`
         );
       }
-      if (validationResult === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+      if (validationResult.errorCode === ModelForOccupationValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponse(
           StatusCodes.INTERNAL_SERVER_ERROR,
           OccupationAPISpecs.Occupation.Skills.PATCH.Errors.Status500.ErrorCodes
@@ -120,7 +120,7 @@ export class OccupationSkillsPATCHController {
           ""
         );
       }
-      if (validationResult === ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED) {
+      if (validationResult.errorCode === ModelForOccupationValidationErrorCode.MODEL_IS_RELEASED) {
         return errorResponse(
           StatusCodes.BAD_REQUEST,
           OccupationAPISpecs.Occupation.Skills.PATCH.Errors.Status400.ErrorCodes.MODEL_IS_RELEASED,
