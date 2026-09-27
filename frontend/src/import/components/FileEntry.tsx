@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useCallback, useMemo, useRef, useState } from "react";
 import ImportAPISpecs from "api-specifications/import";
 import { Chip } from "@mui/material";
 import { mapFileTypeToName } from "./mapFileTypeToName";
@@ -27,9 +27,21 @@ export const DATA_TEST_ID = {
  */
 
 export const FileEntry = (props: Readonly<FileEntryProps>) => {
+  const { fileType, notifySelectedFileChange } = props;
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const fileTypeName = mapFileTypeToName(props.fileType);
+  const fileTypeName = mapFileTypeToName(fileType);
+
+  const updateSelectedFile = useCallback(
+    (file: File | null) => {
+      setSelectedFile(file);
+      if (notifySelectedFileChange) {
+        notifySelectedFileChange(fileType, file);
+      }
+    },
+    [notifySelectedFileChange, fileType]
+  );
+
   const fileChangedHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const newFile: File = e.target?.files![0];
     if (newFile) {
@@ -37,22 +49,18 @@ export const FileEntry = (props: Readonly<FileEntryProps>) => {
     }
   };
 
-  const fileRemovedHandler = () => {
-    updateSelectedFile(null);
-  };
+  // Keep a ref to the latest updateSelectedFile so the debounced function
+  // (created once) always calls the current version without recreating itself.
+  const updateSelectedFileRef = useRef(updateSelectedFile);
+  updateSelectedFileRef.current = updateSelectedFile;
 
-  const updateSelectedFile = (file: File | null) => {
-    setSelectedFile(file); // update internal state
-    // notify the parent component if it has provided handler
-    if (props.notifySelectedFileChange) {
-      props.notifySelectedFileChange(props.fileType, file);
-    }
-  };
-
-  const debounceFileRemoveHandler = debounce(fileRemovedHandler, DEBOUNCE_INTERVAL);
+  const debounceFileRemoveHandler = useMemo(
+    () => debounce(() => updateSelectedFileRef.current(null), DEBOUNCE_INTERVAL),
+    []
+  );
 
   return (
-    <div data-filetype={props.fileType} data-testid={DATA_TEST_ID.FILE_ENTRY}>
+    <div data-filetype={fileType} data-testid={DATA_TEST_ID.FILE_ENTRY}>
       {selectedFile ? (
         <Chip
           color="secondary"
@@ -65,19 +73,19 @@ export const FileEntry = (props: Readonly<FileEntryProps>) => {
       ) : (
         <div>
           <input
-            id={props.fileType}
+            id={fileType}
             type="file"
             style={{ display: "none" }}
             accept=".csv"
             data-testid={DATA_TEST_ID.FILE_INPUT}
             onChange={fileChangedHandler}
-            data-filetype={props.fileType}
+            data-filetype={fileType}
           />
           <Chip
             color="primary"
             aria-label={`Add ${fileTypeName} csv file`}
             data-testid={DATA_TEST_ID.SELECT_FILE_BUTTON}
-            onClick={() => document.getElementById(props.fileType)!.click()}
+            onClick={() => document.getElementById(fileType)!.click()}
             icon={<AddCircleOutlined />}
             label={fileTypeName}
           />

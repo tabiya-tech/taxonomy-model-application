@@ -1,6 +1,5 @@
-import https from "https";
-import { Agent as HttpsAgent } from "https";
-import { IncomingMessage } from "http";
+import https, { Agent as HttpsAgent } from "https";
+import { IncomingMessage } from "node:http";
 import { Readable } from "node:stream";
 import { parse } from "csv-parse";
 import { StatusCodes } from "server/httpUtils";
@@ -17,10 +16,9 @@ import { StatusCodes } from "server/httpUtils";
 export async function readCSVHeaders(stream: Readable): Promise<string[]> {
   const parser = stream.pipe(parse({ to_line: 1 }));
   try {
-    for await (const record of parser) {
-      return (record as string[]).map((header) => header.toUpperCase());
-    }
-    return [];
+    const { value, done } = await parser[Symbol.asyncIterator]().next();
+    if (done) return [];
+    return (value as string[]).map((header) => header.toUpperCase());
   } finally {
     // stop reading, only the first line is needed
     stream.destroy();

@@ -6,7 +6,7 @@ function api-specifications() {
   printTitle ${project}
   (cd api-specifications/ && yarn && yarn run lint && yarn run format:check || (printFormatError ${project}; exit 1) && yarn run compile && yarn run test)
   # if the previous command fails, exit this script with a non-zero error code
-  if [ $? -ne 0 ]; then
+  if [[ $? -ne 0 ]]; then
     printError ${project}
     exit 1
   fi
@@ -17,7 +17,7 @@ function frontend() {
     printTitle ${project}
   (cd frontend/ && yarn && yarn run lint && yarn run format:check || (printFormatError ${project}; exit 1) && yarn run compile && yarn run test && yarn build-storybook && yarn test:accessibility)
   # if the previous command fails, exit this script with a non-zero error code
-  if [ $? -ne 0 ]; then
+  if [[ $? -ne 0 ]]; then
     printError ${project}
     exit 1
   fi
@@ -29,7 +29,7 @@ function backend() {
     printTitle ${project}
   (cd backend/ && yarn && yarn run lint && yarn run format:check || (printFormatError ${project}; exit 1) && yarn run compile && yarn run test && yarn run test:integration && yarn run generate:openapi && yarn run generate:swagger && yarn run generate:redoc)
   # if the previous command fails, exit this script with a non-zero error code
-  if [ $? -ne 0 ]; then
+  if [[ $? -ne 0 ]]; then
     printError ${project}
     exit 1
   fi
@@ -41,7 +41,7 @@ function locales() {
     printTitle ${project}
   (cd locales/ && yarn || (printFormatError ${project}; exit 1) &&  yarn run test)
   # if the previous command fails, exit this script with a non-zero error code
-  if [ $? -ne 0 ]; then
+  if [[ $? -ne 0 ]]; then
     printError ${project}
     exit 1
   fi
@@ -53,7 +53,7 @@ function sonarcloud() {
     printTitle ${project}
   (yarn && yarn run sonar:local)
   # if the previous command fails, exit this script with a non-zero error code
-  if [ $? -ne 0 ]; then
+  if [[ $? -ne 0 ]]; then
     printError ${project}
     exit 1
   fi
@@ -100,25 +100,25 @@ PS3="Select what you want to build and test: "
 
 OPTIONS="All Api-Specifications Frontend Backend SonarCloud Locales"
 select opt in $OPTIONS; do
-  if [ "$REPLY" = "1" ]; then
+  if [[ "$REPLY" = "1" ]]; then
     echo "******************" &&
     echo "Building all" &&
     echo "******************" &&
     api-specifications && frontend && backend && sonarcloud
     exit $?
-  elif [ "$REPLY" = "2" ]; then
+  elif [[ "$REPLY" = "2" ]]; then
     api-specifications
     exit $?
-  elif [ "$REPLY" = "3" ]; then
+  elif [[ "$REPLY" = "3" ]]; then
    frontend
    exit $?
-  elif [ "$REPLY" = "4" ]; then
+  elif [[ "$REPLY" = "4" ]]; then
     backend
     exit $?
-  elif [ "$REPLY" = "5" ]; then
+  elif [[ "$REPLY" = "5" ]]; then
     sonarcloud
     exit $?
-  elif [ "$REPLY" = "6" ]; then
+  elif [[ "$REPLY" = "6" ]]; then
     locales
     exit $?
   else
