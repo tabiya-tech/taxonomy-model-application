@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useMemo, useRef, useState } from "react";
 import { Chip } from "@mui/material";
 import debounce from "lodash.debounce";
 import { DEBOUNCE_INTERVAL } from "./debouncing";
@@ -30,21 +30,10 @@ export const LicenseFileEntry = (props: Readonly<LicenseFileEntryProps>) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { enqueueSnackbar } = useSnackbar();
 
-  const fileChangedHandler = async (e: ChangeEvent<HTMLInputElement>) => {
-    const newFile: File = e.target?.files![0];
-    // if some file is available, update the selected file
-    await updateSelectedFile(newFile);
-  };
-
-  const fileRemovedHandler = async () => {
-    await updateSelectedFile(null);
-  };
-
   const updateSelectedFile = async (file: File | null) => {
-    setSelectedFile(file); // update the selected file
+    setSelectedFile(file);
 
     try {
-      // notify the parent component if it has provided handler
       const fileContent = file ? await file.text() : "";
 
       if (props.notifyOnLicenseChange && fileContent && file) {
@@ -60,7 +49,20 @@ export const LicenseFileEntry = (props: Readonly<LicenseFileEntryProps>) => {
     }
   };
 
-  const debounceFileRemoveHandler = debounce(fileRemovedHandler, DEBOUNCE_INTERVAL);
+  const fileChangedHandler = async (e: ChangeEvent<HTMLInputElement>) => {
+    const newFile: File = e.target?.files![0];
+    await updateSelectedFile(newFile);
+  };
+
+  // Keep a ref to the latest updateSelectedFile so the debounced function
+  // (created once) always calls the current version without recreating itself.
+  const updateSelectedFileRef = useRef(updateSelectedFile);
+  updateSelectedFileRef.current = updateSelectedFile;
+
+  const debounceFileRemoveHandler = useMemo(
+    () => debounce(() => updateSelectedFileRef.current(null), DEBOUNCE_INTERVAL),
+    []
+  );
 
   return (
     <div data-filetype={licenseFileType} data-testid={DATA_TEST_ID.FILE_ENTRY}>
