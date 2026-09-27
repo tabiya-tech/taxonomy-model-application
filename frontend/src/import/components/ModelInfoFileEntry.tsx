@@ -40,10 +40,6 @@ export const ModelInfoFileEntry = (props: Readonly<ModelInfoFileEntryProps>) => 
     }
   };
 
-  const fileRemovedHandler = async () => {
-    await updateSelectedFile(null);
-  };
-
   const notifyOnModelInfoChanges = (details: ModelInfoDetails) => {
     if (props.notifyUUIDHistoryChange) {
       props.notifyUUIDHistoryChange(details.UUIDHistory);
