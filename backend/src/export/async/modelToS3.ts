@@ -30,7 +30,7 @@ function getModelLanguageConfigs(
       ? availableLanguages
           .filter((shortCode): shortCode is string => typeof shortCode === "string")
           .map((shortCode) => shortCode.trim().toLowerCase())
-          .filter(LanguageAPISpecs.Helpers.isSupportedLanguage)
+          .filter((shortCode) => LanguageAPISpecs.Helpers.isSupportedLanguage(shortCode))
       : []
   );
   // iterate the registry, not the normalized codes, so the result is always in registry order, not the model's order

@@ -10,8 +10,9 @@ import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessLocalizedEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import {
   ISkillImportRow,
-  SKILL_NON_LOCALIZABLE_HEADERS,
-  SKILL_LOCALIZABLE_FIELDS,
+  getNonTranslatableHeaders,
+  skillImportHeaders,
+  skillTranslatableHeaders,
 } from "esco/common/entityToCSV.types";
 import { getReuseLevelFromCSVReuseLevel, getSkillTypeFromCSVSkillType } from "esco/common/csvObjectTypes";
 import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
@@ -32,8 +33,8 @@ function getHeadersValidator(
 ): HeadersValidatorFunction {
   return getLocalizedHeadersValidator(
     validatorName,
-    SKILL_NON_LOCALIZABLE_HEADERS,
-    SKILL_LOCALIZABLE_FIELDS,
+    getNonTranslatableHeaders(skillImportHeaders, skillTranslatableHeaders),
+    skillTranslatableHeaders,
     availableLanguages,
     ctx
   );

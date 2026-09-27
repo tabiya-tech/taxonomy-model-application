@@ -20,7 +20,7 @@ import { populateOccupationRequiresSkillsOptions } from "../_shared/populate/occ
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 import stream from "stream";
-import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import { createTranslationStream, DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import {
@@ -44,7 +44,6 @@ import {
 import { wrapTranslatableFields } from "common/language/translatedFields";
 import { buildSearchCondition } from "esco/common/searchCondition";
 import { unwrapSkillTranslatableFields } from "esco/skill/_shared/skillReference";
-import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 
 // fields stored as localized sub documents, wrapped/flattened by this repository
 const TRANSLATABLE_STRING_FIELDS = [
@@ -421,25 +420,11 @@ export class OccupationRepository implements IOccupationRepository {
   }
 
   findAllWithTranslations(modelId: string): Readable {
-    try {
-      const pipeline: Readable = stream.pipeline(
-        // use $eq to prevent NoSQL injection
-        this.Model.find({ modelId: { $eq: modelId } }).cursor(), // we do not populate the parent, children or requiresSkills
-        // the global transform only, without the transform of the schema that flattens the translatable fields
-        new DocumentToObjectTransformer<IOccupationWithTranslations>(getGlobalTransformOptions()),
-        () => undefined
-      );
-      pipeline.on("error", (e) => {
-        console.error(new Error("OccupationRepository.findAllWithTranslations: stream failed", { cause: e }));
-      });
-
-      return pipeline;
-    } catch (e: unknown) {
-      const err = new Error("OccupationRepository.findAllWithTranslations: findAllWithTranslations failed", {
-        cause: e,
-      });
-      throw err;
-    }
+    return createTranslationStream<IOccupationWithTranslations>(
+      // use $eq to prevent NoSQL injection; we do not populate parent, children or requiresSkills
+      () => this.Model.find({ modelId: { $eq: modelId } }).cursor(),
+      "OccupationRepository.findAllWithTranslations"
+    );
   }
 
   async findPaginated(

@@ -12,7 +12,6 @@ import {
   IPartialUpdateSkillGroupSpec,
   IUpdateSkillGroupSpec,
 } from "../_shared/skillGroup.types";
-import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import {
   populateSkillGroupChildrenOptions,
   populateSkillGroupParentsOptions,
@@ -21,7 +20,7 @@ import { getSkillGroupDocReference, SkillGroupDocument } from "../_shared/skillG
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { buildSearchCondition } from "esco/common/searchCondition";
 import { Readable } from "node:stream";
-import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import { createTranslationStream, DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
 import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
 import { ISkillHierarchyPairDoc } from "esco/skillHierarchy/skillHierarchy.types";
@@ -461,25 +460,11 @@ export class SkillGroupRepository implements ISkillGroupRepository {
   }
 
   findAllWithTranslations(modelId: string): Readable {
-    try {
-      const pipeline = stream.pipeline(
-        this.Model.find({ modelId: { $eq: modelId } }).cursor(),
-        // the global transform only, without the transform of the schema that flattens the translatable fields
-        new DocumentToObjectTransformer<ISkillGroupWithTranslations>(getGlobalTransformOptions()),
-        () => undefined
-      );
-      pipeline.on("error", (e) => {
-        console.error(new Error("SkillGroupRepository.findAllWithTranslations: stream failed", { cause: e }));
-      });
-
-      return pipeline;
-    } catch (e: unknown) {
-      const err = new Error("SkillGroupRepository.findAllWithTranslations: findAllWithTranslations failed", {
-        cause: e,
-      });
-      console.error(err);
-      throw err;
-    }
+    return createTranslationStream<ISkillGroupWithTranslations>(
+      // use $eq to prevent NoSQL injection
+      () => this.Model.find({ modelId: { $eq: modelId } }).cursor(),
+      "SkillGroupRepository.findAllWithTranslations"
+    );
   }
 
   async findParents(

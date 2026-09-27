@@ -11,7 +11,6 @@ import {
   ISkillWithTranslations,
   IUpdateSkillSpec,
 } from "../_shared/skill.types";
-import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import { getSkillDocReference, SkillDocument, unwrapSkillTranslatableFields } from "../_shared/skillReference";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
@@ -32,7 +31,7 @@ import { populateSkillRequiredByOccupationOptions } from "../_shared/populateOcc
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 import stream from "stream";
-import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import { createTranslationStream, DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import { populateEmptySkillHierarchy } from "esco/skillHierarchy/populateFunctions";
 import { populateEmptySkillToSkillRelation } from "esco/skillToSkillRelation/populateFunctions";
 import { populateEmptyRequiredByOccupations } from "esco/occupationToSkillRelation/populateFunctions";
@@ -434,25 +433,11 @@ export class SkillRepository implements ISkillRepository {
   }
 
   findAllWithTranslations(modelId: string): Readable {
-    try {
-      const pipeline = stream.pipeline(
-        // use $eq to prevent NoSQL injection
-        this.Model.find({ modelId: { $eq: modelId } }).cursor(),
-        // we do not populate the parents, children, and the translatable fields are not flattened
-        new DocumentToObjectTransformer<ISkillWithTranslations>(getGlobalTransformOptions()),
-        () => undefined
-      );
-
-      pipeline.on("error", (e) => {
-        console.error(new Error("SkillRepository.findAllWithTranslations: stream failed", { cause: e }));
-      });
-
-      return pipeline;
-    } catch (e: unknown) {
-      const err = new Error("SkillRepository.findAllWithTranslations: findAllWithTranslations failed", { cause: e });
-      console.error(err);
-      throw err;
-    }
+    return createTranslationStream<ISkillWithTranslations>(
+      // use $eq to prevent NoSQL injection; we do not populate parents, children
+      () => this.Model.find({ modelId: { $eq: modelId } }).cursor(),
+      "SkillRepository.findAllWithTranslations"
+    );
   }
 
   async findPaginated(

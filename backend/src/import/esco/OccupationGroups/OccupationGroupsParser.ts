@@ -9,8 +9,9 @@ import { RowsProcessedStats } from "import/rowsProcessedStats.types";
 import { getProcessLocalizedEntityBatchFunction } from "import/esco/common/processEntityBatchFunction";
 import {
   IOccupationGroupImportRow,
-  OCCUPATION_GROUP_NON_LOCALIZABLE_HEADERS,
-  OCCUPATION_GROUP_LOCALIZABLE_FIELDS,
+  getNonTranslatableHeaders,
+  OccupationGroupImportHeaders,
+  OccupationGroupTranslatableHeaders,
 } from "esco/common/entityToCSV.types";
 import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 import errorLogger from "common/errorLogger/errorLogger";
@@ -31,8 +32,8 @@ function getHeadersValidator(
 ): HeadersValidatorFunction {
   return getLocalizedHeadersValidator(
     validatorName,
-    OCCUPATION_GROUP_NON_LOCALIZABLE_HEADERS,
-    OCCUPATION_GROUP_LOCALIZABLE_FIELDS,
+    getNonTranslatableHeaders(OccupationGroupImportHeaders, OccupationGroupTranslatableHeaders),
+    OccupationGroupTranslatableHeaders,
     availableLanguages,
     ctx
   );
