@@ -11,6 +11,7 @@ import { SkillToSkillRelationType } from "esco/skillToSkillRelation/skillToSkill
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import LanguageAPISpecs from "api-specifications/language";
 import { readLanguageValue, readLanguageValues } from "common/language/translatedFields";
+import { ITranslatedStringDoc, ITranslatedStringArrayDoc } from "common/language/translatedString.types";
 import { stringFromArray } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
 
 /**
@@ -97,6 +98,13 @@ export function getLanguageSuffixedArrayColumns<Header extends string>(
   ) as Record<LanguageSuffixedHeader<Header>, string>;
 }
 
+export function getNonTranslatableHeaders(
+  importHeaders: readonly string[],
+  translatableHeaders: readonly string[]
+): readonly string[] {
+  return importHeaders.filter((h) => !translatableHeaders.includes(h));
+}
+
 // Builds an entity's getXExportHeaders function: every import header, translatable ones expanded per language, then the timestamps.
 function makeGetExportHeaders(importHeaders: readonly string[], translatableHeaders: readonly string[]) {
   return (languages: readonly LanguageAPISpecs.Types.ILanguageConfig[]): string[] => [
@@ -106,12 +114,10 @@ function makeGetExportHeaders(importHeaders: readonly string[], translatableHead
   ];
 }
 
-type TranslatableFieldValue = unknown | unknown[];
-
 // Spreads every translatable field of a row at once. translatedValuesByHeader must carry every header of Header, so a
 // field left out is a compile error instead of a silently missing column.
 export function getLanguageSuffixedRowColumns<Header extends string>(
-  translatedValuesByHeader: Record<Header, TranslatableFieldValue>,
+  translatedValuesByHeader: Record<Header, ITranslatedStringDoc | ITranslatedStringArrayDoc>,
   arrayHeaders: readonly Header[],
   languages: readonly LanguageAPISpecs.Types.ILanguageConfig[]
 ): Record<LanguageSuffixedHeader<Header>, string> {
@@ -163,14 +169,6 @@ export const getOccupationGroupExportHeaders = makeGetExportHeaders(
 /*
  * Interface for the occupationGroup row in the CSV file
  */
-export const OCCUPATION_GROUP_NON_LOCALIZABLE_HEADERS = [
-  "ID",
-  "ORIGINURI",
-  "UUIDHISTORY",
-  "CODE",
-  "GROUPTYPE",
-] as const;
-export const OCCUPATION_GROUP_LOCALIZABLE_FIELDS = ["PREFERREDLABEL", "ALTLABELS", "DESCRIPTION"] as const;
 
 export interface IOccupationGroupImportRow extends LocalizedColumns<"PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION"> {
   ID: string;
@@ -228,21 +226,6 @@ export const getSkillExportHeaders = makeGetExportHeaders(skillImportHeaders, sk
 /*
  * Interface for the skill row in the CSV file
  */
-export const SKILL_NON_LOCALIZABLE_HEADERS = [
-  "ID",
-  "ORIGINURI",
-  "UUIDHISTORY",
-  "REUSELEVEL",
-  "SKILLTYPE",
-  "ISLOCALIZED",
-] as const;
-export const SKILL_LOCALIZABLE_FIELDS = [
-  "PREFERREDLABEL",
-  "ALTLABELS",
-  "DESCRIPTION",
-  "DEFINITION",
-  "SCOPENOTE",
-] as const;
 
 export interface ISkillImportRow
   extends LocalizedColumns<"PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION" | "DEFINITION" | "SCOPENOTE"> {
@@ -301,8 +284,6 @@ export const getSkillGroupExportHeaders = makeGetExportHeaders(skillGroupImportH
 /*
  * Interface for the skillGroup row in the CSV file
  */
-export const SKILL_GROUP_NON_LOCALIZABLE_HEADERS = ["ID", "ORIGINURI", "UUIDHISTORY", "CODE"] as const;
-export const SKILL_GROUP_LOCALIZABLE_FIELDS = ["PREFERREDLABEL", "ALTLABELS", "DESCRIPTION", "SCOPENOTE"] as const;
 
 export interface ISkillGroupImportRow
   extends LocalizedColumns<"PREFERREDLABEL" | "ALTLABELS" | "DESCRIPTION" | "SCOPENOTE"> {
@@ -364,23 +345,6 @@ export const getOccupationExportHeaders = makeGetExportHeaders(occupationImportH
 /*
  * Interface for the occupations row in the CSV file
  */
-export const OCCUPATION_NON_LOCALIZABLE_HEADERS = [
-  "ID",
-  "ORIGINURI",
-  "UUIDHISTORY",
-  "OCCUPATIONGROUPCODE",
-  "CODE",
-  "OCCUPATIONTYPE",
-  "ISLOCALIZED",
-] as const;
-export const OCCUPATION_LOCALIZABLE_FIELDS = [
-  "PREFERREDLABEL",
-  "ALTLABELS",
-  "DESCRIPTION",
-  "DEFINITION",
-  "SCOPENOTE",
-  "REGULATEDPROFESSIONNOTE",
-] as const;
 
 export interface IOccupationImportRow
   extends LocalizedColumns<

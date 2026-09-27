@@ -16,8 +16,9 @@ import {
 import { ObjectTypes } from "esco/common/objectTypes";
 import {
   IOccupationImportRow,
-  OCCUPATION_NON_LOCALIZABLE_HEADERS,
-  OCCUPATION_LOCALIZABLE_FIELDS,
+  getNonTranslatableHeaders,
+  occupationImportHeaders,
+  occupationTranslatableHeaders,
 } from "esco/common/entityToCSV.types";
 import { getEntityTypeFromCSVObjectType } from "import/esco/common/getEntityTypeFromCSVObjectType";
 import { arrayFromString } from "common/parseNewLineSeparateArray/parseNewLineSeparatedArray";
@@ -37,8 +38,8 @@ function getHeadersValidator(
 ): HeadersValidatorFunction {
   return getLocalizedHeadersValidator(
     validatorName,
-    OCCUPATION_NON_LOCALIZABLE_HEADERS,
-    OCCUPATION_LOCALIZABLE_FIELDS,
+    getNonTranslatableHeaders(occupationImportHeaders, occupationTranslatableHeaders),
+    occupationTranslatableHeaders,
     availableLanguages,
     ctx
   );

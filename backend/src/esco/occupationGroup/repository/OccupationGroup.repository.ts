@@ -3,7 +3,6 @@ import {
   IOccupationGroupReference,
   IOccupationGroupWithTranslations,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
-import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTransform";
 import { getOccupationGroupDocReference, OccupationGroupDocument } from "../_shared/OccupationGroupReference";
 import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
@@ -23,7 +22,7 @@ import {
 } from "esco/occupationGroup/_shared/populateOccupationHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
-import { DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
+import { createTranslationStream, DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
 import { ObjectTypes } from "esco/common/objectTypes";
@@ -558,29 +557,11 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
   }
 
   findAllWithTranslations(modelId: string): Readable {
-    try {
-      const pipeline = stream.pipeline(
-        // use $eq to prevent NoSQL injection
-        this.Model.find({ modelId: { $eq: modelId } }).cursor(),
-        // we do not populate the parent, children
-        // the global transform only, without the transform of the schema that flattens the translatable fields
-        new DocumentToObjectTransformer<IOccupationGroupWithTranslations>(getGlobalTransformOptions()),
-        () => undefined
-      );
-
-      pipeline.on("error", (e) => {
-        const err = new Error("OccupationGroupRepository.findAllWithTranslations: stream failed", { cause: e });
-        console.error(err);
-      });
-
-      return pipeline;
-    } catch (e: unknown) {
-      const err = new Error("OccupationGroupRepository.findAllWithTranslations: findAllWithTranslations failed", {
-        cause: e,
-      });
-      console.error(err);
-      throw err;
-    }
+    return createTranslationStream<IOccupationGroupWithTranslations>(
+      // use $eq to prevent NoSQL injection; we do not populate parent, children
+      () => this.Model.find({ modelId: { $eq: modelId } }).cursor(),
+      "OccupationGroupRepository.findAllWithTranslations"
+    );
   }
 
   async findPaginated(
