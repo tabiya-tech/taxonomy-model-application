@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
 import { Chip } from "@mui/material";
 import debounce from "lodash.debounce";
 import { DEBOUNCE_INTERVAL } from "./debouncing";
@@ -87,7 +87,13 @@ export const ModelInfoFileEntry = (props: Readonly<ModelInfoFileEntryProps>) => 
     }
   };
 
-  const debounceFileRemoveHandler = debounce(fileRemovedHandler, DEBOUNCE_INTERVAL);
+  const updateSelectedFileRef = useRef(updateSelectedFile);
+  updateSelectedFileRef.current = updateSelectedFile;
+
+  const debounceFileRemoveHandler = useMemo(
+    () => debounce(() => updateSelectedFileRef.current(null), DEBOUNCE_INTERVAL),
+    []
+  );
 
   return (
     <div data-filetype={modelInfoFileType} data-testid={DATA_TEST_ID.FILE_ENTRY}>
