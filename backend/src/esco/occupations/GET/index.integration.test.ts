@@ -14,26 +14,33 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { IOccupation } from "../_shared/occupation.types";
+import { INewOccupationSpecWithoutImportId, IOccupation } from "../_shared/occupation.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { getMockRandomISCOGroupCode } from "_test_utilities/mockOccupationGroupCode";
 import { ObjectTypes } from "esco/common/objectTypes";
 
-async function createOccupationInDB(modelId: string = getMockStringId(1), spec?: Partial<IOccupation>) {
+async function createOccupationInDB(
+  modelId: string = getMockStringId(1),
+  spec?: Partial<INewOccupationSpecWithoutImportId>
+) {
   return await getRepositoryRegistry().occupation.create({
     modelId: modelId,
     code: getMockRandomOccupationCode(false),
     occupationType: ObjectTypes.ESCOOccupation,
-    preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    preferredLabel: {
+      en: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    },
+    description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+    altLabels: [{ en: getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
     originUri: `http://some/path/to/api/resources/${randomUUID()}`,
     UUIDHistory: [randomUUID()],
     occupationGroupCode: getMockRandomISCOGroupCode(),
-    definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-    scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-    regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+    definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+    scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+    regulatedProfessionNote: {
+      en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+    },
     isLocalized: false,
     ...spec,
   });
@@ -133,9 +140,13 @@ describe("Test for occupation List GET handler with a DB", () => {
       UUIDHistory: [],
     });
     const givenModelId = givenModel.id;
-    const givenSoftwareEngineer = await createOccupationInDB(givenModelId, { preferredLabel: "Software Engineer" });
-    const givenSoftwareArchitect = await createOccupationInDB(givenModelId, { preferredLabel: "software architect" });
-    await createOccupationInDB(givenModelId, { preferredLabel: "Nurse" });
+    const givenSoftwareEngineer = await createOccupationInDB(givenModelId, {
+      preferredLabel: { en: "Software Engineer" },
+    });
+    const givenSoftwareArchitect = await createOccupationInDB(givenModelId, {
+      preferredLabel: { en: "software architect" },
+    });
+    await createOccupationInDB(givenModelId, { preferredLabel: { en: "Nurse" } });
 
     // WHEN searching for "software" on preferredLabel
     const givenEvent = {

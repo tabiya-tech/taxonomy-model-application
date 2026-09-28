@@ -9,6 +9,7 @@ import { getMockStringId } from "_test_utilities/mockMongoId";
 import { randomUUID } from "node:crypto";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 import * as authenticatorModule from "auth/authorizer";
 import { usersRequestContext } from "_test_utilities/dataModel";
@@ -20,6 +21,7 @@ import { ObjectTypes } from "esco/common/objectTypes";
 import {
   IOccupationService,
   ModelForOccupationValidationErrorCode,
+  OccupationLanguageValidationError,
   OccupationModelValidationError,
 } from "../services/occupation.service.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
@@ -37,6 +39,11 @@ import {
 
 const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 checkRole.mockResolvedValue(true);
+
+const givenFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+
+// GIVEN a function to wrap a flat string into a single language translated value
+const wrapFallback = (value: string) => ({ [givenFallbackDbKeyName]: value });
 
 const transformSpy = jest.spyOn(transformModule, "transform");
 
@@ -103,18 +110,23 @@ describe("Test for occupation POST handler", () => {
         modelId: givenModelId,
         code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-        preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-        description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        preferredLabel: {
+          [givenFallbackDbKeyName]: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+          fr: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+        },
+        description: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)),
         altLabels: [
-          getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
-          getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
+          wrapFallback(getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)),
+          wrapFallback(getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)),
         ],
         originUri: `http://some/path/to/api/resources/${randomUUID()}`,
         UUIDHistory: [randomUUID()],
         occupationGroupCode: getMockRandomISCOGroupCode(),
-        definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-        scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-        regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        definition: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH)),
+        scopeNote: wrapFallback(getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH)),
+        regulatedProfessionNote: wrapFallback(
+          getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH)
+        ),
         isLocalized: false,
       };
 
@@ -183,15 +195,15 @@ describe("Test for occupation POST handler", () => {
         modelId: givenModelId,
         code: "1234_1",
         occupationType: OccupationAPISpecs.Enums.OccupationType.LocalOccupation,
-        preferredLabel: "Local Occupation",
-        description: "description",
+        preferredLabel: wrapFallback("Local Occupation"),
+        description: wrapFallback("description"),
         altLabels: [],
         originUri: `http://some/path/${randomUUID()}`,
         UUIDHistory: [randomUUID()],
         occupationGroupCode: "1234L",
-        definition: "definition",
-        scopeNote: "scopeNote",
-        regulatedProfessionNote: "regulatedProfessionNote",
+        definition: wrapFallback("definition"),
+        scopeNote: wrapFallback("scopeNote"),
+        regulatedProfessionNote: wrapFallback("regulatedProfessionNote"),
         isLocalized: true,
       };
 
@@ -240,18 +252,20 @@ describe("Test for occupation POST handler", () => {
         modelId: givenModelId,
         code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-        preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-        description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        preferredLabel: wrapFallback(getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH)),
+        description: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)),
         altLabels: [
-          getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
-          getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
+          wrapFallback(getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)),
+          wrapFallback(getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)),
         ],
         originUri: `http://some/path/to/api/resources/${randomUUID()}`,
         UUIDHistory: [randomUUID()],
         occupationGroupCode: getMockRandomISCOGroupCode(),
-        definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-        scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-        regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        definition: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH)),
+        scopeNote: wrapFallback(getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH)),
+        regulatedProfessionNote: wrapFallback(
+          getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH)
+        ),
         isLocalized: false,
       };
 
@@ -318,15 +332,15 @@ describe("Test for occupation POST handler", () => {
         modelId: givenModelId,
         code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-        preferredLabel: "label",
-        description: "desc",
+        preferredLabel: wrapFallback("label"),
+        description: wrapFallback("desc"),
         altLabels: [],
         originUri: `http://some/path/${randomUUID()}`,
         UUIDHistory: [randomUUID()],
         occupationGroupCode: getMockRandomISCOGroupCode(),
-        definition: "def",
-        scopeNote: "scope",
-        regulatedProfessionNote: "note",
+        definition: wrapFallback("def"),
+        scopeNote: wrapFallback("scope"),
+        regulatedProfessionNote: wrapFallback("note"),
         isLocalized: false,
       };
       const givenEvent = {
@@ -345,15 +359,17 @@ describe("Test for occupation POST handler", () => {
         modelId: getMockStringId(2),
         code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-        preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-        description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        preferredLabel: wrapFallback(getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH)),
+        description: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)),
         altLabels: [],
         originUri: `http://some/path/${randomUUID()}`,
         UUIDHistory: [randomUUID()],
         occupationGroupCode: getMockRandomISCOGroupCode(),
-        definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-        scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-        regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        definition: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH)),
+        scopeNote: wrapFallback(getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH)),
+        regulatedProfessionNote: wrapFallback(
+          getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH)
+        ),
         isLocalized: false,
       };
       const givenEvent = {
@@ -403,15 +419,17 @@ describe("Test for occupation POST handler", () => {
         modelId: givenModelId,
         code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-        preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-        description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        preferredLabel: wrapFallback(getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH)),
+        description: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)),
         altLabels: [],
         originUri: `http://some/path/${randomUUID()}`,
         UUIDHistory: [randomUUID()],
         occupationGroupCode: getMockRandomISCOGroupCode(),
-        definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-        scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-        regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        definition: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH)),
+        scopeNote: wrapFallback(getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH)),
+        regulatedProfessionNote: wrapFallback(
+          getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH)
+        ),
         isLocalized: false,
       };
       const givenEvent = {
@@ -454,15 +472,17 @@ describe("Test for occupation POST handler", () => {
         modelId: givenModelId,
         code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-        preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-        description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        preferredLabel: wrapFallback(getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH)),
+        description: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)),
         altLabels: [],
         originUri: `http://some/path/${randomUUID()}`,
         UUIDHistory: [randomUUID()],
         occupationGroupCode: getMockRandomISCOGroupCode(),
-        definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-        scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-        regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        definition: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH)),
+        scopeNote: wrapFallback(getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH)),
+        regulatedProfessionNote: wrapFallback(
+          getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH)
+        ),
         isLocalized: false,
       };
       const givenEvent = {
@@ -501,6 +521,63 @@ describe("Test for occupation POST handler", () => {
       expect(body.message).toEqual("Cannot add occupations to a released model");
     });
 
+    test("POST should respond with BAD_REQUEST when a field uses a language not available in the model", async () => {
+      // GIVEN a valid request (method & header & payload)
+      const givenModelId = getMockStringId(1);
+      const givenPayload = {
+        modelId: givenModelId,
+        code: getMockRandomOccupationCode(false),
+        occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
+        preferredLabel: { [givenFallbackDbKeyName]: "Cook", fr: "Cuisinier" },
+        description: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)),
+        altLabels: [],
+        originUri: `http://some/path/${randomUUID()}`,
+        UUIDHistory: [randomUUID()],
+        occupationGroupCode: getMockRandomISCOGroupCode(),
+        definition: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH)),
+        scopeNote: wrapFallback(getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH)),
+        regulatedProfessionNote: wrapFallback(
+          getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH)
+        ),
+        isLocalized: false,
+      };
+      const givenEvent = {
+        httpMethod: HTTP_VERBS.POST,
+        body: JSON.stringify(givenPayload),
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations`,
+        pathParameters: { modelId: givenModelId },
+      } as unknown as APIGatewayProxyEvent;
+      checkRole.mockResolvedValue(true);
+
+      // AND the service rejects because 'fr' is not one of the model's availableLanguages
+      const givenOccupationServiceMock = {
+        create: jest.fn().mockRejectedValue(new OccupationLanguageValidationError("preferredLabel", "fr")),
+        findById: jest.fn(),
+        findPaginated: jest.fn(),
+        searchPaginated: jest.fn(),
+        validateModelForOccupation: jest.fn(),
+        getParent: jest.fn(),
+        getChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        getSkills: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        update: jest.fn(),
+        patch: jest.fn(),
+        getHistory: jest.fn().mockResolvedValue(null),
+      } as IOccupationService;
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.occupation = givenOccupationServiceMock;
+
+      // WHEN the handler is invoked with the given event
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect the handler to respond with BAD_REQUEST, naming the field and the language
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      const body = JSON.parse(actualResponse.body);
+      expect(body.errorCode).toEqual(OccupationAPISpecs.POST.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE);
+      expect(body.message).toEqual("Field 'preferredLabel' uses a language not available in this model");
+      expect(body.details).toEqual("Unsupported language: 'fr'");
+    });
+
     test("POST should respond with BAD_REQUEST if JSON.parse throws a non-Error", async () => {
       const givenEvent = {
         httpMethod: HTTP_VERBS.POST,
@@ -529,15 +606,17 @@ describe("Test for occupation POST handler", () => {
         modelId: givenModelId,
         code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-        preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-        description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        preferredLabel: wrapFallback(getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH)),
+        description: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)),
         altLabels: [],
         originUri: `http://some/path/${randomUUID()}`,
         UUIDHistory: [randomUUID()],
         occupationGroupCode: getMockRandomISCOGroupCode(),
-        definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-        scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-        regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        definition: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH)),
+        scopeNote: wrapFallback(getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH)),
+        regulatedProfessionNote: wrapFallback(
+          getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH)
+        ),
         isLocalized: false,
       };
       const givenEvent = {
@@ -580,15 +659,17 @@ describe("Test for occupation POST handler", () => {
         modelId: givenModelId,
         code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-        preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-        description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        preferredLabel: wrapFallback(getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH)),
+        description: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)),
         altLabels: [],
         originUri: `http://some/path/${randomUUID()}`,
         UUIDHistory: [randomUUID()],
         occupationGroupCode: getMockRandomISCOGroupCode(),
-        definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-        scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-        regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        definition: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH)),
+        scopeNote: wrapFallback(getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH)),
+        regulatedProfessionNote: wrapFallback(
+          getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH)
+        ),
         isLocalized: false,
       };
       const givenEvent = {
@@ -636,18 +717,20 @@ describe("Test for occupation POST handler", () => {
         modelId: givenModelId,
         code: getMockRandomOccupationCode(false),
         occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-        preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-        description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        preferredLabel: wrapFallback(getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH)),
+        description: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH)),
         altLabels: [
-          getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
-          getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
+          wrapFallback(getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)),
+          wrapFallback(getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)),
         ],
         originUri: `http://some/path/to/api/resources/${randomUUID()}`,
         UUIDHistory: [randomUUID()],
         occupationGroupCode: getMockRandomISCOGroupCode(),
-        definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-        scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-        regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+        definition: wrapFallback(getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH)),
+        scopeNote: wrapFallback(getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH)),
+        regulatedProfessionNote: wrapFallback(
+          getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH)
+        ),
         isLocalized: false,
       };
 

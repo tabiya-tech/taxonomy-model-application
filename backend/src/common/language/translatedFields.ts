@@ -1,5 +1,6 @@
 import { getFallbackLanguageConfig } from "./fallbackLanguage";
 import { ITranslatedStringArrayDoc, ITranslatedStringDoc, TranslatedStringKey } from "./translatedString.types";
+import LanguageAPISpecs from "api-specifications/language";
 
 /**
  * Reads the value a plain object carries under a key, or undefined when the value is not a plain object.
@@ -157,6 +158,91 @@ export function wrapTranslatableFields<Field extends string>(
     wrapped.altLabels = wrapTranslatedArray(spec.altLabels);
   }
   return wrapped;
+}
+
+/**
+ * Wraps a full multilingual object into a translated value, keyed by every language it carries, e.g.
+ * { en: "Cook", fr: "Cuisinier" } into a Map with both keys.
+ */
+export function wrapTranslatedFromObject(value: LanguageAPISpecs.Types.ITranslatedString): ITranslatedStringDoc {
+  return new Map(Object.entries(value) as [TranslatedStringKey, string][]);
+}
+
+/**
+ * Wraps a list of multilingual objects into a list of translated values.
+ */
+export function wrapTranslatedArrayFromObjects(
+  values: LanguageAPISpecs.Types.ITranslatedStringArray
+): ITranslatedStringArrayDoc {
+  return values.map(wrapTranslatedFromObject);
+}
+
+/**
+ * Wraps a spec's translatable fields (already full multilingual objects) into translated values, replacing
+ * whatever a field previously held. Used by create and by PUT's full replace: unlike wrapTranslatableFields,
+ * there is no existingDoc to merge into, so a language absent from the input is dropped.
+ *
+ * @param spec the spec, its translatable fields full multilingual objects
+ * @param translatableStringFields the fields of the spec that carry a translated value
+ * @returns the spec, with its translatable fields wrapped
+ */
+export function wrapTranslatableFieldsFromObjects<Field extends string>(
+  spec: Partial<Record<Field, LanguageAPISpecs.Types.ITranslatedString>> & {
+    altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  },
+  translatableStringFields: readonly Field[]
+): Record<string, unknown> {
+  const wrapped: Record<string, unknown> = { ...spec };
+  translatableStringFields.forEach((field) => {
+    const value = spec[field];
+    if (value !== undefined) {
+      wrapped[field] = wrapTranslatedFromObject(value);
+    }
+  });
+  if (spec.altLabels !== undefined) {
+    wrapped.altLabels = wrapTranslatedArrayFromObjects(spec.altLabels);
+  }
+  return wrapped;
+}
+
+/**
+ * Merges a PATCH spec's translatable fields into a document's existing translations: per language, a string
+ * sets/overwrites, null deletes, absent leaves it as-is. A field absent from the spec is untouched entirely.
+ * altLabels has no stable per-item identity, so it is replaced wholesale rather than merged per language.
+ *
+ * @param spec the PATCH spec; translatable fields, when present, are partial multilingual objects that may
+ *             carry null to delete a language
+ * @param translatableStringFields the scalar translatable fields of the spec (excludes altLabels)
+ * @param existingDoc the document being patched
+ * @returns the spec, translatable fields merged into wrapped Maps ready for doc.set()
+ */
+export function mergeTranslatableFieldsFromPartialObjects<Field extends string>(
+  spec: Partial<Record<Field, LanguageAPISpecs.Types.IPartialTranslatedString>> & {
+    altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  },
+  translatableStringFields: readonly Field[],
+  existingDoc: object
+): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...spec };
+  translatableStringFields.forEach((field) => {
+    const patchValue = spec[field];
+    if (patchValue === undefined) {
+      return;
+    }
+    const translations = readExistingTranslations((existingDoc as Record<string, unknown>)[field]);
+    Object.entries(patchValue).forEach(([dbKeyName, value]) => {
+      if (value === null) {
+        translations.delete(dbKeyName as TranslatedStringKey);
+      } else if (value !== undefined) {
+        translations.set(dbKeyName as TranslatedStringKey, value);
+      }
+    });
+    merged[field] = translations;
+  });
+  if (spec.altLabels !== undefined) {
+    merged.altLabels = wrapTranslatedArrayFromObjects(spec.altLabels);
+  }
+  return merged;
 }
 
 /**

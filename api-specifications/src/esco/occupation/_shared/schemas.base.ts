@@ -1,4 +1,5 @@
 import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID, RegExp_Str_URI } from "../../../regex";
+import LanguageAPISpecs from "../../../language";
 import OccupationConstants from "./constants";
 import OccupationEnums from "./enums";
 import OccupationRegexes from "./regex";
@@ -84,6 +85,66 @@ export const _baseProperties = {
     type: "string",
     pattern: RegExp_Str_ID,
   },
+};
+
+// The translatable string fields, in the shape getTranslatedString needs, shared by the request property
+// sets below so each field's description/maxLength/pattern is written once.
+const _translatableStringFields: Record<
+  string,
+  Omit<LanguageAPISpecs.Types.ITranslatedStringSchemaOptions, "required" | "allowNullToDelete">
+> = {
+  preferredLabel: {
+    description: "The preferred label of the occupation.",
+    maxLength: OccupationConstants.PREFERRED_LABEL_MAX_LENGTH,
+    pattern: RegExp_Str_NotEmptyString,
+  },
+  definition: {
+    description: "The formal definition of the occupation.",
+    maxLength: OccupationConstants.DEFINITION_MAX_LENGTH,
+  },
+  description: {
+    description: "Additional descriptive information about the occupation.",
+    maxLength: OccupationConstants.DESCRIPTION_MAX_LENGTH,
+  },
+  regulatedProfessionNote: {
+    description: "Regulatory information for legally regulated professions.",
+    maxLength: OccupationConstants.REGULATED_PROFESSION_NOTE_MAX_LENGTH,
+  },
+  scopeNote: {
+    description: "Scope clarification for the occupation's application.",
+    maxLength: OccupationConstants.SCOPE_NOTE_MAX_LENGTH,
+  },
+};
+
+const _altLabelsProperty = LanguageAPISpecs.Schemas.getTranslatedStringArray({
+  description: "Alternative labels for the occupation.",
+  maxLength: OccupationConstants.ALT_LABEL_MAX_LENGTH,
+  maxItems: OccupationConstants.ALT_LABELS_MAX_ITEMS,
+});
+
+// Multilingual variant of the translatable fields (full per-language object, fallback required), used by
+// POST and PUT. Kept separate from _baseProperties since the latter also backs the flat-string response.
+export const _baseRequestProperties = {
+  ..._baseProperties,
+  ...Object.fromEntries(
+    Object.entries(_translatableStringFields).map(([field, options]) => [
+      field,
+      LanguageAPISpecs.Schemas.getTranslatedString({ ...options, required: true }),
+    ])
+  ),
+  altLabels: _altLabelsProperty,
+};
+
+// PATCH variant: same fields, but a non-fallback language may be null to delete it, and none are required.
+export const _basePatchRequestProperties = {
+  ..._baseProperties,
+  ...Object.fromEntries(
+    Object.entries(_translatableStringFields).map(([field, options]) => [
+      field,
+      LanguageAPISpecs.Schemas.getTranslatedString({ ...options, allowNullToDelete: true }),
+    ])
+  ),
+  altLabels: _altLabelsProperty,
 };
 
 export const _baseOccupationURLParameter = {

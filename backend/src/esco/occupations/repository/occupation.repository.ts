@@ -51,7 +51,11 @@ import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
-import { wrapTranslatableFields } from "common/language/translatedFields";
+import {
+  mergeTranslatableFieldsFromPartialObjects,
+  wrapTranslatableFields,
+  wrapTranslatableFieldsFromObjects,
+} from "common/language/translatedFields";
 import { buildSearchCondition } from "esco/common/searchCondition";
 import { unwrapSkillTranslatableFieldsForLanguage } from "esco/skill/_shared/skillReference";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
@@ -288,7 +292,7 @@ export class OccupationRepository implements IOccupationRepository {
   ): mongoose.HydratedDocument<IOccupationDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec, OCCUPATION_TRANSLATABLE_STRING_FIELDS),
+      ...wrapTranslatableFieldsFromObjects(newSpec, OCCUPATION_TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: null,
     });
@@ -882,7 +886,10 @@ export class OccupationRepository implements IOccupationRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, OCCUPATION_TRANSLATABLE_STRING_FIELDS, doc));
+      // Reset before reassigning: setting altLabels (an array of Map subdocuments) directly, without first
+      // clearing it, makes Mongoose diff per language key instead of replacing the array, which Mongo rejects.
+      if (spec.altLabels !== undefined) doc.set("altLabels", []);
+      doc.set(wrapTranslatableFieldsFromObjects(spec, OCCUPATION_TRANSLATABLE_STRING_FIELDS));
       await doc.save();
       // Write paths always return the fallback-language view; these factory overloads use fallback language.
       await doc.populate([
@@ -903,7 +910,10 @@ export class OccupationRepository implements IOccupationRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, OCCUPATION_TRANSLATABLE_STRING_FIELDS, doc));
+      // Reset before reassigning: setting altLabels (an array of Map subdocuments) directly, without first
+      // clearing it, makes Mongoose diff per language key instead of replacing the array, which Mongo rejects.
+      if (spec.altLabels !== undefined) doc.set("altLabels", []);
+      doc.set(mergeTranslatableFieldsFromPartialObjects(spec, OCCUPATION_TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       // Write paths always return the fallback-language view; these factory overloads use fallback language.
       await doc.populate([

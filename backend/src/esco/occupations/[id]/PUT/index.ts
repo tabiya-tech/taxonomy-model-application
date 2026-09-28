@@ -14,6 +14,7 @@ import { RoleRequired } from "auth/authorizer";
 import { ObjectTypes } from "esco/common/objectTypes";
 import {
   ModelForOccupationValidationErrorCode,
+  OccupationLanguageValidationError,
   OccupationModelValidationError,
 } from "../../services/occupation.service.types";
 import { extractAndValidateIdParams } from "../../_shared/params";
@@ -28,7 +29,10 @@ export class OccupationPUTController {
    *     tags:
    *       - occupations
    *     summary: Fully replace an occupation by its ID.
-   *     description: Completely replace all mutable fields of an existing occupation in a specific taxonomy model.
+   *     description: |
+   *       Completely replace all mutable fields of an existing occupation in a specific taxonomy model.
+   *       For translatable fields, any language omitted from the payload's object is removed from the
+   *       stored occupation; the fallback language must always be included.
    *     security:
    *       - api_key: []
    *       - jwt_auth: []
@@ -150,6 +154,15 @@ export class OccupationPUTController {
       return responseJSON(StatusCodes.OK, buildPUTResponse(updatedOccupation, getResourcesBaseUrl()));
     } catch (error: unknown) {
       console.error("Failed to update occupation:", error);
+
+      if (error instanceof OccupationLanguageValidationError) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          OccupationAPISpecs.Occupation.PUT.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+          `Field '${error.field}' uses a language not available in this model`,
+          `Unsupported language: '${error.language}'`
+        );
+      }
 
       if (error instanceof OccupationModelValidationError) {
         switch (error.code) {

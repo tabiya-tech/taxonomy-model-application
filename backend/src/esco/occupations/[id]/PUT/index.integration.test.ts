@@ -57,15 +57,19 @@ describe("Test for occupation PUT handler with a DB", () => {
       modelId: givenModelId,
       code: getMockRandomOccupationCode(false),
       occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-      preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-      description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-      altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+      preferredLabel: {
+        en: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [{ en: getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
       originUri: `http://some/path/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
       occupationGroupCode: getMockRandomISCOGroupCode(),
-      definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-      scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-      regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
       isLocalized: false,
     };
     const givenEvent = {
@@ -83,13 +87,14 @@ describe("Test for occupation PUT handler with a DB", () => {
   });
 
   test("PUT should respond with OK and response passes JSON schema validation", async () => {
-    // GIVEN a model exists in the DB
+    // GIVEN a model exists in the DB, supporting English and French
     const givenModel = await getRepositoryRegistry().modelInfo.create({
       name: "Test Model",
       description: "Test Description",
       locale: { shortCode: "en", name: "English", UUID: randomUUID() },
       license: "MIT",
       UUIDHistory: [],
+      availableLanguages: ["en", "fr"],
     });
     const givenModelId = givenModel.id;
 
@@ -98,32 +103,36 @@ describe("Test for occupation PUT handler with a DB", () => {
       modelId: givenModelId,
       code: getMockRandomOccupationCode(false),
       occupationType: ObjectTypes.ESCOOccupation,
-      preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-      description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-      altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+      preferredLabel: {
+        en: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [{ en: getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
       originUri: `http://some/path/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
       occupationGroupCode: getMockRandomISCOGroupCode(),
-      definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-      scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-      regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
       isLocalized: false,
     });
 
-    // AND a valid PUT payload with updated data
+    // AND a valid PUT payload with updated data, preferredLabel translated in English and French
     const givenNewPayload: OccupationAPISpecs.Occupation.PUT.Types.Request.Payload = {
       modelId: givenModelId,
       code: getMockRandomOccupationCode(false),
       occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-      preferredLabel: "Updated Label",
-      description: "Updated Description",
+      preferredLabel: { en: "Updated Label", fr: "Étiquette mise à jour" },
+      description: { en: "Updated Description" },
       altLabels: [],
       originUri: `http://some/path/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
       occupationGroupCode: getMockRandomISCOGroupCode(),
-      definition: "Updated Definition",
-      scopeNote: "Updated Scope",
-      regulatedProfessionNote: "Updated Note",
+      definition: { en: "Updated Definition" },
+      scopeNote: { en: "Updated Scope" },
+      regulatedProfessionNote: { en: "Updated Note" },
       isLocalized: false,
     };
     const givenEvent = {
@@ -142,8 +151,346 @@ describe("Test for occupation PUT handler with a DB", () => {
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
     // AND the response passes schema validation
     expect(validatePUTResponse(JSON.parse(actualResponse.body))).toBeTruthy();
-    // AND the preferred label has been updated
+    // AND the preferred label (fallback language) has been updated
     expect(JSON.parse(actualResponse.body).preferredLabel).toEqual("Updated Label");
+    // AND the persisted document carries both languages
+    const actualDoc = await getRepositoryRegistry().occupation.Model.findById(givenOccupation.id).lean();
+    expect(actualDoc?.preferredLabel).toEqual({ en: "Updated Label", fr: "Étiquette mise à jour" });
+  });
+
+  test("PUT should remove a language from a translatable field when the language is omitted from the payload", async () => {
+    // GIVEN a model that supports English and French
+    const givenModel = await getRepositoryRegistry().modelInfo.create({
+      name: "Test Model",
+      description: "Test Description",
+      locale: { shortCode: "en", name: "English", UUID: randomUUID() },
+      license: "MIT",
+      UUIDHistory: [],
+      availableLanguages: ["en", "fr"],
+    });
+    const givenModelId = givenModel.id;
+
+    // AND an occupation exists with preferredLabel translated in both English and French
+    const givenOccupation = await getRepositoryRegistry().occupation.create({
+      modelId: givenModelId,
+      code: getMockRandomOccupationCode(false),
+      occupationType: ObjectTypes.ESCOOccupation,
+      preferredLabel: { en: "Cook", fr: "Cuisinier" },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: getMockRandomISCOGroupCode(),
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
+      isLocalized: false,
+    });
+
+    // AND a sanity check that French is actually stored before the PUT
+    const beforeDoc = await getRepositoryRegistry().occupation.Model.findById(givenOccupation.id).lean();
+    expect(beforeDoc?.preferredLabel).toMatchObject({ en: "Cook", fr: "Cuisinier" });
+
+    // WHEN a PUT payload is sent whose preferredLabel carries only English (French omitted)
+    const givenPutPayload: OccupationAPISpecs.Occupation.PUT.Types.Request.Payload = {
+      modelId: givenModelId,
+      code: givenOccupation.code,
+      occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
+      preferredLabel: { en: "Chef" },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: givenOccupation.occupationGroupCode,
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
+      isLocalized: false,
+    };
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PUT,
+      body: JSON.stringify(givenPutPayload),
+      headers: { "Content-Type": "application/json" },
+      requestContext: usersRequestContext.MODEL_MANAGER,
+      path: `/models/${givenModelId}/occupations/${givenOccupation.id}`,
+      pathParameters: { modelId: givenModelId, id: givenOccupation.id },
+    };
+    const actualResponse = await occupationHandler(givenEvent as unknown as APIGatewayProxyEvent);
+
+    // THEN expect OK
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+
+    // AND the stored document's preferredLabel now carries only English — French has been removed, not merged
+    const actualDoc = await getRepositoryRegistry().occupation.Model.findById(givenOccupation.id).lean();
+    expect(actualDoc?.preferredLabel).toEqual({ en: "Chef" });
+    expect(actualDoc?.preferredLabel).not.toHaveProperty("fr");
+  });
+
+  test("PUT should respond with BAD_REQUEST when preferredLabel is missing the fallback language", async () => {
+    // GIVEN a model exists in the DB
+    const givenModel = await getRepositoryRegistry().modelInfo.create({
+      name: "Test Model",
+      description: "Test Description",
+      locale: { shortCode: "en", name: "English", UUID: randomUUID() },
+      license: "MIT",
+      UUIDHistory: [],
+      availableLanguages: ["en", "fr"],
+    });
+    const givenModelId = givenModel.id;
+
+    // AND an occupation exists in the DB
+    const givenOccupation = await getRepositoryRegistry().occupation.create({
+      modelId: givenModelId,
+      code: getMockRandomOccupationCode(false),
+      occupationType: ObjectTypes.ESCOOccupation,
+      preferredLabel: {
+        en: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: getMockRandomISCOGroupCode(),
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
+      isLocalized: false,
+    });
+
+    // AND a PUT payload whose preferredLabel omits the fallback language
+    const givenPayload = {
+      modelId: givenModelId,
+      code: givenOccupation.code,
+      occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
+      preferredLabel: { fr: "Cuisinier" },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: givenOccupation.occupationGroupCode,
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
+      isLocalized: false,
+    };
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PUT,
+      body: JSON.stringify(givenPayload),
+      headers: { "Content-Type": "application/json" },
+      requestContext: usersRequestContext.MODEL_MANAGER,
+      path: `/models/${givenModelId}/occupations/${givenOccupation.id}`,
+      pathParameters: { modelId: givenModelId, id: givenOccupation.id },
+    };
+    const actualResponse = await occupationHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+  });
+
+  test("PUT should respond with BAD_REQUEST when a field uses a language unknown to the registry", async () => {
+    // GIVEN a model exists in the DB
+    const givenModel = await getRepositoryRegistry().modelInfo.create({
+      name: "Test Model",
+      description: "Test Description",
+      locale: { shortCode: "en", name: "English", UUID: randomUUID() },
+      license: "MIT",
+      UUIDHistory: [],
+      availableLanguages: ["en", "fr"],
+    });
+    const givenModelId = givenModel.id;
+
+    // AND an occupation exists in the DB
+    const givenOccupation = await getRepositoryRegistry().occupation.create({
+      modelId: givenModelId,
+      code: getMockRandomOccupationCode(false),
+      occupationType: ObjectTypes.ESCOOccupation,
+      preferredLabel: {
+        en: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: getMockRandomISCOGroupCode(),
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
+      isLocalized: false,
+    });
+
+    // AND a PUT payload with a language unknown to the registry
+    const givenPayload = {
+      modelId: givenModelId,
+      code: givenOccupation.code,
+      occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
+      preferredLabel: { en: "Cook", tlh: "nuqneH" },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: givenOccupation.occupationGroupCode,
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
+      isLocalized: false,
+    };
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PUT,
+      body: JSON.stringify(givenPayload),
+      headers: { "Content-Type": "application/json" },
+      requestContext: usersRequestContext.MODEL_MANAGER,
+      path: `/models/${givenModelId}/occupations/${givenOccupation.id}`,
+      pathParameters: { modelId: givenModelId, id: givenOccupation.id },
+    };
+    const actualResponse = await occupationHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+  });
+
+  test("PUT should respond with BAD_REQUEST when one language of a field exceeds the maximum length", async () => {
+    // GIVEN a model exists in the DB
+    const givenModel = await getRepositoryRegistry().modelInfo.create({
+      name: "Test Model",
+      description: "Test Description",
+      locale: { shortCode: "en", name: "English", UUID: randomUUID() },
+      license: "MIT",
+      UUIDHistory: [],
+      availableLanguages: ["en", "fr"],
+    });
+    const givenModelId = givenModel.id;
+
+    // AND an occupation exists in the DB
+    const givenOccupation = await getRepositoryRegistry().occupation.create({
+      modelId: givenModelId,
+      code: getMockRandomOccupationCode(false),
+      occupationType: ObjectTypes.ESCOOccupation,
+      preferredLabel: {
+        en: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: getMockRandomISCOGroupCode(),
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
+      isLocalized: false,
+    });
+
+    // AND a PUT payload whose French preferredLabel exceeds the maximum length, English is valid
+    const givenPayload = {
+      modelId: givenModelId,
+      code: givenOccupation.code,
+      occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
+      preferredLabel: {
+        en: "Cook",
+        fr: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH + 1),
+      },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: givenOccupation.occupationGroupCode,
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
+      isLocalized: false,
+    };
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PUT,
+      body: JSON.stringify(givenPayload),
+      headers: { "Content-Type": "application/json" },
+      requestContext: usersRequestContext.MODEL_MANAGER,
+      path: `/models/${givenModelId}/occupations/${givenOccupation.id}`,
+      pathParameters: { modelId: givenModelId, id: givenOccupation.id },
+    };
+    const actualResponse = await occupationHandler(givenEvent as unknown as APIGatewayProxyEvent);
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+  });
+
+  test("PUT should respond with BAD_REQUEST when a field uses a language not in the model's availableLanguages", async () => {
+    // GIVEN a model whose availableLanguages is only the fallback language
+    const givenModel = await getRepositoryRegistry().modelInfo.create({
+      name: "Test Model",
+      description: "Test Description",
+      locale: { shortCode: "en", name: "English", UUID: randomUUID() },
+      license: "MIT",
+      UUIDHistory: [],
+      availableLanguages: ["en"],
+    });
+    const givenModelId = givenModel.id;
+
+    // AND an occupation exists in the DB
+    const givenOccupation = await getRepositoryRegistry().occupation.create({
+      modelId: givenModelId,
+      code: getMockRandomOccupationCode(false),
+      occupationType: ObjectTypes.ESCOOccupation,
+      preferredLabel: {
+        en: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: getMockRandomISCOGroupCode(),
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
+      isLocalized: false,
+    });
+
+    // AND a PUT payload whose preferredLabel carries a language ('fr') not in the model's availableLanguages
+    const givenPayload = {
+      modelId: givenModelId,
+      code: givenOccupation.code,
+      occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
+      preferredLabel: { en: "Cook", fr: "Cuisinier" },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: givenOccupation.occupationGroupCode,
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+      },
+      isLocalized: false,
+    };
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PUT,
+      body: JSON.stringify(givenPayload),
+      headers: { "Content-Type": "application/json" },
+      requestContext: usersRequestContext.MODEL_MANAGER,
+      path: `/models/${givenModelId}/occupations/${givenOccupation.id}`,
+      pathParameters: { modelId: givenModelId, id: givenOccupation.id },
+    };
+
+    // WHEN the handler is invoked
+    const actualResponse = await occupationHandler(givenEvent as unknown as APIGatewayProxyEvent);
+
+    // THEN expect BAD_REQUEST, naming the field and the language
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    const body = JSON.parse(actualResponse.body);
+    expect(body.errorCode).toEqual(OccupationAPISpecs.Occupation.PUT.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE);
+    expect(body.message).toEqual("Field 'preferredLabel' uses a language not available in this model");
+    expect(body.details).toEqual("Unsupported language: 'fr'");
   });
 
   test("PUT should respond with NOT_FOUND when occupation id does not exist", async () => {
@@ -161,15 +508,15 @@ describe("Test for occupation PUT handler with a DB", () => {
       modelId: givenModelId,
       code: getMockRandomOccupationCode(false),
       occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
-      preferredLabel: "Label",
-      description: "Desc",
+      preferredLabel: { en: "Label" },
+      description: { en: "Desc" },
       altLabels: [],
       originUri: `http://some/path/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
       occupationGroupCode: getMockRandomISCOGroupCode(),
-      definition: "Def",
-      scopeNote: "Scope",
-      regulatedProfessionNote: "Note",
+      definition: { en: "Def" },
+      scopeNote: { en: "Scope" },
+      regulatedProfessionNote: { en: "Note" },
       isLocalized: false,
     };
     const givenEvent = {
@@ -186,5 +533,79 @@ describe("Test for occupation PUT handler with a DB", () => {
 
     // THEN expect NOT_FOUND
     expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
+  });
+
+  test("PUT should respond with OK when regulatedProfessionNote is a localized object with multiple languages", async () => {
+    // GIVEN a model that supports English and French
+    const givenModel = await getRepositoryRegistry().modelInfo.create({
+      name: "Test Model",
+      description: "Test Description",
+      locale: { shortCode: "en", name: "English", UUID: randomUUID() },
+      license: "MIT",
+      UUIDHistory: [],
+      availableLanguages: ["en", "fr"],
+    });
+    const givenModelId = givenModel.id;
+
+    // AND an occupation exists in the DB
+    const givenOccupation = await getRepositoryRegistry().occupation.create({
+      modelId: givenModelId,
+      code: getMockRandomOccupationCode(false),
+      occupationType: ObjectTypes.ESCOOccupation,
+      preferredLabel: {
+        en: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: getMockRandomISCOGroupCode(),
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: { en: "Not a regulated profession." },
+      isLocalized: false,
+    });
+
+    // WHEN a PUT payload sets regulatedProfessionNote in both English and French
+    const givenPayload: OccupationAPISpecs.Occupation.PUT.Types.Request.Payload = {
+      modelId: givenModelId,
+      code: givenOccupation.code,
+      occupationType: OccupationAPISpecs.Enums.OccupationType.ESCOOccupation,
+      preferredLabel: {
+        en: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+      },
+      description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [],
+      originUri: `http://some/path/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+      occupationGroupCode: givenOccupation.occupationGroupCode,
+      definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+      regulatedProfessionNote: {
+        en: "Not a regulated profession.",
+        fr: "Pas une profession réglementée.",
+      },
+      isLocalized: false,
+    };
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.PUT,
+      body: JSON.stringify(givenPayload),
+      headers: { "Content-Type": "application/json" },
+      requestContext: usersRequestContext.MODEL_MANAGER,
+      path: `/models/${givenModelId}/occupations/${givenOccupation.id}`,
+      pathParameters: { modelId: givenModelId, id: givenOccupation.id },
+    };
+    const actualResponse = await occupationHandler(givenEvent as unknown as APIGatewayProxyEvent);
+
+    // THEN expect OK
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(validatePUTResponse(JSON.parse(actualResponse.body))).toBeTruthy();
+
+    // AND the persisted document carries both languages
+    const actualDoc = await getRepositoryRegistry().occupation.Model.findById(givenOccupation.id).lean();
+    expect(actualDoc?.regulatedProfessionNote).toEqual({
+      en: "Not a regulated profession.",
+      fr: "Pas une profession réglementée.",
+    });
   });
 });

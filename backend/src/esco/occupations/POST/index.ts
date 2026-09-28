@@ -14,6 +14,7 @@ import { RoleRequired } from "auth/authorizer";
 import { ObjectTypes } from "esco/common/objectTypes";
 import {
   ModelForOccupationValidationErrorCode,
+  OccupationLanguageValidationError,
   OccupationModelValidationError,
 } from "../services/occupation.service.types";
 import { extractAndValidateModelIdParam } from "../_shared/params";
@@ -129,6 +130,15 @@ export class OccupationPostController {
       return responseJSON(StatusCodes.CREATED, buildPOSTResponse(newOccupation, getResourcesBaseUrl()));
     } catch (error: unknown) {
       console.error("Failed to create occupation:", error);
+
+      if (error instanceof OccupationLanguageValidationError) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          OccupationAPISpecs.POST.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+          `Field '${error.field}' uses a language not available in this model`,
+          `Unsupported language: '${error.language}'`
+        );
+      }
 
       if (error instanceof OccupationModelValidationError) {
         switch (error.code) {

@@ -85,33 +85,33 @@ describe("Test for occupation Parent PATCH handler with a DB", () => {
     const givenParent = await repository.create({
       modelId: givenModelId,
       code: "1234.1",
-      preferredLabel: "Parent",
+      preferredLabel: { en: "Parent" },
       occupationType: ObjectTypes.ESCOOccupation,
       originUri: "http://example.com/parent",
       UUIDHistory: [randomUUID()],
       isLocalized: false,
-      description: "parent description",
+      description: { en: "parent description" },
       occupationGroupCode: "1234",
       altLabels: [],
-      definition: "parent definition",
-      scopeNote: "parent scopeNote",
-      regulatedProfessionNote: "parent regulatedProfessionNote",
+      definition: { en: "parent definition" },
+      scopeNote: { en: "parent scopeNote" },
+      regulatedProfessionNote: { en: "parent regulatedProfessionNote" },
     });
 
     const givenChild = await repository.create({
       modelId: givenModelId,
       code: "1234.1.1",
-      preferredLabel: "Child",
+      preferredLabel: { en: "Child" },
       occupationType: ObjectTypes.ESCOOccupation,
       originUri: "http://example.com/child",
       UUIDHistory: [randomUUID()],
       isLocalized: false,
-      description: "child description",
+      description: { en: "child description" },
       occupationGroupCode: "1234",
       altLabels: [],
-      definition: "child definition",
-      scopeNote: "child scopeNote",
-      regulatedProfessionNote: "child regulatedProfessionNote",
+      definition: { en: "child definition" },
+      scopeNote: { en: "child scopeNote" },
+      regulatedProfessionNote: { en: "child regulatedProfessionNote" },
     });
 
     // Create an existing child-parent link in the DB, which the PATCH should update

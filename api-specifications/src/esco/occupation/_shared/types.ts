@@ -2,6 +2,7 @@ import OccupationEnums from "./enums";
 import SkillTypes from "../../skill/_shared/types";
 import OccupationGroupTypes from "../../occupationGroup/_shared/types";
 import ModelInfoTypes from "../../../modelInfo/types";
+import LanguageAPISpecs from "../../../language";
 
 interface IOccupationParent {
   id: string;
@@ -90,6 +91,38 @@ interface IOccupationRequest {
   isLocalized: boolean;
 }
 
+type TranslatableFieldName =
+  | "preferredLabel"
+  | "altLabels"
+  | "description"
+  | "definition"
+  | "scopeNote"
+  | "regulatedProfessionNote";
+
+type ITranslatableFields = {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  definition: LanguageAPISpecs.Types.ITranslatedString;
+  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
+  regulatedProfessionNote: LanguageAPISpecs.Types.ITranslatedString;
+};
+
+// Same fields as ITranslatableFields, but each language may also be null to delete that translation.
+type IPartialTranslatableFields = {
+  preferredLabel?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  definition?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  scopeNote?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  regulatedProfessionNote?: LanguageAPISpecs.Types.IPartialTranslatedString;
+};
+
+// Shared by POST and PUT: both take the full multilingual object for every translatable field.
+type IOccupationFullTranslatedRequest = Omit<IOccupationRequest, TranslatableFieldName> & ITranslatableFields;
+
+type IOccupationPATCHRequest = Omit<Partial<IOccupationRequest>, TranslatableFieldName> & IPartialTranslatableFields;
+
 interface PaginatedOccupationResponse {
   data: IOccupationResponse[];
   limit: number;
@@ -146,7 +179,7 @@ namespace OccupationTypes {
 
   export namespace POSTOccupation {
     export namespace Request {
-      export type Payload = IOccupationRequest;
+      export type Payload = IOccupationFullTranslatedRequest;
     }
     export namespace Response {
       export type Payload = IOccupationResponse;
@@ -178,7 +211,7 @@ namespace OccupationTypes {
 
   export namespace Detail.PUT {
     export namespace Request {
-      export type Payload = IOccupationRequest;
+      export type Payload = IOccupationFullTranslatedRequest;
     }
     export namespace Response {
       export type Payload = IOccupationResponse;
@@ -187,7 +220,7 @@ namespace OccupationTypes {
 
   export namespace Detail.PATCH {
     export namespace Request {
-      export type Payload = Partial<IOccupationRequest>;
+      export type Payload = IOccupationPATCHRequest;
     }
     export namespace Response {
       export type Payload = IOccupationResponse;
