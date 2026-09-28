@@ -54,18 +54,22 @@ async function createSkillInDB(modelId: string = getMockStringId(1)): Promise<IS
 async function createOccupationInDB(modelId: string = getMockStringId(1)) {
   return await getRepositoryRegistry().occupation.create({
     modelId: modelId,
-    preferredLabel: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    description: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    altLabels: [getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    preferredLabel: {
+      en: getRandomString(OccupationAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
+    },
+    description: { en: getRandomString(OccupationAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+    altLabels: [{ en: getRandomString(OccupationAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
     originUri: `http://some/path/to/api/resources/${randomUUID()}`,
     UUIDHistory: [randomUUID()],
     code: "1234." + Math.floor(Math.random() * 100),
     occupationGroupCode: "1234",
     occupationType: ObjectTypes.ESCOOccupation,
     isLocalized: true,
-    definition: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-    scopeNote: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-    regulatedProfessionNote: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+    definition: { en: getRandomString(OccupationAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+    scopeNote: { en: getRandomString(OccupationAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+    regulatedProfessionNote: {
+      en: getRandomString(OccupationAPISpecs.Constants.REGULATED_PROFESSION_NOTE_MAX_LENGTH),
+    },
   });
 }
 

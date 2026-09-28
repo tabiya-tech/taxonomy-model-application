@@ -3,9 +3,11 @@ import {
   IOccupationService,
   ISkillWithRelation,
   ModelForOccupationValidationErrorCode,
+  OccupationLanguageValidationError,
   OccupationModelValidationError,
   ValidateModelResult,
 } from "./occupation.service.types";
+import { findUnsupportedLanguage, findUnsupportedLanguageInPartialSpec } from "./validateOccupationLanguages";
 import {
   INewOccupationSpecWithoutImportId,
   IOccupation,
@@ -36,10 +38,14 @@ export class OccupationService implements IOccupationService {
   ) {}
 
   async create(newOccupationSpec: INewOccupationSpecWithoutImportId): Promise<IOccupation> {
-    // Validate model exists and is not released
     const result = await this.validateModelForOccupation(newOccupationSpec.modelId);
     if (result.errorCode != null) {
       throw new OccupationModelValidationError(result.errorCode);
+    }
+
+    const unsupportedLanguage = findUnsupportedLanguage(newOccupationSpec, result.availableLanguages);
+    if (unsupportedLanguage !== null) {
+      throw new OccupationLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
     }
 
     return this.occupationRepository.create(newOccupationSpec);
@@ -327,6 +333,12 @@ export class OccupationService implements IOccupationService {
     if (result.errorCode != null) {
       throw new OccupationModelValidationError(result.errorCode);
     }
+
+    const unsupportedLanguage = findUnsupportedLanguage(spec, result.availableLanguages);
+    if (unsupportedLanguage !== null) {
+      throw new OccupationLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
+    }
+
     return this.occupationRepository.update(id, modelId, spec);
   }
 
@@ -335,6 +347,14 @@ export class OccupationService implements IOccupationService {
     if (result.errorCode != null) {
       throw new OccupationModelValidationError(result.errorCode);
     }
+
+    // A language explicitly set to null (a deletion) is never rejected as unsupported: removing a language
+    // cannot make the model's supported set outdated the way adding one can.
+    const unsupportedLanguage = findUnsupportedLanguageInPartialSpec(spec, result.availableLanguages);
+    if (unsupportedLanguage !== null) {
+      throw new OccupationLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
+    }
+
     return this.occupationRepository.patch(id, modelId, spec);
   }
 }

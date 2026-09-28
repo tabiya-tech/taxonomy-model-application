@@ -1,6 +1,6 @@
 // src/.../schema.POST.request.ts
 import { SchemaObject } from "ajv";
-import { _baseProperties } from "../_shared/schemas.base";
+import { _baseRequestProperties } from "../_shared/schemas.base";
 import OccupationEnums from "../_shared/enums";
 import OccupationRegexes from "../_shared/regex";
 import OccupationConstants from "../_shared/constants";
@@ -10,7 +10,7 @@ const SchemaPOSTRequest: SchemaObject = {
   type: "object",
   additionalProperties: false,
   properties: {
-    ..._baseProperties,
+    ..._baseRequestProperties,
   },
   if: {
     properties: {

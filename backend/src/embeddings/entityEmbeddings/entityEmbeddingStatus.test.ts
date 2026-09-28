@@ -13,6 +13,24 @@ import {
   getSimpleNewSkillSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import { EntityEmbeddingStatus, IEmbeddableEntityRepository } from "./entityEmbedding.types";
+import { INewOccupationSpec, INewOccupationSpecWithoutImportId } from "esco/occupations/_shared/occupation.types";
+
+/**
+ * Wraps a flat INewOccupationSpec (as the spec builders produce) into the multilingual shape
+ * create() expects, translatable fields in the fall back language only.
+ */
+function toOccupationCreateSpec(spec: INewOccupationSpec): INewOccupationSpecWithoutImportId {
+  const wrap = (value: string) => ({ en: value });
+  return {
+    ...spec,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    definition: wrap(spec.definition),
+    scopeNote: wrap(spec.scopeNote),
+    regulatedProfessionNote: wrap(spec.regulatedProfessionNote),
+  };
+}
 
 /**
  * The entity-type-specific operations needed to test the embedding status methods
@@ -52,7 +70,11 @@ const testCases: IEntityRepositoryTestCase[] = [
     entityName: "occupation",
     getRepository: (registry) => registry.occupation,
     createEntity: async (registry, modelId, preferredLabel) =>
-      (await registry.occupation.create(getSimpleNewESCOOccupationSpec(modelId, preferredLabel))).id,
+      (
+        await registry.occupation.create(
+          toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(modelId, preferredLabel))
+        )
+      ).id,
     findEmbeddingStatus: async (registry, entityId) =>
       (await registry.occupation.Model.findById(entityId).exec())?.embeddingStatus,
     deleteAllEntities: (registry) => registry.occupation.Model.deleteMany({}).exec(),

@@ -28,6 +28,24 @@ import {
 import { expectedSkillGroupReference, expectedSkillReference } from "esco/_test_utilities/expectedReference";
 import * as HandleInsertManyErrors from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
+import { INewOccupationSpec, INewOccupationSpecWithoutImportId } from "esco/occupations/_shared/occupation.types";
+
+/**
+ * Wraps a flat INewOccupationSpec (as the spec builders produce) into the multilingual shape
+ * create() expects, translatable fields in the fall back language only.
+ */
+function toOccupationCreateSpec(spec: INewOccupationSpec): INewOccupationSpecWithoutImportId {
+  const wrap = (value: string) => ({ en: value });
+  return {
+    ...spec,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    definition: wrap(spec.definition),
+    scopeNote: wrap(spec.scopeNote),
+    regulatedProfessionNote: wrap(spec.regulatedProfessionNote),
+  };
+}
 
 describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
   let dbConnection: Connection;
@@ -703,7 +721,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
         getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
         {
@@ -741,7 +759,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
         getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup_1")
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1")
+        toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
         {

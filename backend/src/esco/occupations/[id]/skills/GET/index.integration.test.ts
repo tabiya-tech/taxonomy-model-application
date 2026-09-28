@@ -59,17 +59,17 @@ describe("Test for occupation Skills GET handler with a DB", () => {
     const givenOccupation = await repository.create({
       modelId: givenModelId,
       code: "1234.1",
-      preferredLabel: "Occupation",
+      preferredLabel: { en: "Occupation" },
       occupationType: ObjectTypes.ESCOOccupation,
       originUri: "http://example.com/occupation1",
       UUIDHistory: [randomUUID()],
       isLocalized: false,
-      description: "description",
+      description: { en: "description" },
       occupationGroupCode: "1234",
       altLabels: [],
-      definition: "definition",
-      scopeNote: "scopeNote",
-      regulatedProfessionNote: "regulatedProfessionNote",
+      definition: { en: "definition" },
+      scopeNote: { en: "scopeNote" },
+      regulatedProfessionNote: { en: "regulatedProfessionNote" },
     });
     const givenSkill = await getRepositoryRegistry().skill.create({
       modelId: givenModelId,

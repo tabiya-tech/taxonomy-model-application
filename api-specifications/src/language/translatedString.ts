@@ -10,9 +10,13 @@ import LanguageTypes from "./types";
 export function getTranslatedStringSchema(options: LanguageTypes.ITranslatedStringSchemaOptions): SchemaObject {
   const properties: SchemaObject = {};
   LanguageConstants.Languages.forEach((language) => {
+    const isFallback = language.dbKeyName === LanguageConstants.FALLBACK_LANGUAGE.dbKeyName;
+    // PATCH's merge semantics: the fallback language must never be deletable via null, every other language
+    // may be, when the caller opts in.
+    const allowNull = options.allowNullToDelete === true && !isFallback;
     properties[language.dbKeyName] = {
       description: `${options.description} (${language.name})`,
-      type: "string",
+      type: allowNull ? ["string", "null"] : "string",
       maxLength: options.maxLength,
       ...(options.pattern !== undefined ? { pattern: options.pattern } : {}),
     };

@@ -14,6 +14,7 @@ import { getIOccupationMockData } from "../../_shared/testDataHelper";
 import {
   IOccupationService,
   ModelForOccupationValidationErrorCode,
+  OccupationLanguageValidationError,
   OccupationModelValidationError,
 } from "../../services/occupation.service.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
@@ -54,7 +55,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenModelId = getMockStringId(1);
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
-        body: JSON.stringify({ preferredLabel: "New Label" }),
+        body: JSON.stringify({ preferredLabel: { en: "New Label" } }),
         headers: { "Content-Type": "application/json" },
         path: `/models/${givenModelId}/occupations/${getMockStringId(2)}`,
         requestContext: usersRequestContext.REGISTED_USER,
@@ -72,7 +73,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenModelId = getMockStringId(1);
       const givenOccupationId = getMockStringId(2);
       const givenPayload: OccupationAPISpecs.Occupation.PATCH.Types.Request.Payload = {
-        preferredLabel: "Updated Preferred Label",
+        preferredLabel: { en: "Updated Preferred Label" },
       };
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
@@ -106,8 +107,76 @@ describe("Test for occupation PATCH handler", () => {
       expect(givenOccupationServiceMock.patch).toHaveBeenCalledWith(
         givenOccupationId,
         givenModelId,
-        expect.objectContaining({ preferredLabel: "Updated Preferred Label" })
+        expect.objectContaining({ preferredLabel: { en: "Updated Preferred Label" } })
       );
+    });
+
+    test("should pass a null value for a non-fallback language through to the service unchanged", async () => {
+      // GIVEN a partial request that deletes the French preferredLabel
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenPayload: OccupationAPISpecs.Occupation.PATCH.Types.Request.Payload = {
+        preferredLabel: { fr: null },
+      };
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.PATCH,
+        body: JSON.stringify(givenPayload),
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+      } as unknown as APIGatewayProxyEvent;
+
+      const givenOccupation: IOccupation = getIOccupationMockData();
+      const givenOccupationServiceMock = {
+        patch: jest.fn().mockResolvedValue(givenOccupation),
+        getHistory: jest.fn().mockResolvedValue(null),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      // WHEN the handler is invoked
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect OK
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      // AND the null value is passed through to the service unchanged, not stripped or interpreted
+      expect(givenOccupationServiceMock.patch).toHaveBeenCalledWith(
+        givenOccupationId,
+        givenModelId,
+        expect.objectContaining({ preferredLabel: { fr: null } })
+      );
+    });
+
+    test("should respond with BAD_REQUEST when service throws OccupationLanguageValidationError", async () => {
+      // GIVEN a request whose preferredLabel sets a language not available in the model
+      const givenModelId = getMockStringId(1);
+      const givenOccupationId = getMockStringId(2);
+      const givenPayload: OccupationAPISpecs.Occupation.PATCH.Types.Request.Payload = {
+        preferredLabel: { fr: "Cuisinier" },
+      };
+      const givenEvent: APIGatewayProxyEvent = {
+        httpMethod: HTTP_VERBS.PATCH,
+        body: JSON.stringify(givenPayload),
+        headers: { "Content-Type": "application/json" },
+        path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
+      } as unknown as APIGatewayProxyEvent;
+
+      // AND the service rejects because 'fr' is not one of the model's availableLanguages
+      const givenOccupationServiceMock = {
+        patch: jest.fn().mockRejectedValue(new OccupationLanguageValidationError("preferredLabel", "fr")),
+        getHistory: jest.fn().mockResolvedValue(null),
+      } as unknown as IOccupationService;
+      mockGetServiceRegistry().occupation = givenOccupationServiceMock;
+
+      // WHEN the handler is invoked
+      const actualResponse = await occupationHandler(givenEvent);
+
+      // THEN expect BAD_REQUEST, naming the field and the language
+      expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      const body = JSON.parse(actualResponse.body);
+      expect(body.errorCode).toEqual(
+        OccupationAPISpecs.Occupation.PATCH.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE
+      );
+      expect(body.message).toEqual("Field 'preferredLabel' uses a language not available in this model");
+      expect(body.details).toEqual("Unsupported language: 'fr'");
     });
 
     test("should respond with OK when an empty patch body is sent", async () => {
@@ -142,7 +211,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
-        body: JSON.stringify({ preferredLabel: "Label" }),
+        body: JSON.stringify({ preferredLabel: { en: "Label" } }),
         headers: { "Content-Type": "application/json" },
         path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
       } as unknown as APIGatewayProxyEvent;
@@ -171,7 +240,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
-        body: JSON.stringify({ preferredLabel: "Label" }),
+        body: JSON.stringify({ preferredLabel: { en: "Label" } }),
         headers: { "Content-Type": "application/json" },
         path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
       } as unknown as APIGatewayProxyEvent;
@@ -202,7 +271,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
-        body: JSON.stringify({ preferredLabel: "Label" }),
+        body: JSON.stringify({ preferredLabel: { en: "Label" } }),
         headers: { "Content-Type": "application/json" },
         path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
       } as unknown as APIGatewayProxyEvent;
@@ -287,7 +356,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
-        body: JSON.stringify({ preferredLabel: "Label" }),
+        body: JSON.stringify({ preferredLabel: { en: "Label" } }),
         headers: { "Content-Type": "application/json" },
         path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
       } as unknown as APIGatewayProxyEvent;
@@ -313,7 +382,7 @@ describe("Test for occupation PATCH handler", () => {
       // GIVEN a partial payload with only description
       const givenModelId = getMockStringId(1);
       const givenOccupationId = getMockStringId(2);
-      const givenPayload = { description: "New Description Only" };
+      const givenPayload = { description: { en: "New Description Only" } };
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
         body: JSON.stringify(givenPayload),
@@ -333,7 +402,7 @@ describe("Test for occupation PATCH handler", () => {
       // THEN the spec passed to service should only contain description
       const callArgs = (givenOccupationServiceMock.patch as jest.Mock).mock.calls[0];
       const passedSpec = callArgs[2]; // third arg is spec
-      expect(passedSpec).toEqual({ description: "New Description Only" });
+      expect(passedSpec).toEqual({ description: { en: "New Description Only" } });
       // AND should NOT contain preferredLabel, code, etc.
       expect(passedSpec).not.toHaveProperty("preferredLabel");
       expect(passedSpec).not.toHaveProperty("code");
@@ -345,7 +414,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
-        body: JSON.stringify({ preferredLabel: "Label" }),
+        body: JSON.stringify({ preferredLabel: { en: "Label" } }),
         headers: { "Content-Type": "application/json" },
         path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
       } as unknown as APIGatewayProxyEvent;
@@ -410,7 +479,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenModelId = getMockStringId(1);
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
-        body: JSON.stringify({ preferredLabel: "Label" }),
+        body: JSON.stringify({ preferredLabel: { en: "Label" } }),
         headers: { "Content-Type": "application/json" },
         path: `/models/${givenModelId}/occupations/invalid-id`,
       } as unknown as APIGatewayProxyEvent;
@@ -428,7 +497,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenPayload = {
         occupationType: OccupationAPISpecs.Enums.OccupationType.LocalOccupation,
-        preferredLabel: "Local Label",
+        preferredLabel: { en: "Local Label" },
       };
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
@@ -456,7 +525,7 @@ describe("Test for occupation PATCH handler", () => {
       const givenOccupationId = getMockStringId(2);
       const givenEvent: APIGatewayProxyEvent = {
         httpMethod: HTTP_VERBS.PATCH,
-        body: JSON.stringify({ preferredLabel: "Label" }),
+        body: JSON.stringify({ preferredLabel: { en: "Label" } }),
         headers: { "Content-Type": "application/json" },
         path: `/models/${givenModelId}/occupations/${givenOccupationId}`,
       } as unknown as APIGatewayProxyEvent;
@@ -507,13 +576,13 @@ describe("Test for occupation PATCH handler", () => {
       const givenPayload = {
         code: "1234.5.6",
         occupationGroupCode: "1234",
-        preferredLabel: "New Label",
+        preferredLabel: { en: "New Label" },
         originUri: "http://example.com/new",
-        altLabels: ["alt1", "alt2"],
-        definition: "New Definition",
-        description: "New Description",
-        regulatedProfessionNote: "New Note",
-        scopeNote: "New Scope",
+        altLabels: [{ en: "alt1" }, { en: "alt2" }],
+        definition: { en: "New Definition" },
+        description: { en: "New Description" },
+        regulatedProfessionNote: { en: "New Note" },
+        scopeNote: { en: "New Scope" },
         modelId: givenModelId,
         UUIDHistory: ["550e8400-e29b-41d4-a716-446655440000"],
         isLocalized: true,
@@ -543,13 +612,13 @@ describe("Test for occupation PATCH handler", () => {
       expect(passedSpec).toMatchObject({
         code: "1234.5.6",
         occupationGroupCode: "1234",
-        preferredLabel: "New Label",
+        preferredLabel: { en: "New Label" },
         originUri: "http://example.com/new",
-        altLabels: ["alt1", "alt2"],
-        definition: "New Definition",
-        description: "New Description",
-        regulatedProfessionNote: "New Note",
-        scopeNote: "New Scope",
+        altLabels: [{ en: "alt1" }, { en: "alt2" }],
+        definition: { en: "New Definition" },
+        description: { en: "New Description" },
+        regulatedProfessionNote: { en: "New Note" },
+        scopeNote: { en: "New Scope" },
         modelId: givenModelId,
         UUIDHistory: ["550e8400-e29b-41d4-a716-446655440000"],
         isLocalized: true,

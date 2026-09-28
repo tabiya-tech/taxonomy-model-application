@@ -216,6 +216,96 @@ describe("Test the translated string schema factory", () => {
       // THEN expect the schema to match the snapshot
       expect(givenSchema).toMatchSnapshot();
     });
+
+    describe("Test allowNullToDelete", () => {
+      test("the schema should not allow null for any language when allowNullToDelete is not given", () => {
+        // GIVEN a translated string schema built without allowNullToDelete
+        const givenSchema = getTranslatedStringSchema({
+          description: "The preferred label",
+          maxLength: givenMaxLength,
+        });
+
+        // WHEN a non-fallback language is set to null
+        const actualIsValid = getValidateFunction(givenSchema)({ fr: null });
+
+        // THEN expect the value to be invalid
+        expect(actualIsValid).toBe(false);
+      });
+
+      test("the schema should allow null for a non fallback language when allowNullToDelete is true", () => {
+        // GIVEN a translated string schema built with allowNullToDelete
+        const givenSchema = getTranslatedStringSchema({
+          description: "The preferred label",
+          maxLength: givenMaxLength,
+          allowNullToDelete: true,
+        });
+
+        // WHEN a non-fallback language is set to null
+        const actualIsValid = getValidateFunction(givenSchema)({ fr: null });
+
+        // THEN expect the value to be valid
+        expect(actualIsValid).toBe(true);
+      });
+
+      test("the schema should not allow null for the fallback language even when allowNullToDelete is true", () => {
+        // GIVEN a translated string schema built with allowNullToDelete
+        const givenSchema = getTranslatedStringSchema({
+          description: "The preferred label",
+          maxLength: givenMaxLength,
+          allowNullToDelete: true,
+        });
+
+        // WHEN the fallback language is set to null
+        const actualIsValid = getValidateFunction(givenSchema)({ [givenFallBackDbKeyName]: null });
+
+        // THEN expect the value to be invalid
+        expect(actualIsValid).toBe(false);
+      });
+
+      test("the schema should still allow a string value for a non fallback language when allowNullToDelete is true", () => {
+        // GIVEN a translated string schema built with allowNullToDelete
+        const givenSchema = getTranslatedStringSchema({
+          description: "The preferred label",
+          maxLength: givenMaxLength,
+          allowNullToDelete: true,
+        });
+
+        // WHEN a non-fallback language is set to a string
+        const actualIsValid = getValidateFunction(givenSchema)({ fr: "Cuisinier" });
+
+        // THEN expect the value to be valid
+        expect(actualIsValid).toBe(true);
+      });
+
+      test("the schema should still enforce maxLength for a non fallback language when allowNullToDelete is true", () => {
+        // GIVEN a translated string schema built with allowNullToDelete
+        const givenSchema = getTranslatedStringSchema({
+          description: "The preferred label",
+          maxLength: givenMaxLength,
+          allowNullToDelete: true,
+        });
+
+        // WHEN a non-fallback language is set to a value longer than the maxLength
+        const actualIsValid = getValidateFunction(givenSchema)({ fr: "a".repeat(givenMaxLength + 1) });
+
+        // THEN expect the value to be invalid
+        expect(actualIsValid).toBe(false);
+      });
+
+      test("the schema should match the snapshot", () => {
+        // GIVEN a translated string schema built with allowNullToDelete
+        const givenSchema = getTranslatedStringSchema({
+          description: "The preferred label",
+          maxLength: givenMaxLength,
+          pattern: RegExp_Str_NotEmptyString,
+          allowNullToDelete: true,
+        });
+
+        // WHEN the schema is inspected
+        // THEN expect the schema to match the snapshot
+        expect(givenSchema).toMatchSnapshot();
+      });
+    });
   });
 
   describe("Test getTranslatedStringArraySchema()", () => {

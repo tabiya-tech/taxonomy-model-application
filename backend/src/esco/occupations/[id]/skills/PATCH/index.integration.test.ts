@@ -12,6 +12,7 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ObjectTypes } from "esco/common/objectTypes";
+
 import { SignallingValueLabel } from "esco/common/objectTypes";
 import { ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { OccupationToSkillRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
@@ -87,17 +88,17 @@ describe("Test for occupation Skills PATCH handler with a DB", () => {
     const givenChild = await getRepositoryRegistry().occupation.create({
       modelId: givenModelId,
       code: "1234.1.1",
-      preferredLabel: "Child",
+      preferredLabel: { en: "Child" },
       occupationType: ObjectTypes.ESCOOccupation,
       originUri: "http://example.com/child",
       UUIDHistory: [randomUUID()],
       isLocalized: false,
-      description: "child description",
+      description: { en: "child description" },
       occupationGroupCode: "1234",
       altLabels: [],
-      definition: "child definition",
-      scopeNote: "child scopeNote",
-      regulatedProfessionNote: "child regulatedProfessionNote",
+      definition: { en: "child definition" },
+      scopeNote: { en: "child scopeNote" },
+      regulatedProfessionNote: { en: "child regulatedProfessionNote" },
     });
 
     const givenSkill = await getRepositoryRegistry().skill.create({

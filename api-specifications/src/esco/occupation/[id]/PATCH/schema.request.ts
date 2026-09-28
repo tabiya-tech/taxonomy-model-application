@@ -1,5 +1,5 @@
 import { SchemaObject } from "ajv";
-import { _baseProperties } from "../../_shared/schemas.base";
+import { _basePatchRequestProperties } from "../../_shared/schemas.base";
 import OccupationEnums from "../../_shared/enums";
 import OccupationRegexes from "../../_shared/regex";
 import OccupationConstants from "../../_shared/constants";
@@ -9,7 +9,7 @@ const SchemaPATCHRequest: SchemaObject = {
   type: "object",
   additionalProperties: false,
   properties: {
-    ..._baseProperties,
+    ..._basePatchRequestProperties,
   },
   if: {
     required: ["occupationType"],
