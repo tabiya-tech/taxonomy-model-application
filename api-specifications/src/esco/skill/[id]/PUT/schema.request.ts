@@ -1,12 +1,12 @@
 import { SchemaObject } from "ajv";
-import { _baseProperties } from "../../_shared/schemas.base";
+import { _baseRequestProperties } from "../../_shared/schemas.base";
 
 const SchemaPUTRequest: SchemaObject = {
   $id: "/components/schemas/SkillRequestSchemaPUT",
   type: "object",
   additionalProperties: false,
   properties: {
-    ...JSON.parse(JSON.stringify(_baseProperties)),
+    ..._baseRequestProperties,
   },
   required: [
     "preferredLabel",

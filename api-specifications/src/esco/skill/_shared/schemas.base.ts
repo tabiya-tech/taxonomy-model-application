@@ -109,13 +109,25 @@ const _altLabelsProperty = LanguageAPISpecs.Schemas.getTranslatedStringArray({
 });
 
 // Multilingual variant of the translatable fields (full per-language object, fallback required), used by
-// POST. Kept separate from _baseProperties since the latter also backs the flat-string response.
+// POST and PUT. Kept separate from _baseProperties since the latter also backs the flat-string response.
 export const _baseRequestProperties = {
   ..._baseProperties,
   ...Object.fromEntries(
     Object.entries(_translatableStringFields).map(([field, options]) => [
       field,
       LanguageAPISpecs.Schemas.getTranslatedString({ ...options, required: true }),
+    ])
+  ),
+  altLabels: _altLabelsProperty,
+};
+
+// PATCH variant: same fields, but a non-fallback language may be null to delete it, and none are required.
+export const _basePatchRequestProperties = {
+  ..._baseProperties,
+  ...Object.fromEntries(
+    Object.entries(_translatableStringFields).map(([field, options]) => [
+      field,
+      LanguageAPISpecs.Schemas.getTranslatedString({ ...options, allowNullToDelete: true }),
     ])
   ),
   altLabels: _altLabelsProperty,

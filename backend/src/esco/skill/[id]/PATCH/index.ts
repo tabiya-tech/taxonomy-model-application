@@ -11,7 +11,7 @@ import { getResourcesBaseUrl } from "server/config/config";
 import { IPartialUpdateSkillSpec, ModelForSkillValidationErrorCode } from "../../_shared/skill.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { SkillModelValidationError } from "../../services/skill.service.types";
+import { SkillLanguageValidationError, SkillModelValidationError } from "../../services/skill.service.types";
 import { extractAndValidateIdParams } from "../../_shared/params";
 
 export class SkillPATCHController {
@@ -24,7 +24,10 @@ export class SkillPATCHController {
    *     tags:
    *       - skills
    *     summary: Partially update a skill by its ID.
-   *     description: Update one or more fields of an existing skill in a specific taxonomy model. Only provided fields are updated.
+   *     description: |
+   *       Update one or more fields of an existing skill. For translatable fields, the update merges
+   *       per language: null deletes a language (the fallback language cannot be deleted), and an
+   *       absent language is left untouched.
    *     security:
    *       - api_key: []
    *       - jwt_auth: []
@@ -140,6 +143,15 @@ export class SkillPATCHController {
       return responseJSON(StatusCodes.OK, buildPATCHResponse(updatedSkill, getResourcesBaseUrl()));
     } catch (error: unknown) {
       console.error("Failed to patch skill:", error);
+
+      if (error instanceof SkillLanguageValidationError) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          SkillAPISpecs.Skill.PATCH.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+          `Field '${error.field}' uses a language not available in this model`,
+          `Unsupported language: '${error.language}'`
+        );
+      }
 
       if (error instanceof SkillModelValidationError) {
         switch (error.code) {

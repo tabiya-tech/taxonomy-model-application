@@ -5,7 +5,7 @@ import {
   SkillModelValidationError,
   ValidateModelResult,
 } from "./skill.service.types";
-import { findUnsupportedLanguage } from "./validateSkillLanguages";
+import { findUnsupportedLanguage, findUnsupportedLanguageInPartialSpec } from "./validateSkillLanguages";
 import { ISkillRepository } from "esco/skill/repository/skill.repository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { toModelReference } from "modelInfo/modelInfoReference";
@@ -312,6 +312,12 @@ export class SkillService implements ISkillService {
     if (result.errorCode != null) {
       throw new SkillModelValidationError(result.errorCode);
     }
+
+    const unsupportedLanguage = findUnsupportedLanguage(spec, result.availableLanguages);
+    if (unsupportedLanguage !== null) {
+      throw new SkillLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
+    }
+
     return this.skillRepository.update(id, modelId, spec);
   }
 
@@ -320,6 +326,14 @@ export class SkillService implements ISkillService {
     if (result.errorCode != null) {
       throw new SkillModelValidationError(result.errorCode);
     }
+
+    // A language explicitly set to null (a deletion) is never rejected as unsupported: removing a language
+    // cannot make the model's supported set outdated the way adding one can.
+    const unsupportedLanguage = findUnsupportedLanguageInPartialSpec(spec, result.availableLanguages);
+    if (unsupportedLanguage !== null) {
+      throw new SkillLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
+    }
+
     return this.skillRepository.patch(id, modelId, spec);
   }
 

@@ -72,6 +72,15 @@ type ITranslatableFields = {
   scopeNote: LanguageAPISpecs.Types.ITranslatedString;
 };
 
+// Same fields as ITranslatableFields, but each language may also be null to delete that translation.
+type IPartialTranslatableFields = {
+  preferredLabel?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  definition?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  scopeNote?: LanguageAPISpecs.Types.IPartialTranslatedString;
+};
+
 /**
  * How a skill is actually shaped in MongoDB, used only at the mongoose schema/document boundary. Everywhere else
  * (ISkillDoc, ISkill) the fields stay flat strings, resolved to the fallback language by the repository.
@@ -154,29 +163,30 @@ export interface ISkillReferenceDoc extends Pick<ISkillDoc, "modelId" | "UUID" |
 }
 
 /**
- * Describes the mutable fields for a full skill replacement (PUT).
- * Excludes server-managed fields: id, UUID, importId, parents, children, requiresSkills, requiredBySkills, requiredByOccupations, createdAt, updatedAt.
+ * The mutable fields shared by a full replacement (PUT) and a partial update (PATCH), before either
+ * verb's own treatment of the translatable fields is applied.
  */
-export type IUpdateSkillSpec = Pick<
+type IUpdateSkillBaseFields = Pick<
   ISkill,
-  | "preferredLabel"
-  | "originUri"
-  | "altLabels"
-  | "definition"
-  | "description"
-  | "scopeNote"
-  | "skillType"
-  | "reuseLevel"
-  | "modelId"
-  | "UUIDHistory"
-  | "isLocalized"
+  "originUri" | "skillType" | "reuseLevel" | "modelId" | "UUIDHistory" | "isLocalized" | TranslatableFieldName
 >;
 
 /**
- * Describes the mutable fields for a partial skill update (PATCH).
- * All fields are optional.
+ * Describes the mutable fields for a full skill replacement (PUT).
+ * Excludes server-managed fields: id, UUID, importId, parents, children, requiresSkills, requiredBySkills, requiredByOccupations, createdAt, updatedAt.
+ * Translatable fields accept the full multilingual object: PUT replaces the whole localized value, so a
+ * language absent from the object is removed from the stored skill.
  */
-export type IPartialUpdateSkillSpec = Partial<IUpdateSkillSpec>;
+export type IUpdateSkillSpec = Omit<IUpdateSkillBaseFields, TranslatableFieldName> & ITranslatableFields;
+
+/**
+ * Describes the mutable fields for a partial skill update (PATCH). All fields are optional and left
+ * untouched when absent. Within a present translatable field, a language is set/overwritten, deleted (null),
+ * or left as-is (absent). altLabels has no stable per-item identity to merge by, so when present it is
+ * replaced wholesale, like POST/PUT, not merged per language.
+ */
+export type IPartialUpdateSkillSpec = Omit<Partial<IUpdateSkillBaseFields>, TranslatableFieldName> &
+  IPartialTranslatableFields;
 
 /**
  * Like INewSkillSpec but with translatable fields already expressed as localized Maps, for the

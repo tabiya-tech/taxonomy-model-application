@@ -62,7 +62,11 @@ import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
-import { wrapTranslatableFields, wrapTranslatableFieldsFromObjects } from "common/language/translatedFields";
+import {
+  mergeTranslatableFieldsFromPartialObjects,
+  wrapTranslatableFields,
+  wrapTranslatableFieldsFromObjects,
+} from "common/language/translatedFields";
 import { buildSearchCondition } from "esco/common/searchCondition";
 
 // same as SKILL_TRANSLATABLE_STRING_FIELDS, plus altLabels (an array of localized sub documents); used to
@@ -961,7 +965,10 @@ export class SkillRepository implements ISkillRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, SKILL_TRANSLATABLE_STRING_FIELDS, doc));
+      // Reset before reassigning: setting altLabels (an array of Map subdocuments) directly, without first
+      // clearing it, makes Mongoose diff per language key instead of replacing the array, which Mongo rejects.
+      if (spec.altLabels !== undefined) doc.set("altLabels", []);
+      doc.set(wrapTranslatableFieldsFromObjects(spec, SKILL_TRANSLATABLE_STRING_FIELDS));
       await doc.save();
       await doc.populate([
         populateSkillParentsOptions(),
@@ -983,7 +990,10 @@ export class SkillRepository implements ISkillRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, SKILL_TRANSLATABLE_STRING_FIELDS, doc));
+      // Reset before reassigning: setting altLabels (an array of Map subdocuments) directly, without first
+      // clearing it, makes Mongoose diff per language key instead of replacing the array, which Mongo rejects.
+      if (spec.altLabels !== undefined) doc.set("altLabels", []);
+      doc.set(mergeTranslatableFieldsFromPartialObjects(spec, SKILL_TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([
         populateSkillParentsOptions(),
