@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
 
 import OccupationGroupDetailGETAPISpecs from "api-specifications/esco/occupationGroup/[id]/GET";
+import LanguageAPISpecs from "api-specifications/language";
 
 import { StatusCodes } from "server/httpUtils";
 import { handler as occupationGroupDetailHandler } from "./index";
@@ -69,5 +70,35 @@ describe("Test for occupationGroup detail GET handler with a DB", () => {
     expect(validateResponse(actualBody)).toBeTruthy();
     expect(actualBody.id).toEqual(givenOccupationGroup.id);
     expect(actualBody.path).toContain(`/models/${givenModel.id}/occupationGroups/${givenOccupationGroup.id}`);
+  });
+
+  test("GET should set Content-Language and Vary response headers", async () => {
+    const givenModel = await getRepositoryRegistry().modelInfo.create({
+      name: "Test Model",
+      description: "Test Description",
+      locale: { shortCode: "en", name: "English", UUID: randomUUID() },
+      license: "MIT",
+      UUIDHistory: [],
+    });
+    const givenOccupationGroup = await getRepositoryRegistry().OccupationGroup.create({
+      ...getSimpleNewISCOGroupSpec(givenModel.id, "occupation-group"),
+      originUri: "https://example.com/occupation-groups/detail",
+      description: "Occupation group detail",
+    });
+
+    const givenEvent = {
+      httpMethod: "GET",
+      headers: {},
+      path: `/models/${givenModel.id}/occupationGroups/${givenOccupationGroup.id}`,
+      pathParameters: { modelId: givenModel.id, id: givenOccupationGroup.id },
+    };
+
+    const actualResponse = await occupationGroupDetailHandler(givenEvent as unknown as APIGatewayProxyEvent);
+
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(actualResponse.headers?.["Content-Language"]).toEqual(
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode
+    );
+    expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
   });
 });

@@ -2,8 +2,13 @@ import {
   IOccupationGroup,
   IOccupationGroupReference,
   IOccupationGroupWithTranslations,
+  OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
-import { getOccupationGroupDocReference, OccupationGroupDocument } from "../_shared/OccupationGroupReference";
+import {
+  getOccupationGroupDocReference,
+  OccupationGroupDocument,
+  unwrapOccupationGroupTranslatableFields,
+} from "../_shared/OccupationGroupReference";
 import mongoose, { PipelineStage } from "mongoose";
 import { randomUUID } from "crypto";
 import {
@@ -17,11 +22,13 @@ import {
 } from "../_shared/OccupationGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import {
+  makePopulateOccupationGroupChildrenOptions,
+  makePopulateOccupationGroupParentOptions,
   populateOccupationGroupChildrenOptions,
   populateOccupationGroupParentOptions,
 } from "esco/occupationGroup/_shared/populateOccupationHierarchyOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
-import { Readable } from "node:stream";
+import { Readable, Transform } from "node:stream";
 import { createTranslationStream, DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
 import stream from "stream";
 import { populateEmptyOccupationHierarchy } from "esco/occupationHierarchy/populateFunctions";
@@ -40,12 +47,8 @@ import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { wrapTranslatableFields } from "common/language/translatedFields";
 import { buildSearchCondition } from "esco/common/searchCondition";
 
-// fields stored as localized sub documents, wrapped/flattened by this repository. code and groupType are
-// monolingual and are deliberately absent from this list.
-const TRANSLATABLE_STRING_FIELDS = ["preferredLabel", "description"] as const;
-
-// same as above, plus altLabels (an array of localized sub documents)
-const TRANSLATABLE_FIELDS = [...TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
+// same as OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS, plus altLabels (an array of localized sub documents)
+const TRANSLATABLE_FIELDS = [...OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
 
 interface FindPaginatedFilter {
   root?: boolean;
@@ -90,28 +93,31 @@ export interface IOccupationGroupRepository extends IEmbeddableEntityRepository 
    * Finds a OccupationGroup entry by its ID.
    *
    * @param {string} id - The unique ID of the OccupationGroup entry to find.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<IOccupationGroup|null>} - A Promise that resolves to the found OccupationGroup entry or null if not found.
    * Rejects with an error if the operation fails.
    */
-  findById(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroup | null>;
+  findById(id: string | mongoose.Types.ObjectId, language?: string): Promise<IOccupationGroup | null>;
 
   /**
    * Finds a OccupationGroup parent entry by its child occupation group ID.
    *
    * @param {string} id - The unique ID of the child OccupationGroup entry to find its parent.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<IOccupationGroup|null>} - A Promise that resolves to the found parent OccupationGroup entry or null if not found.
    * Rejects with an error if the operation fails.
    */
-  findParent(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroup | null>;
+  findParent(id: string | mongoose.Types.ObjectId, language?: string): Promise<IOccupationGroup | null>;
 
   /**
    * Finds a OccupationGroup children entry by its parent occupation group ID.
    *
    * @param {string} id - The unique ID of the parent OccupationGroup entry to find its children.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<IOccupationGroupChild[]>} - A Promise that resolves to the found children OccupationGroup entries or an empty array if not found.
    * Rejects with an error if the operation fails.
    */
-  findChildren(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroupChild[]>;
+  findChildren(id: string | mongoose.Types.ObjectId, language?: string): Promise<IOccupationGroupChild[]>;
 
   /**
    * Returns all OccupationGroups as a stream. The OccupationGroups are transformed to objects (via the .toObject()), however
@@ -146,7 +152,8 @@ export interface IOccupationGroupRepository extends IEmbeddableEntityRepository 
     sortOrder: 1 | -1,
     cursorId?: string,
     filter?: FindPaginatedFilter,
-    search?: { value: string; fields: string[] }
+    search?: { value: string; fields: string[] },
+    language?: string
   ): Promise<IOccupationGroup[]>;
 
   /**
@@ -156,19 +163,21 @@ export interface IOccupationGroupRepository extends IEmbeddableEntityRepository 
    *
    * @param {string} modelId - The modelId of the OccupationGroups.
    * @param {string[]} ids - The ids of the OccupationGroups to fetch.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<IOccupationGroup[]>} - A Promise that resolves to the found OccupationGroups.
    * Rejects with an error if the operation fails.
    */
-  findByIds(modelId: string, ids: string[]): Promise<IOccupationGroup[]>;
+  findByIds(modelId: string, ids: string[], language?: string): Promise<IOccupationGroup[]>;
 
   /**
    * Finds an OccupationGroup entry by it's UUID.
    *
    * @param {string} uuid - The unique UUID of the OccupationGroup entry to find.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<IOccupationGroup|null>} - A Promise that resolves to the found OccupationGroup entry or null if not found.
    * Rejects with an error if the operation fails.
    */
-  getOccupationGroupByUUID(uuid: string): Promise<IOccupationGroup | null>;
+  getOccupationGroupByUUID(uuid: string, language?: string): Promise<IOccupationGroup | null>;
 
   /**
    * Resolves each of the provided occupation group UUIDs (a group's own UUIDHistory) to the group's reference
@@ -176,9 +185,10 @@ export interface IOccupationGroupRepository extends IEmbeddableEntityRepository 
    * input UUIDs; entries whose UUID matches no group carry null modelId and null reference.
    *
    * @param {string[]} uuids - The occupation group UUIDs to resolve.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<IOccupationGroupModelHistoryReference[]>} - The resolved reference + modelId per input UUID.
    */
-  findHistoryReferencesByUUIDs(uuids: string[]): Promise<IOccupationGroupModelHistoryReference[]>;
+  findHistoryReferencesByUUIDs(uuids: string[], language?: string): Promise<IOccupationGroupModelHistoryReference[]>;
 
   /**
    * Fully replaces the mutable fields of an OccupationGroup (PUT semantics).
@@ -210,6 +220,10 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     this.hierarchyModel = hierarchyModel;
   }
 
+  private resolveLang(language?: string): string {
+    return language ?? getFallbackLanguageConfig().dbKeyName;
+  }
+
   async setEntityEmbeddingStatus(spec: ISetEntityEmbeddingStatusSpec): Promise<void> {
     return setEntityEmbeddingStatus(this.Model, spec);
   }
@@ -221,7 +235,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
   private newSpecToModel(newSpec: INewOccupationGroupSpec): mongoose.HydratedDocument<IOccupationGroupDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec, TRANSLATABLE_STRING_FIELDS),
+      ...wrapTranslatableFields(newSpec, OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: newSpec.importId,
     });
@@ -235,7 +249,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
   ): mongoose.HydratedDocument<IOccupationGroupDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec, TRANSLATABLE_STRING_FIELDS),
+      ...wrapTranslatableFields(newSpec, OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: null,
     });
@@ -252,11 +266,15 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       throw err;
     }
 
+    const fallbackLang = getFallbackLanguageConfig().dbKeyName;
     try {
       const newOccupationGroupModel = this.newSpecWithoutImportIdToModel(newOccupationGroupSpec);
       await newOccupationGroupModel.save();
       populateEmptyOccupationHierarchy(newOccupationGroupModel);
-      return newOccupationGroupModel.toObject();
+      return unwrapOccupationGroupTranslatableFields(
+        newOccupationGroupModel.toObject() as unknown as IOccupationGroup,
+        fallbackLang
+      );
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.create: create failed" + e, { cause: e });
       console.error(err);
@@ -296,9 +314,10 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
         } invalid entries were not created`
       );
     }
+    const fallbackLang = getFallbackLanguageConfig().dbKeyName;
     return newOccupationGroupsDocs.map((doc) => {
       populateEmptyOccupationHierarchy(doc);
-      return doc.toObject();
+      return unwrapOccupationGroupTranslatableFields(doc.toObject() as unknown as IOccupationGroup, fallbackLang);
     });
   }
 
@@ -340,20 +359,23 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
         } invalid entries were not created`
       );
     }
+    const fallbackLang = getFallbackLanguageConfig().dbKeyName;
     return newOccupationGroupsDocs.map((doc) => {
       populateEmptyOccupationHierarchy(doc);
-      return doc.toObject();
+      return unwrapOccupationGroupTranslatableFields(doc.toObject() as unknown as IOccupationGroup, fallbackLang);
     });
   }
 
-  async findById(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroup | null> {
+  async findById(id: string | mongoose.Types.ObjectId, language?: string): Promise<IOccupationGroup | null> {
+    const lang = this.resolveLang(language);
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const occupationGroup = await this.Model.findById(id)
-        .populate(populateOccupationGroupParentOptions)
-        .populate(populateOccupationGroupChildrenOptions)
+        .populate(makePopulateOccupationGroupParentOptions(lang))
+        .populate(makePopulateOccupationGroupChildrenOptions(lang))
         .exec();
-      return occupationGroup ? occupationGroup.toObject() : null;
+      if (!occupationGroup) return null;
+      return unwrapOccupationGroupTranslatableFields(occupationGroup.toObject() as unknown as IOccupationGroup, lang);
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.findById: findById failed.", { cause: e });
       console.error(err);
@@ -361,12 +383,12 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     }
   }
 
-  async findParent(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroup | null> {
+  async findParent(id: string | mongoose.Types.ObjectId, language?: string): Promise<IOccupationGroup | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const relation = await this.hierarchyModel.findOne({ childId: id }).lean();
       if (!relation) return null;
-      return this.findById(relation.parentId);
+      return this.findById(relation.parentId, language);
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.findParent: findParent failed.", { cause: e });
       console.error(err);
@@ -374,17 +396,25 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     }
   }
 
-  async findChildren(id: string | mongoose.Types.ObjectId): Promise<IOccupationGroupChild[]> {
+  async findChildren(id: string | mongoose.Types.ObjectId, language?: string): Promise<IOccupationGroupChild[]> {
+    const lang = this.resolveLang(language);
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return [];
 
-      const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
       // reads straight off the raw collections, bypassing the owning model's toObject transform, so a
-      // translatable field must be flattened here, tolerating both a plain string and a localized sub document
+      // translatable field must be flattened here, tolerating both a plain string and a localized sub document.
+      // Falls back per field to the fall back language when the resolved language has no translation.
       const flattenTranslatedString = (path: string) => ({
         $cond: [
           { $eq: [{ $type: path }, "object"] },
-          { $ifNull: [{ $getField: { field: fallbackDbKeyName, input: path } }, ""] },
+          {
+            $ifNull: [
+              { $getField: { field: lang, input: path } },
+              {
+                $ifNull: [{ $getField: { field: getFallbackLanguageConfig().dbKeyName, input: path } }, ""],
+              },
+            ],
+          },
           path,
         ],
       });
@@ -392,16 +422,34 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
         $cond: [
           { $eq: [{ $type: path }, "array"] },
           {
-            $map: {
-              input: path,
-              as: "item",
-              in: {
-                $cond: [
-                  { $eq: [{ $type: "$$item" }, "object"] },
-                  { $ifNull: [{ $getField: { field: fallbackDbKeyName, input: "$$item" } }, ""] },
-                  "$$item",
-                ],
+            $filter: {
+              input: {
+                $map: {
+                  input: path,
+                  as: "item",
+                  in: {
+                    $cond: [
+                      { $eq: [{ $type: "$$item" }, "object"] },
+                      {
+                        $ifNull: [
+                          { $getField: { field: lang, input: "$$item" } },
+                          {
+                            $ifNull: [
+                              { $getField: { field: getFallbackLanguageConfig().dbKeyName, input: "$$item" } },
+                              "",
+                            ],
+                          },
+                        ],
+                      },
+                      "$$item",
+                    ],
+                  },
+                },
               },
+              as: "value",
+              // an item untranslated in both the resolved and fall back language is dropped, matching
+              // resolveTranslatedArray's behaviour, instead of being served as an empty string
+              cond: { $gt: [{ $strLenCP: "$$value" }, 0] },
             },
           },
           path,
@@ -481,18 +529,22 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     }
   }
 
-  async getOccupationGroupByUUID(occupationUUID: string): Promise<IOccupationGroup | null> {
+  async getOccupationGroupByUUID(occupationUUID: string, language?: string): Promise<IOccupationGroup | null> {
+    const lang = this.resolveLang(language);
     try {
       const filter = {
         UUID: { $eq: occupationUUID },
       };
       const occupationGroupInfo = await this.Model.findOne(filter)
-        .populate([populateOccupationGroupParentOptions, populateOccupationGroupChildrenOptions])
+        .populate([makePopulateOccupationGroupParentOptions(lang), makePopulateOccupationGroupChildrenOptions(lang)])
         .exec();
       if (occupationGroupInfo == null) {
         return null;
       }
-      return occupationGroupInfo.toObject();
+      return unwrapOccupationGroupTranslatableFields(
+        occupationGroupInfo.toObject() as unknown as IOccupationGroup,
+        lang
+      );
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.getOccupationGroupByUUID: getOccupationGroupByUUID failed", {
         cause: e,
@@ -502,7 +554,11 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     }
   }
 
-  async findHistoryReferencesByUUIDs(uuids: string[]): Promise<IOccupationGroupModelHistoryReference[]> {
+  async findHistoryReferencesByUUIDs(
+    uuids: string[],
+    language?: string
+  ): Promise<IOccupationGroupModelHistoryReference[]> {
+    const lang = this.resolveLang(language);
     try {
       // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
       // operator object this is not rewritten by the connection's sanitizeFilter=true.
@@ -518,7 +574,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
           return { UUID: uuid, modelId: null, reference: null };
         }
         // Reuse the shared reference mapper; the reference itself does not carry the modelId, so split it out.
-        const { modelId, ...reference } = getOccupationGroupDocReference(group as OccupationGroupDocument);
+        const { modelId, ...reference } = getOccupationGroupDocReference(group as OccupationGroupDocument, lang);
         return { UUID: uuid, modelId: modelId.toString(), reference };
       });
     } catch (e: unknown) {
@@ -534,12 +590,27 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
   //TODO: select * from relations where parent_id = $id limit $limit offset $offset
 
   findAll(modelId: string): Readable {
+    // findAll is the canonical export path: it always uses the fallback language regardless of any
+    // Accept-Language header, so that exported CSVs contain stable, predictable content.
+    const fallbackLang = getFallbackLanguageConfig().dbKeyName;
     try {
+      const unwrapTransform = new Transform({
+        objectMode: true,
+        transform(occupationGroup: IOccupationGroup, _encoding, callback) {
+          try {
+            callback(null, unwrapOccupationGroupTranslatableFields(occupationGroup, fallbackLang));
+          } catch (e) {
+            callback(e as Error);
+          }
+        },
+      });
+
       const pipeline = stream.pipeline(
         // use $eq to prevent NoSQL injection
         this.Model.find({ modelId: { $eq: modelId } }).cursor(),
         // in the current version we do not populate the parent, children
         new DocumentToObjectTransformer<IOccupationGroup>(),
+        unwrapTransform,
         () => undefined
       );
 
@@ -570,8 +641,10 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     sortOrder: 1 | -1,
     cursorId?: string,
     filter?: FindPaginatedFilter,
-    search?: { value: string; fields: string[] }
+    search?: { value: string; fields: string[] },
+    language?: string
   ): Promise<IOccupationGroup[]> {
+    const lang = this.resolveLang(language);
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       // Build the match stage
@@ -623,11 +696,11 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       // This is necessary because aggregate() returns plain objects, but populate() requires Mongoose documents
       const hydrated = results.map((r) => this.Model.hydrate(r));
       const populated = await this.Model.populate(hydrated, [
-        populateOccupationGroupParentOptions,
-        populateOccupationGroupChildrenOptions,
+        makePopulateOccupationGroupParentOptions(lang),
+        makePopulateOccupationGroupChildrenOptions(lang),
       ]);
 
-      return populated.map((doc) => doc.toObject());
+      return populated.map((doc) => unwrapOccupationGroupTranslatableFields(doc.toObject(), lang));
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.findPaginated: findPaginated failed", { cause: e });
       console.error(err);
@@ -636,14 +709,16 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
   }
 
   async update(id: string, modelId: string, spec: IUpdateOccupationGroupSpec): Promise<IOccupationGroup | null> {
+    const fallbackLang = getFallbackLanguageConfig().dbKeyName;
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
+      doc.set(wrapTranslatableFields(spec, OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
-      await doc.populate([populateOccupationGroupParentOptions, populateOccupationGroupChildrenOptions]);
-      return doc.toObject();
+      // Write paths always return the fallback-language view; these factory overloads use fallback language.
+      await doc.populate([populateOccupationGroupParentOptions(), populateOccupationGroupChildrenOptions()]);
+      return unwrapOccupationGroupTranslatableFields(doc.toObject() as unknown as IOccupationGroup, fallbackLang);
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.update: update failed.", { cause: e });
       console.error(err);
@@ -652,14 +727,16 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
   }
 
   async patch(id: string, modelId: string, spec: IPartialUpdateOccupationGroupSpec): Promise<IOccupationGroup | null> {
+    const fallbackLang = getFallbackLanguageConfig().dbKeyName;
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
+      doc.set(wrapTranslatableFields(spec, OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
-      await doc.populate([populateOccupationGroupParentOptions, populateOccupationGroupChildrenOptions]);
-      return doc.toObject();
+      // Write paths always return the fallback-language view; these factory overloads use fallback language.
+      await doc.populate([populateOccupationGroupParentOptions(), populateOccupationGroupChildrenOptions()]);
+      return unwrapOccupationGroupTranslatableFields(doc.toObject() as unknown as IOccupationGroup, fallbackLang);
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.patch: patch failed.", { cause: e });
       console.error(err);
@@ -667,7 +744,8 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
     }
   }
 
-  async findByIds(modelId: string, ids: string[]): Promise<IOccupationGroup[]> {
+  async findByIds(modelId: string, ids: string[], language?: string): Promise<IOccupationGroup[]> {
+    const lang = this.resolveLang(language);
     try {
       const validIds = ids
         .filter((id) => mongoose.Types.ObjectId.isValid(id))
@@ -681,11 +759,11 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
 
       const hydrated = results.map((r) => this.Model.hydrate(r));
       const populated = await this.Model.populate(hydrated, [
-        populateOccupationGroupParentOptions,
-        populateOccupationGroupChildrenOptions,
+        makePopulateOccupationGroupParentOptions(lang),
+        makePopulateOccupationGroupChildrenOptions(lang),
       ]);
 
-      return populated.map((doc) => doc.toObject());
+      return populated.map((doc) => unwrapOccupationGroupTranslatableFields(doc.toObject(), lang));
     } catch (e: unknown) {
       const err = new Error("OccupationGroupRepository.findByIds: findByIds failed", { cause: e });
       console.error(err);

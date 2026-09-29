@@ -6,6 +6,7 @@ import { Connection } from "mongoose";
 
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LanguageAPISpecs from "api-specifications/language";
 
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import { handler as occupationGroupHistoryHandler } from "./index";
@@ -144,5 +145,27 @@ describe("Test for occupationGroup History GET handler with a DB", () => {
     expect(JSON.parse(actualResponse.body).errorCode).toEqual(
       OccupationGroupAPISpecs.OccupationGroup.History.GET.Enums.Response.Status404.ErrorCodes.OCCUPATION_GROUP_NOT_FOUND
     );
+  });
+
+  test("GET should set Content-Language and Vary response headers", async () => {
+    // GIVEN a model and a freshly created occupation group
+    const givenModel = await createModelInDB();
+    const givenGroup = await createOccupationGroupInDB(givenModel.id, { UUIDHistory: [] });
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {},
+      path: `/models/${givenModel.id}/occupationGroups/${givenGroup.id}/history`,
+      pathParameters: { modelId: givenModel.id, id: givenGroup.id },
+    };
+
+    // WHEN the handler is called without an Accept-Language header
+    const actualResponse = await occupationGroupHistoryHandler(givenEvent as unknown as APIGatewayProxyEvent);
+
+    // THEN expect OK, and the fallback language to be reflected in the Content-Language and Vary headers
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(actualResponse.headers?.["Content-Language"]).toEqual(
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode
+    );
+    expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
   });
 });

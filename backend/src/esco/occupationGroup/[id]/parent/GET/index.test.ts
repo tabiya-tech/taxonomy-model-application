@@ -12,6 +12,8 @@ import { ModelForOccupationGroupValidationErrorCode } from "../../../_shared/Occ
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
+import LanguageAPISpecs from "api-specifications/language";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
@@ -75,7 +77,9 @@ describe("OccupationGroupParentController", () => {
     mockTransformParent.mockReturnValue({ id: "parent-1" } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.occupationGroup.findParent = jest.fn().mockResolvedValue({ id: "parent-1" });
 
     const controller = new OccupationGroupParentController();
@@ -87,7 +91,7 @@ describe("OccupationGroupParentController", () => {
       "/models/model-1/occupationGroups/group-1/parent"
     );
     expect(mockServiceRegistry.occupationGroup.validateModelForOccupationGroup).toHaveBeenCalledWith("model-1");
-    expect(mockServiceRegistry.occupationGroup.findParent).toHaveBeenCalledWith("group-1");
+    expect(mockServiceRegistry.occupationGroup.findParent).toHaveBeenCalledWith("group-1", "en");
     expect(mockTransformParent).toHaveBeenCalledWith({ id: "parent-1" }, "https://resources.example.com");
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
   });
@@ -117,7 +121,9 @@ describe("OccupationGroupParentController", () => {
     mockGetOccupationGroupParentPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.occupationGroup.findParent = jest.fn().mockResolvedValue(null);
 
     const controller = new OccupationGroupParentController();
@@ -138,7 +144,7 @@ describe("OccupationGroupParentController", () => {
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
       .fn()
-      .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+      .mockResolvedValue({ errorCode: ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID });
 
     const controller = new OccupationGroupParentController();
     const actualResponse = await controller.getParentOccupationGroup(
@@ -159,7 +165,7 @@ describe("OccupationGroupParentController", () => {
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
       .fn()
-      .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
+      .mockResolvedValue({ errorCode: ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB });
 
     const controller = new OccupationGroupParentController();
     const actualResponse = await controller.getParentOccupationGroup(
@@ -177,7 +183,7 @@ describe("OccupationGroupParentController", () => {
     mockGetOccupationGroupParentPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.findParent = jest.fn().mockResolvedValue(Promise.reject(new Error("DB error")));
+    mockServiceRegistry.occupationGroup.findParent = jest.fn().mockRejectedValue(new Error("DB error"));
 
     const controller = new OccupationGroupParentController();
     const actualResponse = await controller.getParentOccupationGroup(
@@ -193,5 +199,118 @@ describe("OccupationGroupParentController", () => {
       details: "",
     };
     expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+  });
+
+  describe("language negotiation", () => {
+    const givenModelId = getMockStringId(1);
+    const givenId = getMockStringId(2);
+    const FALLBACK_LANG = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE;
+    const SECONDARY_LANG = LanguageAPISpecs.Constants.Languages[1]; // French
+    const givenAvailableLanguages = [FALLBACK_LANG.shortCode, SECONDARY_LANG.shortCode];
+
+    function buildEvent(headers?: Record<string, string>): APIGatewayProxyEvent {
+      const validatePathFunction = jest.fn().mockReturnValue(true);
+      getMockGetSchema().mockReturnValue(validatePathFunction as never);
+      mockGetOccupationGroupParentPathParameters.mockReturnValue({ modelId: givenModelId, id: givenId } as never);
+      mockTransformParent.mockReturnValue({ id: givenId } as never);
+
+      return {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${givenModelId}/occupationGroups/${givenId}/parent`,
+        pathParameters: { modelId: givenModelId, id: givenId },
+        headers: headers ?? {},
+      } as unknown as APIGatewayProxyEvent;
+    }
+
+    function buildServiceMock(availableLanguages: string[] = givenAvailableLanguages): IOccupationGroupService {
+      return {
+        findParent: jest.fn().mockResolvedValue({ id: givenId }),
+        validateModelForOccupationGroup: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages }),
+      } as unknown as IOccupationGroupService;
+    }
+
+    test("GET should serve the fallback language and set headers when no Accept-Language header is present", async () => {
+      // GIVEN a request without an Accept-Language header
+      const givenEvent = buildEvent();
+      const givenOccupationGroupServiceMock = buildServiceMock();
+      mockGetServiceRegistry().occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN calling the handler
+      const controller = new OccupationGroupParentController();
+      const actualResponse = await controller.getParentOccupationGroup(givenEvent);
+
+      // THEN expect OK
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      // AND the fallback language is served
+      expect(actualResponse.headers?.["Content-Language"]).toEqual(FALLBACK_LANG.shortCode);
+      expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
+      // AND the service receives the fallback language
+      expect(givenOccupationGroupServiceMock.findParent).toHaveBeenCalledWith(givenId, FALLBACK_LANG.dbKeyName);
+    });
+
+    test.each([
+      // [description, acceptLanguage header, expected Content-Language served, expected dbKeyName passed to service]
+      [
+        "serve the fallback language when the client explicitly requests it",
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.dbKeyName,
+      ],
+      [
+        "serve a secondary language when the model has it and the client requests it",
+        SECONDARY_LANG.shortCode,
+        SECONDARY_LANG.shortCode,
+        SECONDARY_LANG.dbKeyName,
+      ],
+      [
+        "fall back to the fallback language when the client requests an unsupported language",
+        "es",
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.dbKeyName,
+      ],
+      [
+        "fall back to the fallback language when the Accept-Language header is malformed",
+        ";;;not-a-language;;;",
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.dbKeyName,
+      ],
+      [
+        "serve the highest-quality language from a quality-value header",
+        `${FALLBACK_LANG.shortCode};q=0.5, ${SECONDARY_LANG.shortCode};q=0.9`,
+        SECONDARY_LANG.shortCode,
+        SECONDARY_LANG.dbKeyName,
+      ],
+    ])("GET should %s", async (_description, givenAcceptLanguage, expectedContentLanguage, expectedDbKeyName) => {
+      // GIVEN a model with [en, fr] and the client sends Accept-Language: ${givenAcceptLanguage}
+      const givenEvent = buildEvent({ "accept-language": givenAcceptLanguage });
+      const givenOccupationGroupServiceMock = buildServiceMock();
+      mockGetServiceRegistry().occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN the handler is called
+      const controller = new OccupationGroupParentController();
+      const actualResponse = await controller.getParentOccupationGroup(givenEvent);
+
+      // THEN it responds OK and serves ${expectedContentLanguage} to both the client and repository
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(actualResponse.headers?.["Content-Language"]).toEqual(expectedContentLanguage);
+      expect(givenOccupationGroupServiceMock.findParent).toHaveBeenCalledWith(givenId, expectedDbKeyName);
+    });
+
+    test("GET should serve the fallback language when availableLanguages is empty (MODEL_IS_RELEASED)", async () => {
+      // GIVEN the model returns availableLanguages: [] (as MODEL_IS_RELEASED does)
+      const givenEvent = buildEvent({ "accept-language": SECONDARY_LANG.shortCode });
+      const givenOccupationGroupServiceMock = buildServiceMock([]);
+      mockGetServiceRegistry().occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN calling the handler
+      const controller = new OccupationGroupParentController();
+      const actualResponse = await controller.getParentOccupationGroup(givenEvent);
+
+      // THEN the fallback language is served regardless of the Accept-Language header
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(actualResponse.headers?.["Content-Language"]).toEqual(FALLBACK_LANG.shortCode);
+      // AND the service receives the fallback language
+      expect(givenOccupationGroupServiceMock.findParent).toHaveBeenCalledWith(givenId, FALLBACK_LANG.dbKeyName);
+    });
   });
 });

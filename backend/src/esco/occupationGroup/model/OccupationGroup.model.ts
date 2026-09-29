@@ -88,14 +88,9 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   return dbConnection.model<IOccupationGroupDoc>(MongooseModelName.OccupationGroup, OccupationGroupSchema);
 }
 
-import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import { readFallbackLanguageValue, readFallbackLanguageValues } from "common/language/translatedFields";
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const _TransformFn = (doc: any, ret: any) => {
-  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-  ret.preferredLabel = readFallbackLanguageValue(ret.preferredLabel, fallbackDbKeyName);
-  ret.description = readFallbackLanguageValue(ret.description, fallbackDbKeyName);
-  ret.altLabels = readFallbackLanguageValues(ret.altLabels, fallbackDbKeyName);
+const _TransformFn = (_doc: any, ret: any) => {
+  // Translatable fields (preferredLabel, description, altLabels) are left as plain objects here; repositories
+  // call unwrapOccupationGroupTranslatableFields with the resolved language.
   return ret;
 };

@@ -1806,6 +1806,48 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       expect(typeof actualFoundChildren[0].description).toBe("string");
       expect(actualFoundChildren[0].altLabels.every((label) => typeof label === "string")).toBe(true);
     });
+    test("should fall back per field to the fall back language, and drop an altLabels item untranslated in both languages", async () => {
+      // GIVEN a parent OccupationGroup with one child OccupationGroup
+      const givenModelId = getMockStringId(1);
+      const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent_lang");
+      const givenParent = await repository.create(givenParentSpecs);
+      const givenChildSpecs = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_lang", givenParent.code);
+      const givenChild = await repository.create(givenChildSpecs);
+      await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
+        {
+          parentType: ObjectTypes.ISCOGroup,
+          parentId: givenParent.id,
+          childType: ObjectTypes.ISCOGroup,
+          childId: givenChild.id,
+        },
+      ]);
+
+      // AND the child's translatable fields are rewritten, bypassing mongoose validation, so that preferredLabel
+      // and description are translated in neither "fr" (the requested language) nor the fall back language, and
+      // altLabels has one item translated in the fall back language and one item translated in neither
+      const givenRequestedLanguage = "fr";
+      await repository.Model.collection.updateOne(
+        { _id: new mongoose.Types.ObjectId(givenChild.id) },
+        {
+          $set: {
+            preferredLabel: { de: "nur Deutsch" },
+            description: { de: "nur Deutsch" },
+            altLabels: [{ [getFallbackLanguageConfig().dbKeyName]: "kept" }, { de: "nur Deutsch" }],
+          },
+        }
+      );
+
+      // WHEN finding the parent's children, requesting a language the child has no translation for
+      const actualFoundChildren = await repository.findChildren(givenParent.id, givenRequestedLanguage);
+
+      // THEN expect the untranslated fields to fall back to an empty string, not null
+      expect(actualFoundChildren).toHaveLength(1);
+      expect(actualFoundChildren[0].preferredLabel).toEqual("");
+      expect(actualFoundChildren[0].description).toEqual("");
+      // AND expect the altLabels item translated in the fall back language to be kept, and the untranslated one
+      // to be dropped rather than included as null or an empty string
+      expect(actualFoundChildren[0].altLabels).toEqual(["kept"]);
+    });
     test("should return [] if no children for the given OccupationGroup with the given parent id", async () => {
       // GIVEN an OccupationGroup exists without a parent
       const givenModelId = getMockStringId(1);

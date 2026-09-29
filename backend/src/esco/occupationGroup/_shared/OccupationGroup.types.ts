@@ -60,7 +60,13 @@ export interface IOccupationGroupWithoutImportId extends Omit<IOccupationGroup, 
   importId: string | null;
 }
 
-// translatable fields of an OccupationGroup, stored as translated sub documents (e.g. { en: "Managers" })
+// translatable fields of an OccupationGroup, stored as translated sub documents (e.g. { en: "Managers" }).
+// code and groupType are monolingual and are deliberately absent from this list.
+export const OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS = [
+  "preferredLabel",
+  "description",
+] as const satisfies ReadonlyArray<keyof IOccupationGroupDoc>;
+
 type OccupationGroupTranslatableFields = "preferredLabel" | "altLabels" | "description";
 
 // OccupationGroup for export: not populated, translatable fields kept in every language instead of flattened to fallback
@@ -138,6 +144,14 @@ export enum ModelForOccupationGroupValidationErrorCode {
   MODEL_NOT_FOUND_BY_ID,
   MODEL_IS_RELEASED,
 }
+
+/**
+ * The result of validating a model for occupation group operations. On success, also carries the model's
+ * availableLanguages so read endpoints can resolve the Accept-Language header against them.
+ */
+export type ValidateModelForOccupationGroupResult =
+  | { errorCode: null; availableLanguages: string[] }
+  | { errorCode: ModelForOccupationGroupValidationErrorCode; availableLanguages?: never };
 /**
  * Base path parameters for occupation group routes
  */
