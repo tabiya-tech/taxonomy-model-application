@@ -1,4 +1,8 @@
-import { IOccupationGroupDoc, IOccupationGroupReferenceDoc } from "./OccupationGroup.types";
+import {
+  IOccupationGroupDoc,
+  IOccupationGroupReferenceDoc,
+  OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS,
+} from "./OccupationGroup.types";
 import mongoose from "mongoose";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { resolveTranslated, resolveTranslatedArray } from "common/language/resolveTranslated";
@@ -31,7 +35,7 @@ export function getOccupationGroupDocReference(
 export function unwrapOccupationGroupTranslatableFields<T extends object>(occupationGroup: T, language: string): T {
   const target = occupationGroup as Record<string, unknown>;
   const fallback = getFallbackLanguageConfig().dbKeyName;
-  for (const field of ["preferredLabel", "description"] as const) {
+  for (const field of OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS) {
     if (field in target) {
       target[field] = resolveTranslated(target[field] as ITranslatedStringDoc, language, fallback);
     }

@@ -12,6 +12,8 @@ import { ModelForOccupationGroupValidationErrorCode } from "esco/occupationGroup
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
+import LanguageAPISpecs from "api-specifications/language";
+import { getMockStringId } from "_test_utilities/mockMongoId";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
@@ -42,7 +44,7 @@ describe("OccupationGroupHistoryController", () => {
         findParent: jest.fn(),
         findPaginated: jest.fn(),
         searchPaginated: jest.fn(),
-        validateModelForOccupationGroup: jest.fn().mockResolvedValue(null),
+        validateModelForOccupationGroup: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
         findChildren: jest.fn(),
         setParent: jest.fn(),
         getHistory: jest.fn().mockResolvedValue([]),
@@ -81,7 +83,7 @@ describe("OccupationGroupHistoryController", () => {
     const actualResponse = await controller.getOccupationGroupHistory(buildEvent(givenPath));
 
     expect(mockGetOccupationGroupHistoryPathParameters).toHaveBeenCalledWith(givenPath);
-    expect(mockServiceRegistry.occupationGroup.getHistory).toHaveBeenCalledWith("group-1");
+    expect(mockServiceRegistry.occupationGroup.getHistory).toHaveBeenCalledWith("group-1", "en");
     expect(mockBuildHistoryResponse).toHaveBeenCalledWith(givenHistory);
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
   });
@@ -90,7 +92,7 @@ describe("OccupationGroupHistoryController", () => {
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
       .fn()
-      .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED);
+      .mockResolvedValue({ errorCode: ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED });
     mockServiceRegistry.occupationGroup.getHistory = jest.fn().mockResolvedValue([]);
     mockBuildHistoryResponse.mockReturnValue([] as never);
 
@@ -98,7 +100,7 @@ describe("OccupationGroupHistoryController", () => {
     const actualResponse = await controller.getOccupationGroupHistory(buildEvent(givenPath));
 
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
-    expect(mockServiceRegistry.occupationGroup.getHistory).toHaveBeenCalledWith("group-1");
+    expect(mockServiceRegistry.occupationGroup.getHistory).toHaveBeenCalledWith("group-1", "en");
   });
 
   test("returns BAD_REQUEST when the route parameters fail validation", async () => {
@@ -135,7 +137,7 @@ describe("OccupationGroupHistoryController", () => {
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
       .fn()
-      .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+      .mockResolvedValue({ errorCode: ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID });
 
     const controller = new OccupationGroupHistoryController();
     const actualResponse = await controller.getOccupationGroupHistory(buildEvent(givenPath));
@@ -148,7 +150,7 @@ describe("OccupationGroupHistoryController", () => {
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
       .fn()
-      .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
+      .mockResolvedValue({ errorCode: ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB });
 
     const controller = new OccupationGroupHistoryController();
     const actualResponse = await controller.getOccupationGroupHistory(buildEvent(givenPath));
@@ -170,6 +172,119 @@ describe("OccupationGroupHistoryController", () => {
           .DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUP_HISTORY,
       message: "Failed to retrieve the occupation group history from the DB",
       details: "",
+    });
+  });
+
+  describe("language negotiation", () => {
+    const givenModelId = getMockStringId(1);
+    const givenId = getMockStringId(2);
+    const FALLBACK_LANG = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE;
+    const SECONDARY_LANG = LanguageAPISpecs.Constants.Languages[1]; // French
+    const givenAvailableLanguages = [FALLBACK_LANG.shortCode, SECONDARY_LANG.shortCode];
+
+    function buildEvent(headers?: Record<string, string>): APIGatewayProxyEvent {
+      const validatePathFunction = jest.fn().mockReturnValue(true);
+      getMockGetSchema().mockReturnValue(validatePathFunction as never);
+      mockGetOccupationGroupHistoryPathParameters.mockReturnValue({ modelId: givenModelId, id: givenId } as never);
+      mockBuildHistoryResponse.mockReturnValue([] as never);
+
+      return {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${givenModelId}/occupationGroups/${givenId}/history`,
+        pathParameters: { modelId: givenModelId, id: givenId },
+        headers: headers ?? {},
+      } as unknown as APIGatewayProxyEvent;
+    }
+
+    function buildServiceMock(availableLanguages: string[] = givenAvailableLanguages): IOccupationGroupService {
+      return {
+        getHistory: jest.fn().mockResolvedValue([]),
+        validateModelForOccupationGroup: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages }),
+      } as unknown as IOccupationGroupService;
+    }
+
+    test("GET should serve the fallback language and set headers when no Accept-Language header is present", async () => {
+      // GIVEN a request without an Accept-Language header
+      const givenEvent = buildEvent();
+      const givenOccupationGroupServiceMock = buildServiceMock();
+      mockGetServiceRegistry().occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN calling the handler
+      const controller = new OccupationGroupHistoryController();
+      const actualResponse = await controller.getOccupationGroupHistory(givenEvent);
+
+      // THEN expect OK
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      // AND the fallback language is served
+      expect(actualResponse.headers?.["Content-Language"]).toEqual(FALLBACK_LANG.shortCode);
+      expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
+      // AND the service receives the fallback language
+      expect(givenOccupationGroupServiceMock.getHistory).toHaveBeenCalledWith(givenId, FALLBACK_LANG.dbKeyName);
+    });
+
+    test.each([
+      // [description, acceptLanguage header, expected Content-Language served, expected dbKeyName passed to service]
+      [
+        "serve the fallback language when the client explicitly requests it",
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.dbKeyName,
+      ],
+      [
+        "serve a secondary language when the model has it and the client requests it",
+        SECONDARY_LANG.shortCode,
+        SECONDARY_LANG.shortCode,
+        SECONDARY_LANG.dbKeyName,
+      ],
+      [
+        "fall back to the fallback language when the client requests an unsupported language",
+        "es",
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.dbKeyName,
+      ],
+      [
+        "fall back to the fallback language when the Accept-Language header is malformed",
+        ";;;not-a-language;;;",
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.dbKeyName,
+      ],
+      [
+        "serve the highest-quality language from a quality-value header",
+        `${FALLBACK_LANG.shortCode};q=0.5, ${SECONDARY_LANG.shortCode};q=0.9`,
+        SECONDARY_LANG.shortCode,
+        SECONDARY_LANG.dbKeyName,
+      ],
+    ])("GET should %s", async (_description, givenAcceptLanguage, expectedContentLanguage, expectedDbKeyName) => {
+      // GIVEN a model with [en, fr] and the client sends Accept-Language: ${givenAcceptLanguage}
+      const givenEvent = buildEvent({ "accept-language": givenAcceptLanguage });
+      const givenOccupationGroupServiceMock = buildServiceMock();
+      mockGetServiceRegistry().occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN the handler is called
+      const controller = new OccupationGroupHistoryController();
+      const actualResponse = await controller.getOccupationGroupHistory(givenEvent);
+
+      // THEN it responds OK and serves ${expectedContentLanguage} to both the client and repository
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(actualResponse.headers?.["Content-Language"]).toEqual(expectedContentLanguage);
+      expect(givenOccupationGroupServiceMock.getHistory).toHaveBeenCalledWith(givenId, expectedDbKeyName);
+    });
+
+    test("GET should serve the fallback language when availableLanguages is empty (MODEL_IS_RELEASED)", async () => {
+      // GIVEN the model returns availableLanguages: [] (as MODEL_IS_RELEASED does)
+      const givenEvent = buildEvent({ "accept-language": SECONDARY_LANG.shortCode });
+      const givenOccupationGroupServiceMock = buildServiceMock([]);
+      mockGetServiceRegistry().occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN calling the handler
+      const controller = new OccupationGroupHistoryController();
+      const actualResponse = await controller.getOccupationGroupHistory(givenEvent);
+
+      // THEN the fallback language is served regardless of the Accept-Language header
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(actualResponse.headers?.["Content-Language"]).toEqual(FALLBACK_LANG.shortCode);
+      // AND the service receives the fallback language
+      expect(givenOccupationGroupServiceMock.getHistory).toHaveBeenCalledWith(givenId, FALLBACK_LANG.dbKeyName);
     });
   });
 });

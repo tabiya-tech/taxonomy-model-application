@@ -232,7 +232,7 @@ describe("Test the OccupationGroupService", () => {
       mockRepository.findParent.mockResolvedValue(expectedOccupationGroup);
 
       const actual = await service.findParent(givenId);
-      expect(mockRepository.findParent).toHaveBeenCalledWith(givenId);
+      expect(mockRepository.findParent).toHaveBeenCalledWith(givenId, undefined);
       // AND expect the returned occupationGroup
       expect(actual).toEqual(expectedOccupationGroup);
     });
@@ -247,7 +247,7 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.findParent(givenId);
 
       // THEN expect repository.findParent to have been called with the id
-      expect(mockRepository.findParent).toHaveBeenCalledWith(givenId);
+      expect(mockRepository.findParent).toHaveBeenCalledWith(givenId, undefined);
 
       // AND expect null to be returned
       expect(actual).toBeNull();
@@ -280,7 +280,7 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.findParent(givenId);
 
       // THEN expect repository.findById to have been called with the id
-      expect(mockRepository.findParent).toHaveBeenCalledWith(expectedOccupationGroup.id);
+      expect(mockRepository.findParent).toHaveBeenCalledWith(expectedOccupationGroup.id, undefined);
       // AND expect null to be returned
       expect(actual).toBeNull();
     });
@@ -310,7 +310,7 @@ describe("Test the OccupationGroupService", () => {
       mockRepository.findChildren.mockResolvedValue([expectedChildren]);
 
       const actual = await service.findChildren(givenParentId);
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenParentId);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenParentId, undefined);
 
       // AND expect the returned occupationGroup children
       expect(actual).toEqual([expectedChildren]);
@@ -325,7 +325,7 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.findChildren(givenId);
 
       // THEN expect repository.findChildren to have been called with the id
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenId);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenId, undefined);
       // AND expect empty array to be returned
       expect(actual).toEqual([]);
     });
@@ -355,7 +355,7 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.findChildren(givenParentId);
 
       // THEN expect repository.findChildren to have been called with the id
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(expectedChildren.parentId);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(expectedChildren.parentId, undefined);
       // AND expect empty array to be returned
       expect(actual).toEqual([]);
     });
@@ -390,7 +390,7 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.findById(givenId);
 
       // THEN expect repository.findById to have been called with the id
-      expect(mockRepository.findById).toHaveBeenCalledWith(givenId);
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenId, undefined);
 
       // AND expect the returned occupationGroup
       expect(actual).toEqual(expectedOccupationGroup);
@@ -407,7 +407,7 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.findById(givenId);
 
       // THEN expect repository.findById to have been called with the id
-      expect(mockRepository.findById).toHaveBeenCalledWith(givenId);
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenId, undefined);
 
       // AND expect null to be returned
       expect(actual).toBeNull();
@@ -473,7 +473,15 @@ describe("Test the OccupationGroupService", () => {
       );
 
       // THEN expect repository.findPaginated to have been called with the correct parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10), givenFilter);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        -1,
+        getMockStringId(10),
+        givenFilter,
+        undefined,
+        undefined
+      );
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({ _id: mockItems[9].id, createdAt: mockItems[9].createdAt });
@@ -527,7 +535,9 @@ describe("Test the OccupationGroupService", () => {
         givenLimit + 1,
         1,
         getMockStringId(10),
-        givenFilter
+        givenFilter,
+        undefined,
+        undefined
       );
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
@@ -578,7 +588,15 @@ describe("Test the OccupationGroupService", () => {
       );
 
       // AND expect repository.findPaginated to have been called with the decoded cursor
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10), givenFilter);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        -1,
+        getMockStringId(10),
+        givenFilter,
+        undefined,
+        undefined
+      );
       //AND expect the returned paginated result
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();
@@ -623,7 +641,15 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc, givenFilter);
 
       // THEN expect repository.findPaginated to have been called with the ascending sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, undefined, givenFilter);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        1,
+        undefined,
+        givenFilter,
+        undefined,
+        undefined
+      );
       // AND expect the returned result
       expect(actual.items).toHaveLength(5);
     });
@@ -731,7 +757,8 @@ describe("Test the OccupationGroupService", () => {
           {
             value: givenSearchValue,
             fields: givenSearchFields,
-          }
+          },
+          undefined
         );
         expect(mockOccupationGroupEmbeddingRepository.vectorSearch).not.toHaveBeenCalled();
         // AND expect a page of `limit` items and a keyset nextCursor pointing at the last item
@@ -773,7 +800,8 @@ describe("Test the OccupationGroupService", () => {
           {
             value: givenSearchValue,
             fields: givenSearchFields,
-          }
+          },
+          undefined
         );
       });
 
@@ -788,10 +816,18 @@ describe("Test the OccupationGroupService", () => {
         const actual = await service.searchPaginated(givenModelId, givenSearchValue, givenSearchFields, undefined, 10);
 
         // THEN expect the regex search to have been used and no vector search attempted
-        expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, undefined, undefined, {
-          value: givenSearchValue,
-          fields: givenSearchFields,
-        });
+        expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+          givenModelId,
+          11,
+          -1,
+          undefined,
+          undefined,
+          {
+            value: givenSearchValue,
+            fields: givenSearchFields,
+          },
+          undefined
+        );
         expect(mockOccupationGroupEmbeddingRepository.vectorSearch).not.toHaveBeenCalled();
         expect(actual.items).toHaveLength(1);
       });
@@ -1099,16 +1135,17 @@ describe("Test the OccupationGroupService", () => {
   });
 
   describe("validateModelForOccupationGroup", () => {
-    test("should return valid when model exists and is not released", async () => {
+    test("should return valid with availableLanguages when model exists and is not released", async () => {
       // GIVEN  a modelId
       const givenModelId = getMockStringId(1);
 
-      // AND the model exists and is not released
+      // AND the model exists, is not released, and has availableLanguages
       mockGetRepositoryRegistry.mockReturnValue({
         modelInfo: {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: false,
+            availableLanguages: ["en", "fr"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -1116,8 +1153,8 @@ describe("Test the OccupationGroupService", () => {
       // WHEN calling service.validateModelForOccupationGroup
       const actual = await service.validateModelForOccupationGroup(givenModelId);
 
-      // THEN expect it to return valid
-      expect(actual).toEqual(null);
+      // THEN expect it to return valid with availableLanguages
+      expect(actual).toEqual({ errorCode: null, availableLanguages: ["en", "fr"] });
     });
 
     test("should return invalid when model does not exist", async () => {
@@ -1137,7 +1174,7 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.validateModelForOccupationGroup(givenModelId);
 
       // THEN expect it to return invalid due to released model
-      expect(actual).toEqual(ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED);
+      expect(actual).toEqual({ errorCode: ModelForOccupationGroupValidationErrorCode.MODEL_IS_RELEASED });
     });
 
     test("should return invalid when getModelById throws", async () => {
@@ -1157,7 +1194,7 @@ describe("Test the OccupationGroupService", () => {
       const actual = await service.validateModelForOccupationGroup(givenModelId);
 
       // THEN expect it to return invalid due to error
-      expect(actual).toEqual(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
+      expect(actual).toEqual({ errorCode: ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB });
 
       // AND console.error was called
       expect(consoleErrorSpy).toHaveBeenCalledWith("Error validating model for occupation group:", givenError);
@@ -1271,11 +1308,10 @@ describe("Test the OccupationGroupService", () => {
       ]);
       // AND resolution uses single batched queries (no N+1): UUIDs -> refs+modelIds, then modelIds -> models
       expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledTimes(1);
-      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledWith([
-        givenUuidA,
-        givenUuidMissing,
-        givenUuidB,
-      ]);
+      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledWith(
+        [givenUuidA, givenUuidMissing, givenUuidB],
+        undefined
+      );
     });
 
     test("should return a model at most once even if several history UUIDs map to the same model", async () => {

@@ -17,50 +17,70 @@ import { getOccupationDocReference, OccupationDocument } from "esco/occupations/
 import { IOccupationReference, IOccupationReferenceDoc } from "esco/occupations/_shared/occupationReference.types";
 import { OccupationGroupModelPaths } from "../model/OccupationGroup.model";
 import { OccupationHierarchyModelPaths } from "esco/occupationHierarchy/occupationHierarchyModel";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 
 type ModelConstructed = { constructor: mongoose.Model<unknown> };
 
-export const populateOccupationGroupParentOptions = {
-  path: OccupationGroupModelPaths.parent,
-  populate: {
-    path: OccupationHierarchyModelPaths.parentId,
-    transform: function (doc: ModelConstructed & OccupationGroupDocument): IOccupationGroupReferenceDoc | null {
-      // return only the relevant fields
-      const modelName = (doc as ModelConstructed).constructor.modelName;
-      if (modelName === MongooseModelName.OccupationGroup) {
-        return getOccupationGroupDocReference(doc);
-      }
-      console.error(`Parent is not an OccupationGroup: ${modelName}`);
-      return null;
+export function makePopulateOccupationGroupParentOptions(language: string) {
+  return {
+    path: OccupationGroupModelPaths.parent,
+    populate: {
+      path: OccupationHierarchyModelPaths.parentId,
+      transform: function (doc: ModelConstructed & OccupationGroupDocument): IOccupationGroupReferenceDoc | null {
+        if (!doc) {
+          return null;
+        }
+        // return only the relevant fields
+        const modelName = (doc as ModelConstructed).constructor.modelName;
+        if (modelName === MongooseModelName.OccupationGroup) {
+          return getOccupationGroupDocReference(doc, language);
+        }
+        console.error(`Parent is not an OccupationGroup: ${modelName}`);
+        return null;
+      },
     },
-  },
-  transform: function (doc: IPopulatedOccupationHierarchyPairDoc): IOccupationGroupReference | null {
-    return getOccupationHierarchyParentReference(doc) as IOccupationGroupReference;
-  },
-};
+    transform: function (doc: IPopulatedOccupationHierarchyPairDoc): IOccupationGroupReference | null {
+      return getOccupationHierarchyParentReference(doc) as IOccupationGroupReference;
+    },
+  };
+}
 
-export const populateOccupationGroupChildrenOptions = {
-  path: OccupationGroupModelPaths.children,
-  populate: {
-    path: OccupationHierarchyModelPaths.childId,
-    transform: function (
-      doc: ModelConstructed & (OccupationDocument | OccupationGroupDocument)
-    ): IOccupationGroupReferenceDoc | IOccupationReferenceDoc | null {
-      // return only the relevant fields
-      const modelName = (doc as ModelConstructed).constructor.modelName;
-      if (modelName === MongooseModelName.Occupation) {
-        return getOccupationDocReference(doc as OccupationDocument); // NOSONAR
-      }
-      if (modelName === MongooseModelName.OccupationGroup) {
-        return getOccupationGroupDocReference(doc as OccupationGroupDocument); // NOSONAR
-      }
-      console.error(`Child is not an OccupationGroup or ESCO Occupation or Local Occupation: ${modelName}`);
-      return null;
+export function makePopulateOccupationGroupChildrenOptions(language: string) {
+  return {
+    path: OccupationGroupModelPaths.children,
+    populate: {
+      path: OccupationHierarchyModelPaths.childId,
+      transform: function (
+        doc: ModelConstructed & (OccupationDocument | OccupationGroupDocument)
+      ): IOccupationGroupReferenceDoc | IOccupationReferenceDoc | null {
+        if (!doc) {
+          return null;
+        }
+        // return only the relevant fields
+        const modelName = (doc as ModelConstructed).constructor.modelName;
+        if (modelName === MongooseModelName.Occupation) {
+          return getOccupationDocReference(doc as OccupationDocument, language); // NOSONAR
+        }
+        if (modelName === MongooseModelName.OccupationGroup) {
+          return getOccupationGroupDocReference(doc as OccupationGroupDocument, language); // NOSONAR
+        }
+        console.error(`Child is not an OccupationGroup or ESCO Occupation or Local Occupation: ${modelName}`);
+        return null;
+      },
     },
-  },
-  transform: function (
-    doc: IPopulatedOccupationHierarchyPairDoc
-  ): IOccupationGroupReference | IOccupationReference | null {
-    return getOccupationHierarchyChildReference(doc) as IOccupationGroupReference | IOccupationReference;
-  },
-};
+    transform: function (
+      doc: IPopulatedOccupationHierarchyPairDoc
+    ): IOccupationGroupReference | IOccupationReference | null {
+      return getOccupationHierarchyChildReference(doc) as IOccupationGroupReference | IOccupationReference;
+    },
+  };
+}
+
+// Backward-compatible fallback-language factories for write paths.
+// Named with the same identifiers as the former constants so callers only need to add ().
+export function populateOccupationGroupParentOptions() {
+  return makePopulateOccupationGroupParentOptions(getFallbackLanguageConfig().dbKeyName);
+}
+export function populateOccupationGroupChildrenOptions() {
+  return makePopulateOccupationGroupChildrenOptions(getFallbackLanguageConfig().dbKeyName);
+}

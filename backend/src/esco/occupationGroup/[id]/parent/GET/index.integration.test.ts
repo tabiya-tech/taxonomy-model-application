@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
 
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
+import LanguageAPISpecs from "api-specifications/language";
 
 import { StatusCodes } from "server/httpUtils";
 import { handler as occupationGroupParentHandler } from "./index";
@@ -86,5 +87,44 @@ describe("Test for occupationGroup parent GET handler with a DB", () => {
     expect(validateResponse(actualBody)).toBeTruthy();
     expect(actualBody.id).toEqual(givenParent.id);
     expect(actualBody.children[0].id).toEqual(givenChild.id);
+  });
+
+  test("GET should set Content-Language and Vary response headers", async () => {
+    const givenModel = await getRepositoryRegistry().modelInfo.create({
+      name: "Test Model",
+      description: "Test Description",
+      locale: { shortCode: "en", name: "English", UUID: randomUUID() },
+      license: "MIT",
+      UUIDHistory: [],
+    });
+    const givenModelId = givenModel.id;
+    const repository = getRepositoryRegistry().OccupationGroup;
+    const givenParent = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "parent"));
+    const givenChild = await repository.create(
+      getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child", givenParent.code)
+    );
+    await getRepositoryRegistry().occupationHierarchy.createMany(givenModelId, [
+      {
+        parentId: givenParent.id,
+        parentType: ObjectTypes.ISCOGroup,
+        childId: givenChild.id,
+        childType: ObjectTypes.ISCOGroup,
+      },
+    ]);
+
+    const givenEvent = {
+      httpMethod: "GET",
+      headers: {},
+      path: `/models/${givenModelId}/occupationGroups/${givenChild.id}/parent`,
+      pathParameters: { modelId: givenModelId, id: givenChild.id },
+    };
+
+    const actualResponse = await occupationGroupParentHandler(givenEvent as unknown as APIGatewayProxyEvent);
+
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(actualResponse.headers?.["Content-Language"]).toEqual(
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode
+    );
+    expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
   });
 });

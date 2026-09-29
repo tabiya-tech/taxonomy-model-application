@@ -6,6 +6,7 @@ import {
   IOccupationGroupReference,
   IPartialUpdateOccupationGroupSpec,
   IUpdateOccupationGroupSpec,
+  ValidateModelForOccupationGroupResult,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { IModelInfoReference } from "modelInfo/modelInfo.types";
@@ -56,28 +57,31 @@ export interface IOccupationGroupService {
    * Finds an OccupationGroup entry by its ID.
    *
    * @param {string} id - The unique ID of the OccupationGroup entry.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<IOccupationGroup|null>} - A Promise that resolves to the found OccupationGroup entry or null if not found.
    * Rejects with an error if the operation fails.
    */
-  findById(id: string): Promise<IOccupationGroup | null>;
+  findById(id: string, language?: string): Promise<IOccupationGroup | null>;
 
   /**
    * Finds an OccupationGroup parent entry by its ID.
    *
    * @param {string} id - The unique ID of the OccupationGroup entry.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<IOccupationGroup|null>} - A Promise that resolves to the found OccupationGroup parent entry or null if not found.
    * Rejects with an error if the operation fails.
    */
-  findParent(id: string): Promise<IOccupationGroup | null>;
+  findParent(id: string, language?: string): Promise<IOccupationGroup | null>;
 
   /**
    * Finds an OccupationGroup children entry by its ID.
    *
    * @param {string} id - The unique ID of the OccupationGroup entry.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<IOccupationGroupChild[]>} - A Promise that resolves to the found OccupationGroup children entry or [] if not found.
    * Rejects with an error if the operation fails.
    */
-  findChildren(id: string): Promise<IOccupationGroupChild[]>;
+  findChildren(id: string, language?: string): Promise<IOccupationGroupChild[]>;
 
   /**
    * Returns paginated OccupationGroups. The OccupationGroups are transformed to objects (via .lean()), however
@@ -87,6 +91,7 @@ export interface IOccupationGroupService {
    * @param {number} limit - The maximum number of OccupationGroups to return.
    * @param {boolean} [desc] - Whether to sort the results in descending order. Default is true.
    * @param {FindPaginatedFilter} [filter] - Optional filter to apply to the query.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<{items: IOccupationGroup[], nextCursor: {_id: string, createdAt: Date} | null}>} - An array of IOccupationGroups and the next cursor (if any)
    * Rejects with an error if the operation fails.
    */
@@ -95,7 +100,8 @@ export interface IOccupationGroupService {
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
     desc?: boolean,
-    filter?: FindPaginatedFilter
+    filter?: FindPaginatedFilter,
+    language?: string
   ): Promise<{ items: IOccupationGroup[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   /**
@@ -111,6 +117,8 @@ export interface IOccupationGroupService {
    * @param {EmbeddableField[]} searchFields - The fields to search the value on.
    * @param {string | undefined} cursor - The opaque pagination cursor from a previous page, if any.
    * @param {number} limit - The maximum number of OccupationGroups to return.
+   * @param {string} [language] - The language dbKeyName to resolve returned fields to. Matching stays on the
+   * fall back language regardless of this value. Defaults to fallback.
    * @return {Promise<{ items: IOccupationGroup[]; nextCursor: string | null }>} - The page of OccupationGroups
    * (ordered by relevance for vector search) and the encoded cursor of the next page, if any.
    */
@@ -119,15 +127,18 @@ export interface IOccupationGroupService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: IOccupationGroup[]; nextCursor: string | null }>;
 
   /**
-   * Validates that a model exists and is not released for occupation group creation
+   * Validates that a model exists and is not released for occupation group creation.
+   * On success, also returns the model's availableLanguages for language resolution.
    * @param {string} modelId - The model ID to validate
-   * @return {Promise<ModelForOccupationGroupValidationErrorCode | null>} - Returns null if valid, otherwise the error code
+   * @return {Promise<ValidateModelForOccupationGroupResult>} - The validation result, carrying the model's
+   * availableLanguages on success.
    */
-  validateModelForOccupationGroup(modelId: string): Promise<ModelForOccupationGroupValidationErrorCode | null>;
+  validateModelForOccupationGroup(modelId: string): Promise<ValidateModelForOccupationGroupResult>;
 
   /**
    * Fully replaces the mutable fields of an OccupationGroup (PUT semantics).
@@ -176,8 +187,9 @@ export interface IOccupationGroupService {
    * details. UUIDs that do not resolve to an existing occupation group are skipped, and each model appears once.
    *
    * @param {string} occupationGroupId - The ID of the OccupationGroup.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<IOccupationGroupHistoryEntry[] | null>} - The resolved history entries in UUIDHistory order,
    * or null if the OccupationGroup does not exist.
    */
-  getHistory(occupationGroupId: string): Promise<IOccupationGroupHistoryEntry[] | null>;
+  getHistory(occupationGroupId: string, language?: string): Promise<IOccupationGroupHistoryEntry[] | null>;
 }

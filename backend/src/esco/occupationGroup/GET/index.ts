@@ -9,15 +9,15 @@ import { RoleRequired } from "auth/authorizer";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { ajvInstance } from "validator";
 import { getResourcesBaseUrl } from "server/config/config";
-import { errorResponse, errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponse, errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { ModelForOccupationGroupValidationErrorCode } from "../_shared/OccupationGroup.types";
 import { IOccupationGroupService } from "../services/occupationGroup.service.type";
 import { decodeCursor, encodeCursor, getOccupationGroupsPathParameters } from "./query";
 import { transformPaginated } from "./response";
 import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
 import { EmbeddableField } from "embeddings/service/types";
 import { decodeSearchCursor } from "esco/common/searchCursor";
+import { resolveLanguageFromModelResult } from "../_shared/resolveLanguageFromModelResult";
 
 /**
  * Checks that a cursor token is well-formed for one of the two search pagination strategies: a keyset cursor
@@ -99,9 +99,28 @@ export class OccupationGroupListController {
    *        name: root
    *        schema:
    *          $ref: '#/components/schemas/OccupationGroupRequestQueryParamSchemaGET/properties/root'
+   *      - in: header
+   *        name: Accept-Language
+   *        required: false
+   *        schema:
+   *          type: string
+   *          example: "fr, en;q=0.9"
+   *        description: >
+   *          Preferred response language. The server picks the best match from the model's available languages
+   *          and falls back to the default language if none match.
    *    responses:
    *      '200':
    *        description: Successfully retrieved the paginated occupation groups.
+   *        headers:
+   *          Content-Language:
+   *            schema:
+   *              type: string
+   *              example: "fr"
+   *            description: The language of the response body.
+   *          Vary:
+   *            schema:
+   *              type: string
+   *              example: "Accept-Language"
    *        content:
    *          application/json:
    *            schema:
@@ -164,22 +183,20 @@ export class OccupationGroupListController {
       const validationResult = await this.occupationGroupService.validateModelForOccupationGroup(
         requestPathParameter.modelId
       );
-      if (validationResult === ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          OccupationGroupGETAPISpecs.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${requestPathParameter.modelId}`
-        );
-      }
-      if (validationResult === ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          OccupationGroupGETAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
+      const langResult = resolveLanguageFromModelResult(
+        event,
+        validationResult,
+        requestPathParameter.modelId,
+        OccupationGroupGETAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_OCCUPATION_GROUPS
+      );
+      if ("statusCode" in langResult) return langResult;
+      const { languageConfig } = langResult;
+      const language = languageConfig.dbKeyName;
+      const languageHeaders = {
+        "Content-Type": "application/json",
+        "Content-Language": languageConfig.shortCode,
+        Vary: "Accept-Language",
+      };
 
       const rawQueryParams = (event.queryStringParameters || {}) as {
         limit?: string;
@@ -236,11 +253,13 @@ export class OccupationGroupListController {
           queryParams.query,
           searchFields,
           queryParams.cursor ?? undefined,
-          limit
+          limit,
+          language
         );
-        return responseJSON(
+        return response(
           StatusCodes.OK,
-          transformPaginated(searchPage.items, getResourcesBaseUrl(), limit, searchPage.nextCursor)
+          transformPaginated(searchPage.items, getResourcesBaseUrl(), limit, searchPage.nextCursor),
+          languageHeaders
         );
       }
 
@@ -266,7 +285,8 @@ export class OccupationGroupListController {
         true,
         {
           root: queryParams.root,
-        }
+        },
+        language
       );
 
       let nextCursor: string | null = null;
@@ -276,9 +296,10 @@ export class OccupationGroupListController {
           currentPageOccupationGroups.nextCursor.createdAt
         );
       }
-      return responseJSON(
+      return response(
         StatusCodes.OK,
-        transformPaginated(currentPageOccupationGroups.items, getResourcesBaseUrl(), limit, nextCursor)
+        transformPaginated(currentPageOccupationGroups.items, getResourcesBaseUrl(), limit, nextCursor),
+        languageHeaders
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

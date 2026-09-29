@@ -1,9 +1,11 @@
 import "_test_utilities/consoleMock";
-import { Connection } from "mongoose";
+import mongoose, { Connection } from "mongoose";
+import { randomUUID } from "node:crypto";
 import addFormats from "ajv-formats";
 import Ajv, { ValidateFunction } from "ajv";
 
 import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
+import LanguageAPISpecs from "api-specifications/language";
 
 import { initOnce } from "server/init";
 import { StatusCodes } from "server/httpUtils";
@@ -27,11 +29,12 @@ async function createOccupationGroupsInDB(count: number, modelId: string = getMo
   return occupationGroups;
 }
 
-function buildRequestEvent(modelId: string, queryStringParameters: object) {
+function buildRequestEvent(modelId: string, queryStringParameters: object, headers?: Record<string, string>) {
   return {
     httpMethod: "GET",
     headers: {
       "Content-Type": "application/json",
+      ...headers,
     },
     pathParameters: { modelId: modelId.toString() },
     path: `/models/${modelId}/occupationGroups`,
@@ -224,5 +227,61 @@ describe("Test for occupationGroup GET handler with a DB", () => {
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
     const actualIds = JSON.parse(actualResponse.body).data.map((g: { id: string }) => g.id);
     expect(actualIds.sort()).toEqual([givenNursing.id, givenNursingAssoc.id].sort());
+  });
+
+  test("GET should set Content-Language and Vary response headers", async () => {
+    // GIVEN a Taxonomy model is in the database
+    const givenModelInfo = await createModelInDB();
+    const givenEvent = buildRequestEvent(givenModelInfo.id, {});
+
+    // WHEN the handler is called without an Accept-Language header
+    const actualResponse = await occupationGroupHandler(givenEvent as never);
+
+    // THEN expect OK, and the fallback language to be reflected in the Content-Language and Vary headers
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(actualResponse.headers?.["Content-Language"]).toEqual(
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode
+    );
+    expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
+  });
+
+  test("GET should return French values when Accept-Language: fr is requested", async () => {
+    // GIVEN a model that declares English and French as available languages
+    const FALLBACK_LANG = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE;
+    const SECONDARY_LANG = LanguageAPISpecs.Constants.Languages[1]; // French
+    const givenModelInfo = await getRepositoryRegistry().modelInfo.create({
+      name: "language negotiation model",
+      description: "",
+      locale: { shortCode: "test", name: "test locale", UUID: randomUUID() },
+      license: "",
+      UUIDHistory: [],
+      availableLanguages: [FALLBACK_LANG.shortCode, SECONDARY_LANG.shortCode],
+    });
+
+    // AND an occupation group translated in both English and French
+    const givenOccupationGroup = await getRepositoryRegistry().OccupationGroup.create(
+      getSimpleNewISCOGroupSpec(givenModelInfo.id, "English label")
+    );
+    await getRepositoryRegistry().OccupationGroup.Model.collection.updateOne(
+      { _id: new mongoose.Types.ObjectId(givenOccupationGroup.id) },
+      {
+        $set: {
+          preferredLabel: {
+            [FALLBACK_LANG.dbKeyName]: "English label",
+            [SECONDARY_LANG.dbKeyName]: "Libellé français",
+          },
+        },
+      }
+    );
+
+    // WHEN requesting the list with Accept-Language: fr
+    const givenEvent = buildRequestEvent(givenModelInfo.id, {}, { "accept-language": SECONDARY_LANG.shortCode });
+    const actualResponse = await occupationGroupHandler(givenEvent as never);
+
+    // THEN expect OK, the French Content-Language header, and the French preferredLabel in the body
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(actualResponse.headers?.["Content-Language"]).toEqual(SECONDARY_LANG.shortCode);
+    const actualBody = JSON.parse(actualResponse.body);
+    expect(actualBody.data[0].preferredLabel).toEqual("Libellé français");
   });
 });

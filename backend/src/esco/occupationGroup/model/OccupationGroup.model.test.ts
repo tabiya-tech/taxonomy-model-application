@@ -45,8 +45,8 @@ describe("Test the definition of the OccupationGroup Model", () => {
   });
 
   const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-  // Wraps a flat string into a localized sub document keyed by the fallback language, e.g. "Managers" -> { en: "Managers" }.
-  const wrapTranslated = (value: string) => ({ [fallbackDbKeyName]: value });
+  // Wraps a flat string into a localized sub document keyed by the fallback language, e.g. "Managers" -> Map { en => "Managers" }.
+  const wrapTranslated = (value: string) => new Map([[fallbackDbKeyName, value]]);
 
   test.each([
     [
@@ -130,10 +130,13 @@ describe("Test the definition of the OccupationGroup Model", () => {
     // AND the document to be saved successfully
     await givenOccupationGroupDocument.save();
 
-    // AND the toObject() transformation to return the correct properties, with the translatable fields flattened
-    // back to the fallback language string, since that is what the schema's transform does.
+    // AND the toObject() transformation to return the correct properties, with the translatable fields as
+    // plain objects (unwrapping to the flat language string is now done by the repository, not the model).
     expect(givenOccupationGroupDocument.toObject()).toEqual({
       ...givenFlatObject,
+      preferredLabel: givenObject.preferredLabel,
+      altLabels: givenObject.altLabels,
+      description: givenObject.description,
       modelId: givenObject.modelId.toString(),
       id: givenOccupationGroupDocument._id.toString(),
       createdAt: expect.any(Date),
@@ -163,8 +166,9 @@ describe("Test the definition of the OccupationGroup Model", () => {
     await givenOccupationGroupDocument.save();
     const actualObject = givenOccupationGroupDocument.toObject();
 
-    // THEN expect description to be returned exactly as stored, not treated as untranslated and defaulted to ""
-    expect(actualObject.description).toEqual(givenWhitespaceOnlyValue);
+    // THEN expect description to be returned as a plain object (the model no longer flattens to a string;
+    // the repository does that). The value stored is the fallback-language wrapper.
+    expect(actualObject.description).toEqual(wrapTranslated(givenWhitespaceOnlyValue));
   });
 
   test("should not drop an altLabels item that lacks the fallback language, e.g. from data written before validation existed", async () => {
@@ -194,9 +198,9 @@ describe("Test the definition of the OccupationGroup Model", () => {
     const actualDoc = await OccupationGroupModel.findById(givenOccupationGroupDocument._id).exec();
     const actualObject = actualDoc!.toObject();
 
-    // THEN expect both items to be present, the one lacking the fallback language read as an empty string rather
-    // than being silently dropped from the array
-    expect(actualObject.altLabels).toEqual(["kept", ""]);
+    // THEN expect both items to be present as Maps (mongoose Map paths serialise as Maps in toObject()).
+    // The item that lacks the fallback language key is included as-is without being silently dropped.
+    expect(actualObject.altLabels).toEqual([new Map([[fallbackDbKeyName, "kept"]]), new Map([["fr", "sans anglais"]])]);
   });
 
   describe("Validate OccupationGroup fields", () => {

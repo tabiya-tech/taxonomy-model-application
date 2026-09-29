@@ -20,6 +20,8 @@ import OccupationGroupAPISpecs from "api-specifications/esco/occupationGroup";
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
 import { EmbeddableField } from "embeddings/service/types";
+import { APIGatewayProxyEvent } from "aws-lambda";
+import LanguageAPISpecs from "api-specifications/language";
 
 jest.mock("server/serviceRegistry/serviceRegistry");
 jest.mock("./query");
@@ -123,7 +125,9 @@ describe("OccupationGroupListController", () => {
     mockTransformPaginated.mockReturnValue(transformed as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.occupationGroup.findPaginated = jest.fn().mockResolvedValue(paginatedResult);
 
     const controller = new OccupationGroupListController();
@@ -151,7 +155,9 @@ describe("OccupationGroupListController", () => {
     const givenItems = [{ ...getIOccupationGroupMockData(1, givenModelId), UUID: "foo", UUIDHistory: ["foo"] }];
     const givenNextCursor = "nextOpaqueCursor";
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.occupationGroup.searchPaginated = jest
       .fn()
       .mockResolvedValue({ items: givenItems, nextCursor: givenNextCursor });
@@ -174,7 +180,8 @@ describe("OccupationGroupListController", () => {
       "nursing",
       [EmbeddableField.preferredLabel, EmbeddableField.description],
       undefined,
-      100
+      100,
+      "en"
     );
     expect(mockServiceRegistry.occupationGroup.findPaginated).not.toHaveBeenCalled();
     // AND the response to be built with the service's already-encoded nextCursor
@@ -198,7 +205,9 @@ describe("OccupationGroupListController", () => {
     const givenItems = [{ ...getIOccupationGroupMockData(1, givenModelId), UUID: "foo", UUIDHistory: ["foo"] }];
     const givenNextCursor = "nextOpaqueCursor";
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.occupationGroup.searchPaginated = jest
       .fn()
       .mockResolvedValue({ items: givenItems, nextCursor: givenNextCursor });
@@ -220,7 +229,8 @@ describe("OccupationGroupListController", () => {
       "nursing",
       [EmbeddableField.preferredLabel],
       validCursor,
-      100
+      100,
+      "en"
     );
   });
 
@@ -233,7 +243,9 @@ describe("OccupationGroupListController", () => {
     mockGetOccupationGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.occupationGroup.searchPaginated = jest.fn();
 
     const controller = new OccupationGroupListController();
@@ -297,7 +309,7 @@ describe("OccupationGroupListController", () => {
         nextCursor: { _id: givenOccupationGroups[1].id, createdAt: givenOccupationGroups[0].createdAt },
       }),
       searchPaginated: jest.fn(),
-      validateModelForOccupationGroup: jest.fn().mockResolvedValue(null),
+      validateModelForOccupationGroup: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
       findChildren: jest.fn().mockResolvedValue([]),
       setParent: jest.fn(),
       getHistory: jest.fn(),
@@ -332,7 +344,8 @@ describe("OccupationGroupListController", () => {
       undefined,
       limit,
       true,
-      expect.any(Object)
+      expect.any(Object),
+      "en"
     );
     // AND the response body contains a nextCursor (base64 encoded)
     const responseBody = JSON.parse(actualResponse.body);
@@ -443,7 +456,9 @@ describe("OccupationGroupListController", () => {
     mockGetOccupationGroupsPathParameters.mockReturnValue({ modelId: "model-1" } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
 
     const controller = new OccupationGroupListController();
     const actualResponse = await controller.getOccupationGroups(
@@ -464,7 +479,7 @@ describe("OccupationGroupListController", () => {
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
       .fn()
-      .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+      .mockResolvedValue({ errorCode: ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID });
 
     const controller = new OccupationGroupListController();
     const actualResponse = await controller.getOccupationGroups(buildEvent("/models/model-1/occupationGroups"));
@@ -491,7 +506,7 @@ describe("OccupationGroupListController", () => {
       setParent: jest.fn(),
       validateModelForOccupationGroup: jest
         .fn()
-        .mockResolvedValue(ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+        .mockResolvedValue({ errorCode: ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB }),
       getHistory: jest.fn(),
       update: jest.fn(),
       patch: jest.fn(),
@@ -534,7 +549,7 @@ describe("OccupationGroupListController", () => {
       findPaginated: jest.fn(),
       searchPaginated: jest.fn(),
       findParent: jest.fn().mockResolvedValue(null),
-      validateModelForOccupationGroup: jest.fn(),
+      validateModelForOccupationGroup: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
       findChildren: jest.fn(),
       getHistory: jest.fn(),
       setParent: jest.fn(),
@@ -642,7 +657,9 @@ describe("OccupationGroupListController", () => {
     // AND a service that resolves to an empty page
     const expectedDefaultLimit = 100;
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     const givenFindPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
     mockServiceRegistry.occupationGroup.findPaginated = givenFindPaginated;
     mockTransformPaginated.mockReturnValue({ data: [], limit: expectedDefaultLimit, nextCursor: null } as never);
@@ -662,9 +679,16 @@ describe("OccupationGroupListController", () => {
     // AND expect the raw 'root' query parameter to have been parsed
     expect(mockParseBooleanQueryParam).toHaveBeenCalledWith(givenRawRoot);
     // AND expect the parsed value to be forwarded to the service as the root filter
-    expect(givenFindPaginated).toHaveBeenCalledWith(givenModelId, undefined, expectedDefaultLimit, true, {
-      root: givenParsedRoot,
-    });
+    expect(givenFindPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      undefined,
+      expectedDefaultLimit,
+      true,
+      {
+        root: givenParsedRoot,
+      },
+      "en"
+    );
   });
 
   test("should delegate to searchPaginated when a query and a valid keyset cursor are provided", async () => {
@@ -678,7 +702,9 @@ describe("OccupationGroupListController", () => {
     const givenItems = [{ ...getIOccupationGroupMockData(1, givenModelId), UUID: "foo", UUIDHistory: ["foo"] }];
     const givenNextCursor = "nextOpaqueCursor";
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.occupationGroup.searchPaginated = jest
       .fn()
       .mockResolvedValue({ items: givenItems, nextCursor: givenNextCursor });
@@ -708,7 +734,9 @@ describe("OccupationGroupListController", () => {
     mockGetOccupationGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.occupationGroup.validateModelForOccupationGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.occupationGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
     mockTransformPaginated.mockReturnValue({ data: [], limit: 100, nextCursor: null } as never);
 
@@ -721,5 +749,169 @@ describe("OccupationGroupListController", () => {
     } as never;
     const actualResponse = await handler(event);
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+  });
+
+  describe("language negotiation", () => {
+    const givenModelId = getMockStringId(1);
+    const FALLBACK_LANG = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE;
+    const SECONDARY_LANG = LanguageAPISpecs.Constants.Languages[1]; // French
+    const givenAvailableLanguages = [FALLBACK_LANG.shortCode, SECONDARY_LANG.shortCode];
+
+    function buildEvent(
+      headers?: Record<string, string>,
+      queryStringParameters?: Record<string, string>
+    ): APIGatewayProxyEvent {
+      const validatePathFunction = jest.fn().mockReturnValue(true);
+      const validateQueryFunction = jest.fn().mockReturnValue(true);
+      getMockGetSchema()
+        .mockReturnValueOnce(validatePathFunction as never)
+        .mockReturnValueOnce(validateQueryFunction as never);
+      mockGetOccupationGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+      mockTransformPaginated.mockReturnValue({ data: [], limit: 100, nextCursor: null } as never);
+
+      return {
+        httpMethod: HTTP_VERBS.GET,
+        path: `/models/${givenModelId}/occupationGroups`,
+        pathParameters: { modelId: givenModelId },
+        queryStringParameters: queryStringParameters ?? {},
+        headers: headers ?? {},
+      } as unknown as APIGatewayProxyEvent;
+    }
+
+    function buildServiceMock(availableLanguages: string[] = givenAvailableLanguages): IOccupationGroupService {
+      return {
+        findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        searchPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+        validateModelForOccupationGroup: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages }),
+      } as unknown as IOccupationGroupService;
+    }
+
+    test("GET should serve the fallback language and set headers when no Accept-Language header is present", async () => {
+      // GIVEN a request without an Accept-Language header
+      const givenEvent = buildEvent();
+      const givenOccupationGroupServiceMock = buildServiceMock();
+      mockGetServiceRegistry().occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN calling the handler
+      const controller = new OccupationGroupListController();
+      const actualResponse = await controller.getOccupationGroups(givenEvent);
+
+      // THEN expect OK
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      // AND the fallback language is served
+      expect(actualResponse.headers?.["Content-Language"]).toEqual(FALLBACK_LANG.shortCode);
+      expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
+      // AND the service receives the fallback language
+      expect(givenOccupationGroupServiceMock.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        undefined,
+        expect.any(Number),
+        true,
+        expect.any(Object),
+        FALLBACK_LANG.dbKeyName
+      );
+    });
+
+    test.each([
+      // [description, acceptLanguage header, expected Content-Language served, expected dbKeyName passed to service]
+      [
+        "serve the fallback language when the client explicitly requests it",
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.dbKeyName,
+      ],
+      [
+        "serve a secondary language when the model has it and the client requests it",
+        SECONDARY_LANG.shortCode,
+        SECONDARY_LANG.shortCode,
+        SECONDARY_LANG.dbKeyName,
+      ],
+      [
+        "fall back to the fallback language when the client requests an unsupported language",
+        "es",
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.dbKeyName,
+      ],
+      [
+        "fall back to the fallback language when the Accept-Language header is malformed",
+        ";;;not-a-language;;;",
+        FALLBACK_LANG.shortCode,
+        FALLBACK_LANG.dbKeyName,
+      ],
+      [
+        "serve the highest-quality language from a quality-value header",
+        `${FALLBACK_LANG.shortCode};q=0.5, ${SECONDARY_LANG.shortCode};q=0.9`,
+        SECONDARY_LANG.shortCode,
+        SECONDARY_LANG.dbKeyName,
+      ],
+    ])("GET should %s", async (_description, givenAcceptLanguage, expectedContentLanguage, expectedDbKeyName) => {
+      // GIVEN a model with [en, fr] and the client sends Accept-Language: ${givenAcceptLanguage}
+      const givenEvent = buildEvent({ "accept-language": givenAcceptLanguage });
+      const givenOccupationGroupServiceMock = buildServiceMock();
+      mockGetServiceRegistry().occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN the handler is called
+      const controller = new OccupationGroupListController();
+      const actualResponse = await controller.getOccupationGroups(givenEvent);
+
+      // THEN it responds OK and serves ${expectedContentLanguage} to both the client and repository
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(actualResponse.headers?.["Content-Language"]).toEqual(expectedContentLanguage);
+      expect(givenOccupationGroupServiceMock.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        undefined,
+        expect.any(Number),
+        true,
+        expect.any(Object),
+        expectedDbKeyName
+      );
+    });
+
+    test("GET should serve the fallback language when availableLanguages is empty (MODEL_IS_RELEASED)", async () => {
+      // GIVEN the model returns availableLanguages: [] (as MODEL_IS_RELEASED does)
+      const givenEvent = buildEvent({ "accept-language": SECONDARY_LANG.shortCode });
+      const givenOccupationGroupServiceMock = buildServiceMock([]);
+      mockGetServiceRegistry().occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN calling the handler
+      const controller = new OccupationGroupListController();
+      const actualResponse = await controller.getOccupationGroups(givenEvent);
+
+      // THEN the fallback language is served regardless of the Accept-Language header
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(actualResponse.headers?.["Content-Language"]).toEqual(FALLBACK_LANG.shortCode);
+      // AND the service receives the fallback language
+      expect(givenOccupationGroupServiceMock.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        undefined,
+        expect.any(Number),
+        true,
+        expect.any(Object),
+        FALLBACK_LANG.dbKeyName
+      );
+    });
+
+    test("GET should pass the resolved language to searchPaginated on the search path", async () => {
+      // GIVEN a request with a query param (search path) and a secondary-language Accept-Language header
+      const givenEvent = buildEvent({ "accept-language": SECONDARY_LANG.shortCode }, { query: "nursing" });
+      const givenOccupationGroupServiceMock = buildServiceMock();
+      mockGetServiceRegistry().occupationGroup = givenOccupationGroupServiceMock;
+
+      // WHEN calling the handler
+      const controller = new OccupationGroupListController();
+      const actualResponse = await controller.getOccupationGroups(givenEvent);
+
+      // THEN expect OK, the secondary language served, and forwarded to searchPaginated
+      expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+      expect(actualResponse.headers?.["Content-Language"]).toEqual(SECONDARY_LANG.shortCode);
+      expect(givenOccupationGroupServiceMock.searchPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        "nursing",
+        expect.any(Array),
+        undefined,
+        expect.any(Number),
+        SECONDARY_LANG.dbKeyName
+      );
+    });
   });
 });
