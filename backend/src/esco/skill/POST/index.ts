@@ -15,7 +15,7 @@ import {
   SkillType,
   ReuseLevel,
 } from "esco/skill/_shared/skill.types";
-import { SkillModelValidationError } from "esco/skill/services/skill.service.types";
+import { SkillLanguageValidationError, SkillModelValidationError } from "esco/skill/services/skill.service.types";
 import { getResourcesBaseUrl } from "server/config/config";
 
 export class SkillPostController {
@@ -114,6 +114,15 @@ export class SkillPostController {
       const newSkill = await service.create(newSkillSpec);
       return responseJSON(StatusCodes.CREATED, buildPOSTResponse(newSkill, getResourcesBaseUrl()));
     } catch (error: unknown) {
+      if (error instanceof SkillLanguageValidationError) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          SkillAPISpecs.POST.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+          `Field '${error.field}' uses a language not available in this model`,
+          `Unsupported language: '${error.language}'`
+        );
+      }
+
       if (error instanceof SkillModelValidationError) {
         switch (error.code) {
           case ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID:

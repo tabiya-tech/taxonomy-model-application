@@ -73,14 +73,14 @@ describe("Test for occupation Skills GET handler with a DB", () => {
     });
     const givenSkill = await getRepositoryRegistry().skill.create({
       modelId: givenModelId,
-      preferredLabel: "Skill",
+      preferredLabel: { en: "Skill" },
       originUri: "http://example.com/skill1",
       UUIDHistory: [randomUUID()],
       isLocalized: false,
-      description: "description",
+      description: { en: "description" },
       altLabels: [],
-      definition: "definition",
-      scopeNote: "scopeNote",
+      definition: { en: "definition" },
+      scopeNote: { en: "scopeNote" },
       skillType: SkillType.Knowledge,
       reuseLevel: ReuseLevel.CrossSector,
     });

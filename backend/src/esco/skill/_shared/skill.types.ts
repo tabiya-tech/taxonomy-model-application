@@ -6,6 +6,7 @@ import { IOccupationReference } from "esco/occupations/_shared/occupationReferen
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
+import LanguageAPISpecs from "api-specifications/language";
 
 /**
  * Enum for the different types of skills.
@@ -52,6 +53,24 @@ export interface ISkillDoc extends ImportIdentifiable {
  * The translatable fields of a skill, stored as translated sub documents (e.g. { en: "Cook" }).
  */
 type SkillTranslatableFields = "preferredLabel" | "description" | "definition" | "scopeNote";
+
+// The translatable string fields of a skill (excludes altLabels, which is an array).
+export const SKILL_TRANSLATABLE_STRING_FIELDS = [
+  "preferredLabel",
+  "description",
+  "definition",
+  "scopeNote",
+] as const satisfies ReadonlyArray<keyof ISkillDoc>;
+
+type TranslatableFieldName = "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote";
+
+type ITranslatableFields = {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  definition: LanguageAPISpecs.Types.ITranslatedString;
+  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
+};
 
 /**
  * How a skill is actually shaped in MongoDB, used only at the mongoose schema/document boundary. Everywhere else
@@ -111,9 +130,12 @@ export type INewSkillSpec = Omit<
 >;
 
 /**
- * Describes how a new skill is created with the API without importId.
+ * Describes how a new skill is created with the API without import action (POST).
+ * Translatable fields accept the full multilingual object, unlike INewSkillSpec's flat strings used by
+ * the CSV import path.
  */
-export type INewSkillSpecWithoutImportId = Omit<INewSkillSpec, "importId">;
+export type INewSkillSpecWithoutImportId = Omit<INewSkillSpec, "importId" | TranslatableFieldName> &
+  ITranslatableFields;
 
 /**
  * Describes how a reference to a skill is returned from the API

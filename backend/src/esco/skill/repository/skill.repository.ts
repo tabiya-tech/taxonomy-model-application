@@ -10,6 +10,7 @@ import {
   ISkillReference,
   ISkillWithTranslations,
   IUpdateSkillSpec,
+  SKILL_TRANSLATABLE_STRING_FIELDS,
 } from "../_shared/skill.types";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
 import {
@@ -61,16 +62,12 @@ import {
   setEntityEmbeddingStatus,
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
-import { wrapTranslatableFields } from "common/language/translatedFields";
+import { wrapTranslatableFields, wrapTranslatableFieldsFromObjects } from "common/language/translatedFields";
 import { buildSearchCondition } from "esco/common/searchCondition";
 
-// The translatable fields of a Skill, stored as localized sub documents ({ en: "value" }); this repository wraps
-// a flat string on the way in and reads the fallback language on the way out, so ISkillDoc/ISkill stay flat.
-const TRANSLATABLE_STRING_FIELDS = ["preferredLabel", "description", "definition", "scopeNote"] as const;
-
-// same as above, plus altLabels (an array of localized sub documents); used to redirect a search field to its
-// fallback language path
-const TRANSLATABLE_FIELDS = [...TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
+// same as SKILL_TRANSLATABLE_STRING_FIELDS, plus altLabels (an array of localized sub documents); used to
+// redirect a search field to its fallback language path
+const TRANSLATABLE_FIELDS = [...SKILL_TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
 
 // skillType is only present on a Skill, not a SkillGroup; used to unwrap only the Skill entries of a mixed array
 function isSkillObject(entity: object): boolean {
@@ -295,7 +292,7 @@ export class SkillRepository implements ISkillRepository {
   private newSpecToModel(newSpec: INewSkillSpec): mongoose.HydratedDocument<ISkillDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec, TRANSLATABLE_STRING_FIELDS),
+      ...wrapTranslatableFields(newSpec, SKILL_TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
     });
     // add the new UUID as the first element of the UUIDHistory
@@ -306,7 +303,7 @@ export class SkillRepository implements ISkillRepository {
   private newSpecWithoutImportIdToModel(newSpec: INewSkillSpecWithoutImportId): mongoose.HydratedDocument<ISkillDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec, TRANSLATABLE_STRING_FIELDS),
+      ...wrapTranslatableFieldsFromObjects(newSpec, SKILL_TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: randomUUID(),
     });
@@ -964,7 +961,7 @@ export class SkillRepository implements ISkillRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
+      doc.set(wrapTranslatableFields(spec, SKILL_TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([
         populateSkillParentsOptions(),
@@ -986,7 +983,7 @@ export class SkillRepository implements ISkillRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
+      doc.set(wrapTranslatableFields(spec, SKILL_TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([
         populateSkillParentsOptions(),

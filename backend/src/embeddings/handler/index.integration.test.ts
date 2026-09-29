@@ -14,7 +14,7 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
+import { getSimpleNewSkillSpec, toSkillCreateSpec } from "esco/_test_utilities/getNewSpecs";
 import { EmbeddableEntityType, EmbeddableField, IGenerateEmbeddingTask } from "embeddings/service/types";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import { computeSourceHash } from "embeddings/service/sourceText";
@@ -80,9 +80,9 @@ describe("Test the embeddings lambda handler with a DB", () => {
   async function givenSkillAndProcessInDB() {
     const givenModelId = getMockStringId(1);
     const givenSkill = await getRepositoryRegistry().skill.create({
-      ...getSimpleNewSkillSpec(givenModelId, "Skill 1"),
-      description: "some description",
-      altLabels: ["first alt label", "second alt label"],
+      ...toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "Skill 1")),
+      description: { en: "some description" },
+      altLabels: [{ en: "first alt label" }, { en: "second alt label" }],
     });
     const givenProcessState = await getRepositoryRegistry().embeddingProcessState.create({
       modelId: givenModelId,
@@ -173,8 +173,12 @@ describe("Test the embeddings lambda handler with a DB", () => {
   test("should generate the embeddings of all the records of the event with a single call to the Gemini API", async () => {
     // GIVEN two skills and an in-progress embedding process for their model in the DB
     const givenModelId = getMockStringId(1);
-    const givenSkill1 = await getRepositoryRegistry().skill.create(getSimpleNewSkillSpec(givenModelId, "Skill 1"));
-    const givenSkill2 = await getRepositoryRegistry().skill.create(getSimpleNewSkillSpec(givenModelId, "Skill 2"));
+    const givenSkill1 = await getRepositoryRegistry().skill.create(
+      toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "Skill 1"))
+    );
+    const givenSkill2 = await getRepositoryRegistry().skill.create(
+      toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "Skill 2"))
+    );
     const givenProcessState = await getRepositoryRegistry().embeddingProcessState.create({
       modelId: givenModelId,
       status: ModelInfoAPISpecs.ModelInfo.EmbeddingProcessStates.Enums.Status.IN_PROGRESS,

@@ -16,6 +16,7 @@ import {
   getSimpleNewISCOGroupSpec,
   getSimpleNewLocalOccupationSpec,
   getSimpleNewSkillSpec,
+  toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailure,
@@ -98,7 +99,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const occupation = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(modelId, "skill_1"))
       );
-      const skill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_2"));
+      const skill = await repositoryRegistry.skill.create(toSkillCreateSpec(getSimpleNewSkillSpec(modelId, "skill_2")));
       newOccupationToSkillPairSpecs.push({
         requiringOccupationId: occupation.id,
         relationType: OccupationToSkillRelationType.OPTIONAL,
@@ -151,8 +152,12 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenOccupation_2 = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2"))
       );
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
+      const givenSkill_2 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+      );
 
       // AND the following relation
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
@@ -214,7 +219,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
 
       // AND a skill in the same model which is a child of each of the occupations
       const childSkillSpecs = getSimpleNewSkillSpec(givenModelId, "childSkill");
-      const childSkill = await repositoryRegistry.skill.create(childSkillSpecs);
+      const childSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(childSkillSpecs));
 
       // AND the following relation
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
@@ -263,7 +268,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const childSkillSpecs = getSimpleNewSkillSpec(givenModelId, "childSkill");
       //@ts-ignore
       childSkillSpecs.id = givenObjectId;
-      const childSkill = await repositoryRegistry.skill.create(childSkillSpecs);
+      const childSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(childSkillSpecs));
       // guard to make sure the ids are the same
       expect(escoOccupation.id).toEqual(childSkill.id);
 
@@ -295,8 +300,12 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenOccupation_2 = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_2"))
       );
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
+      const givenSkill_2 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+      );
       // AND the following relation
 
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
@@ -365,7 +374,9 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
 
       const handleInsertManyErrorSpy = jest.spyOn(HandleInsertManyErrors, "handleInsertManyError");
 
@@ -427,7 +438,9 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
 
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
@@ -463,7 +476,9 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId_1, "occupation_1"))
       );
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId_2, "skill_1"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId_2, "skill_1"))
+      );
 
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
         {
@@ -486,7 +501,9 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
     test("should ignore entries where the requiring occupation is not an occupation", async () => {
       // GIVEN a valid modelId
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
       const givenInvalidObject_1 = await repositoryRegistry.OccupationGroup.create(
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       ); // Assuming there's an OccupationGroup model
@@ -551,8 +568,12 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         const givenOccupation_2 = await repositoryRegistry.occupation.create(
           toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occuoation_2"))
         );
-        const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-        const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+        const givenSkill_1 = await repositoryRegistry.skill.create(
+          toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+        );
+        const givenSkill_2 = await repositoryRegistry.skill.create(
+          toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+        );
 
         // AND the following relation
         const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
@@ -591,7 +612,9 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenOccupation = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation"))
       );
-      const givenSkill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill"));
+      const givenSkill = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill"))
+      );
       const givenSpec: INewOccupationToSkillPairSpec = {
         requiringOccupationId: givenOccupation.id,
         requiringOccupationType: givenOccupation.occupationType,
@@ -617,7 +640,9 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
       const givenOccupation = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation"))
       );
-      const givenSkill = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill"));
+      const givenSkill = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill"))
+      );
       const givenSpec: INewOccupationToSkillPairSpec = {
         requiringOccupationId: givenOccupation.id,
         requiringOccupationType: givenOccupation.occupationType,

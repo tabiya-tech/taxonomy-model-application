@@ -41,6 +41,7 @@ import {
   getSimpleNewLocalGroupSpecWithParentCode,
   getNewISCOGroupSpecsWithoutImportId,
   getNewLocalGroupSpecsWithoutImportId,
+  toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailureNoSetup,
@@ -1238,7 +1239,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
         // The non-OccupationGroup in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
-        const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
+        const givenSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(givenNewSkillSpec));
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: IOccupationHierarchyPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenOccupationGroup.modelId),
@@ -1276,7 +1277,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
         // The non-OccupationGroup in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
-        const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
+        const givenSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(givenNewSkillSpec));
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: IOccupationHierarchyPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenOccupationGroup.modelId),

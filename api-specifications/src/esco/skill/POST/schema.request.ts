@@ -1,13 +1,13 @@
 // src/.../schema.POST.request.ts
 import { SchemaObject } from "ajv";
-import { _baseProperties } from "../_shared/schemas.base";
+import { _baseRequestProperties } from "../_shared/schemas.base";
 
 const SchemaPOSTRequest: SchemaObject = {
   $id: "/components/schemas/SkillRequestSchemaPOST",
   type: "object",
   additionalProperties: false,
   properties: {
-    ...JSON.parse(JSON.stringify(_baseProperties)),
+    ..._baseRequestProperties,
   },
   required: [
     "preferredLabel",

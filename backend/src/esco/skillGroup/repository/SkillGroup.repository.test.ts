@@ -35,6 +35,7 @@ import {
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
   getNewSkillGroupSpecWithoutImportId,
+  toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailureNoSetup,
@@ -646,7 +647,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
       // The child Skill
       const givenChildSpecs_2 = getSimpleNewSkillSpec(givenModelId, "child_2");
-      const givenChild_2 = await repositoryRegistry.skill.create(givenChildSpecs_2);
+      const givenChild_2 = await repositoryRegistry.skill.create(toSkillCreateSpec(givenChildSpecs_2));
 
       // AND the subject SkillGroup has a parent and two children
       const actualHierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
@@ -741,7 +742,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
         // The non-SkillGroup in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(getMockStringId(1), "skill_1");
-        const givenSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
+        const givenSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(givenNewSkillSpec));
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: ISkillHierarchyPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenSkillGroup.modelId),
@@ -956,17 +957,17 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         const givenSkill1Specs = getSimpleNewSkillSpec(givenModelId, "Skill_1");
         // @ts-ignore
         givenSkill1Specs.id = givenID.toHexString();
-        const givenSkill_1 = await repositoryRegistry.skill.create(givenSkill1Specs);
+        const givenSkill_1 = await repositoryRegistry.skill.create(toSkillCreateSpec(givenSkill1Specs));
         // guard to ensure the id is the given one
         expect(givenSkill_1.id).toEqual(givenID.toHexString());
 
         // AND a second skill_2 with some ID  in the given model
         const givenSkillSpecs_2 = getSimpleNewSkillSpec(givenModelId, "skill_2");
-        const givenSkill_2 = await repositoryRegistry.skill.create(givenSkillSpecs_2);
+        const givenSkill_2 = await repositoryRegistry.skill.create(toSkillCreateSpec(givenSkillSpecs_2));
 
         // AND a third skill_3 with some ID in the given model
         const givenSkillSpecs_3 = getSimpleNewSkillSpec(givenModelId, "skill_3");
-        const givenSkill_3 = await repositoryRegistry.skill.create(givenSkillSpecs_3);
+        const givenSkill_3 = await repositoryRegistry.skill.create(toSkillCreateSpec(givenSkillSpecs_3));
 
         // AND the skill skill_1  is the parent of skill_2
         // AND the subject SkillGroup  is the parent of Skill_3
@@ -1016,7 +1017,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         const givenSkill_Specs_1 = getSimpleNewSkillSpec(givenModelId, "Skill 1");
         // @ts-ignore
         givenSkill_Specs_1.id = givenID.toHexString();
-        const givenSkill_1 = await repositoryRegistry.skill.create(givenSkill_Specs_1);
+        const givenSkill_1 = await repositoryRegistry.skill.create(toSkillCreateSpec(givenSkill_Specs_1));
         // guard to ensure the id is the given one
         expect(givenSkill_1.id).toEqual(givenID.toHexString());
 
@@ -1493,7 +1494,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const parentWithSkillChild = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "parent-skill"));
       const unrelatedParent = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "unrelated-parent"));
       const skillGroupChild = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "child-group"));
-      const skillChild = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "child-skill"));
+      const skillChild = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "child-skill"))
+      );
 
       await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
         {
@@ -1871,7 +1874,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenChild_1 = await repository.create(givenChildSpecs_1);
       // the child (Skill)
       const givenChildSpecs_2 = getSimpleNewSkillSpec(givenModelId, "child_2");
-      const givenChild_2 = await repositoryRegistry.skill.create(givenChildSpecs_2);
+      const givenChild_2 = await repositoryRegistry.skill.create(toSkillCreateSpec(givenChildSpecs_2));
       // AND the hierarchy is parent -> subject -> child_1 and parent -> child_2
       const actualHierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
         {
@@ -1983,7 +1986,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenChild_2 = await repository.create(givenChildSpecs_2);
       // the child (Skill)
       const givenChildSpecs_3 = getSimpleNewSkillSpec(givenModelId, "child_2");
-      const givenChild_3 = await repositoryRegistry.skill.create(givenChildSpecs_3);
+      const givenChild_3 = await repositoryRegistry.skill.create(toSkillCreateSpec(givenChildSpecs_3));
       // AND the hierarchy is parent -> subject -> child_1 and parent -> child_2
       const actualHierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
         {

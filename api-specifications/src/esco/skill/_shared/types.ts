@@ -4,6 +4,7 @@ import { ISkillParentItem, ISkillParentsResponse, ISkillParentsRequestQuery } fr
 import { ISkillChildrenResponse, ISkillChildrenRequestQuery } from "../[id]/children/GET/types";
 import { ISkillOccupationsResponse, ISkillOccupationsRequestQuery } from "../[id]/occupations/GET/types";
 import { ISkillRelatedResponse, ISkillRelatedRequestQuery } from "../[id]/relatedSkills/GET/types";
+import LanguageAPISpecs from "../../../language";
 
 // A reference to a skill — the lightweight shape used when a skill is shown from the outside (e.g. as it
 // appeared in a model in its history). Mirrors the SkillReferenceSchema.
@@ -97,6 +98,19 @@ interface ISkillRequest {
   isLocalized: boolean;
 }
 
+type TranslatableFieldName = "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote";
+
+type ITranslatableFields = {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  definition: LanguageAPISpecs.Types.ITranslatedString;
+  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
+};
+
+// Used by POST: takes the full multilingual object for every translatable field.
+type ISkillFullTranslatedRequest = Omit<ISkillRequest, TranslatableFieldName> & ITranslatableFields;
+
 interface PaginatedSkillResponse {
   data: ISkillResponse[];
   limit: number;
@@ -133,7 +147,7 @@ namespace SkillTypes {
 
   export namespace POSTSkill {
     export namespace Request {
-      export type Payload = ISkillRequest;
+      export type Payload = ISkillFullTranslatedRequest;
       export namespace Param {
         export type Payload = ISkillParam;
       }

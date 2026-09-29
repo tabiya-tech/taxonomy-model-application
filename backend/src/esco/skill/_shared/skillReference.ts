@@ -1,5 +1,10 @@
 import { ObjectTypes, SignallingValueLabel } from "esco/common/objectTypes";
-import { ISkillDoc, ISkillReference, ISkillReferenceDoc } from "../_shared/skill.types";
+import {
+  ISkillDoc,
+  ISkillReference,
+  ISkillReferenceDoc,
+  SKILL_TRANSLATABLE_STRING_FIELDS,
+} from "../_shared/skill.types";
 import mongoose from "mongoose";
 import {
   SkillToSkillReferenceWithRelationType,
@@ -20,9 +25,6 @@ type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
 export type SkillDocument = Omit<_Document<ISkillDoc>, "preferredLabel"> & {
   preferredLabel: ITranslatedStringDoc;
 };
-
-// The translatable fields of a Skill, stored as translated sub documents ({ en: "value" }).
-const SKILL_TRANSLATABLE_STRING_FIELDS = ["preferredLabel", "description", "definition", "scopeNote"] as const;
 
 export function getSkillDocReference(skill: SkillDocument, language?: string): ISkillReferenceDoc {
   const lang = language ?? getFallbackLanguageConfig().dbKeyName;

@@ -11,6 +11,7 @@ import {
   getSimpleNewISCOGroupSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
+  toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import { EntityEmbeddingStatus, IEmbeddableEntityRepository } from "./entityEmbedding.types";
 import { INewOccupationSpec, INewOccupationSpecWithoutImportId } from "esco/occupations/_shared/occupation.types";
@@ -52,7 +53,7 @@ const testCases: IEntityRepositoryTestCase[] = [
     entityName: "skill",
     getRepository: (registry) => registry.skill,
     createEntity: async (registry, modelId, preferredLabel) =>
-      (await registry.skill.create(getSimpleNewSkillSpec(modelId, preferredLabel))).id,
+      (await registry.skill.create(toSkillCreateSpec(getSimpleNewSkillSpec(modelId, preferredLabel)))).id,
     findEmbeddingStatus: async (registry, entityId) =>
       (await registry.skill.Model.findById(entityId).exec())?.embeddingStatus,
     deleteAllEntities: (registry) => registry.skill.Model.deleteMany({}).exec(),

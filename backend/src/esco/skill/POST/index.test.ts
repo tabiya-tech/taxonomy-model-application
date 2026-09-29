@@ -9,7 +9,7 @@ import { ISkill } from "../_shared/skill.types";
 import { getISkillMockData } from "../_shared/testDataHelper";
 import * as config from "server/config/config";
 import SkillAPISpecs from "api-specifications/esco/skill";
-import { SkillModelValidationError } from "../services/skill.service.types";
+import { SkillLanguageValidationError, SkillModelValidationError } from "../services/skill.service.types";
 import { ModelForSkillValidationErrorCode } from "../_shared/skill.types";
 import * as authenticatorModule from "auth/authorizer";
 
@@ -31,13 +31,13 @@ describe("SkillPostController", () => {
 
   function validSkillBody() {
     return JSON.stringify({
-      preferredLabel: "Test Skill",
+      preferredLabel: { en: "Test Skill" },
       originUri: "https://example.com/skill",
       UUIDHistory: [],
       altLabels: [],
-      definition: "definition",
-      description: "description",
-      scopeNote: "scopeNote",
+      definition: { en: "definition" },
+      description: { en: "description" },
+      scopeNote: { en: "scopeNote" },
       modelId: givenModelId,
       skillType: SkillAPISpecs.Enums.SkillType.Knowledge,
       reuseLevel: SkillAPISpecs.Enums.ReuseLevel.CrossSector,
@@ -134,6 +134,34 @@ describe("SkillPostController", () => {
     };
     const actualResponse = await postHandler(event as unknown as APIGatewayProxyEvent);
     expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+  });
+
+  test("should return 400 when a field uses a language not available in the model", async () => {
+    // GIVEN the service rejects because 'fr' is not one of the model's availableLanguages
+    const givenSkillServiceMock = {
+      create: jest.fn().mockRejectedValue(new SkillLanguageValidationError("preferredLabel", "fr")),
+    } as unknown as ISkillService;
+    mockGetServiceRegistry.mockReturnValue({ skill: givenSkillServiceMock } as unknown as ServiceRegistry);
+
+    const event = {
+      httpMethod: HTTP_VERBS.POST,
+      path: `/models/${givenModelId}/skills`,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...JSON.parse(validSkillBody()),
+        preferredLabel: { en: "Cook", fr: "Cuisinier" },
+      }),
+    };
+
+    // WHEN the handler is invoked
+    const actualResponse = await postHandler(event as unknown as APIGatewayProxyEvent);
+
+    // THEN expect the handler to respond with BAD_REQUEST, naming the field and the language
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    const body = JSON.parse(actualResponse.body);
+    expect(body.errorCode).toEqual(SkillAPISpecs.POST.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE);
+    expect(body.message).toEqual("Field 'preferredLabel' uses a language not available in this model");
+    expect(body.details).toEqual("Unsupported language: 'fr'");
   });
 
   test("should return 500 if service throws DB error", async () => {
