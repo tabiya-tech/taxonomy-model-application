@@ -14,6 +14,7 @@ import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { IModelInfoReference } from "modelInfo/modelInfo.types";
 import { EmbeddableField } from "embeddings/service/types";
+import LanguageAPISpecs from "api-specifications/language";
 
 export class SkillModelValidationError extends Error {
   constructor(public code: ModelForSkillValidationErrorCode) {
@@ -30,6 +31,10 @@ export interface ISkillHistoryEntry {
   model: IModelInfoReference;
 }
 
+export type ValidateModelResult =
+  | { errorCode: null; availableLanguages: LanguageAPISpecs.Types.LanguageShortCode[] }
+  | { errorCode: ModelForSkillValidationErrorCode; availableLanguages?: never };
+
 export interface ISkillService {
   /**
    * Creates a new Skill entry.
@@ -43,9 +48,10 @@ export interface ISkillService {
    * Finds a Skill by its ID.
    *
    * @param {string} id - The unique ID of the Skill.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<ISkill | null>} - A Promise that resolves to the found Skill or null if not found.
    */
-  findById(id: string): Promise<ISkill | null>;
+  findById(id: string, language?: string): Promise<ISkill | null>;
 
   /**
    * Finds Skills with pagination, optionally filtered by a free-text search value.
@@ -62,6 +68,7 @@ export interface ISkillService {
    * @param {string} [searchValue] - The free-text value to search for; when omitted a plain list is returned.
    * @param {EmbeddableField[]} [searchFields] - The fields to search the value on (default: [preferredLabel]).
    * @param {boolean} [desc] - Whether to sort the plain list in descending order (default: true).
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<{ items: ISkill[]; nextCursor: string | null }>} - A Promise that resolves to the page of
    * Skills (ordered by relevance for vector search) and the encoded cursor of the next page, if any.
    */
@@ -71,27 +78,35 @@ export interface ISkillService {
     limit: number,
     searchValue?: string,
     searchFields?: EmbeddableField[],
-    desc?: boolean
+    desc?: boolean,
+    language?: string
   ): Promise<{ items: ISkill[]; nextCursor: string | null }>;
 
   /**
-   * Validates that a model exists and is not released for skill creation
+   * Validates that a model exists and is not released for skill operations.
+   * On success, also returns the model's availableLanguages for language resolution.
    * @param {string} modelId - The model ID to validate
-   * @return {Promise<ModelForSkillValidationErrorCode | null>} - Returns null if valid, otherwise the error code
+   * @return {Promise<ValidateModelResult>} - Result with errorCode null on success (includes availableLanguages),
+   * or a non-null errorCode on failure.
    */
-  validateModelForSkill(modelId: string): Promise<ModelForSkillValidationErrorCode | null>;
+  validateModelForSkill(modelId: string): Promise<ValidateModelResult>;
+
   /**
    * Finds the parent Skills or SkillGroups of a Skill.
    *
    * @param {string} modelId - The modelId of the Skill.
    * @param {string} skillId - The ID of the Skill.
+   * @param {number} limit - The maximum number of items to return.
+   * @param {string} [cursor] - The cursor for pagination.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to the parents.
    */
   getParents(
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   /**
@@ -101,13 +116,15 @@ export interface ISkillService {
    * @param {string} skillId - The ID of the Skill.
    * @param {number} limit - The maximum number of items to return.
    * @param {string} [cursor] - The cursor for pagination.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }>} - A Promise that resolves to paginated child Skills or SkillGroups.
    */
   getChildren(
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   /**
@@ -117,13 +134,15 @@ export interface ISkillService {
    * @param {string} skillId - The ID of the Skill.
    * @param {number} limit - The maximum number of items to return.
    * @param {string} [cursor] - The cursor for pagination.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<{ items: OccupationToSkillReferenceWithRelationType<IOccupationReference>[]; nextCursor: { _id: string; createdAt: Date } | null }>} - A Promise that resolves to paginated occupations.
    */
   getOccupations(
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{
     items: OccupationToSkillReferenceWithRelationType<IOccupationReference>[];
     nextCursor: { _id: string; createdAt: Date } | null;
@@ -136,13 +155,15 @@ export interface ISkillService {
    * @param {string} skillId - The ID of the Skill.
    * @param {number} limit - The maximum number of items to return.
    * @param {string} [cursor] - The cursor for pagination.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<{ items: SkillToSkillReferenceWithRelationType<ISkill>[]; nextCursor: { _id: string; createdAt: Date } | null }>} - A Promise that resolves to paginated related skills.
    */
   getRelatedSkills(
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{
     items: SkillToSkillReferenceWithRelationType<ISkill>[];
     nextCursor: { _id: string; createdAt: Date } | null;
@@ -176,8 +197,9 @@ export interface ISkillService {
    * to an existing skill are skipped, and each model appears at most once.
    *
    * @param {string} skillId - The ID of the Skill.
+   * @param {string} [language] - The language dbKeyName to resolve translatable fields to. Defaults to fallback.
    * @return {Promise<ISkillHistoryEntry[] | null>} - The resolved history entries in UUIDHistory order,
    * or null if the Skill does not exist.
    */
-  getHistory(skillId: string): Promise<ISkillHistoryEntry[] | null>;
+  getHistory(skillId: string, language?: string): Promise<ISkillHistoryEntry[] | null>;
 }

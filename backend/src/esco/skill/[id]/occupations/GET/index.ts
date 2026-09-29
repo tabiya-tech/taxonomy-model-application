@@ -1,17 +1,17 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForSkillValidationErrorCode } from "../../../_shared/skill.types";
 import { encodeCursor } from "../../../../occupations/_shared/pagination/encodeCursor";
 import { extractAndValidateIdParams } from "../../../_shared/params";
 import { getResourcesBaseUrl } from "server/config/config";
 import { parseOccupationsGETQuery } from "./query";
 import { buildOccupationsGETResponse } from "./response";
+import { resolveLanguageFromModelResult } from "../../../_shared/resolveLanguageFromModelResult";
 
 export class SkillOccupationsGetController {
   /**
@@ -45,9 +45,28 @@ export class SkillOccupationsGetController {
    *        name: cursor
    *        schema:
    *          $ref: '#/components/schemas/SkillOccupationsRequestQueryParamSchemaGET/properties/cursor'
+   *      - in: header
+   *        name: Accept-Language
+   *        required: false
+   *        schema:
+   *          type: string
+   *          example: "fr, en;q=0.9"
+   *        description: >
+   *          Preferred response language. The server picks the best match from the model's available languages
+   *          and falls back to the default language if none match.
    *    responses:
    *      '200':
    *        description: Successfully retrieved the skill occupations.
+   *        headers:
+   *          Content-Language:
+   *            schema:
+   *              type: string
+   *              example: "fr"
+   *            description: The language of the response body.
+   *          Vary:
+   *            schema:
+   *              type: string
+   *              example: "Accept-Language"
    *        content:
    *          application/json:
    *            schema:
@@ -81,29 +100,27 @@ export class SkillOccupationsGetController {
 
       const service = getServiceRegistry().skill;
       const validationResult = await service.validateModelForSkill(params.modelId);
-      if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          SkillAPISpecs.GET.Errors.Status404.Occupations.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${params.modelId}`
-        );
-      }
-      if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.GET.Errors.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
+      const langResult = resolveLanguageFromModelResult(
+        event,
+        validationResult,
+        params.modelId,
+        SkillAPISpecs.GET.Errors.Status500.Occupations.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_OCCUPATIONS
+      );
+      if ("statusCode" in langResult) return langResult;
+      const { languageConfig } = langResult;
+      const language = languageConfig.dbKeyName;
+      const languageHeaders = {
+        "Content-Type": "application/json",
+        "Content-Language": languageConfig.shortCode,
+        Vary: "Accept-Language",
+      };
 
       const paginationParams = parseOccupationsGETQuery(event);
       if ("statusCode" in paginationParams) {
         return paginationParams;
       }
 
-      const skill = await service.findById(params.id);
+      const skill = await service.findById(params.id, language);
       if (!skill) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
@@ -117,16 +134,18 @@ export class SkillOccupationsGetController {
         params.modelId,
         params.id,
         paginationParams.limit,
-        paginationParams.decodedCursor
+        paginationParams.decodedCursor,
+        language
       );
       let nextCursor: string | null = null;
       if (result?.nextCursor?._id) {
         nextCursor = encodeCursor(result.nextCursor._id, result.nextCursor.createdAt);
       }
 
-      return responseJSON(
+      return response(
         StatusCodes.OK,
-        buildOccupationsGETResponse(result.items, getResourcesBaseUrl(), paginationParams.limit, nextCursor)
+        buildOccupationsGETResponse(result.items, getResourcesBaseUrl(), paginationParams.limit, nextCursor),
+        languageHeaders
       );
     } catch (error: unknown) {
       return errorResponseGET(

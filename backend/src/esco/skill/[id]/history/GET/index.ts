@@ -1,14 +1,14 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForSkillValidationErrorCode } from "esco/skill/_shared/skill.types";
 import { extractAndValidateIdParams } from "esco/skill/_shared/params";
 import { buildHistoryResponse } from "./response";
+import { resolveLanguageFromModelResult } from "esco/skill/_shared/resolveLanguageFromModelResult";
 
 export class SkillHistoryGetController {
   /**
@@ -37,9 +37,28 @@ export class SkillHistoryGetController {
    *        required: true
    *        schema:
    *          $ref: '#/components/schemas/SkillRequestByIdParamSchemaGET/properties/id'
+   *      - in: header
+   *        name: Accept-Language
+   *        required: false
+   *        schema:
+   *          type: string
+   *          example: "fr, en;q=0.9"
+   *        description: >
+   *          Preferred response language. The server picks the best match from the model's available languages
+   *          and falls back to the default language if none match.
    *    responses:
    *      '200':
    *        description: Successfully retrieved the skill history.
+   *        headers:
+   *          Content-Language:
+   *            schema:
+   *              type: string
+   *              example: "fr"
+   *            description: The language of the response body.
+   *          Vary:
+   *            schema:
+   *              type: string
+   *              example: "Accept-Language"
    *        content:
    *          application/json:
    *            schema:
@@ -74,25 +93,26 @@ export class SkillHistoryGetController {
       const service = getServiceRegistry().skill;
       // The skill's own model must exist, but unlike write operations a released model is valid here: the history
       // intentionally includes released models, so MODEL_IS_RELEASED (and null) are accepted.
+      // TODO(CORE-766): When MODEL_IS_RELEASED, availableLanguages is empty and language falls back to the default,
+      // even if the requested language is present in historical models. This is intentional — we resolve language
+      // from the current model only, not across all history entries.
       const validationResult = await service.validateModelForSkill(params.modelId);
-      if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          SkillAPISpecs.GET.Errors.Status404.History.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${params.modelId}`
-        );
-      }
-      if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.GET.Errors.Status500.History.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_HISTORY,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
+      const langResult = resolveLanguageFromModelResult(
+        event,
+        validationResult,
+        params.modelId,
+        SkillAPISpecs.GET.Errors.Status500.History.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_HISTORY
+      );
+      if ("statusCode" in langResult) return langResult;
+      const { languageConfig } = langResult;
+      const language = languageConfig.dbKeyName;
+      const languageHeaders = {
+        "Content-Type": "application/json",
+        "Content-Language": languageConfig.shortCode,
+        Vary: "Accept-Language",
+      };
 
-      const history = await service.getHistory(params.id);
+      const history = await service.getHistory(params.id, language);
       if (history === null) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
@@ -102,7 +122,7 @@ export class SkillHistoryGetController {
         );
       }
 
-      return responseJSON(StatusCodes.OK, buildHistoryResponse(history));
+      return response(StatusCodes.OK, buildHistoryResponse(history), languageHeaders);
     } catch (error: unknown) {
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,

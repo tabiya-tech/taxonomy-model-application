@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import AuthAPISpecs from "api-specifications/auth";
 import SkillAPISpecs from "api-specifications/esco/skill";
@@ -8,9 +8,9 @@ import { buildGETResponse } from "./response";
 import { parseGETQuery } from "./query";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { ModelForSkillValidationErrorCode } from "../_shared/skill.types";
 import { extractAndValidateModelIdParam } from "../_shared/params";
 import { getResourcesBaseUrl } from "server/config/config";
+import { resolveLanguageFromModelResult } from "../_shared/resolveLanguageFromModelResult";
 
 export class SkillGetController {
   /**
@@ -58,9 +58,28 @@ export class SkillGetController {
    *          Only meaningful together with query. Defaults to 'preferredLabel'.
    *        schema:
    *          $ref: '#/components/schemas/SkillRequestQueryParamSchemaGET/properties/searchFields'
+   *      - in: header
+   *        name: Accept-Language
+   *        required: false
+   *        schema:
+   *          type: string
+   *          example: "fr, en;q=0.9"
+   *        description: >
+   *          Preferred response language. The server picks the best match from the model's available languages
+   *          and falls back to the default language if none match.
    *    responses:
    *      '200':
    *        description: Successfully retrieved the paginated skills.
+   *        headers:
+   *          Content-Language:
+   *            schema:
+   *              type: string
+   *              example: "fr"
+   *            description: The language of the response body.
+   *          Vary:
+   *            schema:
+   *              type: string
+   *              example: "Accept-Language"
    *        content:
    *          application/json:
    *            schema:
@@ -93,22 +112,15 @@ export class SkillGetController {
 
       const service = getServiceRegistry().skill;
       const validationResult = await service.validateModelForSkill(params.modelId);
-      if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          SkillAPISpecs.GET.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${params.modelId}`
-        );
-      }
-      if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
+      const langResult = resolveLanguageFromModelResult(event, validationResult, params.modelId);
+      if ("statusCode" in langResult) return langResult;
+      const { languageConfig } = langResult;
+      const language = languageConfig.dbKeyName;
+      const languageHeaders = {
+        "Content-Type": "application/json",
+        "Content-Language": languageConfig.shortCode,
+        Vary: "Accept-Language",
+      };
 
       const queryParams = parseGETQuery(event);
       if ("statusCode" in queryParams) {
@@ -123,17 +135,20 @@ export class SkillGetController {
         event.queryStringParameters?.cursor ?? undefined,
         queryParams.limit,
         queryParams.searchValue,
-        queryParams.searchFields
+        queryParams.searchFields,
+        undefined,
+        language
       );
 
-      return responseJSON(
+      return response(
         StatusCodes.OK,
         buildGETResponse(
           currentPageSkills.items,
           getResourcesBaseUrl(),
           queryParams.limit,
           currentPageSkills.nextCursor
-        )
+        ),
+        languageHeaders
       );
     } catch (error: unknown) {
       return errorResponseGET(

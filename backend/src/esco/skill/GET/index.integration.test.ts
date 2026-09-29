@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
 
 import SkillAPISpecs from "api-specifications/esco/skill";
+import LanguageAPISpecs from "api-specifications/language";
 
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
@@ -326,6 +327,25 @@ describe("Test for skill GET handler with a DB", () => {
       // THEN expect a BAD_REQUEST
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
     });
+  });
+
+  test("GET should set Content-Language and Vary response headers", async () => {
+    const givenModelInfo = await createModelInDB();
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {},
+      pathParameters: { modelId: givenModelInfo.id.toString() },
+      path: `/models/${givenModelInfo.id.toString()}/skills`,
+    };
+
+    // @ts-ignore
+    const actualResponse = await skillHandler(givenEvent);
+
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(actualResponse.headers?.["Content-Language"]).toEqual(
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode
+    );
+    expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
   });
 
   describe("search (vector, released model)", () => {

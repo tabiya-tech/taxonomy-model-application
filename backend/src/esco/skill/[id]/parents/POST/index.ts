@@ -102,7 +102,7 @@ export class SkillParentsPostController {
       // 3. Validate model state (exists & is not released)
       const service = getServiceRegistry().skill;
       const validationResult = await service.validateModelForSkill(params.modelId);
-      if (validationResult === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+      if (validationResult.errorCode === ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponse(
           StatusCodes.NOT_FOUND,
           SkillAPISpecs.Skill.Parents.POST.Errors.Status404.ErrorCodes.MODEL_NOT_FOUND,
@@ -110,7 +110,7 @@ export class SkillParentsPostController {
           `No model found with id: ${params.modelId}`
         );
       }
-      if (validationResult === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+      if (validationResult.errorCode === ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponse(
           StatusCodes.INTERNAL_SERVER_ERROR,
           SkillAPISpecs.Skill.Parents.POST.Errors.Status500.ErrorCodes.DB_FAILED_TO_CREATE_SKILL_PARENT_RELATION,
@@ -118,7 +118,7 @@ export class SkillParentsPostController {
           ""
         );
       }
-      if (validationResult === ModelForSkillValidationErrorCode.MODEL_IS_RELEASED) {
+      if (validationResult.errorCode === ModelForSkillValidationErrorCode.MODEL_IS_RELEASED) {
         return errorResponse(
           StatusCodes.BAD_REQUEST,
           SkillAPISpecs.Skill.Parents.POST.Errors.Status400.ErrorCodes.MODEL_IS_RELEASED,

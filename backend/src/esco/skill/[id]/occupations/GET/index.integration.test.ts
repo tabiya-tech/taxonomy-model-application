@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
 
 import SkillAPISpecs from "api-specifications/esco/skill";
+import LanguageAPISpecs from "api-specifications/language";
 
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
@@ -93,6 +94,24 @@ describe("Test for skill occupations GET handler with a DB", () => {
       await dbConnection.models.ModelInfo.deleteMany({});
     }
   });
+  test("GET should set Content-Language and Vary response headers", async () => {
+    const givenModel = await createModelInDB();
+    const modelId = givenModel.id.toString();
+    const givenSkill = await createSkillInDB(modelId);
+    const event = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {},
+      path: `/models/${modelId}/skills/${givenSkill.id}/occupations`,
+      pathParameters: { modelId: modelId, id: givenSkill.id },
+    };
+    // @ts-ignore
+    const response = await skillOccupationsHandler(event);
+
+    expect(response.statusCode).toEqual(StatusCodes.OK);
+    expect(response.headers?.["Content-Language"]).toEqual(LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode);
+    expect(response.headers?.["Vary"]).toEqual("Accept-Language");
+  });
+
   test("GET /models/{modelId}/skills/{id}/occupations should return related occupations", async () => {
     const givenModel = await createModelInDB();
     const modelId = givenModel.id.toString();
