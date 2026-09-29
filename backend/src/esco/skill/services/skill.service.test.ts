@@ -5,6 +5,8 @@ import {
   ISkill,
   ModelForSkillValidationErrorCode,
   INewSkillSpecWithoutImportId,
+  IUpdateSkillSpec,
+  IPartialUpdateSkillSpec,
   SkillType,
   ReuseLevel,
 } from "../_shared/skill.types";
@@ -192,6 +194,21 @@ describe("Test the SkillService", () => {
   });
 
   describe("update", () => {
+    // GIVEN a function to build a valid full-replacement spec, translatable fields in the fall back language only
+    const getGivenUpdateSpec = (modelId: string): IUpdateSkillSpec => ({
+      preferredLabel: { en: "Updated" },
+      originUri: "https://example.com",
+      altLabels: [],
+      definition: { en: "" },
+      description: { en: "" },
+      scopeNote: { en: "" },
+      skillType: "skill/competence" as SkillType,
+      reuseLevel: "cross-sector" as ReuseLevel,
+      modelId,
+      UUIDHistory: [],
+      isLocalized: false,
+    });
+
     test("should throw SkillModelValidationError if model validation fails during update", async () => {
       mockModelRepository.getModelById.mockResolvedValue(null);
       await expect(service.update(getMockStringId(1), getMockStringId(2), {} as never)).rejects.toThrow(
@@ -203,21 +220,12 @@ describe("Test the SkillService", () => {
     test("should call repository.update when model validation passes", async () => {
       const givenId = getMockStringId(1);
       const givenModelId = getMockStringId(2);
-      const givenSpec = {
-        preferredLabel: "Updated",
-        originUri: "https://example.com",
-        altLabels: [],
-        definition: "",
-        description: "",
-        scopeNote: "",
-        skillType: "skill/competence" as SkillType,
-        reuseLevel: "cross-sector" as ReuseLevel,
-        modelId: givenModelId,
-        UUIDHistory: [],
-        isLocalized: false,
-      };
+      const givenSpec = getGivenUpdateSpec(givenModelId);
       const expectedSkill: ISkill = getISkillMockData(1, givenModelId);
-      mockModelRepository.getModelById.mockResolvedValue({ released: false } as IModelInfo);
+      mockModelRepository.getModelById.mockResolvedValue({
+        released: false,
+        availableLanguages: ["en"],
+      } as unknown as IModelInfo);
       mockRepository.update.mockResolvedValue(expectedSkill);
 
       const actual = await service.update(givenId, givenModelId, givenSpec);
@@ -225,6 +233,29 @@ describe("Test the SkillService", () => {
       expect(mockModelRepository.getModelById).toHaveBeenCalledWith(givenModelId);
       expect(mockRepository.update).toHaveBeenCalledWith(givenId, givenModelId, givenSpec);
       expect(actual).toEqual(expectedSkill);
+    });
+
+    test("should throw SkillLanguageValidationError when a field carries a language not in the model's availableLanguages", async () => {
+      // GIVEN an update spec whose preferredLabel is translated in a language the model does not have
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec = getGivenUpdateSpec(givenModelId);
+      givenSpec.preferredLabel = { en: "Cook", fr: "Cuisinier" };
+
+      // AND the model is not released, but only has the fall back language available
+      mockModelRepository.getModelById.mockResolvedValue({
+        released: false,
+        availableLanguages: ["en"],
+      } as unknown as IModelInfo);
+
+      // WHEN calling service.update
+      const promise = service.update(givenId, givenModelId, givenSpec);
+
+      // THEN expect it to throw, naming the field and the unsupported language
+      await expect(promise).rejects.toThrow(SkillLanguageValidationError);
+      await expect(promise).rejects.toMatchObject({ field: "preferredLabel", language: "fr" });
+      // AND expect the repository to never be called
+      expect(mockRepository.update).not.toHaveBeenCalled();
     });
   });
 
@@ -240,9 +271,12 @@ describe("Test the SkillService", () => {
     test("should call repository.patch when model validation passes", async () => {
       const givenId = getMockStringId(1);
       const givenModelId = getMockStringId(2);
-      const givenSpec = { preferredLabel: "Patched" };
+      const givenSpec: IPartialUpdateSkillSpec = { preferredLabel: { en: "Patched" } };
       const expectedSkill: ISkill = getISkillMockData(1, givenModelId);
-      mockModelRepository.getModelById.mockResolvedValue({ released: false } as IModelInfo);
+      mockModelRepository.getModelById.mockResolvedValue({
+        released: false,
+        availableLanguages: ["en"],
+      } as unknown as IModelInfo);
       mockRepository.patch.mockResolvedValue(expectedSkill);
 
       const actual = await service.patch(givenId, givenModelId, givenSpec);
@@ -250,6 +284,28 @@ describe("Test the SkillService", () => {
       expect(mockModelRepository.getModelById).toHaveBeenCalledWith(givenModelId);
       expect(mockRepository.patch).toHaveBeenCalledWith(givenId, givenModelId, givenSpec);
       expect(actual).toEqual(expectedSkill);
+    });
+
+    test("should throw SkillLanguageValidationError when a field carries a language not in the model's availableLanguages", async () => {
+      // GIVEN a patch spec whose preferredLabel is translated in a language the model does not have
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IPartialUpdateSkillSpec = { preferredLabel: { en: "Cook", fr: "Cuisinier" } };
+
+      // AND the model is not released, but only has the fall back language available
+      mockModelRepository.getModelById.mockResolvedValue({
+        released: false,
+        availableLanguages: ["en"],
+      } as unknown as IModelInfo);
+
+      // WHEN calling service.patch
+      const promise = service.patch(givenId, givenModelId, givenSpec);
+
+      // THEN expect it to throw, naming the field and the unsupported language
+      await expect(promise).rejects.toThrow(SkillLanguageValidationError);
+      await expect(promise).rejects.toMatchObject({ field: "preferredLabel", language: "fr" });
+      // AND expect the repository to never be called
+      expect(mockRepository.patch).not.toHaveBeenCalled();
     });
   });
 

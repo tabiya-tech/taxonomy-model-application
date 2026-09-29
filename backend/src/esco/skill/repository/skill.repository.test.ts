@@ -2738,12 +2738,12 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
       // WHEN updating the skill with a new preferredLabel
       const actual = await repository.update(givenSkill.id, givenModelId, {
-        preferredLabel: "Updated Label",
+        preferredLabel: { en: "Updated Label" },
         originUri: givenSkill.originUri,
-        altLabels: givenSkill.altLabels,
-        definition: givenSkill.definition,
-        description: givenSkill.description,
-        scopeNote: givenSkill.scopeNote,
+        altLabels: givenSkill.altLabels.map((label) => ({ en: label })),
+        definition: { en: givenSkill.definition },
+        description: { en: givenSkill.description },
+        scopeNote: { en: givenSkill.scopeNote },
         skillType: givenSkill.skillType,
         reuseLevel: givenSkill.reuseLevel,
         modelId: givenModelId,
@@ -2788,7 +2788,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
       // WHEN patching the skill with only a new preferredLabel
       const actual = await repository.patch(givenSkill.id, givenModelId, {
-        preferredLabel: "Patched Label",
+        preferredLabel: { en: "Patched Label" },
       });
 
       // THEN expect the patched skill to be returned

@@ -5652,6 +5652,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
             "INVALID_MODEL_ID": "INVALID_MODEL_ID",
             "SKILL_COULD_NOT_VALIDATE": "SKILL_COULD_NOT_VALIDATE",
             "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+            "UNSUPPORTED_LANGUAGE": "UNSUPPORTED_LANGUAGE",
           },
         },
         "Status404": {
@@ -5687,8 +5688,39 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "altLabels": {
                 "description": "Alternative labels for the skill.",
                 "items": {
-                  "maxLength": 256,
-                  "type": "string",
+                  "additionalProperties": false,
+                  "description": "Alternative labels for the skill.",
+                  "properties": {
+                    "am": {
+                      "description": "Alternative labels for the skill. (Amharic)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "en": {
+                      "description": "Alternative labels for the skill. (English)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "es": {
+                      "description": "Alternative labels for the skill. (Spanish)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "fr": {
+                      "description": "Alternative labels for the skill. (French)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "pt": {
+                      "description": "Alternative labels for the skill. (Portuguese)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "en",
+                  ],
+                  "type": "object",
                 },
                 "maxItems": 200,
                 "minItems": 0,
@@ -5696,14 +5728,92 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                 "uniqueItems": true,
               },
               "definition": {
+                "additionalProperties": false,
                 "description": "The formal definition of the skill.",
-                "maxLength": 4000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The formal definition of the skill. (Amharic)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "The formal definition of the skill. (English)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The formal definition of the skill. (Spanish)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "The formal definition of the skill. (French)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "The formal definition of the skill. (Portuguese)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "description": {
+                "additionalProperties": false,
                 "description": "Additional descriptive information about the skill.",
-                "maxLength": 6000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "Additional descriptive information about the skill. (Amharic)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "Additional descriptive information about the skill. (English)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "Additional descriptive information about the skill. (Spanish)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "Additional descriptive information about the skill. (French)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "Additional descriptive information about the skill. (Portuguese)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "isLocalized": {
                 "description": "Indicates if the skill has localized variants.",
@@ -5722,10 +5832,53 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                 "type": "string",
               },
               "preferredLabel": {
+                "additionalProperties": false,
                 "description": "The preferred label of the skill.",
-                "maxLength": 256,
-                "pattern": "\\S",
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The preferred label of the skill. (Amharic)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "The preferred label of the skill. (English)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The preferred label of the skill. (Spanish)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "The preferred label of the skill. (French)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "The preferred label of the skill. (Portuguese)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "reuseLevel": {
                 "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
@@ -5738,9 +5891,48 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                 "type": "string",
               },
               "scopeNote": {
+                "additionalProperties": false,
                 "description": "Scope clarification for the skill's application.",
-                "maxLength": 4000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "Scope clarification for the skill's application. (Amharic)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "Scope clarification for the skill's application. (English)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "Scope clarification for the skill's application. (Spanish)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "Scope clarification for the skill's application. (French)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "Scope clarification for the skill's application. (Portuguese)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "skillType": {
                 "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",
@@ -6365,6 +6557,7 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
             "INVALID_MODEL_ID": "INVALID_MODEL_ID",
             "SKILL_COULD_NOT_VALIDATE": "SKILL_COULD_NOT_VALIDATE",
             "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+            "UNSUPPORTED_LANGUAGE": "UNSUPPORTED_LANGUAGE",
           },
         },
         "Status404": {
@@ -6400,8 +6593,39 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
               "altLabels": {
                 "description": "Alternative labels for the skill.",
                 "items": {
-                  "maxLength": 256,
-                  "type": "string",
+                  "additionalProperties": false,
+                  "description": "Alternative labels for the skill.",
+                  "properties": {
+                    "am": {
+                      "description": "Alternative labels for the skill. (Amharic)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "en": {
+                      "description": "Alternative labels for the skill. (English)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "es": {
+                      "description": "Alternative labels for the skill. (Spanish)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "fr": {
+                      "description": "Alternative labels for the skill. (French)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "pt": {
+                      "description": "Alternative labels for the skill. (Portuguese)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "en",
+                  ],
+                  "type": "object",
                 },
                 "maxItems": 200,
                 "minItems": 0,
@@ -6409,14 +6633,74 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                 "uniqueItems": true,
               },
               "definition": {
+                "additionalProperties": false,
                 "description": "The formal definition of the skill.",
-                "maxLength": 4000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The formal definition of the skill. (Amharic)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "The formal definition of the skill. (English)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The formal definition of the skill. (Spanish)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "The formal definition of the skill. (French)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "The formal definition of the skill. (Portuguese)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
               "description": {
+                "additionalProperties": false,
                 "description": "Additional descriptive information about the skill.",
-                "maxLength": 6000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "Additional descriptive information about the skill. (Amharic)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "Additional descriptive information about the skill. (English)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "Additional descriptive information about the skill. (Spanish)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "Additional descriptive information about the skill. (French)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "Additional descriptive information about the skill. (Portuguese)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
               "isLocalized": {
                 "description": "Indicates if the skill has localized variants.",
@@ -6435,10 +6719,44 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                 "type": "string",
               },
               "preferredLabel": {
+                "additionalProperties": false,
                 "description": "The preferred label of the skill.",
-                "maxLength": 256,
-                "pattern": "\\S",
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The preferred label of the skill. (Amharic)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "The preferred label of the skill. (English)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The preferred label of the skill. (Spanish)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "The preferred label of the skill. (French)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "The preferred label of the skill. (Portuguese)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
               "reuseLevel": {
                 "description": "The reuse level of the skill (e.g., sector-specific, transversal).",
@@ -6451,9 +6769,39 @@ exports[`Test the Skill module The export module matches the snapshot 1`] = `
                 "type": "string",
               },
               "scopeNote": {
+                "additionalProperties": false,
                 "description": "Scope clarification for the skill's application.",
-                "maxLength": 4000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "Scope clarification for the skill's application. (Amharic)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "Scope clarification for the skill's application. (English)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "Scope clarification for the skill's application. (Spanish)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "Scope clarification for the skill's application. (French)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "Scope clarification for the skill's application. (Portuguese)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
               "skillType": {
                 "description": "The type of the skill (e.g., skill/competence, knowledge, language, attitude).",

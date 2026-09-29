@@ -1,9 +1,7 @@
 import {
-  testNonEmptyStringField,
   testObjectIdField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
-  testStringField,
   testUUIDArray,
   testValidSchema,
   testNonEmptyURIStringField,
@@ -14,6 +12,55 @@ import { getMockId } from "_test_utilities/mockMongoId";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import SkillAPISpecs from "../../index";
 import SkillEnums from "../../_shared/enums";
+import LanguageAPISpecs from "language";
+
+const givenFallbackDbKeyName = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName;
+
+// GIVEN a function to test a translatable field of the PUT request schema (an object keyed by language)
+function testTranslatedStringField(fieldName: string, maxLength: number) {
+  test.each([
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError("", "required", `must have required property '${fieldName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be object")],
+    [CaseType.Success, "a single language value", { [givenFallbackDbKeyName]: getTestString(maxLength) }, undefined],
+    [
+      CaseType.Success,
+      "a multi language value",
+      { [givenFallbackDbKeyName]: getTestString(maxLength), fr: getTestString(maxLength) },
+      undefined,
+    ],
+    [
+      CaseType.Failure,
+      "a value missing the fallback language",
+      { fr: getTestString(maxLength) },
+      constructSchemaError(`/${fieldName}`, "required", `must have required property '${givenFallbackDbKeyName}'`),
+    ],
+    [
+      CaseType.Failure,
+      "a value translated in a language that is not in the registry",
+      { [givenFallbackDbKeyName]: getTestString(maxLength), tlh: "nuqneH" },
+      constructSchemaError(`/${fieldName}`, "additionalProperties", "must NOT have additional properties"),
+    ],
+    [
+      CaseType.Failure,
+      "a value longer than the maximum length in one language only",
+      { [givenFallbackDbKeyName]: getTestString(maxLength), fr: getTestString(maxLength + 1) },
+      constructSchemaError(`/${fieldName}/fr`, "maxLength", "must NOT have more than " + maxLength + " characters"),
+    ],
+  ] as const)(`(%s) Validate '${fieldName}' when it is %s`, (caseType, _description, givenValue, failure) => {
+    assertCaseForProperty(
+      fieldName,
+      { [fieldName]: givenValue },
+      SkillAPISpecs.Skill.PUT.Schemas.Request.Payload,
+      caseType,
+      failure
+    );
+  });
+}
 
 describe("SkillAPISpecs.Skill.PUT.Schemas.Request.Payload schema", () => {
   testValidSchema("SkillAPISpecs.Skill.PUT.Schemas.Request.Payload", SkillAPISpecs.Skill.PUT.Schemas.Request.Payload);
@@ -23,11 +70,11 @@ describe("Test objects against the SkillAPISpecs.Skill.PUT.Schemas.Request.Paylo
   const givenValidSkillPUTRequest = {
     UUIDHistory: [],
     originUri: "https://foo/bar",
-    preferredLabel: getTestString(20),
-    altLabels: [getTestString(15), getTestString(25)],
-    definition: getTestString(50),
-    description: getTestString(50),
-    scopeNote: getTestString(30),
+    preferredLabel: { [givenFallbackDbKeyName]: getTestString(20) },
+    altLabels: [{ [givenFallbackDbKeyName]: getTestString(15) }, { [givenFallbackDbKeyName]: getTestString(25) }],
+    definition: { [givenFallbackDbKeyName]: getTestString(50) },
+    description: { [givenFallbackDbKeyName]: getTestString(50) },
+    scopeNote: { [givenFallbackDbKeyName]: getTestString(30) },
     skillType: SkillEnums.SkillType.SkillCompetence,
     reuseLevel: SkillEnums.ReuseLevel.CrossSector,
     modelId: getMockId(1),
@@ -61,11 +108,7 @@ describe("Test objects against the SkillAPISpecs.Skill.PUT.Schemas.Request.Paylo
     });
 
     describe("Test validation of 'preferredLabel'", () => {
-      testNonEmptyStringField<SkillAPISpecs.Types.PUTSkill.Request.Payload>(
-        "preferredLabel",
-        SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
-        givenSchema
-      );
+      testTranslatedStringField("preferredLabel", SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH);
     });
 
     describe("Test validation of 'altLabels'", () => {
@@ -80,31 +123,40 @@ describe("Test objects against the SkillAPISpecs.Skill.PUT.Schemas.Request.Paylo
         [CaseType.Failure, "empty string", "", constructSchemaError("/altLabels", "type", "must be array")],
         [
           CaseType.Failure,
-          "array of objects",
-          [{}, {}],
-          [
-            constructSchemaError("/altLabels/0", "type", "must be string"),
-            constructSchemaError("/altLabels/1", "type", "must be string"),
-          ],
+          "an array of items missing the fallback language",
+          [{ fr: "foo" }],
+          constructSchemaError("/altLabels/0", "required", `must have required property '${givenFallbackDbKeyName}'`),
         ],
         [
           CaseType.Failure,
-          "an array of same strings",
-          ["foo", "foo"],
+          "an array of the same translated value",
+          [{ [givenFallbackDbKeyName]: "foo" }, { [givenFallbackDbKeyName]: "foo" }],
           constructSchemaError(
             "/altLabels",
             "uniqueItems",
-            "must NOT have duplicate items (items ## 1 and 0 are identical)"
+            "must NOT have duplicate items (items ## 0 and 1 are identical)"
           ),
         ],
         [
           CaseType.Success,
-          "an array of valid strings",
+          "an array of single language values",
           [
-            getTestString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
-            getTestString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH - 1),
+            { [givenFallbackDbKeyName]: getTestString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) },
+            { [givenFallbackDbKeyName]: getTestString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH - 1) },
           ],
           undefined,
+        ],
+        [
+          CaseType.Success,
+          "an array of multi language values",
+          [{ [givenFallbackDbKeyName]: "Chef", fr: "Chef" }],
+          undefined,
+        ],
+        [
+          CaseType.Failure,
+          "an array with an item translated in a language that is not in the registry",
+          [{ [givenFallbackDbKeyName]: "Chef", tlh: "nuqneH" }],
+          constructSchemaError("/altLabels/0", "additionalProperties", "must NOT have additional properties"),
         ],
       ])("(%s) Validate 'altLabels' when it is %s", (caseType, _description, givenValue, failureMessage) => {
         const givenObject = {
@@ -115,27 +167,15 @@ describe("Test objects against the SkillAPISpecs.Skill.PUT.Schemas.Request.Paylo
     });
 
     describe("Test validation of 'definition'", () => {
-      testStringField<SkillAPISpecs.Types.PUTSkill.Request.Payload>(
-        "definition",
-        SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH,
-        givenSchema
-      );
+      testTranslatedStringField("definition", SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH);
     });
 
     describe("Test validation of 'description'", () => {
-      testStringField<SkillAPISpecs.Types.PUTSkill.Request.Payload>(
-        "description",
-        SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
-        givenSchema
-      );
+      testTranslatedStringField("description", SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH);
     });
 
     describe("Test validation of 'scopeNote'", () => {
-      testStringField<SkillAPISpecs.Types.PUTSkill.Request.Payload>(
-        "scopeNote",
-        SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH,
-        givenSchema
-      );
+      testTranslatedStringField("scopeNote", SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH);
     });
 
     describe("Test validation of 'skillType'", () => {

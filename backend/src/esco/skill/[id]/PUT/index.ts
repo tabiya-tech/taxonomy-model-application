@@ -11,7 +11,7 @@ import { getResourcesBaseUrl } from "server/config/config";
 import { IUpdateSkillSpec, ModelForSkillValidationErrorCode } from "../../_shared/skill.types";
 import { Routes } from "routes.constant";
 import { RoleRequired } from "auth/authorizer";
-import { SkillModelValidationError } from "../../services/skill.service.types";
+import { SkillLanguageValidationError, SkillModelValidationError } from "../../services/skill.service.types";
 import { extractAndValidateIdParams } from "../../_shared/params";
 
 export class SkillPUTController {
@@ -24,7 +24,9 @@ export class SkillPUTController {
    *     tags:
    *       - skills
    *     summary: Fully replace a skill by its ID.
-   *     description: Completely replace all mutable fields of an existing skill in a specific taxonomy model.
+   *     description: |
+   *       Completely replace all mutable fields of an existing skill. For translatable fields, a
+   *       language omitted from the payload is removed from the stored skill.
    *     security:
    *       - api_key: []
    *       - jwt_auth: []
@@ -141,6 +143,15 @@ export class SkillPUTController {
       return responseJSON(StatusCodes.OK, buildPUTResponse(updatedSkill, getResourcesBaseUrl()));
     } catch (error: unknown) {
       console.error("Failed to update skill:", error);
+
+      if (error instanceof SkillLanguageValidationError) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          SkillAPISpecs.Skill.PUT.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+          `Field '${error.field}' uses a language not available in this model`,
+          `Unsupported language: '${error.language}'`
+        );
+      }
 
       if (error instanceof SkillModelValidationError) {
         switch (error.code) {

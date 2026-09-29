@@ -108,8 +108,20 @@ type ITranslatableFields = {
   scopeNote: LanguageAPISpecs.Types.ITranslatedString;
 };
 
-// Used by POST: takes the full multilingual object for every translatable field.
+// Same fields as ITranslatableFields, but each language may also be null to delete that translation.
+type IPartialTranslatableFields = {
+  preferredLabel?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  definition?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  scopeNote?: LanguageAPISpecs.Types.IPartialTranslatedString;
+};
+
+// Shared by POST and PUT: both take the full multilingual object for every translatable field.
 type ISkillFullTranslatedRequest = Omit<ISkillRequest, TranslatableFieldName> & ITranslatableFields;
+
+// Used by PATCH: translatable fields are partial multilingual objects, merged per language.
+type ISkillPATCHRequest = Omit<Partial<ISkillRequest>, TranslatableFieldName> & IPartialTranslatableFields;
 
 interface PaginatedSkillResponse {
   data: ISkillResponse[];
@@ -174,7 +186,7 @@ namespace SkillTypes {
 
   export namespace PUTSkill {
     export namespace Request {
-      export type Payload = ISkillRequest;
+      export type Payload = ISkillFullTranslatedRequest;
     }
     export namespace Response {
       export type Payload = ISkillResponse;
@@ -188,7 +200,7 @@ namespace SkillTypes {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _ = 0;
       export namespace Request {
-        export type Payload = ISkillRequest;
+        export type Payload = ISkillFullTranslatedRequest;
       }
       export namespace Response {
         export type Payload = ISkillResponse;
@@ -198,7 +210,7 @@ namespace SkillTypes {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const _ = 0;
       export namespace Request {
-        export type Payload = Partial<ISkillRequest>;
+        export type Payload = ISkillPATCHRequest;
       }
       export namespace Response {
         export type Payload = ISkillResponse;

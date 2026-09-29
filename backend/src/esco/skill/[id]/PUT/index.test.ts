@@ -12,6 +12,7 @@ import { getISkillMockData } from "../../_shared/testDataHelper";
 import {
   ISkillService,
   ModelForSkillValidationErrorCode,
+  SkillLanguageValidationError,
   SkillModelValidationError,
 } from "../../services/skill.service.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
@@ -23,13 +24,13 @@ const checkRole = jest.spyOn(authenticatorModule, "checkRole");
 
 const givenValidPayload = (): SkillAPISpecs.Skill.PUT.Types.Request.Payload => ({
   modelId: getMockStringId(1),
-  preferredLabel: "Updated Skill",
+  preferredLabel: { en: "Updated Skill" },
   originUri: `http://example.com/skills/${randomUUID()}`,
   UUIDHistory: [randomUUID()],
-  altLabels: ["Alt label"],
-  definition: "Definition",
-  description: "Description",
-  scopeNote: "Scope note",
+  altLabels: [{ en: "Alt label" }],
+  definition: { en: "Definition" },
+  description: { en: "Description" },
+  scopeNote: { en: "Scope note" },
   skillType: SkillAPISpecs.Enums.SkillType.Knowledge,
   reuseLevel: SkillAPISpecs.Enums.ReuseLevel.CrossSector,
   isLocalized: false,
@@ -104,7 +105,7 @@ describe("Test for skill PUT handler", () => {
     expect(givenSkillServiceMock.update).toHaveBeenCalledWith(
       givenSkillId,
       givenModelId,
-      expect.objectContaining({ preferredLabel: "Updated Skill" })
+      expect.objectContaining({ preferredLabel: { en: "Updated Skill" } })
     );
     expect(JSON.parse(actualResponse.body).preferredLabel).toEqual(givenSkill.preferredLabel);
   });
@@ -183,6 +184,37 @@ describe("Test for skill PUT handler", () => {
     expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
     const body = JSON.parse(actualResponse.body);
     expect(body.errorCode).toEqual(SkillAPISpecs.Skill.PUT.Errors.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL);
+  });
+
+  test("should respond with BAD_REQUEST when a field uses a language not available in the model", async () => {
+    // GIVEN a valid request
+    const givenModelId = getMockStringId(1);
+    const givenSkillId = getMockStringId(2);
+    const givenPayload = givenValidPayload();
+    givenPayload.modelId = givenModelId;
+    const givenEvent: APIGatewayProxyEvent = {
+      httpMethod: HTTP_VERBS.PUT,
+      body: JSON.stringify(givenPayload),
+      headers: { "Content-Type": "application/json" },
+      path: `/models/${givenModelId}/skills/${givenSkillId}`,
+      pathParameters: { modelId: givenModelId, id: givenSkillId },
+    } as unknown as APIGatewayProxyEvent;
+
+    // AND the service rejects because 'fr' is not one of the model's availableLanguages
+    const givenSkillServiceMock = {
+      update: jest.fn().mockRejectedValue(new SkillLanguageValidationError("preferredLabel", "fr")),
+    } as unknown as ISkillService;
+    mockGetServiceRegistry().skill = givenSkillServiceMock;
+
+    // WHEN the handler is invoked
+    const actualResponse = await skillHandler(givenEvent);
+
+    // THEN expect the handler to respond with BAD_REQUEST, naming the field and the language
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    const body = JSON.parse(actualResponse.body);
+    expect(body.errorCode).toEqual(SkillAPISpecs.Skill.PUT.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE);
+    expect(body.message).toEqual("Field 'preferredLabel' uses a language not available in this model");
+    expect(body.details).toEqual("Unsupported language: 'fr'");
   });
 
   test("should respond with BAD_REQUEST when payload modelId does not match path", async () => {

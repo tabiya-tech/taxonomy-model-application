@@ -11,6 +11,7 @@ import { getISkillMockData } from "../../_shared/testDataHelper";
 import {
   ISkillService,
   ModelForSkillValidationErrorCode,
+  SkillLanguageValidationError,
   SkillModelValidationError,
 } from "../../services/skill.service.types";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
@@ -48,7 +49,7 @@ describe("Test for skill PATCH handler", () => {
     const givenModelId = getMockStringId(1);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "New Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "New Label" } }),
       headers: { "Content-Type": "application/json" },
       path: `/models/${givenModelId}/skills/${getMockStringId(2)}`,
       requestContext: usersRequestContext.REGISTED_USER,
@@ -63,12 +64,12 @@ describe("Test for skill PATCH handler", () => {
     const givenModelId = getMockStringId(1);
     const givenSkillId = getMockStringId(2);
     const fullyPopulatedPayload = {
-      preferredLabel: "Updated Preferred Label",
+      preferredLabel: { en: "Updated Preferred Label" },
       originUri: "https://example.com/origin",
-      altLabels: ["Alt 1", "Alt 2"],
-      definition: "New definition",
-      description: "New description",
-      scopeNote: "New scope note",
+      altLabels: [{ en: "Alt 1" }, { en: "Alt 2" }],
+      definition: { en: "New definition" },
+      description: { en: "New description" },
+      scopeNote: { en: "New scope note" },
       skillType: "knowledge",
       reuseLevel: "sector-specific",
       modelId: givenModelId,
@@ -105,7 +106,7 @@ describe("Test for skill PATCH handler", () => {
     const givenSkillId = getMockStringId(2);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Updated Preferred Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Updated Preferred Label" } }),
       headers: { "Content-Type": "application/json" },
       path: `/models/${givenModelId}/skills/${givenSkillId}`,
       pathParameters: { modelId: givenModelId, id: givenSkillId },
@@ -124,7 +125,7 @@ describe("Test for skill PATCH handler", () => {
     expect(givenSkillServiceMock.patch).toHaveBeenCalledWith(
       givenSkillId,
       givenModelId,
-      expect.objectContaining({ preferredLabel: "Updated Preferred Label" })
+      expect.objectContaining({ preferredLabel: { en: "Updated Preferred Label" } })
     );
     expect(JSON.parse(actualResponse.body).preferredLabel).toEqual(givenSkill.preferredLabel);
   });
@@ -155,7 +156,7 @@ describe("Test for skill PATCH handler", () => {
     const givenSkillId = getMockStringId(2);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Label" } }),
       headers: { "Content-Type": "application/json" },
       path: `/models/${givenModelId}/skills/${givenSkillId}`,
     } as unknown as APIGatewayProxyEvent;
@@ -177,7 +178,7 @@ describe("Test for skill PATCH handler", () => {
     const givenSkillId = getMockStringId(2);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Label" } }),
       headers: { "Content-Type": "application/json" },
       path: `/models/${givenModelId}/skills/${givenSkillId}`,
     } as unknown as APIGatewayProxyEvent;
@@ -201,7 +202,7 @@ describe("Test for skill PATCH handler", () => {
     const givenSkillId = getMockStringId(2);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Label" } }),
       headers: { "Content-Type": "application/json" },
       path: `/models/${givenModelId}/skills/${givenSkillId}`,
     } as unknown as APIGatewayProxyEvent;
@@ -220,6 +221,35 @@ describe("Test for skill PATCH handler", () => {
     expect(body.errorCode).toEqual(
       SkillAPISpecs.Skill.PATCH.Errors.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL
     );
+  });
+
+  test("should respond with BAD_REQUEST when a field sets a language not available in the model", async () => {
+    // GIVEN a valid request
+    const givenModelId = getMockStringId(1);
+    const givenSkillId = getMockStringId(2);
+    const givenEvent: APIGatewayProxyEvent = {
+      httpMethod: HTTP_VERBS.PATCH,
+      body: JSON.stringify({ preferredLabel: { en: "Cook", fr: "Cuisinier" } }),
+      headers: { "Content-Type": "application/json" },
+      path: `/models/${givenModelId}/skills/${givenSkillId}`,
+      pathParameters: { modelId: givenModelId, id: givenSkillId },
+    } as unknown as APIGatewayProxyEvent;
+
+    // AND the service rejects because 'fr' is not one of the model's availableLanguages
+    const givenSkillServiceMock = {
+      patch: jest.fn().mockRejectedValue(new SkillLanguageValidationError("preferredLabel", "fr")),
+    } as unknown as ISkillService;
+    mockGetServiceRegistry().skill = givenSkillServiceMock;
+
+    // WHEN the handler is invoked
+    const actualResponse = await skillHandler(givenEvent);
+
+    // THEN expect the handler to respond with BAD_REQUEST, naming the field and the language
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    const body = JSON.parse(actualResponse.body);
+    expect(body.errorCode).toEqual(SkillAPISpecs.Skill.PATCH.Errors.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE);
+    expect(body.message).toEqual("Field 'preferredLabel' uses a language not available in this model");
+    expect(body.details).toEqual("Unsupported language: 'fr'");
   });
 
   test("should respond with BAD_REQUEST when payload modelId does not match path", async () => {
@@ -256,7 +286,7 @@ describe("Test for skill PATCH handler", () => {
     const givenSkillId = getMockStringId(2);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Label" } }),
       headers: { "Content-Type": "text/plain" },
       path: `/models/${givenModelId}/skills/${givenSkillId}`,
       pathParameters: { modelId: givenModelId, id: givenSkillId },
@@ -272,7 +302,7 @@ describe("Test for skill PATCH handler", () => {
     const givenSkillId = getMockStringId(2);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "A label" }),
+      body: JSON.stringify({ preferredLabel: { en: "A label" } }),
       // API Gateway may lowercase header names — only lowercase key present
       headers: { "content-type": "application/json" },
       path: `/models/${givenModelId}/skills/${givenSkillId}`,
@@ -364,7 +394,7 @@ describe("Test for skill PATCH handler", () => {
     const givenSkillId = getMockStringId(2);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Label" } }),
       headers: { "Content-Type": "application/json" },
       path: `/models/${givenModelId}/skills/${givenSkillId}`,
       pathParameters: { modelId: givenModelId, id: givenSkillId },
@@ -387,7 +417,7 @@ describe("Test for skill PATCH handler", () => {
     const givenSkillId = getMockStringId(2);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Label" } }),
       headers: { "Content-Type": "application/json" },
       path: `/models/${givenModelId}/skills/${givenSkillId}`,
       pathParameters: { modelId: givenModelId, id: givenSkillId },
@@ -408,7 +438,7 @@ describe("Test for skill PATCH handler", () => {
     const givenSkillId = getMockStringId(2);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Label" } }),
       headers: { "Content-Type": "application/json" },
       path: `/models/${givenModelId}/skills/${givenSkillId}`,
       pathParameters: { modelId: givenModelId, id: givenSkillId },
@@ -427,7 +457,7 @@ describe("Test for skill PATCH handler", () => {
   test("should respond with BAD_REQUEST when invalid path params are provided", async () => {
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Label" } }),
       headers: { "Content-Type": "application/json" },
       path: `/models/invalid-id/skills/invalid-id`,
       pathParameters: { modelId: "invalid-id", id: "invalid-id" },
@@ -443,7 +473,7 @@ describe("Test for skill PATCH handler", () => {
     const givenSkillId = getMockStringId(2);
     const givenEvent: APIGatewayProxyEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "A label" }),
+      body: JSON.stringify({ preferredLabel: { en: "A label" } }),
       headers: { "Content-Type": "application/json" },
       path: `/models/${givenModelId}/skills/${givenSkillId}`,
       pathParameters: { modelId: givenModelId, id: givenSkillId },
