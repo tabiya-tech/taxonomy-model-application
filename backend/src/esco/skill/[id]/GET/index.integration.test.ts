@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
 
 import SkillAPISpecs from "api-specifications/esco/skill";
+import LanguageAPISpecs from "api-specifications/language";
 
 import { getRandomString, getTestString } from "_test_utilities/getMockRandomData";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
@@ -77,6 +78,25 @@ describe("Test for skill detail GET handler with a DB", () => {
       await dbConnection.models.ModelInfo.deleteMany({});
     }
   });
+  test("GET should set Content-Language and Vary response headers", async () => {
+    const givenModelInfo = await createModelInDB();
+    const givenSkill = await createSkillInDB(givenModelInfo.id.toString());
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {},
+      pathParameters: { modelId: givenModelInfo.id.toString(), id: givenSkill.id.toString() },
+      path: `/models/${givenModelInfo.id.toString()}/skills/${givenSkill.id.toString()}`,
+    };
+    // @ts-ignore
+    const actualResponse = await skillDetailHandler(givenEvent);
+
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(actualResponse.headers?.["Content-Language"]).toEqual(
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode
+    );
+    expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
+  });
+
   test("GET should respond with a single skill when asked for one", async () => {
     const givenModelInfo = await createModelInDB();
 

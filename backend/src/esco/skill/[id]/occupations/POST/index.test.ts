@@ -110,7 +110,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockOccupation = getIOccupationMockData(2) as IOccupation;
       mockOccupation.id = givenOccupationId;
@@ -156,7 +159,10 @@ describe("Test for skill Occupations POST handler", () => {
 
       checkRole.mockResolvedValue(true);
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockOccupation = getIOccupationMockData(2) as IOccupation;
       mockOccupation.id = givenOccupationId;
@@ -196,7 +202,10 @@ describe("Test for skill Occupations POST handler", () => {
 
       checkRole.mockResolvedValue(true);
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockOccupation = getIOccupationMockData(2) as IOccupation;
       mockOccupation.id = givenOccupationId;
@@ -367,9 +376,9 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(
-        ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID
-      );
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID,
+      });
 
       const actualResponse = await postSkillOccupationsHandler(RouterEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
@@ -394,9 +403,9 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(
-        ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB
-      );
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB,
+      });
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -421,9 +430,9 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(
-        ModelForSkillValidationErrorCode.MODEL_IS_RELEASED
-      );
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: ModelForSkillValidationErrorCode.MODEL_IS_RELEASED,
+      });
 
       const actualResponse = await postSkillOccupationsHandler(givenEvent);
       expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -448,7 +457,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
       (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
@@ -479,7 +491,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const RouterSkillServiceMock = mockGetServiceRegistry().skill;
-      (RouterSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (RouterSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
       (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
@@ -510,7 +525,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
       (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
@@ -541,7 +559,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
       (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
@@ -572,7 +593,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
       (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
@@ -603,7 +627,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
       (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
@@ -634,7 +661,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
       (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
@@ -665,7 +695,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
       (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(
@@ -698,7 +731,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
       (mockRelationService.addOccupation as jest.Mock).mockRejectedValue(new Error("DB Connection Error"));
@@ -727,7 +763,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockOccupation = getIOccupationMockData(2) as IOccupation;
       mockOccupation.id = givenOccupationId;
@@ -765,7 +804,10 @@ describe("Test for skill Occupations POST handler", () => {
       checkRole.mockResolvedValue(true);
 
       const givenSkillServiceMock = mockGetServiceRegistry().skill;
-      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue(null);
+      (givenSkillServiceMock.validateModelForSkill as jest.Mock).mockResolvedValue({
+        errorCode: null,
+        availableLanguages: [],
+      });
 
       const mockRelationService = mockGetServiceRegistry().occupationToSkillRelation;
       (mockRelationService.addOccupation as jest.Mock).mockRejectedValue("string error");

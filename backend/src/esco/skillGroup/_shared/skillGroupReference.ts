@@ -9,15 +9,16 @@ type _Document<T> = mongoose.Document<unknown, undefined, T> & T;
 // repository hands back
 export type SkillGroupDocument = _Document<ISkillGroupDoc>;
 
-export function getSkillGroupDocReference(skillGroup: SkillGroupDocument): ISkillGroupReferenceDoc {
+export function getSkillGroupDocReference(
+  skillGroup: SkillGroupDocument,
+  language: string = getFallbackLanguageConfig().dbKeyName
+): ISkillGroupReferenceDoc {
   return {
     modelId: skillGroup.modelId,
     id: skillGroup.id,
     objectType: ObjectTypes.SkillGroup,
     UUID: skillGroup.UUID,
     code: skillGroup.code,
-    // a reference carries the fall back language only; preferredLabel can never be empty, so resolving it is the
-    // same as reading the fall back language straight off the sub document
-    preferredLabel: resolveTranslated(skillGroup.preferredLabel, getFallbackLanguageConfig().dbKeyName),
+    preferredLabel: resolveTranslated(skillGroup.preferredLabel, language),
   };
 }

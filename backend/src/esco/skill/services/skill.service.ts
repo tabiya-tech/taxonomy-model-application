@@ -1,4 +1,9 @@
-import { ISkillHistoryEntry, ISkillService, SkillModelValidationError } from "./skill.service.types";
+import {
+  ISkillHistoryEntry,
+  ISkillService,
+  SkillModelValidationError,
+  ValidateModelResult,
+} from "./skill.service.types";
 import { ISkillRepository } from "esco/skill/repository/skill.repository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { toModelReference } from "modelInfo/modelInfoReference";
@@ -18,6 +23,7 @@ import { ISkillEmbeddingDoc } from "embeddings/entityEmbeddings/entityEmbedding.
 import { IEmbeddingProcessStateRepository } from "embeddings/embeddingProcessState/embeddingProcessStateRepository";
 import { EmbeddableField } from "embeddings/service/types";
 import { EmbeddingModelServiceFactory, getEmbeddingModelService } from "embeddings/models/embeddingModelServiceFactory";
+import LanguageAPISpecs from "api-specifications/language";
 import { SkillsEmbeddingsVectorSearchIndexName } from "embeddings/entityEmbeddings/vectorSearchIndex.constant";
 import { encodeCursor } from "esco/occupations/_shared/pagination/encodeCursor";
 import { decodeCursor } from "esco/occupations/_shared/pagination/decodeCursor";
@@ -33,16 +39,16 @@ export class SkillService implements ISkillService {
   ) {}
 
   async create(newSkillSpec: INewSkillSpecWithoutImportId): Promise<ISkill> {
-    const errorCode = await this.validateModelForSkill(newSkillSpec.modelId);
-    if (errorCode != null) {
-      throw new SkillModelValidationError(errorCode);
+    const result = await this.validateModelForSkill(newSkillSpec.modelId);
+    if (result.errorCode != null) {
+      throw new SkillModelValidationError(result.errorCode);
     }
 
     return await this.skillRepository.create(newSkillSpec);
   }
 
-  async findById(id: string): Promise<ISkill | null> {
-    return this.skillRepository.findById(id);
+  async findById(id: string, language?: string): Promise<ISkill | null> {
+    return this.skillRepository.findById(id, language);
   }
 
   async findPaginated(
@@ -51,7 +57,8 @@ export class SkillService implements ISkillService {
     limit: number,
     searchValue?: string,
     searchFields: EmbeddableField[] = [EmbeddableField.preferredLabel],
-    desc: boolean = true
+    desc: boolean = true,
+    language?: string
   ): Promise<{ items: ISkill[]; nextCursor: string | null }> {
     // When a search value is provided, search instead of plain listing: vector (embeddings) similarity on
     // released, already-embedded models; a case-insensitive regex otherwise. Both return an already-encoded cursor.
@@ -66,13 +73,14 @@ export class SkillService implements ISkillService {
             searchValue,
             searchFields,
             cursor,
-            limit
+            limit,
+            language
           );
         }
         // The model is released but its embeddings have not been generated (completed) yet, so there is nothing to
         // search with vectors. Fall back to regex so the endpoint still returns useful results.
       }
-      return this.regexSearchPaginated(modelId, searchValue, searchFields, cursor, limit);
+      return this.regexSearchPaginated(modelId, searchValue, searchFields, cursor, limit, language);
     }
 
     // Plain keyset pagination ordered by createdAt then _id.
@@ -80,7 +88,14 @@ export class SkillService implements ISkillService {
     const decodedCursor = cursor ? decodeCursor(cursor) : undefined;
 
     // Get items + 1 to check if there's a next page
-    const items = await this.skillRepository.findPaginated(modelId, limit + 1, sortOrder, decodedCursor);
+    const items = await this.skillRepository.findPaginated(
+      modelId,
+      limit + 1,
+      sortOrder,
+      decodedCursor,
+      undefined,
+      language
+    );
 
     // Check if there's a next page
     const hasMore = items.length > limit;
@@ -108,16 +123,21 @@ export class SkillService implements ISkillService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkill[]; nextCursor: string | null }> {
     // Newest first, consistent with the plain list endpoint's default order.
     const sortOrder = -1;
     const decodedCursor = cursor ? decodeCursor(cursor) : undefined;
 
-    const items = await this.skillRepository.findPaginated(modelId, limit + 1, sortOrder, decodedCursor, {
-      value: searchValue,
-      fields: searchFields,
-    });
+    const items = await this.skillRepository.findPaginated(
+      modelId,
+      limit + 1,
+      sortOrder,
+      decodedCursor,
+      { value: searchValue, fields: searchFields },
+      language
+    );
 
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
@@ -141,7 +161,8 @@ export class SkillService implements ISkillService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkill[]; nextCursor: string | null }> {
     const offset = cursor ? decodeSearchCursor(cursor) : 0;
 
@@ -163,7 +184,7 @@ export class SkillService implements ISkillService {
 
     // Hydrate the ranked ids to full skills and re-apply the relevance order (findByIds does not preserve it).
     const ids = pageHits.map((hit) => hit.entityId);
-    const skills = await this.skillRepository.findByIds(modelId, ids);
+    const skills = await this.skillRepository.findByIds(modelId, ids, language);
     const skillById = new Map(skills.map((skill) => [skill.id, skill]));
     const items = ids.map((id) => skillById.get(id)).filter((skill): skill is ISkill => skill !== undefined);
 
@@ -172,19 +193,23 @@ export class SkillService implements ISkillService {
     return { items, nextCursor };
   }
 
-  async validateModelForSkill(modelId: string): Promise<ModelForSkillValidationErrorCode | null> {
+  async validateModelForSkill(modelId: string): Promise<ValidateModelResult> {
     try {
       const model = await this.modelRepository.getModelById(modelId);
       if (!model) {
-        return ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
+        return { errorCode: ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID };
       }
       if (model.released) {
-        return ModelForSkillValidationErrorCode.MODEL_IS_RELEASED;
+        return { errorCode: ModelForSkillValidationErrorCode.MODEL_IS_RELEASED };
       }
-      return null;
+      // model.availableLanguages is string[] at the type level but the model API enforces valid shortCodes
+      return {
+        errorCode: null,
+        availableLanguages: (model.availableLanguages ?? []) as LanguageAPISpecs.Types.LanguageShortCode[],
+      };
     } catch (e: unknown) {
       console.error("Error validating model for skill:", e);
-      return ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
+      return { errorCode: ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB };
     }
   }
 
@@ -192,10 +217,11 @@ export class SkillService implements ISkillService {
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     return this.findPaginatedRelation(
-      () => this.skillRepository.findParents(modelId, skillId, limit + 1, cursor),
+      () => this.skillRepository.findParents(modelId, skillId, limit + 1, cursor, language),
       limit
     );
   }
@@ -204,10 +230,11 @@ export class SkillService implements ISkillService {
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{ items: (ISkill | ISkillGroup)[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     return this.findPaginatedRelation(
-      () => this.skillRepository.findChildren(modelId, skillId, limit + 1, cursor),
+      () => this.skillRepository.findChildren(modelId, skillId, limit + 1, cursor, language),
       limit
     );
   }
@@ -216,13 +243,14 @@ export class SkillService implements ISkillService {
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{
     items: OccupationToSkillReferenceWithRelationType<IOccupationReference>[];
     nextCursor: { _id: string; createdAt: Date } | null;
   }> {
     return this.findPaginatedRelation(
-      () => this.skillRepository.findOccupationsForSkill(modelId, skillId, limit + 1, cursor),
+      () => this.skillRepository.findOccupationsForSkill(modelId, skillId, limit + 1, cursor, language),
       limit
     );
   }
@@ -231,12 +259,13 @@ export class SkillService implements ISkillService {
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{
     items: SkillToSkillReferenceWithRelationType<ISkill>[];
     nextCursor: { _id: string; createdAt: Date } | null;
   }> {
-    const items = await this.skillRepository.findRelatedSkills(modelId, skillId, limit + 1, cursor);
+    const items = await this.skillRepository.findRelatedSkills(modelId, skillId, limit + 1, cursor, language);
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
 
@@ -272,22 +301,22 @@ export class SkillService implements ISkillService {
   }
 
   async update(id: string, modelId: string, spec: IUpdateSkillSpec): Promise<ISkill | null> {
-    const errorCode = await this.validateModelForSkill(modelId);
-    if (errorCode != null) {
-      throw new SkillModelValidationError(errorCode);
+    const result = await this.validateModelForSkill(modelId);
+    if (result.errorCode != null) {
+      throw new SkillModelValidationError(result.errorCode);
     }
     return this.skillRepository.update(id, modelId, spec);
   }
 
   async patch(id: string, modelId: string, spec: IPartialUpdateSkillSpec): Promise<ISkill | null> {
-    const errorCode = await this.validateModelForSkill(modelId);
-    if (errorCode != null) {
-      throw new SkillModelValidationError(errorCode);
+    const result = await this.validateModelForSkill(modelId);
+    if (result.errorCode != null) {
+      throw new SkillModelValidationError(result.errorCode);
     }
     return this.skillRepository.patch(id, modelId, spec);
   }
 
-  async getHistory(skillId: string): Promise<ISkillHistoryEntry[] | null> {
+  async getHistory(skillId: string, language?: string): Promise<ISkillHistoryEntry[] | null> {
     const skill = await this.skillRepository.findById(skillId);
     if (!skill) {
       return null;
@@ -301,7 +330,7 @@ export class SkillService implements ISkillService {
     }
 
     // Resolve each historical UUID to the skill's reference (as it was in that model) + its modelId.
-    const historyReferences = await this.skillRepository.findHistoryReferencesByUUIDs(uuidHistory);
+    const historyReferences = await this.skillRepository.findHistoryReferencesByUUIDs(uuidHistory, language);
     const referenceByUUID = new Map(historyReferences.map((entry) => [entry.UUID, entry]));
 
     // Fetch the models for the resolved modelIds (single query) and map them to lightweight references.

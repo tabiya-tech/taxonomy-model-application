@@ -8,6 +8,7 @@ import { Connection } from "mongoose";
 
 import SkillAPISpecs from "api-specifications/esco/skill";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
+import LanguageAPISpecs from "api-specifications/language";
 
 import { getRandomString } from "_test_utilities/getMockRandomData";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
@@ -75,6 +76,25 @@ describe("Test for skill History GET handler with a DB", () => {
       await dbConnection.models.SkillModel.deleteMany({});
       await dbConnection.models.ModelInfo.deleteMany({});
     }
+  });
+
+  test("GET should set Content-Language and Vary response headers", async () => {
+    const givenModel = await createModelInDB();
+    const givenSkill = await createSkillInDB(givenModel.id, []);
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.GET,
+      headers: {},
+      path: `/models/${givenModel.id}/skills/${givenSkill.id}/history`,
+      pathParameters: { modelId: givenModel.id, id: givenSkill.id },
+    };
+
+    const actualResponse = await skillHistoryHandler(givenEvent as unknown as APIGatewayProxyEvent);
+
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    expect(actualResponse.headers?.["Content-Language"]).toEqual(
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode
+    );
+    expect(actualResponse.headers?.["Vary"]).toEqual("Accept-Language");
   });
 
   test("GET /skills/{id}/history should resolve the skill's history to the models it appeared in", async () => {

@@ -276,7 +276,7 @@ describe("Test the SkillService", () => {
       const actual = await service.findById(givenId);
 
       // THEN expect repository.findById to have been called with the id
-      expect(mockRepository.findById).toHaveBeenCalledWith(givenId);
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenId, undefined);
 
       // AND expect the returned skill
       expect(actual).toEqual(expectedSkill);
@@ -293,7 +293,7 @@ describe("Test the SkillService", () => {
       const actual = await service.findById(givenId);
 
       // THEN expect repository.findById to have been called with the id
-      expect(mockRepository.findById).toHaveBeenCalledWith(givenId);
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenId, undefined);
 
       // AND expect null to be returned
       expect(actual).toBeNull();
@@ -344,10 +344,17 @@ describe("Test the SkillService", () => {
       );
 
       // THEN expect repository.findPaginated to have been called with the decoded cursor
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, {
-        id: getMockStringId(10),
-        createdAt: new Date("2023-01-01T00:00:00.000Z"),
-      });
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        -1,
+        {
+          id: getMockStringId(10),
+          createdAt: new Date("2023-01-01T00:00:00.000Z"),
+        },
+        undefined,
+        undefined
+      );
       // AND expect the returned paginated result with an encoded keyset nextCursor
       expect(actual.items).toHaveLength(10);
       const actualDecodedNextCursor = decodeCursor(actual.nextCursor as string);
@@ -383,10 +390,17 @@ describe("Test the SkillService", () => {
       );
 
       // AND expect repository.findPaginated to have been called with the decoded cursor sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, {
-        id: getMockStringId(10),
-        createdAt: new Date("2023-01-01T00:00:00.000Z"),
-      });
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        -1,
+        {
+          id: getMockStringId(10),
+          createdAt: new Date("2023-01-01T00:00:00.000Z"),
+        },
+        undefined,
+        undefined
+      );
       //AND expect the returned paginated result
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();
@@ -411,7 +425,7 @@ describe("Test the SkillService", () => {
       const actual = await service.findPaginated(givenModelId, undefined, givenLimit, undefined, undefined, givenDesc);
 
       // THEN expect repository.findPaginated to have been called with the ascending sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, undefined);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, undefined, undefined, undefined);
       // AND expect the returned result
       expect(actual.items).toHaveLength(5);
     });
@@ -430,7 +444,14 @@ describe("Test the SkillService", () => {
       await service.findPaginated(givenModelId, givenCursor, givenLimit, undefined, undefined, givenDesc);
 
       // THEN expect repository.findPaginated to have been called with the ascending sort and decoded cursor
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, givenCursorObj);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        1,
+        givenCursorObj,
+        undefined,
+        undefined
+      );
     });
 
     test("should return null nextCursor when no more items", async () => {
@@ -520,10 +541,17 @@ describe("Test the SkillService", () => {
         );
 
         // THEN expect the regex search to have been used (not the vector search)
-        expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, givenLimit + 1, -1, undefined, {
-          value: givenSearchValue,
-          fields: givenSearchFields,
-        });
+        expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+          givenModelId,
+          givenLimit + 1,
+          -1,
+          undefined,
+          {
+            value: givenSearchValue,
+            fields: givenSearchFields,
+          },
+          undefined
+        );
         expect(mockSkillEmbeddingRepository.vectorSearch).not.toHaveBeenCalled();
         // AND expect a page of `limit` items and a keyset (id + createdAt) nextCursor
         expect(actual.items).toHaveLength(givenLimit);
@@ -561,7 +589,8 @@ describe("Test the SkillService", () => {
           11,
           -1,
           { id: getMockStringId(50), createdAt: new Date("2023-05-05T00:00:00.000Z") },
-          { value: givenSearchValue, fields: givenSearchFields }
+          { value: givenSearchValue, fields: givenSearchFields },
+          undefined
         );
       });
 
@@ -576,10 +605,17 @@ describe("Test the SkillService", () => {
         const actual = await service.findPaginated(givenModelId, undefined, 10, givenSearchValue, givenSearchFields);
 
         // THEN expect the regex search to have been used and no vector search attempted
-        expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, undefined, {
-          value: givenSearchValue,
-          fields: givenSearchFields,
-        });
+        expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+          givenModelId,
+          11,
+          -1,
+          undefined,
+          {
+            value: givenSearchValue,
+            fields: givenSearchFields,
+          },
+          undefined
+        );
         expect(mockSkillEmbeddingRepository.vectorSearch).not.toHaveBeenCalled();
         expect(actual.items).toHaveLength(1);
       });
@@ -696,8 +732,8 @@ describe("Test the SkillService", () => {
       // WHEN calling service.validateModelForSkill
       const actual = await service.validateModelForSkill(givenModelId);
 
-      // THEN expect it to return null
-      expect(actual).toEqual(null);
+      // THEN expect it to return a success result with no errorCode
+      expect(actual).toEqual({ errorCode: null, availableLanguages: [] });
       // AND expect the modelRepository to have been called
       expect(mockModelRepository.getModelById).toHaveBeenCalledWith(givenModelId);
     });
@@ -712,7 +748,7 @@ describe("Test the SkillService", () => {
       const actual = await service.validateModelForSkill(givenModelId);
 
       // THEN expect it to return MODEL_NOT_FOUND_BY_ID
-      expect(actual).toEqual(ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+      expect(actual).toEqual({ errorCode: ModelForSkillValidationErrorCode.MODEL_NOT_FOUND_BY_ID });
     });
 
     test("should return MODEL_IS_RELEASED when model is released", async () => {
@@ -728,7 +764,7 @@ describe("Test the SkillService", () => {
       const actual = await service.validateModelForSkill(givenModelId);
 
       // THEN expect it to return MODEL_IS_RELEASED
-      expect(actual).toEqual(ModelForSkillValidationErrorCode.MODEL_IS_RELEASED);
+      expect(actual).toEqual({ errorCode: ModelForSkillValidationErrorCode.MODEL_IS_RELEASED });
     });
 
     test("should return FAILED_TO_FETCH_FROM_DB when getModelById throws", async () => {
@@ -745,7 +781,7 @@ describe("Test the SkillService", () => {
       const actual = await service.validateModelForSkill(givenModelId);
 
       // THEN expect it to return FAILED_TO_FETCH_FROM_DB
-      expect(actual).toEqual(ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
+      expect(actual).toEqual({ errorCode: ModelForSkillValidationErrorCode.FAILED_TO_FETCH_FROM_DB });
       expect(consoleErrorSpy).toHaveBeenCalledWith("Error validating model for skill:", givenError);
 
       consoleErrorSpy.mockRestore();
@@ -764,7 +800,7 @@ describe("Test the SkillService", () => {
       // WHEN calling service.getParents
       const actual = await service.getParents(givenModelId, givenSkillId, 100);
 
-      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined);
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined, undefined);
       expect(actual).toEqual({ items: expectedParents, nextCursor: null });
     });
 
@@ -791,7 +827,7 @@ describe("Test the SkillService", () => {
       // WHEN calling service.getParents
       const actual = await service.getParents(givenModelId, givenSkillId, 2);
 
-      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenSkillId, 3, undefined);
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenSkillId, 3, undefined, undefined);
       expect(actual.items).toHaveLength(2);
       expect(actual.nextCursor).toEqual({ _id: getMockStringId(2), createdAt: expectedParents[1].createdAt });
     });
@@ -810,7 +846,7 @@ describe("Test the SkillService", () => {
       const actual = await service.getChildren(givenModelId, givenSkillId, 100);
 
       // THEN expect repository.findChildren to have been called with correct parameters
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined, undefined);
       // AND expect returned children
       expect(actual).toEqual({ items: expectedChildren, nextCursor: null });
     });
@@ -851,7 +887,13 @@ describe("Test the SkillService", () => {
       const actual = await service.getOccupations(givenModelId, givenSkillId, 100);
 
       // THEN expect repository.findOccupationsForSkill to have been called with correct parameters
-      expect(mockRepository.findOccupationsForSkill).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined);
+      expect(mockRepository.findOccupationsForSkill).toHaveBeenCalledWith(
+        givenModelId,
+        givenSkillId,
+        101,
+        undefined,
+        undefined
+      );
       // AND expect returned occupations
       expect(actual).toEqual({ items: expectedOccupations, nextCursor: null });
     });
@@ -894,7 +936,13 @@ describe("Test the SkillService", () => {
       const actual = await service.getRelatedSkills(givenModelId, givenSkillId, 100);
 
       // THEN expect repository.findRelatedSkills to have been called with correct parameters
-      expect(mockRepository.findRelatedSkills).toHaveBeenCalledWith(givenModelId, givenSkillId, 101, undefined);
+      expect(mockRepository.findRelatedSkills).toHaveBeenCalledWith(
+        givenModelId,
+        givenSkillId,
+        101,
+        undefined,
+        undefined
+      );
       // AND expect returned related skills
       expect(actual).toEqual({ items: expectedRelatedSkills, nextCursor: null });
     });
@@ -1089,11 +1137,10 @@ describe("Test the SkillService", () => {
       ]);
       // AND resolution uses single batched queries (no N+1): UUIDs -> refs+modelIds, then modelIds -> models
       expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledTimes(1);
-      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledWith([
-        givenUuidA,
-        givenUuidMissing,
-        givenUuidB,
-      ]);
+      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledWith(
+        [givenUuidA, givenUuidMissing, givenUuidB],
+        undefined
+      );
       expect(mockModelRepository.getModelsByIds).toHaveBeenCalledTimes(1);
       expect(mockModelRepository.getModelsByIds).toHaveBeenCalledWith([givenModelAId, givenModelBId]);
       // AND the heavy model.getHistory is NOT used anymore
@@ -1136,6 +1183,24 @@ describe("Test the SkillService", () => {
 
       // THEN the entry is skipped
       expect(actual).toEqual([]);
+    });
+
+    test("should forward the language argument to findHistoryReferencesByUUIDs", async () => {
+      // GIVEN a skill with a single resolvable UUID
+      const givenUuid = randomUUID();
+      const givenModelId = getMockStringId(10);
+      const givenLanguage = "fr";
+      mockRepository.findById.mockResolvedValue({ UUIDHistory: [givenUuid] } as unknown as ISkill);
+      mockRepository.findHistoryReferencesByUUIDs.mockResolvedValue([
+        { UUID: givenUuid, modelId: givenModelId, reference: givenReference(givenUuid) },
+      ]);
+      mockModelRepository.getModelsByIds.mockResolvedValue([givenModelWithId(1, givenModelId)]);
+
+      // WHEN calling getHistory with a language
+      await service.getHistory(getMockStringId(1), givenLanguage);
+
+      // THEN the language is forwarded to findHistoryReferencesByUUIDs
+      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledWith([givenUuid], givenLanguage);
     });
 
     test("should return an empty array when UUIDHistory is undefined (covers ?? [] fallback)", async () => {

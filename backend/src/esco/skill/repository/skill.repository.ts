@@ -12,22 +12,39 @@ import {
   IUpdateSkillSpec,
 } from "../_shared/skill.types";
 import { ISkillGroup } from "esco/skillGroup/_shared/skillGroup.types";
-import { getSkillDocReference, SkillDocument, unwrapSkillTranslatableFields } from "../_shared/skillReference";
+import {
+  getSkillDocReference,
+  SkillDocument,
+  unwrapSkillTranslatableFields,
+  unwrapSkillTranslatableFieldsForLanguage,
+} from "../_shared/skillReference";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { SkillToSkillReferenceWithRelationType } from "esco/skillToSkillRelation/skillToSkillRelation.types";
 import { OccupationToSkillReferenceWithRelationType } from "esco/occupationToSkillRelation/occupationToSkillRelation.types";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { populateSkillChildrenOptions, populateSkillParentsOptions } from "../_shared/populateSkillHierarchyOptions";
+import {
+  makePopulateSkillChildrenOptions,
+  makePopulateSkillParentsOptions,
+  populateSkillChildrenOptions,
+  populateSkillParentsOptions,
+} from "../_shared/populateSkillHierarchyOptions";
 import {
   populateSkillGroupChildrenOptions,
   populateSkillGroupParentsOptions,
 } from "esco/skillGroup/_shared/populateSkillHierarchyOptions";
 import {
+  makePopulateSkillRequiredBySkillsOptions,
+  makePopulateSkillRequiresSkillsOptions,
   populateSkillRequiredBySkillsOptions,
   populateSkillRequiresSkillsOptions,
 } from "../_shared/populateSkillToSkillRelationOptions";
-import { populateSkillRequiredByOccupationOptions } from "../_shared/populateOccupationToSkillRelationOptions";
+import {
+  makePopulateSkillRequiredByOccupationOptions,
+  populateSkillRequiredByOccupationOptions,
+} from "../_shared/populateOccupationToSkillRelationOptions";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+import { unwrapOccupationTranslatableFields } from "esco/occupations/_shared/occupation.reference";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { Readable } from "node:stream";
 import stream from "stream";
@@ -58,10 +75,6 @@ const TRANSLATABLE_FIELDS = [...TRANSLATABLE_STRING_FIELDS, "altLabels"] as cons
 // skillType is only present on a Skill, not a SkillGroup; used to unwrap only the Skill entries of a mixed array
 function isSkillObject(entity: object): boolean {
   return "skillType" in entity;
-}
-
-function unwrapIfSkill<T extends object>(entity: T): T {
-  return isSkillObject(entity) ? unwrapSkillTranslatableFields(entity) : entity;
 }
 
 /**
@@ -105,7 +118,7 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
    * @return {Promise<ISkill|null>} - A Promise that resolves to the found Skill entry or null if not found.
    * Rejects with an error if the operation fails.
    */
-  findById(id: string): Promise<ISkill | null>;
+  findById(id: string, language?: string): Promise<ISkill | null>;
 
   /**
    * Returns all Skills as a stream. The Skills are transformed to objects (via the .toObject()), however
@@ -141,7 +154,8 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
     limit: number,
     sortOrder: -1 | 1,
     cursor?: { id: string; createdAt: Date },
-    search?: { value: string; fields: string[] }
+    search?: { value: string; fields: string[] },
+    language?: string
   ): Promise<ISkill[]>;
 
   /**
@@ -154,7 +168,7 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
    * @return {Promise<ISkill[]>} - A Promise that resolves to the found Skills.
    * Rejects with an error if the operation fails.
    */
-  findByIds(modelId: string, ids: string[]): Promise<ISkill[]>;
+  findByIds(modelId: string, ids: string[], language?: string): Promise<ISkill[]>;
 
   /**
    * Finds the parent Skills or SkillGroups of a Skill or SkillGroup.
@@ -163,7 +177,13 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
    * @param {string} skillId - The ID of the Skill or SkillGroup.
    * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to the parents.
    */
-  findParents(modelId: string, skillId: string, limit: number, cursor?: string): Promise<(ISkill | ISkillGroup)[]>;
+  findParents(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string,
+    language?: string
+  ): Promise<(ISkill | ISkillGroup)[]>;
 
   /**
    * Finds the child Skills or SkillGroups of a Skill.
@@ -174,7 +194,13 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
    * @param {string} [cursor] - The ID of the cursor for pagination.
    * @return {Promise<(ISkill | ISkillGroup)[]>} - A Promise that resolves to an array containing the child Skills or SkillGroups.
    */
-  findChildren(modelId: string, skillId: string, limit: number, cursor?: string): Promise<(ISkill | ISkillGroup)[]>;
+  findChildren(
+    modelId: string,
+    skillId: string,
+    limit: number,
+    cursor?: string,
+    language?: string
+  ): Promise<(ISkill | ISkillGroup)[]>;
 
   /**
    * Finds the occupations that require a Skill with relationship metadata.
@@ -189,7 +215,8 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]>;
 
   /**
@@ -205,7 +232,8 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<SkillToSkillReferenceWithRelationType<ISkill>[]>;
 
   /**
@@ -224,7 +252,7 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
    * @param {string[]} uuids - The skill UUIDs to resolve.
    * @return {Promise<ISkillModelHistoryReference[]>} - The resolved reference + modelId per input UUID.
    */
-  findHistoryReferencesByUUIDs(uuids: string[]): Promise<ISkillModelHistoryReference[]>;
+  findHistoryReferencesByUUIDs(uuids: string[], language?: string): Promise<ISkillModelHistoryReference[]>;
 
   /**
    * Fully replaces the mutable fields of a Skill (PUT semantics).
@@ -384,19 +412,20 @@ export class SkillRepository implements ISkillRepository {
     });
   }
 
-  async findById(id: string): Promise<ISkill | null> {
+  async findById(id: string, language?: string): Promise<ISkill | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
 
       const skill = await this.Model.findById(id)
-        .populate(populateSkillParentsOptions)
-        .populate(populateSkillChildrenOptions)
-        .populate(populateSkillRequiresSkillsOptions)
-        .populate(populateSkillRequiredBySkillsOptions)
-        .populate(populateSkillRequiredByOccupationOptions)
+        .populate(makePopulateSkillParentsOptions(lang))
+        .populate(makePopulateSkillChildrenOptions(lang))
+        .populate(makePopulateSkillRequiresSkillsOptions(lang))
+        .populate(makePopulateSkillRequiredBySkillsOptions(lang))
+        .populate(makePopulateSkillRequiredByOccupationOptions(lang))
         .exec();
 
-      return skill !== null ? unwrapSkillTranslatableFields<ISkill>(skill.toObject()) : null;
+      return skill !== null ? unwrapSkillTranslatableFieldsForLanguage<ISkill>(skill.toObject(), lang) : null;
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findById: findById failed", { cause: e });
       console.error(err);
@@ -445,9 +474,11 @@ export class SkillRepository implements ISkillRepository {
     limit: number,
     sortOrder: -1 | 1,
     cursor?: { id: string; createdAt: Date },
-    search?: { value: string; fields: string[] }
+    search?: { value: string; fields: string[] },
+    language?: string
   ): Promise<ISkill[]> {
     try {
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       // Build the match stage. The search match (when present) and the keyset cursor condition are ANDed together,
       // each expressed as an $or clause.
@@ -487,14 +518,14 @@ export class SkillRepository implements ISkillRepository {
       // This is necessary because aggregate() returns plain objects, but populate() requires Mongoose documents
       const hydrated = results.map((r) => this.Model.hydrate(r));
       const populated = await this.Model.populate(hydrated, [
-        populateSkillParentsOptions,
-        populateSkillChildrenOptions,
-        populateSkillRequiresSkillsOptions,
-        populateSkillRequiredBySkillsOptions,
-        populateSkillRequiredByOccupationOptions,
+        makePopulateSkillParentsOptions(lang),
+        makePopulateSkillChildrenOptions(lang),
+        makePopulateSkillRequiresSkillsOptions(lang),
+        makePopulateSkillRequiredBySkillsOptions(lang),
+        makePopulateSkillRequiredByOccupationOptions(lang),
       ]);
 
-      return populated.map((doc) => unwrapSkillTranslatableFields(doc.toObject()));
+      return populated.map((doc) => unwrapSkillTranslatableFieldsForLanguage(doc.toObject(), lang));
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findPaginated: findPaginated failed", { cause: e });
       console.error(err);
@@ -502,8 +533,9 @@ export class SkillRepository implements ISkillRepository {
     }
   }
 
-  async findByIds(modelId: string, ids: string[]): Promise<ISkill[]> {
+  async findByIds(modelId: string, ids: string[], language?: string): Promise<ISkill[]> {
     try {
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
       const validIds = ids
         .filter((id) => mongoose.Types.ObjectId.isValid(id))
         .map((id) => new mongoose.Types.ObjectId(id));
@@ -516,14 +548,14 @@ export class SkillRepository implements ISkillRepository {
 
       const hydrated = results.map((r) => this.Model.hydrate(r));
       const populated = await this.Model.populate(hydrated, [
-        populateSkillParentsOptions,
-        populateSkillChildrenOptions,
-        populateSkillRequiresSkillsOptions,
-        populateSkillRequiredBySkillsOptions,
-        populateSkillRequiredByOccupationOptions,
+        makePopulateSkillParentsOptions(lang),
+        makePopulateSkillChildrenOptions(lang),
+        makePopulateSkillRequiresSkillsOptions(lang),
+        makePopulateSkillRequiredBySkillsOptions(lang),
+        makePopulateSkillRequiredByOccupationOptions(lang),
       ]);
 
-      return populated.map((doc) => unwrapSkillTranslatableFields(doc.toObject()));
+      return populated.map((doc) => unwrapSkillTranslatableFieldsForLanguage(doc.toObject(), lang));
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findByIds: findByIds failed", { cause: e });
       console.error(err);
@@ -535,7 +567,8 @@ export class SkillRepository implements ISkillRepository {
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<(ISkill | ISkillGroup)[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
@@ -606,13 +639,14 @@ export class SkillRepository implements ISkillRepository {
         (doc) => (doc as mongoose.Document & { skillType?: string }).skillType === undefined
       );
 
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
       if (skills.length > 0) {
         await this.Model.populate(skills, [
-          populateSkillParentsOptions,
-          populateSkillChildrenOptions,
-          populateSkillRequiresSkillsOptions,
-          populateSkillRequiredBySkillsOptions,
-          populateSkillRequiredByOccupationOptions,
+          makePopulateSkillParentsOptions(lang),
+          makePopulateSkillChildrenOptions(lang),
+          makePopulateSkillRequiresSkillsOptions(lang),
+          makePopulateSkillRequiredBySkillsOptions(lang),
+          makePopulateSkillRequiredByOccupationOptions(lang),
         ]);
       }
       if (skillGroups.length > 0) {
@@ -622,7 +656,10 @@ export class SkillRepository implements ISkillRepository {
         ]);
       }
 
-      return hydrated.map((doc) => unwrapIfSkill(doc.toObject()) as ISkill | ISkillGroup);
+      return hydrated.map((doc) => {
+        const obj = doc.toObject();
+        return (isSkillObject(obj) ? unwrapSkillTranslatableFieldsForLanguage(obj, lang) : obj) as ISkill | ISkillGroup;
+      });
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findParents: findParents failed", { cause: e });
       console.error(err);
@@ -634,7 +671,8 @@ export class SkillRepository implements ISkillRepository {
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<(ISkill | ISkillGroup)[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
@@ -705,13 +743,14 @@ export class SkillRepository implements ISkillRepository {
         (doc) => (doc as mongoose.Document & { skillType?: string }).skillType === undefined
       );
 
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
       if (skills.length > 0) {
         await this.Model.populate(skills, [
-          populateSkillParentsOptions,
-          populateSkillChildrenOptions,
-          populateSkillRequiresSkillsOptions,
-          populateSkillRequiredBySkillsOptions,
-          populateSkillRequiredByOccupationOptions,
+          makePopulateSkillParentsOptions(lang),
+          makePopulateSkillChildrenOptions(lang),
+          makePopulateSkillRequiresSkillsOptions(lang),
+          makePopulateSkillRequiredBySkillsOptions(lang),
+          makePopulateSkillRequiredByOccupationOptions(lang),
         ]);
       }
       if (skillGroups.length > 0) {
@@ -721,7 +760,10 @@ export class SkillRepository implements ISkillRepository {
         ]);
       }
 
-      return hydrated.map((doc) => unwrapIfSkill(doc.toObject()) as ISkill | ISkillGroup);
+      return hydrated.map((doc) => {
+        const obj = doc.toObject();
+        return (isSkillObject(obj) ? unwrapSkillTranslatableFieldsForLanguage(obj, lang) : obj) as ISkill | ISkillGroup;
+      });
     } catch (e: unknown) {
       const err = new Error("SkillRepository.findChildren: findChildren failed", { cause: e });
       console.error(err);
@@ -733,9 +775,11 @@ export class SkillRepository implements ISkillRepository {
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<OccupationToSkillReferenceWithRelationType<IOccupationReference>[]> {
     try {
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       const skillIdObj = new mongoose.Types.ObjectId(skillId);
 
@@ -786,7 +830,7 @@ export class SkillRepository implements ISkillRepository {
       return results.map((r) => {
         const doc = OccupationModel.hydrate(r);
         return {
-          ...doc.toObject(),
+          ...unwrapOccupationTranslatableFields(doc.toObject(), lang),
           relationType: r.relationType,
           signallingValue: r.signallingValue,
           signallingValueLabel: r.signallingValueLabel,
@@ -803,15 +847,12 @@ export class SkillRepository implements ISkillRepository {
     modelId: string,
     skillId: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<SkillToSkillReferenceWithRelationType<ISkill>[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       const skillIdObj = new mongoose.Types.ObjectId(skillId);
-
-      // We need to find both directions: required skills and skills that require this skill
-      // This is a bit more complex. Let's start with one direction or simplify.
-      // Usually "related" in ESCO means non-hierarchical relations.
 
       const matchStage: Record<string, unknown> = {
         modelId: modelIdObj,
@@ -867,6 +908,7 @@ export class SkillRepository implements ISkillRepository {
       const RelationModel = this.Model.db.model(MongooseModelName.SkillToSkillRelation);
       const results = await RelationModel.aggregate(pipeline).exec();
 
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
       return results.map((r) => {
         const doc = this.Model.hydrate(r);
         populateEmptySkillHierarchy(doc);
@@ -874,7 +916,7 @@ export class SkillRepository implements ISkillRepository {
         populateEmptyRequiredByOccupations(doc);
         const relationId = typeof r.relationId === "string" ? r.relationId : r.relationId?.toString();
         return {
-          ...unwrapSkillTranslatableFields(doc.toObject()),
+          ...unwrapSkillTranslatableFieldsForLanguage(doc.toObject(), lang),
           relationType: r.relationType,
           relationId,
         } as SkillToSkillReferenceWithRelationType<ISkill> & { relationId: string };
@@ -886,8 +928,9 @@ export class SkillRepository implements ISkillRepository {
     }
   }
 
-  async findHistoryReferencesByUUIDs(uuids: string[]): Promise<ISkillModelHistoryReference[]> {
+  async findHistoryReferencesByUUIDs(uuids: string[], language?: string): Promise<ISkillModelHistoryReference[]> {
     try {
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
       // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
       // operator object this is not rewritten by the connection's sanitizeFilter=true.
       const skills = await this.Model.find(
@@ -904,7 +947,7 @@ export class SkillRepository implements ISkillRepository {
         // Reuse the shared reference mapper; the reference itself does not carry the modelId, so split it out.
         // Cast through unknown: this.Model is typed with ISkillDoc's flat preferredLabel, but the field is actually
         // hydrated as the localized sub document SkillDocument expects.
-        const { modelId, ...reference } = getSkillDocReference(skill as unknown as SkillDocument);
+        const { modelId, ...reference } = getSkillDocReference(skill as unknown as SkillDocument, lang);
         return { UUID: uuid, modelId: modelId.toString(), reference };
       });
     } catch (e: unknown) {
@@ -924,11 +967,11 @@ export class SkillRepository implements ISkillRepository {
       doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([
-        populateSkillParentsOptions,
-        populateSkillChildrenOptions,
-        populateSkillRequiresSkillsOptions,
-        populateSkillRequiredBySkillsOptions,
-        populateSkillRequiredByOccupationOptions,
+        populateSkillParentsOptions(),
+        populateSkillChildrenOptions(),
+        populateSkillRequiresSkillsOptions(),
+        populateSkillRequiredBySkillsOptions(),
+        populateSkillRequiredByOccupationOptions(),
       ]);
       return unwrapSkillTranslatableFields<ISkill>(doc.toObject());
     } catch (e: unknown) {
@@ -946,11 +989,11 @@ export class SkillRepository implements ISkillRepository {
       doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([
-        populateSkillParentsOptions,
-        populateSkillChildrenOptions,
-        populateSkillRequiresSkillsOptions,
-        populateSkillRequiredBySkillsOptions,
-        populateSkillRequiredByOccupationOptions,
+        populateSkillParentsOptions(),
+        populateSkillChildrenOptions(),
+        populateSkillRequiresSkillsOptions(),
+        populateSkillRequiredBySkillsOptions(),
+        populateSkillRequiredByOccupationOptions(),
       ]);
       return unwrapSkillTranslatableFields<ISkill>(doc.toObject());
     } catch (e: unknown) {
