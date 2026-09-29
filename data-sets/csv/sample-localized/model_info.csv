@@ -1,0 +1,3 @@
+"UUIDHISTORY","NAME","LOCALE","DESCRIPTION","VERSION","RELEASED","RELEASENOTES","LANGUAGES"
+"12a11803-aaa9-4f8f-955b-b5f3482a9c6f","Sample Localized","EU-en","A small localized sample taxonomy with English and French content, used for testing the import of multi-language CSV datasets.","v0.0.0","false","","en
+fr"

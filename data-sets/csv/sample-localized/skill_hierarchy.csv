@@ -1,1 +1,4 @@
 "PARENTOBJECTTYPE","PARENTID","CHILDID","CHILDOBJECTTYPE"
+"skillgroup","key_sg_1","key_sg_2","skillgroup"
+"skillgroup","key_sg_2","key_sk_1","skill"
+"skillgroup","key_sg_2","key_sk_2","skill"

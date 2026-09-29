@@ -1,1 +1,3 @@
 "OCCUPATIONTYPE","OCCUPATIONID","RELATIONTYPE","SKILLID","SIGNALLINGVALUELABEL","SIGNALLINGVALUE"
+"escooccupation","key_oc_1","essential","key_sk_1","",""
+"escooccupation","key_oc_2","optional","key_sk_2","",""
