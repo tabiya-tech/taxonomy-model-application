@@ -23,6 +23,19 @@ export class SkillModelValidationError extends Error {
 }
 
 /**
+ * Thrown when a translatable field of a create/update spec carries a language that is not in the
+ * model's availableLanguages.
+ */
+export class SkillLanguageValidationError extends Error {
+  constructor(
+    public field: string,
+    public language: string
+  ) {
+    super(`${field} uses an unsupported language '${language}' for this model`);
+  }
+}
+
+/**
  * A single entry of a skill's model history: the skill's reference (as it appeared in that model)
  * together with a lightweight reference to the model it belonged to.
  */

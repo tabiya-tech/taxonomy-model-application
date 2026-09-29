@@ -15,6 +15,9 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { usersRequestContext } from "_test_utilities/dataModel";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+
+const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
 
 describe("Test for skill PUT handler with a DB", () => {
   const ajv = new Ajv({ validateSchema: true, strict: true, allErrors: true });
@@ -84,13 +87,13 @@ describe("Test for skill PUT handler with a DB", () => {
 
     const givenSkill = await getRepositoryRegistry().skill.create({
       modelId: givenModelId,
-      preferredLabel: "Original Skill",
-      description: getRandomString(SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-      altLabels: [getRandomString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+      preferredLabel: { [fallbackDbKeyName]: "Original Skill" },
+      description: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+      altLabels: [{ [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
       originUri: `http://example.com/skills/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
-      definition: getRandomString(SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH),
-      scopeNote: getRandomString(SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
+      definition: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
+      scopeNote: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
       skillType: SkillAPISpecs.Enums.SkillType.Knowledge,
       reuseLevel: SkillAPISpecs.Enums.ReuseLevel.CrossSector,
       isLocalized: false,

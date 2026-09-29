@@ -16,7 +16,8 @@ import {
   ISkillToSkillRelationPair,
   SkillToSkillRelationType,
 } from "./skillToSkillRelation.types";
-import { getSimpleNewISCOGroupSpec, getSimpleNewSkillSpec } from "esco/_test_utilities/getNewSpecs";
+import { getSimpleNewISCOGroupSpec, getSimpleNewSkillSpec, toSkillCreateSpec } from "esco/_test_utilities/getNewSpecs";
+
 import {
   TestDBConnectionFailure,
   TestStreamDBConnectionFailureNoSetup,
@@ -67,8 +68,12 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
   async function createSkillToSkillRelationsInDB(modelId: string, batchSize: number = 3) {
     const givenNewSkillToSkillPairSpecs: INewSkillToSkillPairSpec[] = [];
     for (let i = 0; i < batchSize; i++) {
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_1"));
-      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(modelId, "skill_2"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(modelId, "skill_1"))
+      );
+      const givenSkill_2 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(modelId, "skill_2"))
+      );
       givenNewSkillToSkillPairSpecs.push({
         requiringSkillId: givenSkill_1.id,
         relationType: SkillToSkillRelationType.OPTIONAL,
@@ -112,10 +117,18 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     test("should successfully create the Skills to Skills relationship", async () => {
       // GIVEN 4 Skills exist in the database in the same model
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
-      const givenSkill_3 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_3"));
-      const givenSkill_4 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_4"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
+      const givenSkill_2 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+      );
+      const givenSkill_3 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_3"))
+      );
+      const givenSkill_4 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_4"))
+      );
 
       // AND the following relation
       const givenNewRelationSpecs = [
@@ -156,10 +169,18 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     test("should successfully update the relation even if some don't validate", async () => {
       // GIVEN 4 Skills exist in the database
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
-      const givenSkill_3 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_3"));
-      const givenSkill_4 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_4"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
+      const givenSkill_2 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+      );
+      const givenSkill_3 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_3"))
+      );
+      const givenSkill_4 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_4"))
+      );
       // AND the following relation
 
       const givenNewRelationSpecs: INewSkillToSkillPairSpec[] = [
@@ -214,8 +235,12 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     test("should ignore duplicate entries and only import the first one", async () => {
       // GIVEN a valid modelId
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
+      const givenSkill_2 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+      );
 
       const handleInsertManyErrorSpy = jest.spyOn(HandleInsertManyErrors, "handleInsertManyError");
       // AND the following specs
@@ -267,7 +292,9 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     test("should ignore entries that refer to not existing objects", async () => {
       // GIVEN a valid modelId
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
 
       const givenNewRelationSpecs: INewSkillToSkillPairSpec[] = [
         {
@@ -294,10 +321,10 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       const givenModelId_1 = getMockStringId(1);
       const givenModelId_2 = getMockStringId(2);
       const givenSkill_1_in_Model_1 = await repositoryRegistry.skill.create(
-        getSimpleNewSkillSpec(givenModelId_1, "skill_1")
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId_1, "skill_1"))
       );
       const givenSkill_2_in_Model_2 = await repositoryRegistry.skill.create(
-        getSimpleNewSkillSpec(givenModelId_2, "skill_2")
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId_2, "skill_2"))
       );
 
       const givenNewRelationSpecs: INewSkillToSkillPairSpec[] = [
@@ -318,7 +345,9 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     test("should ignore entries where both the requiring and required Skills are the same", async () => {
       // GIVEN a valid modelId
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
 
       const givenNewRelationSpecs: INewSkillToSkillPairSpec[] = [
         {
@@ -338,7 +367,9 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     test("should ignore entries where both the requiring and required are not skills", async () => {
       // GIVEN a valid modelId
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
       const givenInvalidObject_1 = await repositoryRegistry.OccupationGroup.create(
         getSimpleNewISCOGroupSpec(givenModelId, "group_1")
       ); // Assuming there's an OccupationGroup model
@@ -372,10 +403,18 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
       async (repositoryRegistry) => {
         // GIVEN 4 Skills exist in the database in the same model
         const givenModelId = getMockStringId(1);
-        const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-        const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
-        const givenSkill_3 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_3"));
-        const givenSkill_4 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_4"));
+        const givenSkill_1 = await repositoryRegistry.skill.create(
+          toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+        );
+        const givenSkill_2 = await repositoryRegistry.skill.create(
+          toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+        );
+        const givenSkill_3 = await repositoryRegistry.skill.create(
+          toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_3"))
+        );
+        const givenSkill_4 = await repositoryRegistry.skill.create(
+          toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_4"))
+        );
 
         // AND the following relation
         const givenNewRelationSpecs = [
@@ -405,8 +444,12 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     test("should return null when no existing record exists (no upsert)", async () => {
       // GIVEN a valid modelId and two skills exist in the database
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
+      const givenSkill_2 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+      );
       const givenSpec: INewSkillToSkillPairSpec = {
         requiringSkillId: givenSkill_1.id,
         requiredSkillId: givenSkill_2.id,
@@ -426,8 +469,12 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
 
     test("should update an existing skill to skill relation", async () => {
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
+      const givenSkill_2 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+      );
       const givenSpec: INewSkillToSkillPairSpec = {
         requiringSkillId: givenSkill_1.id,
         requiredSkillId: givenSkill_2.id,
@@ -477,8 +524,12 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
     test("should find an existing relation for the given skill pair", async () => {
       // GIVEN a valid modelId and a relation exists between two skills
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
+      const givenSkill_2 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+      );
       const givenSpec: INewSkillToSkillPairSpec = {
         requiringSkillId: givenSkill_1.id,
         requiredSkillId: givenSkill_2.id,
@@ -501,8 +552,12 @@ describe("Test the SkillToSkillRelation Repository with an in-memory mongodb", (
 
     test("should return null when no relation exists for the given skill pair", async () => {
       const givenModelId = getMockStringId(1);
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
-      const givenSkill_2 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_2"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
+      const givenSkill_2 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_2"))
+      );
 
       const actualResult = await repository.findRelation(givenModelId, givenSkill_1.id, givenSkill_2.id);
 

@@ -8,7 +8,7 @@ import {
   SkillType,
   ReuseLevel,
 } from "../_shared/skill.types";
-import { SkillModelValidationError } from "../services/skill.service.types";
+import { SkillLanguageValidationError, SkillModelValidationError } from "../services/skill.service.types";
 import { ISkillRepository } from "../repository/skill.repository";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import { getISkillMockData } from "../_shared/testDataHelper";
@@ -114,23 +114,29 @@ describe("Test the SkillService", () => {
   });
 
   describe("create", () => {
+    // GIVEN a function to build a valid new skill spec, translatable fields in the fall back language only
+    const getGivenNewSkillSpec = (): INewSkillSpecWithoutImportId => ({
+      modelId: getMockStringId(1),
+      preferredLabel: { en: "Test" },
+      originUri: "https://example.com",
+      UUIDHistory: [],
+      altLabels: [],
+      definition: { en: "" },
+      description: { en: "" },
+      scopeNote: { en: "" },
+      skillType: "skill/competence" as SkillType,
+      reuseLevel: "cross-sector" as ReuseLevel,
+      isLocalized: false,
+    });
+
     test("should call repository.create when model is valid", async () => {
-      const givenSpec: INewSkillSpecWithoutImportId = {
-        modelId: getMockStringId(1),
-        preferredLabel: "Test",
-        originUri: "https://example.com",
-        UUIDHistory: [],
-        altLabels: [],
-        definition: "",
-        description: "",
-        scopeNote: "",
-        skillType: "skill/competence" as SkillType,
-        reuseLevel: "cross-sector" as ReuseLevel,
-        isLocalized: false,
-      };
+      const givenSpec = getGivenNewSkillSpec();
       const expectedSkill: ISkill = getISkillMockData(1, givenSpec.modelId);
       mockRepository.create.mockResolvedValue(expectedSkill);
-      mockModelRepository.getModelById.mockResolvedValue({ released: false } as IModelInfo);
+      mockModelRepository.getModelById.mockResolvedValue({
+        released: false,
+        availableLanguages: ["en"],
+      } as unknown as IModelInfo);
 
       const actual = await service.create(givenSpec);
 
@@ -140,19 +146,7 @@ describe("Test the SkillService", () => {
     });
 
     test("should throw SkillModelValidationError if model not found", async () => {
-      const givenSpec: INewSkillSpecWithoutImportId = {
-        modelId: getMockStringId(1),
-        preferredLabel: "Test",
-        originUri: "https://example.com",
-        UUIDHistory: [],
-        altLabels: [],
-        definition: "",
-        description: "",
-        scopeNote: "",
-        skillType: "skill/competence" as SkillType,
-        reuseLevel: "cross-sector" as ReuseLevel,
-        isLocalized: false,
-      };
+      const givenSpec = getGivenNewSkillSpec();
       mockModelRepository.getModelById.mockResolvedValue(null);
 
       await expect(service.create(givenSpec)).rejects.toThrow(SkillModelValidationError);
@@ -160,19 +154,7 @@ describe("Test the SkillService", () => {
     });
 
     test("should throw SkillModelValidationError if model is released", async () => {
-      const givenSpec: INewSkillSpecWithoutImportId = {
-        modelId: getMockStringId(1),
-        preferredLabel: "Test",
-        originUri: "https://example.com",
-        UUIDHistory: [],
-        altLabels: [],
-        definition: "",
-        description: "",
-        scopeNote: "",
-        skillType: "skill/competence" as SkillType,
-        reuseLevel: "cross-sector" as ReuseLevel,
-        isLocalized: false,
-      };
+      const givenSpec = getGivenNewSkillSpec();
       mockModelRepository.getModelById.mockResolvedValue({ released: true } as IModelInfo);
 
       await expect(service.create(givenSpec)).rejects.toThrow(SkillModelValidationError);
@@ -180,22 +162,31 @@ describe("Test the SkillService", () => {
     });
 
     test("should throw SkillModelValidationError when model DB fetch fails", async () => {
-      const givenSpec: INewSkillSpecWithoutImportId = {
-        modelId: getMockStringId(1),
-        preferredLabel: "Test",
-        originUri: "https://example.com",
-        UUIDHistory: [],
-        altLabels: [],
-        definition: "",
-        description: "",
-        scopeNote: "",
-        skillType: "skill/competence" as SkillType,
-        reuseLevel: "cross-sector" as ReuseLevel,
-        isLocalized: false,
-      };
+      const givenSpec = getGivenNewSkillSpec();
       mockModelRepository.getModelById.mockRejectedValue(new Error("DB error"));
 
       await expect(service.create(givenSpec)).rejects.toThrow(SkillModelValidationError);
+      expect(mockRepository.create).not.toHaveBeenCalled();
+    });
+
+    test("should throw SkillLanguageValidationError when a field carries a language not in the model's availableLanguages", async () => {
+      // GIVEN a new skill spec whose preferredLabel is translated in a language the model does not have
+      const givenSpec = getGivenNewSkillSpec();
+      givenSpec.preferredLabel = { en: "Cook", fr: "Cuisinier" };
+
+      // AND the model is not released, but only has the fall back language available
+      mockModelRepository.getModelById.mockResolvedValue({
+        released: false,
+        availableLanguages: ["en"],
+      } as unknown as IModelInfo);
+
+      // WHEN calling service.create
+      const promise = service.create(givenSpec);
+
+      // THEN expect it to throw, naming the field and the unsupported language
+      await expect(promise).rejects.toThrow(SkillLanguageValidationError);
+      await expect(promise).rejects.toMatchObject({ field: "preferredLabel", language: "fr" });
+      // AND expect the repository to never be called
       expect(mockRepository.create).not.toHaveBeenCalled();
     });
   });

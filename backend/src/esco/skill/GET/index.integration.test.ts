@@ -18,6 +18,7 @@ import { ISkill } from "../_shared/skill.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { getEmbeddingModelService } from "embeddings/models/embeddingModelServiceFactory";
 import { EmbeddableField } from "embeddings/service/types";
 
@@ -28,6 +29,7 @@ jest.mock("embeddings/models/embeddingModelServiceFactory", () => ({
   getEmbeddingModelService: jest.fn(),
 }));
 
+const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
 async function createModelInDB() {
   return await getRepositoryRegistry().modelInfo.create({
     name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
@@ -45,13 +47,13 @@ async function createModelInDB() {
 async function createSkillInDB(modelId: string = getMockStringId(1)): Promise<ISkill> {
   return await getRepositoryRegistry().skill.create({
     modelId: modelId,
-    preferredLabel: getRandomString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    description: getRandomString(SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    altLabels: [getRandomString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    preferredLabel: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH) },
+    description: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+    altLabels: [{ [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
     originUri: `http://some/path/to/api/resources/${randomUUID()}`,
     UUIDHistory: [randomUUID()],
-    scopeNote: getRandomString(SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-    definition: getRandomString(SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH),
+    scopeNote: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+    definition: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
     skillType: SkillAPISpecs.Enums.SkillType.Knowledge,
     reuseLevel: SkillAPISpecs.Enums.ReuseLevel.CrossSector,
     isLocalized: true,
@@ -221,13 +223,13 @@ describe("Test for skill GET handler with a DB", () => {
   async function createSkillWithLabel(modelId: string, preferredLabel: string): Promise<ISkill> {
     return await getRepositoryRegistry().skill.create({
       modelId: modelId,
-      preferredLabel: preferredLabel,
-      description: "",
+      preferredLabel: { [fallbackDbKeyName]: preferredLabel },
+      description: { [fallbackDbKeyName]: "" },
       altLabels: [],
       originUri: `http://some/path/to/api/resources/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
-      scopeNote: "",
-      definition: "",
+      scopeNote: { [fallbackDbKeyName]: "" },
+      definition: { [fallbackDbKeyName]: "" },
       skillType: SkillAPISpecs.Enums.SkillType.Knowledge,
       reuseLevel: SkillAPISpecs.Enums.ReuseLevel.CrossSector,
       isLocalized: true,

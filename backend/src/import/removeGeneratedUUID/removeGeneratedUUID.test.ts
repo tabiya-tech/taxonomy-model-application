@@ -18,6 +18,7 @@ import {
   getNewLocalOccupationSpec,
   getNewSkillGroupSpec,
   getNewSkillSpec,
+  toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import {
@@ -239,7 +240,7 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewSkillSpec = getNewSkillSpec();
     givenNewSkillSpec.modelId = givenCreatedModel.id;
     givenNewSkillSpec.UUIDHistory = generateRandomUUIDs(0);
-    const givenCreatedSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
+    const givenCreatedSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(givenNewSkillSpec));
     // AND a new UUID Item is added
     expect(givenCreatedSkill.UUIDHistory).toHaveLength(1);
 
@@ -370,7 +371,7 @@ describe("RemoveGeneratedUUID", () => {
       const givenNewSkillSpec = getNewSkillSpec();
       givenNewSkillSpec.modelId = givenCreatedModel.id;
       givenNewSkillSpec.UUIDHistory = generateRandomUUIDs(count);
-      const givenCreatedSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
+      const givenCreatedSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(givenNewSkillSpec));
       // AND UUIDHistory is increaased by 1 (1 new UUID is added)
       expect(givenCreatedSkill.UUIDHistory).toHaveLength(count + 1);
       // AND the givenUUIDHistory is added on the bottom.
@@ -514,7 +515,7 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewSkillSpec = getNewSkillSpec();
     givenNewSkillSpec.modelId = actualNewModel.id;
     givenNewSkillSpec.UUIDHistory = [randomUUID()];
-    const actualNewSkill = await repositoryRegistry.skill.create(givenNewSkillSpec);
+    const actualNewSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(givenNewSkillSpec));
     // AND a skill group is created with the modelId and a single item in the UUIDHistory
     const givenNewSkillGroupSpec = getNewSkillGroupSpec();
     givenNewSkillGroupSpec.modelId = actualNewModel.id;

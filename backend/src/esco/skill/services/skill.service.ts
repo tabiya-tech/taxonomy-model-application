@@ -1,9 +1,11 @@
 import {
   ISkillHistoryEntry,
   ISkillService,
+  SkillLanguageValidationError,
   SkillModelValidationError,
   ValidateModelResult,
 } from "./skill.service.types";
+import { findUnsupportedLanguage } from "./validateSkillLanguages";
 import { ISkillRepository } from "esco/skill/repository/skill.repository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
 import { toModelReference } from "modelInfo/modelInfoReference";
@@ -42,6 +44,11 @@ export class SkillService implements ISkillService {
     const result = await this.validateModelForSkill(newSkillSpec.modelId);
     if (result.errorCode != null) {
       throw new SkillModelValidationError(result.errorCode);
+    }
+
+    const unsupportedLanguage = findUnsupportedLanguage(newSkillSpec, result.availableLanguages);
+    if (unsupportedLanguage !== null) {
+      throw new SkillLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
     }
 
     return await this.skillRepository.create(newSkillSpec);

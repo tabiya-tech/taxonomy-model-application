@@ -19,6 +19,9 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ISkill } from "esco/skill/_shared/skill.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
+
+const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
 
 async function createModelInDB() {
   return await getRepositoryRegistry().modelInfo.create({
@@ -33,13 +36,13 @@ async function createModelInDB() {
 async function createSkillInDB(modelId: string, uuidHistory: string[] = [randomUUID()]): Promise<ISkill> {
   return await getRepositoryRegistry().skill.create({
     modelId: modelId,
-    preferredLabel: getRandomString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    description: getRandomString(SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    altLabels: [getRandomString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    preferredLabel: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH) },
+    description: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+    altLabels: [{ [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
     originUri: `http://some/path/to/api/resources/${randomUUID()}`,
     UUIDHistory: uuidHistory,
-    scopeNote: getRandomString(SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-    definition: getRandomString(SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH),
+    scopeNote: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+    definition: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
     skillType: SkillAPISpecs.Enums.SkillType.Knowledge,
     reuseLevel: SkillAPISpecs.Enums.ReuseLevel.CrossSector,
     isLocalized: true,

@@ -42,6 +42,7 @@ import {
   getSimpleNewLocalOccupationSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
+  toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   expectedRelatedOccupationReference,
@@ -258,7 +259,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenNewSkillSpec: INewSkillSpec = getNewSkillSpec();
 
       // WHEN Creating a new skill with the given specifications
-      const actualNewSkill = await repository.create(givenNewSkillSpec);
+      const actualNewSkill = await repository.create(toSkillCreateSpec(givenNewSkillSpec));
 
       // THEN expect the new skill to be created with the specific attributes
       const expectedNewSkill: ISkill = expectedFromGivenSpec(givenNewSkillSpec, actualNewSkill.UUID);
@@ -276,7 +277,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       givenNewSkillSpec.UUIDHistory = [];
 
       // WHEN Creating a new skill with the given specifications
-      const actualNewSkill = await repository.create(givenNewSkillSpec);
+      const actualNewSkill = await repository.create(toSkillCreateSpec(givenNewSkillSpec));
 
       // THEN expect the new skill to be created with the specific attributes
       const expectedNewSkill: ISkill = expectedFromGivenSpec(givenNewSkillSpec, actualNewSkill.UUID);
@@ -293,7 +294,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         givenNewSkillSpec.UUIDHistory = generateRandomUUIDs(count);
 
         // WHEN Creating a new skill with the given specifications
-        const actualNewSkill = await repository.create(givenNewSkillSpec);
+        const actualNewSkill = await repository.create(toSkillCreateSpec(givenNewSkillSpec));
 
         // THEN expect the new skill to be created with the specific attributes
         const expectedNewSkill: ISkill = expectedFromGivenSpec(givenNewSkillSpec, actualNewSkill.UUID);
@@ -312,7 +313,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
       // WHEN Creating a new skill with the given specifications by providing a UUID
       const actualPromise = repository.create({
-        ...givenNewSkillSpec,
+        ...toSkillCreateSpec(givenNewSkillSpec),
         //@ts-ignore
         UUID: randomUUID(),
       });
@@ -324,11 +325,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should reject with an error when creating skill with an existing UUID", async () => {
       // GIVEN a Skill record exists in the database
       const givenNewSkillSpecSpec: INewSkillSpec = getNewSkillSpec();
-      const givenNewModel = await repository.create(givenNewSkillSpecSpec);
+      const givenNewModel = await repository.create(toSkillCreateSpec(givenNewSkillSpecSpec));
 
       // WHEN Creating a new Skill with the UUID of the existing Skill
       (randomUUID as jest.Mock).mockReturnValueOnce(givenNewModel.UUID);
-      const actualPromise = repository.create(givenNewSkillSpecSpec);
+      const actualPromise = repository.create(toSkillCreateSpec(givenNewSkillSpecSpec));
 
       // THEN expect the actual promise to reject
       await expect(actualPromise).rejects.toThrow(
@@ -338,7 +339,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     //TODO: add more unique index tests i.e should should successfully create a second Identical skill in a different model (see occupationRepository_
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-      return repositoryRegistry.skill.create(getNewSkillSpec());
+      return repositoryRegistry.skill.create(toSkillCreateSpec(getNewSkillSpec()));
     });
   });
 
@@ -638,7 +639,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should find a Skill by its id", async () => {
       // GIVEN a Skill exists in the database
       const givenSkillSpecs = getNewSkillSpec();
-      const givenSkill = await repository.create(givenSkillSpecs);
+      const givenSkill = await repository.create(toSkillCreateSpec(givenSkillSpecs));
 
       // WHEN searching for the Skill by its id
       const actualFoundSkill = await repository.findById(givenSkill.id);
@@ -672,7 +673,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // THE subject (Skill)
       const givenSubjectSpecs = getSimpleNewSkillSpec(givenModelId, "subject");
-      const givenSubject = await repository.create(givenSubjectSpecs);
+      const givenSubject = await repository.create(toSkillCreateSpec(givenSubjectSpecs));
 
       // The parent (SkillGroup)
       const givenParentSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "parent_1");
@@ -680,15 +681,15 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
       // The parent (Skill)
       const givenParentSpecs_2 = getSimpleNewSkillSpec(givenModelId, "parent_2");
-      const givenParent_2 = await repository.create(givenParentSpecs_2);
+      const givenParent_2 = await repository.create(toSkillCreateSpec(givenParentSpecs_2));
 
       // The child Skill
       const givenChildSpecs_1 = getSimpleNewSkillSpec(givenModelId, "child_1");
-      const givenChild_1 = await repository.create(givenChildSpecs_1);
+      const givenChild_1 = await repository.create(toSkillCreateSpec(givenChildSpecs_1));
 
       // The child Skill
       const givenChildSpecs_2 = getSimpleNewSkillSpec(givenModelId, "child_2");
-      const givenChild_2 = await repository.create(givenChildSpecs_2);
+      const givenChild_2 = await repository.create(toSkillCreateSpec(givenChildSpecs_2));
 
       // AND the subject Skill has a parent and two children
       const actualHierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
@@ -781,7 +782,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       test("should ignore children that are not Skills", async () => {
         // GIVEN an inconsistency was introduced, and non-Skill document is the child of a skill
         const givenSkillSpecs = getNewSkillSpec();
-        const givenSkill = await repository.create(givenSkillSpecs);
+        const givenSkill = await repository.create(toSkillCreateSpec(givenSkillSpecs));
 
         // The non-Skill in this case an Occupation
         const givenNewOccupationSpec: INewOccupationSpec = getSimpleNewESCOOccupationSpec(
@@ -822,7 +823,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       test("should ignore parents that are not Skills | SkillGroups", async () => {
         // GIVEN an inconsistency was introduced, and non-Skill or SkillGroup document is a parent of a skill
         const givenSkillSpecs = getNewSkillSpec();
-        const givenSkill = await repository.create(givenSkillSpecs);
+        const givenSkill = await repository.create(toSkillCreateSpec(givenSkillSpecs));
         //  The non-Skill in this case an Occupation
         const givenNewOccupationSpec: INewOccupationSpec = getSimpleNewESCOOccupationSpec(
           givenSkillSpecs.modelId,
@@ -862,9 +863,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       test("should not find parent or child if the hierarchy is in a different model", async () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in a different model than the hierarchy
         const givenSkillSpecs_1 = getNewSkillSpec();
-        const givenSkill_1 = await repository.create(givenSkillSpecs_1);
+        const givenSkill_1 = await repository.create(toSkillCreateSpec(givenSkillSpecs_1));
         const givenSkillSpecs_2 = getNewSkillSpec();
-        const givenSkill_2 = await repository.create(givenSkillSpecs_2);
+        const givenSkill_2 = await repository.create(toSkillCreateSpec(givenSkillSpecs_2));
 
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
         const givenModelId_3 = getMockStringId(3);
@@ -904,11 +905,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
 
         const givenSkillSpecs_1 = getNewSkillSpec();
-        const givenSkill_1 = await repository.create(givenSkillSpecs_1);
+        const givenSkill_1 = await repository.create(toSkillCreateSpec(givenSkillSpecs_1));
         const givenSkillSpecs_2 = getNewSkillSpec();
         // the child is in a different model
         givenSkillSpecs_2.modelId = getMockStringId(99); // <-- this is the inconsistency
-        const givenSkill_2 = await repository.create(givenSkillSpecs_2);
+        const givenSkill_2 = await repository.create(toSkillCreateSpec(givenSkillSpecs_2));
 
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
         //@ts-ignore
@@ -941,11 +942,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
 
         const givenSkillSpecs_1 = getNewSkillSpec();
-        const givenSkill_1 = await repository.create(givenSkillSpecs_1);
+        const givenSkill_1 = await repository.create(toSkillCreateSpec(givenSkillSpecs_1));
         const givenSkillSpecs_2 = getNewSkillSpec();
         // the parent is in a different model
         givenSkillSpecs_2.modelId = getMockStringId(99); // <-- this is the inconsistency
-        const givenSkill_2 = await repository.create(givenSkillSpecs_2);
+        const givenSkill_2 = await repository.create(toSkillCreateSpec(givenSkillSpecs_2));
 
         // it is important to cast the id to ObjectId, otherwise the parents will not be found
         //@ts-ignore
@@ -986,7 +987,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSubjectSpecs = getSimpleNewSkillSpec(givenModelId, "subject");
         // @ts-ignore
         givenSubjectSpecs.id = givenID.toHexString();
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toSkillCreateSpec(givenSubjectSpecs));
         // guard to ensure the id is the given one
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
@@ -1000,11 +1001,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // AND a second skill O_1 with some ID  in the given model
         const givenSkillSpecs_1 = getSimpleNewSkillSpec(givenModelId, "skill_1");
-        const givenSkill_1 = await repository.create(givenSkillSpecs_1);
+        const givenSkill_1 = await repository.create(toSkillCreateSpec(givenSkillSpecs_1));
 
         // AND a third skill O_2 with some ID in the given model
         const givenSkillSpecs_2 = getSimpleNewSkillSpec(givenModelId, "skill_2");
-        const givenSkill_2 = await repository.create(givenSkillSpecs_2);
+        const givenSkill_2 = await repository.create(toSkillCreateSpec(givenSkillSpecs_2));
 
         // AND the SkillGroup G1 is the parent of O_1
         // AND the subject skill  is the parent of O_2
@@ -1047,7 +1048,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSubjectSpecs = getSimpleNewSkillSpec(givenModelId, "subject");
         // @ts-ignore
         givenSubjectSpecs.id = givenID.toHexString();
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toSkillCreateSpec(givenSubjectSpecs));
         // guard to ensure the id is the given one
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
@@ -1065,7 +1066,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // AND a third skill with some ID in the given model
         const givenSkillSpecs_1 = getSimpleNewSkillSpec(givenModelId, "skill 1");
-        const givenSkill_1 = await repository.create(givenSkillSpecs_1);
+        const givenSkill_1 = await repository.create(toSkillCreateSpec(givenSkillSpecs_1));
 
         // AND the SkillGroup 1 is the parent of SkillGroup 2
         // AND the Skill 1 is the parent of the subject Skill
@@ -1102,23 +1103,23 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // THE subject (Skill)
       const givenSubjectSpecs = getSimpleNewSkillSpec(givenModelId, "subject");
-      const givenSubject = await repository.create(givenSubjectSpecs);
+      const givenSubject = await repository.create(toSkillCreateSpec(givenSubjectSpecs));
 
       // The requiring (Skill)
       const givenRequiringSkillSpecs_1 = getSimpleNewSkillSpec(givenModelId, "requiring_1");
-      const givenRequiringSkill_1 = await repository.create(givenRequiringSkillSpecs_1);
+      const givenRequiringSkill_1 = await repository.create(toSkillCreateSpec(givenRequiringSkillSpecs_1));
 
       // The requiring (Skill)
       const givenRequiringSkillSpecs_2 = getSimpleNewSkillSpec(givenModelId, "requiring_2");
-      const givenRequiringSkill_2 = await repository.create(givenRequiringSkillSpecs_2);
+      const givenRequiringSkill_2 = await repository.create(toSkillCreateSpec(givenRequiringSkillSpecs_2));
 
       // The required (Skill)
       const givenRequiredSkillSpecs_1 = getSimpleNewSkillSpec(givenModelId, "required_1");
-      const givenRequiredSkill_1 = await repository.create(givenRequiredSkillSpecs_1);
+      const givenRequiredSkill_1 = await repository.create(toSkillCreateSpec(givenRequiredSkillSpecs_1));
 
       // The required (Skill)
       const givenRequiredSkillSpecs_2 = getSimpleNewSkillSpec(givenModelId, "required_2");
-      const givenRequiredSkill_2 = await repository.create(givenRequiredSkillSpecs_2);
+      const givenRequiredSkill_2 = await repository.create(toSkillCreateSpec(givenRequiredSkillSpecs_2));
 
       // AND the subject Skill has two requiring and required skills
       const actualRelations = await repositoryRegistry.skillToSkillRelation.createMany(givenModelId, [
@@ -1218,7 +1219,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       test("should ignore requiredSkills that are not Skills", async () => {
         // GIVEN an inconsistency was introduced, and non-Skill document has a requireSkill relation with a skill
         const givenSkillSpecs = getNewSkillSpec();
-        const givenSkill = await repository.create(givenSkillSpecs);
+        const givenSkill = await repository.create(toSkillCreateSpec(givenSkillSpecs));
 
         // The non-Skill in this case an Occupation
         const givenNewOccupationSpec: INewOccupationSpec = getSimpleNewESCOOccupationSpec(
@@ -1258,7 +1259,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       test("should ignore requiringSkills that are not Skills", async () => {
         // GIVEN an inconsistency was introduced, and non-Skill document has a requiringSkill relation with a skill
         const givenSkillSpecs = getNewSkillSpec();
-        const givenSkill = await repository.create(givenSkillSpecs);
+        const givenSkill = await repository.create(toSkillCreateSpec(givenSkillSpecs));
 
         // The non-Skill in this case an Occupation
         const givenNewOccupationSpec: INewOccupationSpec = getSimpleNewESCOOccupationSpec(
@@ -1298,9 +1299,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       test("should not find requiringSkill or requiredSkill if the relation is in a different model", async () => {
         // GIVEN an inconsistency was introduced, and the requiring and requiredSkills are in a different model than the relation
         const givenSkillSpecs_1 = getNewSkillSpec();
-        const givenSkill_1 = await repository.create(givenSkillSpecs_1);
+        const givenSkill_1 = await repository.create(toSkillCreateSpec(givenSkillSpecs_1));
         const givenSkillSpecs_2 = getNewSkillSpec();
-        const givenSkill_2 = await repository.create(givenSkillSpecs_2);
+        const givenSkill_2 = await repository.create(toSkillCreateSpec(givenSkillSpecs_2));
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
         const givenModelId_3 = getMockStringId(3);
@@ -1340,11 +1341,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and the requiredSkill and the requiringSkill are in different models
 
         const givenSkillSpecs_1 = getNewSkillSpec();
-        const givenSkill_1 = await repository.create(givenSkillSpecs_1);
+        const givenSkill_1 = await repository.create(toSkillCreateSpec(givenSkillSpecs_1));
         const givenSkillSpecs_2 = getNewSkillSpec();
         // the requiredSkill is in a different model
         givenSkillSpecs_2.modelId = getMockStringId(99); // <-- this is the inconsistency
-        const givenSkill_2 = await repository.create(givenSkillSpecs_2);
+        const givenSkill_2 = await repository.create(toSkillCreateSpec(givenSkillSpecs_2));
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
         //@ts-ignore
@@ -1377,11 +1378,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and the requiredSkill and the requiringSkill are in different models
 
         const givenSkillSpecs_1 = getNewSkillSpec();
-        const givenSkill_1 = await repository.create(givenSkillSpecs_1);
+        const givenSkill_1 = await repository.create(toSkillCreateSpec(givenSkillSpecs_1));
         const givenSkillSpecs_2 = getNewSkillSpec();
         // the requiredSkill is in a different model
         givenSkillSpecs_2.modelId = getMockStringId(99); // <-- this is the inconsistency
-        const givenSkill_2 = await repository.create(givenSkillSpecs_2);
+        const givenSkill_2 = await repository.create(toSkillCreateSpec(givenSkillSpecs_2));
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
         //@ts-ignore
@@ -1416,11 +1417,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // The subject (skill)
       const givenSubjectSpecs = getSimpleNewSkillSpec(givenModelId, "subject");
-      const givenSubject = await repository.create(givenSubjectSpecs);
+      const givenSubject = await repository.create(toSkillCreateSpec(givenSubjectSpecs));
 
       // Some other skill
       const givenOtherSkillSpecs = getSimpleNewSkillSpec(givenModelId, "other skill");
-      const givenOtherSkill = await repository.create(givenOtherSkillSpecs);
+      const givenOtherSkill = await repository.create(toSkillCreateSpec(givenOtherSkillSpecs));
 
       // The first requiring ESCO occupation
       const givenOccupationSpecs_1: INewOccupationSpec = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1");
@@ -1508,7 +1509,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       test("should ignore requiredByOccupation that are not Occupations", async () => {
         // GIVEN an inconsistency was introduced, and non-Occupation document has a requiresSkill relation with a skill
         const givenSkillSpecs = getNewSkillSpec();
-        const givenSkill = await repository.create(givenSkillSpecs);
+        const givenSkill = await repository.create(toSkillCreateSpec(givenSkillSpecs));
 
         // The non-Skill in this case an OccupationGroup
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewISCOGroupSpecs();
@@ -1546,7 +1547,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       test("should not find requiredByOccupation if the relation is in a different model", async () => {
         // GIVEN an inconsistency was introduced, and the requiringOccupation and requiredSkills are in a different model than the relation
         const givenSkillSpecs = getNewSkillSpec();
-        const givenSkill = await repository.create(givenSkillSpecs);
+        const givenSkill = await repository.create(toSkillCreateSpec(givenSkillSpecs));
         const givenOccupationSpecs = getNewESCOOccupationSpec();
         const givenOccupation = await repositoryRegistry.occupation.create(
           toOccupationCreateSpec(givenOccupationSpecs)
@@ -1582,7 +1583,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and the requiredSkill and the requiringOccupation are in different models
 
         const givenSkillSpecs = getNewSkillSpec();
-        const givenSkill = await repository.create(givenSkillSpecs);
+        const givenSkill = await repository.create(toSkillCreateSpec(givenSkillSpecs));
         const givenOccupationSpecs = getNewESCOOccupationSpec();
         givenOccupationSpecs.modelId = getMockStringId(99); // <-- this is the inconsistency
         const givenOccupation = await repositoryRegistry.occupation.create(
@@ -1631,7 +1632,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenSkills: ISkill[] = [];
       for (let i = 0; i < 3; i++) {
         const givenSkillSpec = getSimpleNewSkillSpec(givenModelId, `skill_${i + 1}`);
-        const givenSkill = await repository.create(givenSkillSpec);
+        const givenSkill = await repository.create(toSkillCreateSpec(givenSkillSpec));
         givenSkills.push(givenSkill);
       }
 
@@ -1650,7 +1651,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenSkills: ISkill[] = [];
       for (let i = 0; i < 3; i++) {
         const givenSkillSpec = getSimpleNewSkillSpec(givenModelId, `skill_${i + 1}`);
-        const givenSkill = await repository.create(givenSkillSpec);
+        const givenSkill = await repository.create(toSkillCreateSpec(givenSkillSpec));
         givenSkills.push(givenSkill);
       }
       // THE first page (latest 2 skills)
@@ -1707,7 +1708,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       const givenSkills = [];
       for (let i = 0; i < 3; i++) {
-        givenSkills.push(await repository.create(getSimpleNewSkillSpec(givenModelId, `s${i + 1}`)));
+        givenSkills.push(await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, `s${i + 1}`))));
       }
 
       // WHEN requesting first page with limit=2 and ascending sort
@@ -1731,7 +1732,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should ignore invalid cursor ID", async () => {
       // GIVEN a modelId and some skills
       const givenModelId = getMockStringId(1);
-      const givenSkill = await repository.create(getSimpleNewSkillSpec(givenModelId, "skill"));
+      const givenSkill = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill")));
 
       // WHEN retrieving paginated results with an invalid cursor ID
       const actual = await repository.findPaginated(givenModelId, 10, -1, { id: "invalid-id", createdAt: new Date() });
@@ -1744,8 +1745,8 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should populate relations for items in paginated results", async () => {
       // GIVEN a modelId and a skill with relations
       const givenModelId = getMockStringId(1);
-      const skillA = await repository.create(getSimpleNewSkillSpec(givenModelId, "skillA"));
-      const skillB = await repository.create(getSimpleNewSkillSpec(givenModelId, "skillB"));
+      const skillA = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skillA")));
+      const skillB = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skillB")));
 
       // Create relation
       await repositoryRegistry.skillToSkillRelation.createMany(givenModelId, [
@@ -1772,9 +1773,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN two skills in the model and one matching skill in another model
       const givenModelId = getMockStringId(1);
       const givenOtherModelId = getMockStringId(2);
-      const matching = await repository.create(getSimpleNewSkillSpec(givenModelId, "JavaScript Developer"));
-      await repository.create(getSimpleNewSkillSpec(givenModelId, "Carpenter"));
-      await repository.create(getSimpleNewSkillSpec(givenOtherModelId, "JavaScript Developer"));
+      const matching = await repository.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "JavaScript Developer"))
+      );
+      await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "Carpenter")));
+      await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenOtherModelId, "JavaScript Developer")));
 
       // WHEN searching for "javascript" on the preferredLabel
       const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, {
@@ -1791,10 +1794,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a skill whose description (not label) contains the search value
       const givenModelId = getMockStringId(1);
       const matching = await repository.create({
-        ...getSimpleNewSkillSpec(givenModelId, "Some Label"),
-        description: "building bespoke furniture",
+        ...toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "Some Label")),
+        description: { en: "building bespoke furniture" },
       });
-      await repository.create(getSimpleNewSkillSpec(givenModelId, "Unrelated"));
+      await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "Unrelated")));
 
       // WHEN searching for "furniture" on the description
       const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, {
@@ -1811,8 +1814,8 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a skill whose altLabels contain the search value
       const givenModelId = getMockStringId(1);
       const matching = await repository.create({
-        ...getSimpleNewSkillSpec(givenModelId, "Some Label"),
-        altLabels: ["coding", "programming"],
+        ...toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "Some Label")),
+        altLabels: [{ en: "coding" }, { en: "programming" }],
       });
 
       // WHEN searching for "programming" on the altLabels
@@ -1829,7 +1832,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should treat the search value literally (escape regex special characters)", async () => {
       // GIVEN a skill whose label contains regex special characters
       const givenModelId = getMockStringId(1);
-      const matching = await repository.create(getSimpleNewSkillSpec(givenModelId, "C++ Programming"));
+      const matching = await repository.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "C++ Programming"))
+      );
 
       // WHEN searching for the literal "C++"
       const actualLiteral = await repository.findPaginated(givenModelId, 10, -1, undefined, {
@@ -1852,7 +1857,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       const created: ISkill[] = [];
       for (let i = 0; i < 3; i++) {
-        created.push(await repository.create(getSimpleNewSkillSpec(givenModelId, `engineer ${i + 1}`)));
+        created.push(
+          await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, `engineer ${i + 1}`)))
+        );
       }
 
       // WHEN retrieving the first page (limit 2, desc) then the second page with the cursor
@@ -1881,7 +1888,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       const created: ISkill[] = [];
       for (let i = 0; i < 3; i++) {
-        created.push(await repository.create(getSimpleNewSkillSpec(givenModelId, `engineer ${i + 1}`)));
+        created.push(
+          await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, `engineer ${i + 1}`)))
+        );
       }
 
       // WHEN retrieving the first page ascending, then the second page with the cursor
@@ -1923,9 +1932,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should return the model's skills with the given ids (ignoring order)", async () => {
       // GIVEN three skills in the model
       const givenModelId = getMockStringId(1);
-      const s1 = await repository.create(getSimpleNewSkillSpec(givenModelId, "s1"));
-      const s2 = await repository.create(getSimpleNewSkillSpec(givenModelId, "s2"));
-      await repository.create(getSimpleNewSkillSpec(givenModelId, "s3"));
+      const s1 = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "s1")));
+      const s2 = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "s2")));
+      await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "s3")));
 
       // WHEN fetching two of them by id
       const actual = await repository.findByIds(givenModelId, [s2.id, s1.id]);
@@ -1944,8 +1953,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should ignore invalid ids and ids from other models", async () => {
       // GIVEN a skill in the model and one in another model
       const givenModelId = getMockStringId(1);
-      const inModel = await repository.create(getSimpleNewSkillSpec(givenModelId, "in-model"));
-      const otherModel = await repository.create(getSimpleNewSkillSpec(getMockStringId(2), "other-model"));
+      const inModel = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "in-model")));
+      const otherModel = await repository.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(getMockStringId(2), "other-model"))
+      );
 
       // WHEN fetching by a mix of a valid id, an invalid id and an id from another model
       const actual = await repository.findByIds(givenModelId, [inModel.id, "not-an-object-id", otherModel.id]);
@@ -2209,9 +2220,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
       // AND a subject skill
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
       // AND a parent skill
-      const givenParentSkill = await repository.create(getSimpleNewSkillSpec(givenModelId, "parentSkill"));
+      const givenParentSkill = await repository.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "parentSkill"))
+      );
       // AND a parent skill group
       const givenParentGroup = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "parentGroup")
@@ -2248,7 +2261,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
     test("should return empty array when skill has no parents", async () => {
       const givenModelId = getMockStringId(1);
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
 
       const actualParents = await repository.findParents(givenModelId, givenSubject.id, 10);
 
@@ -2259,11 +2272,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
       // AND a subject skill
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
       // AND three parent skills
       const givenParents = [];
       for (let i = 0; i < 3; i++) {
-        const parent = await repository.create(getSimpleNewSkillSpec(givenModelId, `parent_${i}`));
+        const parent = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, `parent_${i}`)));
         givenParents.push(parent);
         await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
           {
@@ -2312,10 +2325,14 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
       // AND a subject skill
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
       // AND a child skill
-      const givenChildSkill1 = await repository.create(getSimpleNewSkillSpec(givenModelId, "childSkill1"));
-      const givenChildSkill2 = await repository.create(getSimpleNewSkillSpec(givenModelId, "childSkill2"));
+      const givenChildSkill1 = await repository.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "childSkill1"))
+      );
+      const givenChildSkill2 = await repository.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "childSkill2"))
+      );
 
       // AND they are related in the hierarchy
       await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
@@ -2350,7 +2367,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
       // AND a subject skill
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
       // AND a child skill group
       const givenChildGroup = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "childGroup")
@@ -2383,11 +2400,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
       // AND a subject skill
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
       // AND three child skills
       const givenChildren = [];
       for (let i = 0; i < 3; i++) {
-        const child = await repository.create(getSimpleNewSkillSpec(givenModelId, `child_${i}`));
+        const child = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, `child_${i}`)));
         givenChildren.push(child);
         await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
           {
@@ -2438,7 +2455,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
       // AND a subject skill
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
       // AND an occupation
       const givenOccupation = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation"))
@@ -2475,7 +2492,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
       // AND a subject skill
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
       // AND three occupations
       const givenOccupations = [];
       for (let i = 0; i < 3; i++) {
@@ -2534,10 +2551,10 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
       // AND a subject skill
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
       // AND two other skills
-      const givenSkill1 = await repository.create(getSimpleNewSkillSpec(givenModelId, "skill1"));
-      const givenSkill2 = await repository.create(getSimpleNewSkillSpec(givenModelId, "skill2"));
+      const givenSkill1 = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill1")));
+      const givenSkill2 = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill2")));
 
       // AND they are related (one where subject is requiring, one where it is required)
       await repositoryRegistry.skillToSkillRelation.createMany(givenModelId, [
@@ -2570,11 +2587,11 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
       // AND a subject skill
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
       // AND three related skills
       const givenRelated = [];
       for (let i = 0; i < 3; i++) {
-        const skill = await repository.create(getSimpleNewSkillSpec(givenModelId, `related_${i}`));
+        const skill = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, `related_${i}`)));
         givenRelated.push(skill);
         await repositoryRegistry.skillToSkillRelation.createMany(givenModelId, [
           {
@@ -2628,8 +2645,8 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should correctly handle relationId when it is a string or an ObjectId", async () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
-      const givenRelated = await repository.create(getSimpleNewSkillSpec(givenModelId, "related"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
+      const givenRelated = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "related")));
 
       // AND a relation exists
       const relation = (
@@ -2660,8 +2677,8 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should correctly handle relationId when aggregate returns it as a plain string", async () => {
       // GIVEN a modelId and a skill
       const givenModelId = getMockStringId(1);
-      const givenSubject = await repository.create(getSimpleNewSkillSpec(givenModelId, "subject"));
-      const givenRelated = await repository.create(getSimpleNewSkillSpec(givenModelId, "related"));
+      const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
+      const givenRelated = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "related")));
       const givenStringRelationId = getMockStringId(99);
 
       // AND the aggregate is mocked to return relationId as a plain string (defensive branch)
@@ -2715,7 +2732,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should update an existing skill and return the updated object", async () => {
       // GIVEN a skill exists in the database
       const givenModelId = getMockStringId(1);
-      const givenSkill = await repository.create(getSimpleNewSkillSpec(givenModelId, "update_target"));
+      const givenSkill = await repository.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "update_target"))
+      );
 
       // WHEN updating the skill with a new preferredLabel
       const actual = await repository.update(givenSkill.id, givenModelId, {
@@ -2763,7 +2782,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
     test("should patch an existing skill and return the updated object", async () => {
       // GIVEN a skill exists in the database
       const givenModelId = getMockStringId(1);
-      const givenSkill = await repository.create(getSimpleNewSkillSpec(givenModelId, "patch_target"));
+      const givenSkill = await repository.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "patch_target"))
+      );
 
       // WHEN patching the skill with only a new preferredLabel
       const actual = await repository.patch(givenSkill.id, givenModelId, {
@@ -2782,8 +2803,8 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       // GIVEN two skills in different models
       const givenModelId1 = getMockStringId(1);
       const givenModelId2 = getMockStringId(2);
-      const givenSkill1 = await repository.create(getSimpleNewSkillSpec(givenModelId1, "skill_1"));
-      const givenSkill2 = await repository.create(getSimpleNewSkillSpec(givenModelId2, "skill_2"));
+      const givenSkill1 = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId1, "skill_1")));
+      const givenSkill2 = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId2, "skill_2")));
       const givenMissingUUID = randomUUID();
 
       // WHEN resolving a set of UUIDs that includes both skills' UUIDs plus a non-existent UUID
@@ -2823,7 +2844,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
     test("should null-fill every entry when none of the given UUIDs match a skill", async () => {
       // GIVEN a skill exists
-      await repository.create(getSimpleNewSkillSpec(getMockStringId(1), "skill_1"));
+      await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(getMockStringId(1), "skill_1")));
       const givenUUIDs = [randomUUID(), randomUUID()];
 
       // WHEN resolving UUIDs that do not match any skill
@@ -2835,7 +2856,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
     test("should return an empty array when given an empty list of UUIDs", async () => {
       // GIVEN a skill exists
-      await repository.create(getSimpleNewSkillSpec(getMockStringId(1), "skill_1"));
+      await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(getMockStringId(1), "skill_1")));
 
       // WHEN resolving an empty list of UUIDs
       const actual = await repository.findHistoryReferencesByUUIDs([]);
@@ -2846,8 +2867,12 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
     test("should use the UUID index and not do a collection scan", async () => {
       // GIVEN two skills exist in the database
-      const givenSkill1 = await repository.create(getSimpleNewSkillSpec(getMockStringId(1), "skill_1"));
-      const givenSkill2 = await repository.create(getSimpleNewSkillSpec(getMockStringId(2), "skill_2"));
+      const givenSkill1 = await repository.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(getMockStringId(1), "skill_1"))
+      );
+      const givenSkill2 = await repository.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(getMockStringId(2), "skill_2"))
+      );
 
       // WHEN resolving their UUIDs
       // setup find with explain to assert the query plan uses the UUID index and is not doing a collection scan

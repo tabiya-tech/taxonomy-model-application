@@ -17,10 +17,12 @@ import { ISkill } from "../../../_shared/skill.types";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { MongooseModelName } from "esco/common/mongooseModelNames";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 
+const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
 async function createModelInDB() {
   return await getRepositoryRegistry().modelInfo.create({
     name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
@@ -38,13 +40,13 @@ async function createModelInDB() {
 async function createSkillInDB(modelId: string = getMockStringId(1)): Promise<ISkill> {
   return await getRepositoryRegistry().skill.create({
     modelId: modelId,
-    preferredLabel: getRandomString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    description: getRandomString(SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    altLabels: [getRandomString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    preferredLabel: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH) },
+    description: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+    altLabels: [{ [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
     originUri: `http://some/path/to/api/resources/${randomUUID()}`,
     UUIDHistory: [randomUUID()],
-    scopeNote: getRandomString(SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH),
-    definition: getRandomString(SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH),
+    scopeNote: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.SCOPE_NOTE_MAX_LENGTH) },
+    definition: { [fallbackDbKeyName]: getRandomString(SkillAPISpecs.Constants.DEFINITION_MAX_LENGTH) },
     skillType: SkillAPISpecs.Enums.SkillType.Knowledge,
     reuseLevel: SkillAPISpecs.Enums.ReuseLevel.CrossSector,
     isLocalized: true,

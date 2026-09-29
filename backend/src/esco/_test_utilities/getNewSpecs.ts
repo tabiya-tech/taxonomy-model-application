@@ -17,7 +17,7 @@ import { INewOccupationSpec } from "esco/occupations/_shared/occupation.types";
 import { getMockRandomOccupationCode } from "_test_utilities/mockOccupationCode";
 import { INewSkillGroupSpec, INewSkillGroupSpecWithoutImportId } from "esco/skillGroup/_shared/skillGroup.types";
 import { getTestSkillGroupCode } from "_test_utilities/mockSkillGroupCode";
-import { INewSkillSpec, ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
+import { INewSkillSpec, INewSkillSpecWithoutImportId, ReuseLevel, SkillType } from "esco/skill/_shared/skill.types";
 import { randomUUID } from "crypto";
 import { ObjectTypes } from "esco/common/objectTypes";
 
@@ -366,6 +366,23 @@ export function getNewSkillSpec(): INewSkillSpec {
     altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
     importId: getTestString(IMPORT_ID_MAX_LENGTH),
     isLocalized: getRandomBoolean(),
+  };
+}
+
+/**
+ * Wraps a flat INewSkillSpec (as getNewSkillSpec/getSimpleNewSkillSpec produce) into the multilingual shape
+ * skillRepository.create() expects, translatable fields in the fall back language only. Used across
+ * repository/service test fixtures that only need a skill to exist and don't care which languages it carries.
+ */
+export function toSkillCreateSpec(spec: INewSkillSpec): INewSkillSpecWithoutImportId {
+  const wrap = (value: string) => ({ en: value });
+  return {
+    ...spec,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    definition: wrap(spec.definition),
+    scopeNote: wrap(spec.scopeNote),
   };
 }
 

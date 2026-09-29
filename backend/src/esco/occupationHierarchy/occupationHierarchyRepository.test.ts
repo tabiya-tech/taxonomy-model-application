@@ -19,6 +19,7 @@ import {
   getSimpleNewISCOGroupSpecWithParentCode,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
+  toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailure,
@@ -469,7 +470,9 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
       );
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
         {
           parentId: givenSkillGroup_1.id,
@@ -507,7 +510,9 @@ describe("Test the OccupationHierarchy Repository with an in-memory mongodb", ()
       const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
         getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
       );
-      const givenSkill_1 = await repositoryRegistry.skill.create(getSimpleNewSkillSpec(givenModelId, "skill_1"));
+      const givenSkill_1 = await repositoryRegistry.skill.create(
+        toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
+      );
       const givenNewHierarchySpecs: INewOccupationHierarchyPairSpec[] = [
         {
           parentId: givenOccupation_1.id,

@@ -103,13 +103,13 @@ describe("Test for occupation Skills PATCH handler with a DB", () => {
 
     const givenSkill = await getRepositoryRegistry().skill.create({
       modelId: givenModelId,
-      preferredLabel: "Skill",
+      preferredLabel: { en: "Skill" },
       UUIDHistory: [randomUUID()],
       isLocalized: false,
-      description: "skill description",
+      description: { en: "skill description" },
       altLabels: [],
-      definition: "skill definition",
-      scopeNote: "skill scopeNote",
+      definition: { en: "skill definition" },
+      scopeNote: { en: "skill scopeNote" },
       originUri: "http://example.com/skill",
       reuseLevel: ReuseLevel.CrossSector,
       skillType: SkillType.Knowledge,
