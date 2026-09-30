@@ -198,7 +198,6 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
               "DB_FAILED_TO_CREATE_SKILL_GROUP",
               "SKILL_COULD_NOT_VALIDATE",
               "INVALID_MODEL_ID",
-              "UNSUPPORTED_LANGUAGE",
               "MODEL_NOT_FOUND",
               "DB_FAILED_TO_CREATE_SKILL",
               "OCCUPATION_COULD_NOT_VALIDATE",
