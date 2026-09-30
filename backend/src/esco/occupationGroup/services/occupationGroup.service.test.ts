@@ -1,6 +1,7 @@
 import { OccupationGroupService } from "./occupationGroup.service";
 import {
   IOccupationGroupService,
+  OccupationGroupLanguageValidationError,
   OccupationGroupModelValidationError,
   SetOccupationGroupParentError,
 } from "./occupationGroup.service.type";
@@ -123,6 +124,7 @@ describe("Test the OccupationGroupService", () => {
           getModelById: jest.fn().mockReturnValue({
             id: givenSpec.modelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -130,6 +132,9 @@ describe("Test the OccupationGroupService", () => {
       // AND the repository returns a created occupationGroup
       const expectedOccupationGroup: IOccupationGroup = {
         ...givenSpec,
+        preferredLabel: givenSpec.preferredLabel.en!,
+        altLabels: givenSpec.altLabels.map((altLabel) => altLabel.en!),
+        description: givenSpec.description.en!,
         id: getMockStringId(2),
         UUID: getRandomString(10),
         parent: null,
@@ -181,6 +186,29 @@ describe("Test the OccupationGroupService", () => {
       // THEN expect it to throw an error
       await expect(service.create(givenSpec)).rejects.toThrow(OccupationGroupModelValidationError);
     });
+    test("should throw OccupationGroupLanguageValidationError naming the field and language when a language is not available in the model", async () => {
+      // GIVEN a new occupationGroup spec whose preferredLabel is translated in French
+      const givenSpec: INewOccupationGroupSpecWithoutImportId = {
+        ...getNewISCOGroupSpecsWithoutImportId(),
+        preferredLabel: { en: "Managers", fr: "Directeurs" },
+      };
+      // AND the model only has the fallback language available
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({ released: false, availableLanguages: ["en"] } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      // WHEN calling service.create
+      const actualPromise = service.create(givenSpec);
+
+      // THEN expect it to throw an error naming the field and the language
+      const expectedError = new OccupationGroupLanguageValidationError("preferredLabel", "fr");
+      await expect(actualPromise).rejects.toEqual(expectedError);
+      // AND expect the repository not to have been called
+      expect(mockRepository.create).not.toHaveBeenCalled();
+    });
+
     test("should throw if repository.create throws", async () => {
       // GIVEN a new occupationGroup spec
       const givenSpec: INewOccupationGroupSpecWithoutImportId = getNewISCOGroupSpecsWithoutImportId();
@@ -190,6 +218,7 @@ describe("Test the OccupationGroupService", () => {
           getModelById: jest.fn().mockReturnValue({
             id: givenSpec.modelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -939,9 +968,9 @@ describe("Test the OccupationGroupService", () => {
       const givenSpec: IUpdateOccupationGroupSpec = {
         originUri: getRandomString(15),
         code: getMockRandomISCOGroupCode(),
-        preferredLabel: getRandomString(10),
-        altLabels: [getRandomString(5)],
-        description: getRandomString(20),
+        preferredLabel: { en: getRandomString(10) },
+        altLabels: [{ en: getRandomString(5) }],
+        description: { en: getRandomString(20) },
         modelId: givenModelId,
         UUIDHistory: [randomUUID()],
         groupType: ObjectTypes.ISCOGroup,
@@ -952,12 +981,16 @@ describe("Test the OccupationGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
       // AND the repository returns an updated occupationGroup
       const expectedOccupationGroup: IOccupationGroup = {
         ...givenSpec,
+        preferredLabel: givenSpec.preferredLabel.en!,
+        altLabels: givenSpec.altLabels.map((altLabel) => altLabel.en!),
+        description: givenSpec.description.en!,
         id: givenId,
         UUID: getRandomString(10),
         parent: null,
@@ -984,9 +1017,9 @@ describe("Test the OccupationGroupService", () => {
       const givenSpec: IUpdateOccupationGroupSpec = {
         originUri: getRandomString(15),
         code: getMockRandomISCOGroupCode(),
-        preferredLabel: getRandomString(10),
-        altLabels: [getRandomString(5)],
-        description: getRandomString(20),
+        preferredLabel: { en: getRandomString(10) },
+        altLabels: [{ en: getRandomString(5) }],
+        description: { en: getRandomString(20) },
         modelId: givenModelId,
         UUIDHistory: [randomUUID()],
         groupType: ObjectTypes.ISCOGroup,
@@ -997,6 +1030,7 @@ describe("Test the OccupationGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -1017,9 +1051,9 @@ describe("Test the OccupationGroupService", () => {
       const givenSpec: IUpdateOccupationGroupSpec = {
         originUri: getRandomString(15),
         code: getMockRandomISCOGroupCode(),
-        preferredLabel: getRandomString(10),
-        altLabels: [getRandomString(5)],
-        description: getRandomString(20),
+        preferredLabel: { en: getRandomString(10) },
+        altLabels: [{ en: getRandomString(5) }],
+        description: { en: getRandomString(20) },
         modelId: givenModelId,
         UUIDHistory: [randomUUID()],
         groupType: ObjectTypes.ISCOGroup,
@@ -1037,6 +1071,35 @@ describe("Test the OccupationGroupService", () => {
         OccupationGroupModelValidationError
       );
     });
+    test("should throw OccupationGroupLanguageValidationError when a language is not available in the model", async () => {
+      // GIVEN an update spec whose altLabels carry a French translation
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IUpdateOccupationGroupSpec = {
+        originUri: getRandomString(15),
+        code: getMockRandomISCOGroupCode(),
+        preferredLabel: { en: getRandomString(10) },
+        altLabels: [{ en: "Executives", fr: "Cadres" }],
+        description: { en: getRandomString(20) },
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+        groupType: ObjectTypes.ISCOGroup,
+      };
+      // AND the model only has the fallback language available
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({ released: false, availableLanguages: ["en"] } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      // WHEN calling service.update
+      const actualPromise = service.update(getMockStringId(1), givenModelId, givenSpec);
+
+      // THEN expect it to throw an error naming the field and the language
+      const expectedError = new OccupationGroupLanguageValidationError("altLabels", "fr");
+      await expect(actualPromise).rejects.toEqual(expectedError);
+      // AND expect the repository not to have been called
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
   });
 
   describe("patch", () => {
@@ -1045,8 +1108,8 @@ describe("Test the OccupationGroupService", () => {
       const givenId = getMockStringId(1);
       const givenModelId = getMockStringId(2);
       const givenSpec: IPartialUpdateOccupationGroupSpec = {
-        preferredLabel: getRandomString(10),
-        description: getRandomString(20),
+        preferredLabel: { en: getRandomString(10) },
+        description: { en: getRandomString(20) },
       };
       // AND the model validation passes
       mockGetRepositoryRegistry.mockReturnValue({
@@ -1054,6 +1117,7 @@ describe("Test the OccupationGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -1063,9 +1127,9 @@ describe("Test the OccupationGroupService", () => {
         modelId: givenModelId,
         UUID: getRandomString(10),
         code: getMockRandomISCOGroupCode(),
-        preferredLabel: givenSpec.preferredLabel!,
+        preferredLabel: givenSpec.preferredLabel!.en!,
         altLabels: [getRandomString(5)],
-        description: givenSpec.description!,
+        description: givenSpec.description!.en!,
         groupType: ObjectTypes.ISCOGroup,
         originUri: getRandomString(15),
         UUIDHistory: [],
@@ -1091,7 +1155,7 @@ describe("Test the OccupationGroupService", () => {
       const givenId = getMockStringId(1);
       const givenModelId = getMockStringId(2);
       const givenSpec: IPartialUpdateOccupationGroupSpec = {
-        preferredLabel: getRandomString(10),
+        preferredLabel: { en: getRandomString(10) },
       };
       // AND the model validation passes
       mockGetRepositoryRegistry.mockReturnValue({
@@ -1099,6 +1163,7 @@ describe("Test the OccupationGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -1117,7 +1182,7 @@ describe("Test the OccupationGroupService", () => {
       const givenId = getMockStringId(1);
       const givenModelId = getMockStringId(2);
       const givenSpec: IPartialUpdateOccupationGroupSpec = {
-        preferredLabel: getRandomString(10),
+        preferredLabel: { en: getRandomString(10) },
       };
       // AND the model validation fails (model not found)
       mockGetRepositoryRegistry.mockReturnValue({
@@ -1132,6 +1197,35 @@ describe("Test the OccupationGroupService", () => {
         OccupationGroupModelValidationError
       );
     });
+    test.each([
+      ["reject", "setting", { fr: "Directeurs" }, new OccupationGroupLanguageValidationError("preferredLabel", "fr")],
+      ["accept", "deleting", { fr: null }, undefined],
+    ])(
+      "should %s %s a language that is not available in the model",
+      async (_outcome, _action, givenPreferredLabel, expectedError) => {
+        // GIVEN a patch spec that sets or deletes a French preferredLabel
+        const givenModelId = getMockStringId(2);
+        const givenSpec: IPartialUpdateOccupationGroupSpec = { preferredLabel: givenPreferredLabel };
+        // AND the model only has the fallback language available
+        mockGetRepositoryRegistry.mockReturnValue({
+          modelInfo: {
+            getModelById: jest.fn().mockResolvedValue({ released: false, availableLanguages: ["en"] } as IModelInfo),
+          },
+        } as unknown as ReturnType<typeof getRepositoryRegistry>);
+        // AND the repository returns null
+        mockRepository.patch.mockResolvedValue(null);
+
+        // WHEN calling service.patch
+        const actualPromise = service.patch(getMockStringId(1), givenModelId, givenSpec);
+
+        // THEN expect it to reject with the expected error, or resolve when deleting
+        if (expectedError) {
+          await expect(actualPromise).rejects.toEqual(expectedError);
+        } else {
+          await expect(actualPromise).resolves.toBeNull();
+        }
+      }
+    );
   });
 
   describe("validateModelForOccupationGroup", () => {

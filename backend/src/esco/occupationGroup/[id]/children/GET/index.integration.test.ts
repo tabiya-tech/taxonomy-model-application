@@ -15,7 +15,11 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ObjectTypes } from "esco/common/objectTypes";
-import { getSimpleNewISCOGroupSpec, getSimpleNewISCOGroupSpecWithParentCode } from "esco/_test_utilities/getNewSpecs";
+import {
+  getSimpleNewISCOGroupSpec,
+  getSimpleNewISCOGroupSpecWithParentCode,
+  toOccupationGroupCreateSpec,
+} from "esco/_test_utilities/getNewSpecs";
 
 describe("Test for occupation Children GET handler with a DB", () => {
   const ajv = new Ajv({
@@ -55,16 +59,20 @@ describe("Test for occupation Children GET handler with a DB", () => {
     });
     const givenModelId = givenModel.id;
     const repository = getRepositoryRegistry().OccupationGroup;
-    const givenParent = await repository.create({
-      ...getSimpleNewISCOGroupSpec(givenModelId, "parent"),
-      originUri: "https://example.com/occupation-groups/parent",
-      description: "Parent occupation group",
-    });
-    const givenChild = await repository.create({
-      ...getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_1", givenParent.code),
-      originUri: "https://example.com/occupation-groups/child-1",
-      description: "Child occupation group",
-    });
+    const givenParent = await repository.create(
+      toOccupationGroupCreateSpec({
+        ...getSimpleNewISCOGroupSpec(givenModelId, "parent"),
+        originUri: "https://example.com/occupation-groups/parent",
+        description: "Parent occupation group",
+      })
+    );
+    const givenChild = await repository.create(
+      toOccupationGroupCreateSpec({
+        ...getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_1", givenParent.code),
+        originUri: "https://example.com/occupation-groups/child-1",
+        description: "Child occupation group",
+      })
+    );
 
     await getRepositoryRegistry().occupationHierarchy.createMany(givenModelId, [
       {
@@ -96,7 +104,7 @@ describe("Test for occupation Children GET handler with a DB", () => {
       UUIDHistory: [],
     });
     const givenParent = await getRepositoryRegistry().OccupationGroup.create(
-      getSimpleNewISCOGroupSpec(givenModel.id, "parent")
+      toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModel.id, "parent"))
     );
 
     const givenEvent = {
@@ -129,9 +137,11 @@ describe("Test for occupation Children GET handler with a DB", () => {
     });
     const givenModelId = givenModel.id;
     const repository = getRepositoryRegistry().OccupationGroup;
-    const givenParent = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "parent"));
+    const givenParent = await repository.create(
+      toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "parent"))
+    );
     const givenChild = await repository.create(
-      getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_1", givenParent.code)
+      toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_1", givenParent.code))
     );
     await getRepositoryRegistry().occupationHierarchy.createMany(givenModelId, [
       {

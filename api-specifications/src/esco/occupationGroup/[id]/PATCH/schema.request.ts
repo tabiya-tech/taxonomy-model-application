@@ -1,5 +1,5 @@
 import { SchemaObject } from "ajv";
-import { _baseProperties } from "../../_shared/schemas.base";
+import { _basePatchRequestProperties, _patchRequestExample } from "../../_shared/schemas.base";
 import OccupationGroupEnums from "../../_shared/enums";
 import OccupationGroupConstants from "../../_shared/constants";
 import OccupationGroupRegexes from "../../_shared/regex";
@@ -8,8 +8,9 @@ const SchemaPATCHRequest: SchemaObject = {
   $id: "/components/schemas/OccupationGroupRequestSchemaPATCH",
   type: "object",
   additionalProperties: false,
+  examples: [_patchRequestExample],
   properties: {
-    ...JSON.parse(JSON.stringify(_baseProperties)),
+    ..._basePatchRequestProperties,
   },
   if: {
     required: ["groupType"],

@@ -2,6 +2,7 @@ import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID, RegExp_Str
 import OccupationGroupConstants from "./constants";
 import OccupationGroupEnums from "./enums";
 import OccupationGroupRegexes from "./regex";
+import LanguageAPISpecs from "../../../language";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const _baseProperties: any = {
@@ -61,6 +62,69 @@ export const _baseProperties: any = {
     type: "string",
     pattern: RegExp_Str_ID,
   },
+};
+
+const _translatableStringFields: Record<
+  string,
+  Omit<LanguageAPISpecs.Types.ITranslatedStringSchemaOptions, "required" | "allowNullToDelete">
+> = {
+  preferredLabel: {
+    description: "The preferred label of the occupation group.",
+    maxLength: OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
+    pattern: RegExp_Str_NotEmptyString,
+  },
+  description: {
+    description: "The description of the occupation group.",
+    maxLength: OccupationGroupConstants.DESCRIPTION_MAX_LENGTH,
+  },
+};
+
+function getRequestProperties(
+  options: Pick<LanguageAPISpecs.Types.ITranslatedStringSchemaOptions, "required" | "allowNullToDelete">
+) {
+  return {
+    ...JSON.parse(JSON.stringify(_baseProperties)),
+    ...Object.fromEntries(
+      Object.entries(_translatableStringFields).map(([field, fieldOptions]) => [
+        field,
+        LanguageAPISpecs.Schemas.getTranslatedString({ ...fieldOptions, ...options }),
+      ])
+    ),
+    altLabels: LanguageAPISpecs.Schemas.getTranslatedStringArray({
+      description: "The alternative labels of the occupation group.",
+      maxLength: OccupationGroupConstants.ALT_LABEL_MAX_LENGTH,
+      maxItems: OccupationGroupConstants.ALT_LABELS_MAX_ITEMS,
+    }),
+  };
+}
+
+// POST and PUT take the full multilingual object; the fallback language is required.
+export const _baseRequestProperties = getRequestProperties({ required: true });
+
+// PATCH merges per language: a non-fallback language may be null to delete it.
+export const _basePatchRequestProperties = getRequestProperties({ allowNullToDelete: true });
+
+export const _requestExample = {
+  originUri: "https://data.europa.eu/esco/isco/C11",
+  groupType: OccupationGroupEnums.ObjectTypes.ISCOGroup,
+  code: "11",
+  preferredLabel: {
+    en: "Chief executives, senior officials and legislators",
+    fr: "Directeurs généraux et cadres supérieurs",
+  },
+  altLabels: [{ en: "Senior officials", fr: "Hauts fonctionnaires" }],
+  description: {
+    en: "Chief executives formulate and review policies.",
+    fr: "Les directeurs généraux formulent les politiques.",
+  },
+  modelId: "6419f91c3b4d8a7b1a2c3d4e",
+  UUIDHistory: ["f81d4fae-7dec-11d0-a765-00a0c91e6bf6"],
+};
+
+// Sets French, leaves every other language untouched, and deletes the French description.
+export const _patchRequestExample = {
+  preferredLabel: { fr: "Directeurs généraux" },
+  description: { fr: null },
 };
 
 export const _baseOccupationGroupURLParameter = {

@@ -246,6 +246,36 @@ export function mergeTranslatableFieldsFromPartialObjects<Field extends string>(
 }
 
 /**
+ * Finds the first language, of the spec's translatable fields, that is set but not in the model's
+ * availableLanguages. A field absent from the spec is skipped, and a language set to null (a PATCH deletion)
+ * is never flagged.
+ *
+ * @param spec the create or update spec, its translatable fields multilingual objects or lists of them
+ * @param translatableFields the fields of the spec that carry a translated value, including altLabels
+ * @param availableLanguages the languages of the model
+ * @returns the field and the unsupported language, or null when every language set is available
+ */
+export function findUnsupportedLanguage(
+  spec: object,
+  translatableFields: readonly string[],
+  availableLanguages: readonly string[]
+): { field: string; language: string } | null {
+  for (const field of translatableFields) {
+    const value = (spec as Record<string, unknown>)[field];
+    if (value === undefined) continue;
+    const translations = (Array.isArray(value) ? value : [value]) as LanguageAPISpecs.Types.IPartialTranslatedString[];
+    for (const translation of translations) {
+      for (const [language, translated] of Object.entries(translation)) {
+        if (translated !== null && !availableLanguages.includes(language)) {
+          return { field, language };
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * A JSON.stringify() replacer that serializes a translated value hydrated as a Map as a plain object, since
  * JSON.stringify() serializes a Map as {} and would hide the translations, e.g. in an error message.
  */

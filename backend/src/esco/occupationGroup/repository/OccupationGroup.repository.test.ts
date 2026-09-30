@@ -41,6 +41,7 @@ import {
   getSimpleNewLocalGroupSpecWithParentCode,
   getNewISCOGroupSpecsWithoutImportId,
   getNewLocalGroupSpecsWithoutImportId,
+  toOccupationGroupCreateSpec,
   toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
@@ -110,6 +111,9 @@ function expectedFromGivenSpecWithoutImportId(
 ): IOccupationGroupWithoutImportId {
   return {
     ...givenSpec,
+    preferredLabel: givenSpec.preferredLabel.en!,
+    description: givenSpec.description.en!,
+    altLabels: givenSpec.altLabels.map((altLabel) => altLabel.en!),
     id: expect.any(String),
     parent: null,
     children: [],
@@ -431,7 +435,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       });
 
       TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-        return repositoryRegistry.OccupationGroup.create(getNewOccupationGroupSpec(givenGroupType));
+        return repositoryRegistry.OccupationGroup.create(
+          toOccupationGroupCreateSpec(getNewOccupationGroupSpec(givenGroupType))
+        );
       });
     }
   );
@@ -746,7 +752,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       givenNewOccupationGroupSpec.modelId = givenModelId;
 
       // WHEN creating the OccupationGroup
-      const actualCreated = await repository.create(givenNewOccupationGroupSpec);
+      const actualCreated = await repository.create(toOccupationGroupCreateSpec(givenNewOccupationGroupSpec));
 
       // THEN expect the raw document to carry them as localized sub documents keyed by the fallback language
       const actualRawDoc = await repository.Model.findById(actualCreated.id).lean();
@@ -772,11 +778,32 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     });
   });
 
+  test("should store every language of a multilingual spec on create", async () => {
+    // GIVEN a new OccupationGroup spec translated in the fallback language and in French
+    const givenSpec: INewOccupationGroupSpecWithoutImportId = {
+      ...getNewOccupationGroupSpecWithoutImportId(ObjectTypes.ISCOGroup),
+      preferredLabel: { en: "Managers", fr: "Directeurs" },
+      altLabels: [{ en: "Executives", fr: "Cadres" }],
+      description: { en: "A description", fr: "Une description" },
+    };
+
+    // WHEN creating the OccupationGroup
+    const actualCreated = await repository.create(givenSpec);
+
+    // THEN expect every language to be stored
+    const actualRawDoc = await repository.Model.findById(actualCreated.id).lean();
+    expect(actualRawDoc?.preferredLabel).toEqual(givenSpec.preferredLabel);
+    expect(actualRawDoc?.altLabels).toEqual(givenSpec.altLabels);
+    expect(actualRawDoc?.description).toEqual(givenSpec.description);
+    // AND expect the fallback language to be returned
+    expect(actualCreated.preferredLabel).toEqual("Managers");
+  });
+
   describe("Test findById()", () => {
     test("should find an OccupationGroup by its id", async () => {
       // GIVEN an OccupationGroup exists in the database
       const givenOccupationGroupSpecs = getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1");
-      const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+      const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenOccupationGroupSpecs));
 
       // WHEN searching for the OccupationGroup by its id
       const actualFoundOccupationGroup = await repository.findById(givenOccupationGroup.id);
@@ -812,17 +839,17 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
         // The root parent (OccupationGroup)
         const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
-        const givenParent = await repository.create(givenParentSpecs);
+        const givenParent = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs));
         // The 2nd level parent (OccupationGroup)
         const givenParentSpecs_2 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "parent_2", givenParent.code);
-        const givenParent_2 = await repository.create(givenParentSpecs_2);
+        const givenParent_2 = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs_2));
         // The 3rd level parent (OccupationGroup)
         const givenParentSpecs_3 = getSimpleNewISCOGroupSpecWithParentCode(
           givenModelId,
           "parent_3",
           givenParent_2.code
         );
-        const givenParent_3 = await repository.create(givenParentSpecs_3);
+        const givenParent_3 = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs_3));
 
         // THE subject (OccupationGroup)
         const givenSubjectSpecs = getSimpleNewISCOGroupSpecWithParentCode(
@@ -831,7 +858,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           givenParent_3.code,
           true
         );
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toOccupationGroupCreateSpec(givenSubjectSpecs));
 
         // The child ESCO Occupation
         const givenChildSpecs_1 = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -934,19 +961,19 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         // The parent (OccupationGroup)
         const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
         givenParentSpecs.code = "0"; // set the code to a single digit since this group should be a root node
-        const givenParent = await repository.create(givenParentSpecs);
+        const givenParent = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs));
 
         // THE subject (OccupationGroup)
         const givenSubjectSpecs = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "subject", givenParent.code);
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toOccupationGroupCreateSpec(givenSubjectSpecs));
 
         // The child ISCOGroup
         const givenChildSpecs_1 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_1", givenSubject.code);
-        const givenChild_1 = await repository.create(givenChildSpecs_1);
+        const givenChild_1 = await repository.create(toOccupationGroupCreateSpec(givenChildSpecs_1));
 
         // The child LocalGroup
         const givenChildSpecs_2 = getSimpleNewLocalGroupSpecWithParentCode(givenModelId, "child_2", givenSubject.code);
-        const givenChild_2 = await repository.create(givenChildSpecs_2);
+        const givenChild_2 = await repository.create(toOccupationGroupCreateSpec(givenChildSpecs_2));
 
         // AND the subject OccupationGroup has a parent and two children
         const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -1030,19 +1057,19 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
         // The parent (LocalGroup)
         const givenParentSpecs = getSimpleNewLocalGroupSpec(givenModelId, "parent");
-        const givenParent = await repository.create(givenParentSpecs);
+        const givenParent = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs));
 
         // THE subject (OccupationGroup)
         const givenSubjectSpecs = getSimpleNewLocalGroupSpecWithParentCode(givenModelId, "subject", givenParent.code);
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toOccupationGroupCreateSpec(givenSubjectSpecs));
 
         // The 1st child (LocalGroup)
         const givenChildSpecs_1 = getSimpleNewLocalGroupSpecWithParentCode(givenModelId, "child_1", givenSubject.code);
-        const givenChild_1 = await repository.create(givenChildSpecs_1);
+        const givenChild_1 = await repository.create(toOccupationGroupCreateSpec(givenChildSpecs_1));
 
         // The 2nd child (LocalGroup)
         const givenChildSpecs_2 = getSimpleNewLocalGroupSpecWithParentCode(givenModelId, "child_2", givenSubject.code);
-        const givenChild_2 = await repository.create(givenChildSpecs_2);
+        const givenChild_2 = await repository.create(toOccupationGroupCreateSpec(givenChildSpecs_2));
 
         // AND the subject OccupationGroup has a parent and two children
         const actualHierarchy = await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
@@ -1127,11 +1154,11 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
         // The parent (LocalGroup)
         const givenParentSpecs = getSimpleNewLocalGroupSpec(givenModelId, "parent");
-        const givenParent = await repository.create(givenParentSpecs);
+        const givenParent = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs));
 
         // THE subject (OccupationGroup)
         const givenSubjectSpecs = getSimpleNewLocalGroupSpecWithParentCode(givenModelId, "subject", givenParent.code);
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toOccupationGroupCreateSpec(givenSubjectSpecs));
 
         // The 1st child (LocalOccupation)
         const givenChildSpecs_1 = getSimpleNewLocalOccupationSpecWithParentCode(
@@ -1236,7 +1263,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenModelId = getMockStringId(1);
         // The OccupationGroup
         const givenOccupationGroupSpecs = getSimpleNewOccupationGroupSpec(givenGroupType, givenModelId, "group_1");
-        const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+        const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenOccupationGroupSpecs));
         // The non-OccupationGroup in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
         const givenSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(givenNewSkillSpec));
@@ -1274,7 +1301,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenModelId = getMockStringId(1);
         // The OccupationGroup
         const givenOccupationGroupSpecs = getNewOccupationGroupSpec(givenGroupType);
-        const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+        const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenOccupationGroupSpecs));
         // The non-OccupationGroup in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
         const givenSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(givenNewSkillSpec));
@@ -1311,10 +1338,14 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         // GIVEN an inconsistency was introduced, and the child and the parent are in different models
         // The OccupationGroup 1
         const givenOccupationGroupSpecs_1 = getNewOccupationGroupSpec(givenGroupType);
-        const givenOccupationGroup_1 = await repository.create(givenOccupationGroupSpecs_1);
+        const givenOccupationGroup_1 = await repository.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpecs_1)
+        );
         // The OccupationGroup 2
         const givenOccupationGroupSpecs_2 = getNewOccupationGroupSpec(givenGroupType);
-        const givenOccupationGroup_2 = await repository.create(givenOccupationGroupSpecs_2);
+        const givenOccupationGroup_2 = await repository.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpecs_2)
+        );
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         // the third model
@@ -1356,10 +1387,14 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         // The OccupationGroup 1
         const givenModelId_1 = getMockStringId(1);
         const givenOccupationGroupSpecs_1 = getSimpleNewOccupationGroupSpec(givenGroupType, givenModelId_1, "group_1");
-        const givenOccupationGroup_1 = await repository.create(givenOccupationGroupSpecs_1);
+        const givenOccupationGroup_1 = await repository.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpecs_1)
+        );
         // The OccupationGroup 2
         const givenOccupationGroupSpecs_2 = getNewOccupationGroupSpec(givenGroupType);
-        const givenOccupationGroup_2 = await repository.create(givenOccupationGroupSpecs_2);
+        const givenOccupationGroup_2 = await repository.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpecs_2)
+        );
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
 
@@ -1394,11 +1429,15 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         // The OccupationGroup 1
         const givenModelId_1 = getMockStringId(1);
         const givenOccupationGroupSpecs_1 = getSimpleNewOccupationGroupSpec(givenGroupType, givenModelId_1, "group_1");
-        const givenOccupationGroup_1 = await repository.create(givenOccupationGroupSpecs_1);
+        const givenOccupationGroup_1 = await repository.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpecs_1)
+        );
         // The OccupationGroup 2
         const givenModelId_2 = getMockStringId(2);
         const givenOccupationGroupSpecs_2 = getNewOccupationGroupSpec(givenGroupType);
-        const givenOccupationGroup_2 = await repository.create(givenOccupationGroupSpecs_2);
+        const givenOccupationGroup_2 = await repository.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpecs_2)
+        );
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
 
@@ -1443,7 +1482,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenSubjectSpecs = getSimpleNewOccupationGroupSpec(givenGroupType, givenModelId, "subject", true);
         // @ts-ignore
         givenSubjectSpecs.id = givenID.toHexString();
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toOccupationGroupCreateSpec(givenSubjectSpecs));
         // guard to ensure the id is the given one
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
@@ -1521,7 +1560,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           "isco_1",
           true
         );
-        const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs_1);
+        const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpecs_1)
+        );
 
         // AND an Occupation givenOccupation_1 with a given ID in the given model
         const givenOccupation1Specs = getSimpleNewLocalOccupationSpecWithParentCode(
@@ -1539,7 +1580,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
         // AND a second occupationGroup with some ID  in the given model
         const givenOccupationGroupSpecs_2 = getSimpleNewOccupationGroupSpec(givenGroupType, givenModelId, "isco_2");
-        const givenOccupationGroup_2 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs_2);
+        const givenOccupationGroup_2 = await repositoryRegistry.OccupationGroup.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpecs_2)
+        );
 
         // AND a subject Occupation group with the givenId
         const givenSubjectSpecs = getSimpleNewOccupationGroupSpecWithParentCode(
@@ -1550,7 +1593,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         );
         // @ts-ignore
         givenSubjectSpecs.id = givenID.toHexString();
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toOccupationGroupCreateSpec(givenSubjectSpecs));
         // guard to ensure the id is the given one
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
@@ -1594,13 +1637,13 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
       // The root parent (OccupationGroup)
       const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
-      const givenParent = await repository.create(givenParentSpecs);
+      const givenParent = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs));
       // The 2nd level parent (OccupationGroup)
       const givenParentSpecs_2 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "parent_2", givenParent.code);
-      const givenParent_2 = await repository.create(givenParentSpecs_2);
+      const givenParent_2 = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs_2));
       // The 3rd level parent (OccupationGroup)
       const givenParentSpecs_3 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "parent_3", givenParent_2.code);
-      const givenParent_3 = await repository.create(givenParentSpecs_3);
+      const givenParent_3 = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs_3));
 
       // THE subject (OccupationGroup)
       const givenSubjectSpecs = getSimpleNewISCOGroupSpecWithParentCode(
@@ -1609,7 +1652,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         givenParent_3.code,
         true
       );
-      const givenSubject = await repository.create(givenSubjectSpecs);
+      const givenSubject = await repository.create(toOccupationGroupCreateSpec(givenSubjectSpecs));
 
       // The child ESCO Occupation
       const givenChildSpecs_1 = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -1660,7 +1703,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       // GIVEN an OccupationGroup exists without a parent
       const givenModelId = getMockStringId(1);
       const givenOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenModelId, "group_1");
-      const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+      const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenOccupationGroupSpecs));
 
       // WHEN searching for its parent by its id
       const actualFoundParent = await repository.findParent(givenOccupationGroup.id);
@@ -1689,13 +1732,13 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
       // The root parent (OccupationGroup)
       const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
-      const givenParent = await repository.create(givenParentSpecs);
+      const givenParent = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs));
       // The 2nd level parent (OccupationGroup)
       const givenChildSpec_1 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_1", givenParent.code);
-      const givenChild_1 = await repository.create(givenChildSpec_1);
+      const givenChild_1 = await repository.create(toOccupationGroupCreateSpec(givenChildSpec_1));
       // The 3rd level parent (OccupationGroup)
       const givenChildSpecs_2 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_2", givenParent.code);
-      const givenChild_2 = await repository.create(givenChildSpecs_2);
+      const givenChild_2 = await repository.create(toOccupationGroupCreateSpec(givenChildSpecs_2));
 
       // THE subject (OccupationGroup)
       const givenChildSpecs_3 = getSimpleNewISCOGroupSpecWithParentCode(
@@ -1704,7 +1747,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         givenParent.code,
         true
       );
-      const givenChild_3 = await repository.create(givenChildSpecs_3);
+      const givenChild_3 = await repository.create(toOccupationGroupCreateSpec(givenChildSpecs_3));
 
       // The child ESCO Occupation
       const givenChildSpecs_4 = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -1781,7 +1824,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     test("should return an Occupation child with preferredLabel, description and altLabels flattened to plain strings", async () => {
       // GIVEN a leaf OccupationGroup parent (a 4 digit ISCO code, as an occupation's code must start with one)
       const givenModelId = getMockStringId(1);
-      const givenParent = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "parent", true));
+      const givenParent = await repository.create(
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "parent", true))
+      );
       // AND an ESCO Occupation child of that parent, whose translatable fields are stored as localized sub documents
       const givenOccupationChild = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child", givenParent.code))
@@ -1811,9 +1856,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       // GIVEN a parent OccupationGroup with one child OccupationGroup
       const givenModelId = getMockStringId(1);
       const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent_lang");
-      const givenParent = await repository.create(givenParentSpecs);
+      const givenParent = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs));
       const givenChildSpecs = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child_lang", givenParent.code);
-      const givenChild = await repository.create(givenChildSpecs);
+      const givenChild = await repository.create(toOccupationGroupCreateSpec(givenChildSpecs));
       await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
         {
           parentType: ObjectTypes.ISCOGroup,
@@ -1853,7 +1898,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       // GIVEN an OccupationGroup exists without a parent
       const givenModelId = getMockStringId(1);
       const givenOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenModelId, "group_1");
-      const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+      const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenOccupationGroupSpecs));
 
       // WHEN searching for its children by its id
       const actualFoundChildren = await repository.findChildren(givenOccupationGroup.id);
@@ -2115,7 +2160,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       const givenOccupationGroups: IOccupationGroup[] = [];
       for (let i = 0; i < 3; i++) {
         const givenOccupationGroupSpecs = getSimpleNewLocalGroupSpec(givenModelId, `group_${i + 1}`);
-        const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+        const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenOccupationGroupSpecs));
         givenOccupationGroups.push(givenOccupationGroup);
       }
 
@@ -2138,7 +2183,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       const givenOccupationGroups = [];
       for (let i = 0; i < 3; i++) {
         const givenOccupationGroupSpecs = getSimpleNewLocalGroupSpec(givenModelId, `group_${i + 1}`);
-        const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+        const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenOccupationGroupSpecs));
         givenOccupationGroups.push(givenOccupationGroup);
       }
       // WHEN retrieving the occupationGroups with a cursor pointing to group_3 (newest) and a limit of 2
@@ -2186,9 +2231,15 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     test("should paginate consistently across mixed limits and cursor flow", async () => {
       // GIVEN a modelId and three occupation groups created in order
       const givenModelId = getMockStringId(1);
-      const given_occupation_group1 = await repository.create(getSimpleNewLocalGroupSpec(givenModelId, "g1"));
-      const given_occupation_group2 = await repository.create(getSimpleNewLocalGroupSpec(givenModelId, "g2"));
-      const given_occupation_group3 = await repository.create(getSimpleNewLocalGroupSpec(givenModelId, "g3"));
+      const given_occupation_group1 = await repository.create(
+        toOccupationGroupCreateSpec(getSimpleNewLocalGroupSpec(givenModelId, "g1"))
+      );
+      const given_occupation_group2 = await repository.create(
+        toOccupationGroupCreateSpec(getSimpleNewLocalGroupSpec(givenModelId, "g2"))
+      );
+      const given_occupation_group3 = await repository.create(
+        toOccupationGroupCreateSpec(getSimpleNewLocalGroupSpec(givenModelId, "g3"))
+      );
 
       // WHEN requesting first page with limit=3 and no cursor (desc by _id => newest first)
       const page2 = await repository.findPaginated(givenModelId, 3, -1);
@@ -2205,8 +2256,12 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
     test("should support ascending sort order with cursor pagination", async () => {
       const givenModelId = getMockStringId(9998);
-      const givenOccupationGroup1 = await repository.create(getSimpleNewLocalGroupSpec(givenModelId, "first"));
-      const givenOccupationGroup2 = await repository.create(getSimpleNewLocalGroupSpec(givenModelId, "second"));
+      const givenOccupationGroup1 = await repository.create(
+        toOccupationGroupCreateSpec(getSimpleNewLocalGroupSpec(givenModelId, "first"))
+      );
+      const givenOccupationGroup2 = await repository.create(
+        toOccupationGroupCreateSpec(getSimpleNewLocalGroupSpec(givenModelId, "second"))
+      );
 
       const firstPage = await repository.findPaginated(givenModelId, 1, 1);
       expect(firstPage).toHaveLength(1);
@@ -2221,7 +2276,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       // GIVEN a unique modelId and some occupation groups
       const givenModelId = getMockStringId(999); // Use a unique modelId to avoid conflicts
       const givenOccupationGroupSpecs = getSimpleNewLocalGroupSpec(givenModelId, "test_group");
-      const createdGroup = await repository.create(givenOccupationGroupSpecs);
+      const createdGroup = await repository.create(toOccupationGroupCreateSpec(givenOccupationGroupSpecs));
 
       // WHEN finding paginated occupationGroups with an invalid cursor
       const result = await repository.findPaginated(givenModelId, 2, -1);
@@ -2236,14 +2291,16 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       const givenModelId = getMockStringId(321);
 
       // Parent group
-      const parent = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "parent"));
+      const parent = await repository.create(
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "parent"))
+      );
       // Subject group
       const subject = await repository.create(
-        getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "subject", parent.code)
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "subject", parent.code))
       );
       // Child group
       const child = await repository.create(
-        getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child", subject.code)
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "child", subject.code))
       );
 
       // Build hierarchy relations explicitly
@@ -2348,11 +2405,15 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       test("should only return the OccupationGroups whose requested field matches the search value (case-insensitive)", async () => {
         // GIVEN a model with three occupation groups, two of which match the search value on preferredLabel
         const givenModelId = getMockStringId(1);
-        const givenNursing = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "Nursing professionals"));
-        const givenNursingAssoc = await repository.create(
-          getSimpleNewISCOGroupSpec(givenModelId, "NURSING associate professionals")
+        const givenNursing = await repository.create(
+          toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "Nursing professionals"))
         );
-        await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "Software developers"));
+        const givenNursingAssoc = await repository.create(
+          toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "NURSING associate professionals"))
+        );
+        await repository.create(
+          toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "Software developers"))
+        );
 
         // WHEN searching for "nursing" on preferredLabel
         const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -2367,8 +2428,10 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       test("should treat the search value literally (regex special characters are escaped)", async () => {
         // GIVEN a model with an occupation group whose label contains regex special characters
         const givenModelId = getMockStringId(1);
-        const givenGroup = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "a.b.c"));
-        await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "axbxc"));
+        const givenGroup = await repository.create(
+          toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "a.b.c"))
+        );
+        await repository.create(toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "axbxc")));
 
         // WHEN searching for the literal value "a.b.c"
         const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -2387,11 +2450,11 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenMatchingSpec = getSimpleNewISCOGroupSpec(givenModelId, "matching");
         givenMatchingSpec.description = "Caring for the sick";
         givenMatchingSpec.altLabels = ["Carers"];
-        const givenMatchingGroup = await repository.create(givenMatchingSpec);
+        const givenMatchingGroup = await repository.create(toOccupationGroupCreateSpec(givenMatchingSpec));
         const givenOtherSpec = getSimpleNewISCOGroupSpec(givenModelId, "other");
         givenOtherSpec.description = "Writing software";
         givenOtherSpec.altLabels = ["Developers"];
-        await repository.create(givenOtherSpec);
+        await repository.create(toOccupationGroupCreateSpec(givenOtherSpec));
 
         // WHEN searching for a value that occurs in the description of the first group only
         const actualFoundByDescription = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -2417,7 +2480,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       test("should not match the search value on code, which stays monolingual", async () => {
         // GIVEN a model with an occupation group whose code is a plain string, not a localized sub document
         const givenModelId = getMockStringId(1);
-        const givenGroup = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "a group"));
+        const givenGroup = await repository.create(
+          toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "a group"))
+        );
 
         // WHEN searching for that code
         const actualFound = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -2433,7 +2498,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       test("should return an empty array when nothing matches the search value", async () => {
         // GIVEN a model with an occupation group
         const givenModelId = getMockStringId(1);
-        await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "Software developers"));
+        await repository.create(
+          toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "Software developers"))
+        );
 
         // WHEN searching for a value that matches nothing
         const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -2451,9 +2518,13 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     test("should return the OccupationGroups of the model with the given ids", async () => {
       // GIVEN a model with three occupation groups
       const givenModelId = getMockStringId(1);
-      const given1 = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "g1"));
-      const given2 = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "g2"));
-      await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "g3"));
+      const given1 = await repository.create(
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "g1"))
+      );
+      const given2 = await repository.create(
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "g2"))
+      );
+      await repository.create(toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "g3")));
 
       // WHEN finding two of them by id
       const actual = await repository.findByIds(givenModelId, [given1.id, given2.id]);
@@ -2466,8 +2537,10 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       // GIVEN a model with one occupation group, and another in a different model
       const givenModelId = getMockStringId(1);
       const givenOtherModelId = getMockStringId(2);
-      const given = await repository.create(getSimpleNewISCOGroupSpec(givenModelId, "g1"));
-      const givenOther = await repository.create(getSimpleNewISCOGroupSpec(givenOtherModelId, "other"));
+      const given = await repository.create(toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "g1")));
+      const givenOther = await repository.create(
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenOtherModelId, "other"))
+      );
 
       // WHEN finding by a mix of a valid id, an invalid id and an id from another model
       const actual = await repository.findByIds(givenModelId, [given.id, "not-an-id", givenOther.id]);
@@ -2506,7 +2579,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
     test("Should return an existing occupationGroup by occupationGroup uuid", async () => {
       // GIVEN an OccupationGroup exists in the database
       const givenOccupationGroupSpecs = getSimpleNewLocalGroupSpec(getMockStringId(1), "group_2");
-      const givenOccupationGroup = await repository.create(givenOccupationGroupSpecs);
+      const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenOccupationGroupSpecs));
 
       // WHEN search for the OccupationGroup by its uuid
       const actualFoundOccupationGroup = await repository.getOccupationGroupByUUID(givenOccupationGroup.UUID);
@@ -2540,17 +2613,17 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
         // The root parent (OccupationGroup)
         const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent");
-        const givenParent = await repository.create(givenParentSpecs);
+        const givenParent = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs));
         // The 2nd level parent (OccupationGroup)
         const givenParentSpecs_2 = getSimpleNewISCOGroupSpecWithParentCode(givenModelId, "parent_2", givenParent.code);
-        const givenParent_2 = await repository.create(givenParentSpecs_2);
+        const givenParent_2 = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs_2));
         // The 3rd level parent (OccupationGroup)
         const givenParentSpecs_3 = getSimpleNewISCOGroupSpecWithParentCode(
           givenModelId,
           "parent_3",
           givenParent_2.code
         );
-        const givenParent_3 = await repository.create(givenParentSpecs_3);
+        const givenParent_3 = await repository.create(toOccupationGroupCreateSpec(givenParentSpecs_3));
 
         // THE subject (OccupationGroup)
         const givenSubjectSpecs = getSimpleNewISCOGroupSpecWithParentCode(
@@ -2559,7 +2632,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
           givenParent_3.code,
           true
         );
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toOccupationGroupCreateSpec(givenSubjectSpecs));
 
         // The child ESCO Occupation
         const givenChildSpecs_1 = getSimpleNewESCOOccupationSpecWithParentCode(
@@ -2664,8 +2737,12 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         // GIVEN two occupation groups in different models
         const givenModelId1 = getMockStringId(1);
         const givenModelId2 = getMockStringId(2);
-        const givenGroup1 = await repository.create(getSimpleNewISCOGroupSpec(givenModelId1, "group_1"));
-        const givenGroup2 = await repository.create(getSimpleNewISCOGroupSpec(givenModelId2, "group_2"));
+        const givenGroup1 = await repository.create(
+          toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId1, "group_1"))
+        );
+        const givenGroup2 = await repository.create(
+          toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId2, "group_2"))
+        );
         const givenMissingUUID = randomUUID();
 
         // WHEN resolving a set of UUIDs that includes both groups' UUIDs plus a non-existent UUID
@@ -2705,7 +2782,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
       test("should null-fill every entry when none of the given UUIDs match an occupation group", async () => {
         // GIVEN an occupation group exists
-        await repository.create(getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1"));
+        await repository.create(toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1")));
         const givenUUIDs = [randomUUID(), randomUUID()];
 
         // WHEN resolving UUIDs that do not match any occupation group
@@ -2717,7 +2794,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
       test("should return an empty array when given an empty list of UUIDs", async () => {
         // GIVEN an occupation group exists
-        await repository.create(getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1"));
+        await repository.create(toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1")));
 
         // WHEN resolving an empty list of UUIDs
         const actual = await repository.findHistoryReferencesByUUIDs([]);
@@ -2728,8 +2805,12 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
       test("should use the UUID index and not do a collection scan", async () => {
         // GIVEN two occupation groups exist in the database
-        const givenGroup1 = await repository.create(getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1"));
-        const givenGroup2 = await repository.create(getSimpleNewISCOGroupSpec(getMockStringId(2), "group_2"));
+        const givenGroup1 = await repository.create(
+          toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(getMockStringId(1), "group_1"))
+        );
+        const givenGroup2 = await repository.create(
+          toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(getMockStringId(2), "group_2"))
+        );
 
         // WHEN resolving their UUIDs
         // setup find with explain to assert the query plan uses the UUID index and is not doing a collection scan
@@ -2764,7 +2845,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenModelId = getMockStringId(1);
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
         givenNewOccupationGroupSpec.modelId = givenModelId;
-        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+        const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenNewOccupationGroupSpec));
 
         // AND new values to update
         const givenUpdatedCode =
@@ -2773,9 +2854,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
             : getSimpleNewLocalGroupSpec(givenModelId, "updated").code;
         const givenUpdateSpec: IUpdateOccupationGroupSpec = {
           code: givenUpdatedCode,
-          preferredLabel: "Updated Label",
-          altLabels: ["updated-alt-1"],
-          description: "Updated description",
+          preferredLabel: { en: "Updated Label" },
+          altLabels: [{ en: "updated-alt-1" }],
+          description: { en: "Updated description" },
           originUri: "https://updated.example.com",
           modelId: givenModelId,
           UUIDHistory: givenOccupationGroup.UUIDHistory,
@@ -2797,22 +2878,23 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         expect(actualUpdated!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenOccupationGroup.updatedAt.getTime());
       });
 
-      test("should preserve a non fallback language translation of a field when updating it", async () => {
-        // GIVEN an OccupationGroup exists in the database
+      test("should replace the whole localized value, removing the languages omitted from the spec", async () => {
+        // GIVEN an OccupationGroup exists in the database, translated in the fallback language and in French
         const givenModelId = getMockStringId(1);
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
         givenNewOccupationGroupSpec.modelId = givenModelId;
-        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
-        // AND its preferredLabel also carries a French translation, stored directly (the flat-string repository API
-        // has no way to write a non fallback language)
-        await repository.Model.updateOne({ _id: givenOccupationGroup.id }, { $set: { "preferredLabel.fr": "Cadres" } });
+        const givenOccupationGroup = await repository.create({
+          ...toOccupationGroupCreateSpec(givenNewOccupationGroupSpec),
+          preferredLabel: { en: "Managers", fr: "Directeurs" },
+          altLabels: [{ en: "Executives", fr: "Cadres" }],
+        });
 
-        // WHEN updating the OccupationGroup, setting only the fallback language through the public API
+        // WHEN updating it with a preferredLabel in Spanish only besides the fallback language, and new altLabels
         const givenUpdateSpec: IUpdateOccupationGroupSpec = {
           code: givenOccupationGroup.code,
-          preferredLabel: "Updated Label",
-          altLabels: ["updated-alt-1"],
-          description: "Updated description",
+          preferredLabel: { en: "Updated Label", es: "Gerentes" },
+          altLabels: [{ en: "Chiefs" }],
+          description: { en: "Updated description" },
           originUri: "https://updated.example.com",
           modelId: givenModelId,
           UUIDHistory: givenOccupationGroup.UUIDHistory,
@@ -2820,13 +2902,11 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         };
         await repository.update(givenOccupationGroup.id, givenModelId, givenUpdateSpec);
 
-        // THEN expect the fallback language to have been updated, and the French translation to still be there
+        // THEN expect the stored values to be exactly the given ones, the French translations removed
         const actualRawDoc = await repository.Model.findById(givenOccupationGroup.id).lean();
-        const expectedFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-        expect(actualRawDoc?.preferredLabel).toEqual({
-          [expectedFallbackDbKeyName]: givenUpdateSpec.preferredLabel,
-          fr: "Cadres",
-        });
+        expect(actualRawDoc?.preferredLabel).toEqual(givenUpdateSpec.preferredLabel);
+        expect(actualRawDoc?.altLabels).toEqual(givenUpdateSpec.altLabels);
+        expect(actualRawDoc?.description).toEqual(givenUpdateSpec.description);
       });
 
       test("should return null if the OccupationGroup with the given id does not exist", async () => {
@@ -2834,9 +2914,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenModelId = getMockStringId(1);
         const givenUpdateSpec: IUpdateOccupationGroupSpec = {
           code: "NEWCODE",
-          preferredLabel: "Label",
+          preferredLabel: { en: "Label" },
           altLabels: [],
-          description: "Desc",
+          description: { en: "Desc" },
           originUri: "https://example.com",
           modelId: givenModelId,
           UUIDHistory: [randomUUID()],
@@ -2855,9 +2935,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenModelId = getMockStringId(1);
         const givenUpdateSpec: IUpdateOccupationGroupSpec = {
           code: "NEWCODE",
-          preferredLabel: "Label",
+          preferredLabel: { en: "Label" },
           altLabels: [],
-          description: "Desc",
+          description: { en: "Desc" },
           originUri: "https://example.com",
           modelId: givenModelId,
           UUIDHistory: [randomUUID()],
@@ -2876,15 +2956,15 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenModelIdA = getMockStringId(1);
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
         givenNewOccupationGroupSpec.modelId = givenModelIdA;
-        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+        const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenNewOccupationGroupSpec));
 
         // WHEN updating with a different modelId
         const givenModelIdB = getMockStringId(2);
         const givenUpdateSpec: IUpdateOccupationGroupSpec = {
           code: "NEWCODE",
-          preferredLabel: "Label",
+          preferredLabel: { en: "Label" },
           altLabels: [],
-          description: "Desc",
+          description: { en: "Desc" },
           originUri: "https://example.com",
           modelId: givenModelIdB,
           UUIDHistory: [randomUUID()],
@@ -2899,9 +2979,9 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
       TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
         const givenSpec: IUpdateOccupationGroupSpec = {
           code: "CODE",
-          preferredLabel: "Label",
+          preferredLabel: { en: "Label" },
           altLabels: [],
-          description: "Desc",
+          description: { en: "Desc" },
           originUri: "https://example.com",
           modelId: getMockStringId(1),
           UUIDHistory: [randomUUID()],
@@ -2920,12 +3000,12 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenModelId = getMockStringId(1);
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
         givenNewOccupationGroupSpec.modelId = givenModelId;
-        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+        const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenNewOccupationGroupSpec));
 
         // WHEN patching with only preferredLabel and description
         const givenPatchSpec: IPartialUpdateOccupationGroupSpec = {
-          preferredLabel: "Patched Label",
-          description: "Patched description",
+          preferredLabel: { en: "Patched Label" },
+          description: { en: "Patched description" },
         };
         const actualPatched = await repository.patch(givenOccupationGroup.id, givenModelId, givenPatchSpec);
 
@@ -2943,42 +3023,57 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         expect(actualPatched!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenOccupationGroup.updatedAt.getTime());
       });
 
-      test("should preserve a non fallback language translation of a field when patching it, and leave other translatable fields untouched", async () => {
+      test("should merge per language, delete a language set to null, and leave other fields untouched", async () => {
+        // GIVEN an OccupationGroup exists in the database, its preferredLabel and description translated in French
+        const givenModelId = getMockStringId(1);
+        const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
+        givenNewOccupationGroupSpec.modelId = givenModelId;
+        const givenOccupationGroup = await repository.create({
+          ...toOccupationGroupCreateSpec(givenNewOccupationGroupSpec),
+          preferredLabel: { en: "Managers", fr: "Directeurs" },
+          description: { en: "A description", fr: "Une description" },
+        });
+
+        // WHEN patching the French preferredLabel only
+        const givenPatchSpec: IPartialUpdateOccupationGroupSpec = { preferredLabel: { fr: "Cadres" } };
+        await repository.patch(givenOccupationGroup.id, givenModelId, givenPatchSpec);
+
+        // THEN expect the French preferredLabel to be updated, and the fallback language left untouched
+        const actualRawDoc = await repository.Model.findById(givenOccupationGroup.id).lean();
+        expect(actualRawDoc?.preferredLabel).toEqual({ en: "Managers", fr: "Cadres" });
+        // AND expect description, which was not part of the patch, to be completely untouched
+        expect(actualRawDoc?.description).toEqual({ en: "A description", fr: "Une description" });
+
+        // WHEN patching the French description to null
+        await repository.patch(givenOccupationGroup.id, givenModelId, { description: { fr: null } });
+
+        // THEN expect the French description to be deleted
+        const actualRawDocAfterDelete = await repository.Model.findById(givenOccupationGroup.id).lean();
+        expect(actualRawDocAfterDelete?.description).toEqual({ en: "A description" });
+      });
+
+      test("should replace altLabels as a whole", async () => {
         // GIVEN an OccupationGroup exists in the database
         const givenModelId = getMockStringId(1);
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
         givenNewOccupationGroupSpec.modelId = givenModelId;
-        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
-        // AND its preferredLabel and description also carry a French translation, stored directly (the flat-string
-        // repository API has no way to write a non fallback language)
-        await repository.Model.updateOne(
-          { _id: givenOccupationGroup.id },
-          { $set: { "preferredLabel.fr": "Cadres", "description.fr": "Une description" } }
-        );
+        const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenNewOccupationGroupSpec));
 
-        // WHEN patching only preferredLabel through the public API
-        const givenPatchSpec: IPartialUpdateOccupationGroupSpec = { preferredLabel: "Patched Label" };
-        await repository.patch(givenOccupationGroup.id, givenModelId, givenPatchSpec);
+        // WHEN patching its altLabels
+        const givenPatchSpec: IPartialUpdateOccupationGroupSpec = { altLabels: [{ en: "Chiefs", fr: "Chefs" }] };
+        const actualPatched = await repository.patch(givenOccupationGroup.id, givenModelId, givenPatchSpec);
 
-        // THEN expect preferredLabel's fallback language to have been updated, and its French translation preserved
+        // THEN expect the altLabels to be replaced by the given ones
         const actualRawDoc = await repository.Model.findById(givenOccupationGroup.id).lean();
-        const expectedFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-        expect(actualRawDoc?.preferredLabel).toEqual({
-          [expectedFallbackDbKeyName]: "Patched Label",
-          fr: "Cadres",
-        });
-        // AND expect description, which was not part of the patch, to be completely untouched
-        expect(actualRawDoc?.description).toEqual({
-          [expectedFallbackDbKeyName]: givenOccupationGroup.description,
-          fr: "Une description",
-        });
+        expect(actualRawDoc?.altLabels).toEqual(givenPatchSpec.altLabels);
+        expect(actualPatched!.altLabels).toEqual(["Chiefs"]);
       });
 
       test("should return null if the OccupationGroup with the given id does not exist", async () => {
         // GIVEN no OccupationGroup with the given id exists
         const givenModelId = getMockStringId(1);
         const givenPatchSpec: IPartialUpdateOccupationGroupSpec = {
-          preferredLabel: "Patched Label",
+          preferredLabel: { en: "Patched Label" },
         };
 
         // WHEN patching a non-existent OccupationGroup
@@ -2992,7 +3087,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         // GIVEN an invalid id
         const givenModelId = getMockStringId(1);
         const givenPatchSpec: IPartialUpdateOccupationGroupSpec = {
-          preferredLabel: "Patched Label",
+          preferredLabel: { en: "Patched Label" },
         };
 
         // WHEN patching with an invalid id
@@ -3007,12 +3102,12 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenModelIdA = getMockStringId(1);
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
         givenNewOccupationGroupSpec.modelId = givenModelIdA;
-        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+        const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenNewOccupationGroupSpec));
 
         // WHEN patching with a different modelId
         const givenModelIdB = getMockStringId(2);
         const givenPatchSpec: IPartialUpdateOccupationGroupSpec = {
-          preferredLabel: "Patched Label",
+          preferredLabel: { en: "Patched Label" },
         };
         const actualPatched = await repository.patch(givenOccupationGroup.id, givenModelIdB, givenPatchSpec);
 
@@ -3026,7 +3121,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
         const givenModelId = getMockStringId(1);
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewOccupationGroupSpec(givenGroupType);
         givenNewOccupationGroupSpec.modelId = givenModelId;
-        const givenOccupationGroup = await repository.create(givenNewOccupationGroupSpec);
+        const givenOccupationGroup = await repository.create(toOccupationGroupCreateSpec(givenNewOccupationGroupSpec));
 
         // WHEN patching the groupType and code to valid LocalGroup values
         const givenPatchSpec: IPartialUpdateOccupationGroupSpec = {
@@ -3043,7 +3138,7 @@ describe("Test the OccupationGroup Repository with an in-memory mongodb", () => 
 
       TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
         const givenSpec: IPartialUpdateOccupationGroupSpec = {
-          preferredLabel: "Label",
+          preferredLabel: { en: "Label" },
         };
         return repositoryRegistry.OccupationGroup.patch(getMockStringId(1), getMockStringId(1), givenSpec);
       });

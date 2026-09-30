@@ -20,6 +20,7 @@ import {
   getSimpleNewESCOOccupationSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
+  toOccupationGroupCreateSpec,
   toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
@@ -743,7 +744,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
       );
       const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup_1")
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup_1"))
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
@@ -783,7 +784,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
       );
       const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup_1")
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup_1"))
       );
       const givenOccupation_1 = await repositoryRegistry.occupation.create(
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))

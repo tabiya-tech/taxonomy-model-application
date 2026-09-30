@@ -10,6 +10,7 @@ import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serv
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import {
   IOccupationGroupService,
+  OccupationGroupLanguageValidationError,
   OccupationGroupModelValidationError,
 } from "../../services/occupationGroup.service.type";
 import { ModelForOccupationGroupValidationErrorCode } from "../../_shared/OccupationGroup.types";
@@ -107,9 +108,9 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-1",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Updated Label",
-      description: "Updated description",
-      altLabels: ["alt-1"],
+      preferredLabel: { en: "Updated Label" },
+      description: { en: "Updated description" },
+      altLabels: [{ en: "alt-1" }],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
     };
@@ -150,8 +151,8 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-1",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Label",
-      description: "Desc",
+      preferredLabel: { en: "Label" },
+      description: { en: "Desc" },
       altLabels: [],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
@@ -184,8 +185,8 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-2",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Label",
-      description: "Desc",
+      preferredLabel: { en: "Label" },
+      description: { en: "Desc" },
       altLabels: [],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
@@ -223,8 +224,8 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-1",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Label",
-      description: "Desc",
+      preferredLabel: { en: "Label" },
+      description: { en: "Desc" },
       altLabels: [],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
@@ -260,8 +261,8 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-1",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Label",
-      description: "Desc",
+      preferredLabel: { en: "Label" },
+      description: { en: "Desc" },
       altLabels: [],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
@@ -289,6 +290,70 @@ describe("OccupationGroupPUTController", () => {
     expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
   });
 
+  test("should pass a multi language payload to the service", async () => {
+    // GIVEN a valid request with translatable fields in several languages
+    getMockGetSchema().mockReturnValue(jest.fn().mockReturnValue(true) as never);
+    const givenPayload = {
+      modelId: "model-1",
+      code: "1234",
+      groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+      preferredLabel: { en: "Managers", fr: "Directeurs" },
+      description: { en: "Desc", fr: "Une description" },
+      altLabels: [{ en: "Executives", fr: "Cadres" }],
+      originUri: "https://example.com",
+      UUIDHistory: ["uuid-1"],
+    };
+    // AND the service succeeds
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.update = jest.fn().mockResolvedValue({ id: "group-1" });
+
+    // WHEN the handler is invoked
+    await new OccupationGroupPUTController().put(buildEvent(givenPayload));
+
+    // THEN expect the service to be called with every language of the translatable fields
+    expect(mockServiceRegistry.occupationGroup.update).toHaveBeenCalledWith(
+      "group-1",
+      "model-1",
+      expect.objectContaining({
+        preferredLabel: givenPayload.preferredLabel,
+        description: givenPayload.description,
+        altLabels: givenPayload.altLabels,
+      })
+    );
+  });
+
+  test("should respond with BAD_REQUEST naming the field and the language when a language is not available in the model", async () => {
+    // GIVEN a valid request
+    getMockGetSchema().mockReturnValue(jest.fn().mockReturnValue(true) as never);
+    const givenPayload = {
+      modelId: "model-1",
+      code: "1234",
+      groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+      preferredLabel: { en: "Managers", fr: "Directeurs" },
+      description: { en: "Desc", fr: "Une description" },
+      altLabels: [{ en: "Executives", fr: "Cadres" }],
+      originUri: "https://example.com",
+      UUIDHistory: ["uuid-1"],
+    };
+    // AND the service rejects a language that is not available in the model
+    const givenError = new OccupationGroupLanguageValidationError("preferredLabel", "fr");
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.update = jest.fn().mockRejectedValue(givenError);
+
+    // WHEN the handler is invoked
+    const actualResponse = await new OccupationGroupPUTController().put(buildEvent(givenPayload));
+
+    // THEN expect BAD_REQUEST
+    expect(actualResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    // AND the error to name the field and the language
+    const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+      errorCode: OccupationGroupAPISpecs.OccupationGroup.PUT.Errors.Response.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+      message: "Field 'preferredLabel' uses a language not available in this model",
+      details: "Unsupported language: 'fr'",
+    };
+    expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+  });
+
   test("should respond with INTERNAL_SERVER_ERROR when failed to fetch model from DB", async () => {
     // GIVEN a valid PUT request
     const validateFunction = jest.fn().mockReturnValue(true);
@@ -298,8 +363,8 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-1",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Label",
-      description: "Desc",
+      preferredLabel: { en: "Label" },
+      description: { en: "Desc" },
       altLabels: [],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
@@ -337,8 +402,8 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-1",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Label",
-      description: "Desc",
+      preferredLabel: { en: "Label" },
+      description: { en: "Desc" },
       altLabels: [],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
@@ -374,8 +439,8 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-1",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Label",
-      description: "Desc",
+      preferredLabel: { en: "Label" },
+      description: { en: "Desc" },
       altLabels: [],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
@@ -426,8 +491,8 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-1",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup,
-      preferredLabel: "Local Group Label",
-      description: "Desc",
+      preferredLabel: { en: "Local Group Label" },
+      description: { en: "Desc" },
       altLabels: [],
       originUri: "https://example.com",
       UUIDHistory: [],
@@ -454,8 +519,8 @@ describe("OccupationGroupPUTController", () => {
         modelId: "model-1",
         code: "1234",
         groupType: "ISCOGroup",
-        preferredLabel: "Label",
-        description: "Desc",
+        preferredLabel: { en: "Label" },
+        description: { en: "Desc" },
         altLabels: [],
         originUri: "https://example.com",
         UUIDHistory: [],
@@ -484,9 +549,9 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-1",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Updated Label",
-      description: "Updated description",
-      altLabels: ["alt-1"],
+      preferredLabel: { en: "Updated Label" },
+      description: { en: "Updated description" },
+      altLabels: [{ en: "alt-1" }],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
     };
@@ -541,8 +606,8 @@ describe("OccupationGroupPUTController", () => {
       modelId: "model-1",
       code: "1234",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Label",
-      description: "Desc",
+      preferredLabel: { en: "Label" },
+      description: { en: "Desc" },
       altLabels: [],
       originUri: "https://example.com",
       UUIDHistory: [],

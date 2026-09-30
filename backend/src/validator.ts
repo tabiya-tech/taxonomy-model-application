@@ -70,6 +70,22 @@ ajvInstance.addSchema(
   OccupationGroupAPISpecs.OccupationGroup.Children.GET.Schemas.Response.Children.Payload.$id
 );
 ajvInstance.addSchema(
+  OccupationGroupAPISpecs.OccupationGroup.PUT.Schemas.Request.Payload,
+  OccupationGroupAPISpecs.OccupationGroup.PUT.Schemas.Request.Payload.$id
+);
+ajvInstance.addSchema(
+  OccupationGroupAPISpecs.OccupationGroup.PUT.Schemas.Response.Payload,
+  OccupationGroupAPISpecs.OccupationGroup.PUT.Schemas.Response.Payload.$id
+);
+ajvInstance.addSchema(
+  OccupationGroupAPISpecs.OccupationGroup.PATCH.Schemas.Request.Payload,
+  OccupationGroupAPISpecs.OccupationGroup.PATCH.Schemas.Request.Payload.$id
+);
+ajvInstance.addSchema(
+  OccupationGroupAPISpecs.OccupationGroup.PATCH.Schemas.Response.Payload,
+  OccupationGroupAPISpecs.OccupationGroup.PATCH.Schemas.Response.Payload.$id
+);
+ajvInstance.addSchema(
   OccupationAPISpecs.POST.Schemas.Request.Payload,
   OccupationAPISpecs.POST.Schemas.Request.Payload.$id
 );

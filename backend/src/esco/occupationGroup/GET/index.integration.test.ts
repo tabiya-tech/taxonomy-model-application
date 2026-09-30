@@ -19,7 +19,7 @@ import {
   createOccupationGroupInDB,
 } from "esco/_test_utilities/createDocsInDB";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { getSimpleNewISCOGroupSpec } from "esco/_test_utilities/getNewSpecs";
+import { getSimpleNewISCOGroupSpec, toOccupationGroupCreateSpec } from "esco/_test_utilities/getNewSpecs";
 
 async function createOccupationGroupsInDB(count: number, modelId: string = getMockStringId(1)) {
   const occupationGroups = [];
@@ -206,18 +206,24 @@ describe("Test for occupationGroup GET handler with a DB", () => {
     const givenModelInfo = await createModelInDB();
     const givenModelId = givenModelInfo.id.toString();
     const givenOriginUri = "https://example.com/origin";
-    const givenNursing = await getRepositoryRegistry().OccupationGroup.create({
-      ...getSimpleNewISCOGroupSpec(givenModelId, "Nursing professionals"),
-      originUri: givenOriginUri,
-    });
-    const givenNursingAssoc = await getRepositoryRegistry().OccupationGroup.create({
-      ...getSimpleNewISCOGroupSpec(givenModelId, "nursing associate professionals"),
-      originUri: givenOriginUri,
-    });
-    await getRepositoryRegistry().OccupationGroup.create({
-      ...getSimpleNewISCOGroupSpec(givenModelId, "Software developers"),
-      originUri: givenOriginUri,
-    });
+    const givenNursing = await getRepositoryRegistry().OccupationGroup.create(
+      toOccupationGroupCreateSpec({
+        ...getSimpleNewISCOGroupSpec(givenModelId, "Nursing professionals"),
+        originUri: givenOriginUri,
+      })
+    );
+    const givenNursingAssoc = await getRepositoryRegistry().OccupationGroup.create(
+      toOccupationGroupCreateSpec({
+        ...getSimpleNewISCOGroupSpec(givenModelId, "nursing associate professionals"),
+        originUri: givenOriginUri,
+      })
+    );
+    await getRepositoryRegistry().OccupationGroup.create(
+      toOccupationGroupCreateSpec({
+        ...getSimpleNewISCOGroupSpec(givenModelId, "Software developers"),
+        originUri: givenOriginUri,
+      })
+    );
 
     // WHEN searching for "nursing" on preferredLabel
     const givenEvent = buildRequestEvent(givenModelId, { query: "nursing", searchFields: "preferredLabel" });
@@ -260,7 +266,7 @@ describe("Test for occupationGroup GET handler with a DB", () => {
 
     // AND an occupation group translated in both English and French
     const givenOccupationGroup = await getRepositoryRegistry().OccupationGroup.create(
-      getSimpleNewISCOGroupSpec(givenModelInfo.id, "English label")
+      toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelInfo.id, "English label"))
     );
     await getRepositoryRegistry().OccupationGroup.Model.collection.updateOne(
       { _id: new mongoose.Types.ObjectId(givenOccupationGroup.id) },

@@ -1535,6 +1535,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "INVALID_MODEL_ID": "INVALID_MODEL_ID",
               "OCCUPATION_GROUP_COULD_NOT_VALIDATE": "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
               "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+              "UNSUPPORTED_LANGUAGE": "UNSUPPORTED_LANGUAGE",
             },
           },
           "Status404": {
@@ -1576,6 +1577,16 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 },
               },
             },
+            "examples": [
+              {
+                "description": {
+                  "fr": null,
+                },
+                "preferredLabel": {
+                  "fr": "Directeurs généraux",
+                },
+              },
+            ],
             "if": {
               "properties": {
                 "groupType": {
@@ -1602,8 +1613,39 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "altLabels": {
                 "description": "The alternative labels of the occupation group.",
                 "items": {
-                  "maxLength": 256,
-                  "type": "string",
+                  "additionalProperties": false,
+                  "description": "The alternative labels of the occupation group.",
+                  "properties": {
+                    "am": {
+                      "description": "The alternative labels of the occupation group. (Amharic)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "en": {
+                      "description": "The alternative labels of the occupation group. (English)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "es": {
+                      "description": "The alternative labels of the occupation group. (Spanish)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "fr": {
+                      "description": "The alternative labels of the occupation group. (French)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "pt": {
+                      "description": "The alternative labels of the occupation group. (Portuguese)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "en",
+                  ],
+                  "type": "object",
                 },
                 "maxItems": 200,
                 "minItems": 0,
@@ -1616,9 +1658,48 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 "type": "string",
               },
               "description": {
+                "additionalProperties": false,
                 "description": "The description of the occupation group.",
-                "maxLength": 6000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The description of the occupation group. (Amharic)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "The description of the occupation group. (English)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The description of the occupation group. (Spanish)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "The description of the occupation group. (French)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "The description of the occupation group. (Portuguese)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "groupType": {
                 "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
@@ -1641,10 +1722,53 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 "type": "string",
               },
               "preferredLabel": {
+                "additionalProperties": false,
                 "description": "The preferred label of the occupation group.",
-                "maxLength": 256,
-                "pattern": "\\S",
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The preferred label of the occupation group. (Amharic)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "The preferred label of the occupation group. (English)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The preferred label of the occupation group. (Spanish)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "The preferred label of the occupation group. (French)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "The preferred label of the occupation group. (Portuguese)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
             },
             "then": {
@@ -2041,6 +2165,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "INVALID_MODEL_ID": "INVALID_MODEL_ID",
               "OCCUPATION_GROUP_COULD_NOT_VALIDATE": "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
               "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+              "UNSUPPORTED_LANGUAGE": "UNSUPPORTED_LANGUAGE",
             },
           },
           "Status404": {
@@ -2070,6 +2195,31 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 },
               },
             },
+            "examples": [
+              {
+                "UUIDHistory": [
+                  "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+                ],
+                "altLabels": [
+                  {
+                    "en": "Senior officials",
+                    "fr": "Hauts fonctionnaires",
+                  },
+                ],
+                "code": "11",
+                "description": {
+                  "en": "Chief executives formulate and review policies.",
+                  "fr": "Les directeurs généraux formulent les politiques.",
+                },
+                "groupType": "iscogroup",
+                "modelId": "6419f91c3b4d8a7b1a2c3d4e",
+                "originUri": "https://data.europa.eu/esco/isco/C11",
+                "preferredLabel": {
+                  "en": "Chief executives, senior officials and legislators",
+                  "fr": "Directeurs généraux et cadres supérieurs",
+                },
+              },
+            ],
             "if": {
               "properties": {
                 "groupType": {
@@ -2093,8 +2243,39 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "altLabels": {
                 "description": "The alternative labels of the occupation group.",
                 "items": {
-                  "maxLength": 256,
-                  "type": "string",
+                  "additionalProperties": false,
+                  "description": "The alternative labels of the occupation group.",
+                  "properties": {
+                    "am": {
+                      "description": "The alternative labels of the occupation group. (Amharic)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "en": {
+                      "description": "The alternative labels of the occupation group. (English)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "es": {
+                      "description": "The alternative labels of the occupation group. (Spanish)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "fr": {
+                      "description": "The alternative labels of the occupation group. (French)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "pt": {
+                      "description": "The alternative labels of the occupation group. (Portuguese)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "en",
+                  ],
+                  "type": "object",
                 },
                 "maxItems": 200,
                 "minItems": 0,
@@ -2107,9 +2288,39 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 "type": "string",
               },
               "description": {
+                "additionalProperties": false,
                 "description": "The description of the occupation group.",
-                "maxLength": 6000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The description of the occupation group. (Amharic)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "The description of the occupation group. (English)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The description of the occupation group. (Spanish)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "The description of the occupation group. (French)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "The description of the occupation group. (Portuguese)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
               "groupType": {
                 "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
@@ -2132,10 +2343,44 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
                 "type": "string",
               },
               "preferredLabel": {
+                "additionalProperties": false,
                 "description": "The preferred label of the occupation group.",
-                "maxLength": 256,
-                "pattern": "\\S",
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The preferred label of the occupation group. (Amharic)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "The preferred label of the occupation group. (English)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The preferred label of the occupation group. (Spanish)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "The preferred label of the occupation group. (French)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "The preferred label of the occupation group. (Portuguese)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
             },
             "required": [
@@ -3345,6 +3590,7 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
           "ErrorCodes": {
             "OCCUPATION_GROUP_COULD_NOT_VALIDATE": "OCCUPATION_GROUP_COULD_NOT_VALIDATE",
             "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+            "UNSUPPORTED_LANGUAGE": "UNSUPPORTED_LANGUAGE",
           },
         },
         "Status404": {
@@ -3373,6 +3619,31 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               },
             },
           },
+          "examples": [
+            {
+              "UUIDHistory": [
+                "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+              ],
+              "altLabels": [
+                {
+                  "en": "Senior officials",
+                  "fr": "Hauts fonctionnaires",
+                },
+              ],
+              "code": "11",
+              "description": {
+                "en": "Chief executives formulate and review policies.",
+                "fr": "Les directeurs généraux formulent les politiques.",
+              },
+              "groupType": "iscogroup",
+              "modelId": "6419f91c3b4d8a7b1a2c3d4e",
+              "originUri": "https://data.europa.eu/esco/isco/C11",
+              "preferredLabel": {
+                "en": "Chief executives, senior officials and legislators",
+                "fr": "Directeurs généraux et cadres supérieurs",
+              },
+            },
+          ],
           "if": {
             "properties": {
               "groupType": {
@@ -3398,8 +3669,39 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
             "altLabels": {
               "description": "The alternative labels of the occupation group.",
               "items": {
-                "maxLength": 256,
-                "type": "string",
+                "additionalProperties": false,
+                "description": "The alternative labels of the occupation group.",
+                "properties": {
+                  "am": {
+                    "description": "The alternative labels of the occupation group. (Amharic)",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "The alternative labels of the occupation group. (English)",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The alternative labels of the occupation group. (Spanish)",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "The alternative labels of the occupation group. (French)",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "The alternative labels of the occupation group. (Portuguese)",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
               "maxItems": 200,
               "minItems": 0,
@@ -3412,9 +3714,39 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "type": "string",
             },
             "description": {
+              "additionalProperties": false,
               "description": "The description of the occupation group.",
-              "maxLength": 6000,
-              "type": "string",
+              "properties": {
+                "am": {
+                  "description": "The description of the occupation group. (Amharic)",
+                  "maxLength": 6000,
+                  "type": "string",
+                },
+                "en": {
+                  "description": "The description of the occupation group. (English)",
+                  "maxLength": 6000,
+                  "type": "string",
+                },
+                "es": {
+                  "description": "The description of the occupation group. (Spanish)",
+                  "maxLength": 6000,
+                  "type": "string",
+                },
+                "fr": {
+                  "description": "The description of the occupation group. (French)",
+                  "maxLength": 6000,
+                  "type": "string",
+                },
+                "pt": {
+                  "description": "The description of the occupation group. (Portuguese)",
+                  "maxLength": 6000,
+                  "type": "string",
+                },
+              },
+              "required": [
+                "en",
+              ],
+              "type": "object",
             },
             "groupType": {
               "description": "The type of the occupation group, e.g., ISCOGroup or LocalGroup.",
@@ -3437,10 +3769,44 @@ exports[`Test the occupationGroup module The export module matches the snapshot 
               "type": "string",
             },
             "preferredLabel": {
+              "additionalProperties": false,
               "description": "The preferred label of the occupation group.",
-              "maxLength": 256,
-              "pattern": "\\S",
-              "type": "string",
+              "properties": {
+                "am": {
+                  "description": "The preferred label of the occupation group. (Amharic)",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "en": {
+                  "description": "The preferred label of the occupation group. (English)",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "es": {
+                  "description": "The preferred label of the occupation group. (Spanish)",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "fr": {
+                  "description": "The preferred label of the occupation group. (French)",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "pt": {
+                  "description": "The preferred label of the occupation group. (Portuguese)",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+              },
+              "required": [
+                "en",
+              ],
+              "type": "object",
             },
           },
           "required": [

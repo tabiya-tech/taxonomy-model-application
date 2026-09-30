@@ -3,6 +3,7 @@ import { ImportIdentifiable, ObjectTypes } from "esco/common/objectTypes";
 import { IOccupationReference } from "esco/occupations/_shared/occupationReference.types";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
+import LanguageAPISpecs from "api-specifications/language";
 
 /**
  * Describes how an OccupationGroup is saved in the database.
@@ -84,25 +85,49 @@ export type INewOccupationGroupSpec = Omit<
   "id" | "UUID" | "parent" | "children" | "createdAt" | "updatedAt"
 >;
 
+export const OCCUPATION_GROUP_TRANSLATABLE_FIELDS = [
+  ...OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS,
+  "altLabels",
+] as const;
+
+type ITranslatableFields = {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+};
+
 /**
- * Describes how an OccupationGroup is created with the API without import action.
+ * Describes how an OccupationGroup is created with the API without import action (POST).
+ * Translatable fields are full multilingual objects.
  */
-export type INewOccupationGroupSpecWithoutImportId = Omit<INewOccupationGroupSpec, "importId">;
+export type INewOccupationGroupSpecWithoutImportId = Omit<
+  INewOccupationGroupSpec,
+  "importId" | OccupationGroupTranslatableFields
+> &
+  ITranslatableFields;
+
+type IUpdateOccupationGroupBaseFields = Pick<
+  IOccupationGroup,
+  "originUri" | "code" | "modelId" | "UUIDHistory" | "groupType"
+>;
 
 /**
  * Describes the mutable fields for a full OccupationGroup replacement (PUT).
  * Excludes server-managed fields: id, UUID, importId, parent, children, createdAt, updatedAt.
+ * A language absent from a translatable field is removed from the stored occupation group.
  */
-export type IUpdateOccupationGroupSpec = Pick<
-  IOccupationGroup,
-  "originUri" | "code" | "preferredLabel" | "altLabels" | "description" | "modelId" | "UUIDHistory" | "groupType"
->;
+export type IUpdateOccupationGroupSpec = IUpdateOccupationGroupBaseFields & ITranslatableFields;
 
 /**
- * Describes the mutable fields for a partial OccupationGroup update (PATCH).
- * All fields are optional.
+ * Describes the mutable fields for a partial OccupationGroup update (PATCH). All fields are optional.
+ * Within a present translatable field, a language is set, deleted (null) or left as-is (absent);
+ * altLabels, when present, is replaced as a whole.
  */
-export type IPartialUpdateOccupationGroupSpec = Partial<IUpdateOccupationGroupSpec>;
+export type IPartialUpdateOccupationGroupSpec = Partial<IUpdateOccupationGroupBaseFields> & {
+  preferredLabel?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description?: LanguageAPISpecs.Types.IPartialTranslatedString;
+};
 
 /**
  * Like INewOccupationGroupSpec but with translatable fields already expressed as localized Maps, for the

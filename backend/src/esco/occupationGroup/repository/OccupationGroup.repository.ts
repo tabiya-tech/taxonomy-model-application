@@ -2,7 +2,6 @@ import {
   IOccupationGroup,
   IOccupationGroupReference,
   IOccupationGroupWithTranslations,
-  OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
 import {
   getOccupationGroupDocReference,
@@ -19,6 +18,8 @@ import {
   IOccupationGroupChild,
   IPartialUpdateOccupationGroupSpec,
   IUpdateOccupationGroupSpec,
+  OCCUPATION_GROUP_TRANSLATABLE_FIELDS,
+  OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS,
 } from "../_shared/OccupationGroup.types";
 import { IOccupationHierarchyPairDoc } from "esco/occupationHierarchy/occupationHierarchy.types";
 import {
@@ -44,11 +45,12 @@ import {
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import { wrapTranslatableFields } from "common/language/translatedFields";
+import {
+  mergeTranslatableFieldsFromPartialObjects,
+  wrapTranslatableFields,
+  wrapTranslatableFieldsFromObjects,
+} from "common/language/translatedFields";
 import { buildSearchCondition } from "esco/common/searchCondition";
-
-// same as OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS, plus altLabels (an array of localized sub documents)
-const TRANSLATABLE_FIELDS = [...OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
 
 interface FindPaginatedFilter {
   root?: boolean;
@@ -249,7 +251,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
   ): mongoose.HydratedDocument<IOccupationGroupDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpec, OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS),
+      ...wrapTranslatableFieldsFromObjects(newSpec, OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: null,
     });
@@ -651,7 +653,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       const matchStage: Record<string, unknown> = { modelId: modelIdObj };
 
       if (search) {
-        matchStage.$and = [buildSearchCondition(search, TRANSLATABLE_FIELDS)];
+        matchStage.$and = [buildSearchCondition(search, OCCUPATION_GROUP_TRANSLATABLE_FIELDS)];
       }
 
       // If a cursorId is provided, add it to the match stage to get results after the cursor
@@ -714,7 +716,9 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS, doc));
+      // Reset first so Mongoose replaces the altLabels array instead of diffing it per language key.
+      doc.set("altLabels", []);
+      doc.set(wrapTranslatableFieldsFromObjects(spec, OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS));
       await doc.save();
       // Write paths always return the fallback-language view; these factory overloads use fallback language.
       await doc.populate([populateOccupationGroupParentOptions(), populateOccupationGroupChildrenOptions()]);
@@ -732,7 +736,9 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS, doc));
+      // Reset first so Mongoose replaces the altLabels array instead of diffing it per language key.
+      if (spec.altLabels !== undefined) doc.set("altLabels", []);
+      doc.set(mergeTranslatableFieldsFromPartialObjects(spec, OCCUPATION_GROUP_TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       // Write paths always return the fallback-language view; these factory overloads use fallback language.
       await doc.populate([populateOccupationGroupParentOptions(), populateOccupationGroupChildrenOptions()]);

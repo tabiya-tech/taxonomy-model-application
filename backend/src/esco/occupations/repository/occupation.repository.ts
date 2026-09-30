@@ -11,6 +11,7 @@ import {
   IPartialUpdateOccupationSpec,
   ISkillWithRelation,
   IUpdateOccupationSpec,
+  OCCUPATION_TRANSLATABLE_FIELDS,
   OCCUPATION_TRANSLATABLE_STRING_FIELDS,
 } from "esco/occupations/_shared/occupation.types";
 import { IOccupationGroup } from "esco/occupationGroup/_shared/OccupationGroup.types";
@@ -66,9 +67,6 @@ import { buildSearchCondition } from "esco/common/searchCondition";
 import { unwrapSkillTranslatableFieldsForLanguage } from "esco/skill/_shared/skillReference";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { unwrapOccupationGroupTranslatableFields } from "esco/occupationGroup/_shared/OccupationGroupReference";
-
-// same as OCCUPATION_TRANSLATABLE_STRING_FIELDS, plus altLabels (an array of localized sub documents)
-const TRANSLATABLE_FIELDS = [...OCCUPATION_TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
 
 /**
  * A single UUID from an entity's UUIDHistory resolved to the entity's reference (as it was in that model) and
@@ -508,7 +506,7 @@ export class OccupationRepository implements IOccupationRepository {
       const matchStage: Record<string, unknown> = { ...filter, modelId: modelIdObj };
 
       if (search) {
-        matchStage.$and = [buildSearchCondition(search, TRANSLATABLE_FIELDS)];
+        matchStage.$and = [buildSearchCondition(search, OCCUPATION_TRANSLATABLE_FIELDS)];
       }
 
       // If a cursorId is provided, add it to the match stage to get results after the cursor

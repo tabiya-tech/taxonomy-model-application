@@ -1,5 +1,6 @@
 import OccupationGroupEnums from "./enums";
 import ModelInfoTypes from "../../../modelInfo/types";
+import LanguageAPISpecs from "../../../language";
 
 // A reference to an occupation group — the lightweight shape used when a group is shown from the outside
 // (e.g. as it appeared in a model in its history). Mirrors the OccupationGroupReferenceSchema.
@@ -91,11 +92,18 @@ export interface IOccupationGroupRequest {
   originUri: string;
   groupType: OccupationGroupEnums.ObjectTypes.ISCOGroup | OccupationGroupEnums.ObjectTypes.LocalGroup;
   code: string;
-  description: string;
-  preferredLabel: string;
-  altLabels: string[];
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
   modelId: string;
   UUIDHistory: string[];
+}
+
+// Within a present translatable field, a language may be null to delete that translation.
+export interface IOccupationGroupPATCHRequest
+  extends Omit<Partial<IOccupationGroupRequest>, "description" | "preferredLabel"> {
+  description?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  preferredLabel?: LanguageAPISpecs.Types.IPartialTranslatedString;
 }
 
 export interface IOccupationGroupParam {
@@ -140,7 +148,7 @@ namespace OccupationGroupTypes {
 
   export namespace Detail.PATCH {
     export namespace Request {
-      export type Payload = Partial<IOccupationGroupRequest>;
+      export type Payload = IOccupationGroupPATCHRequest;
     }
     export namespace Response {
       export type Payload = IOccupationGroupResponse;

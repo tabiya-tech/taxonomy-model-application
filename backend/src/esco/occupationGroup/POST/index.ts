@@ -15,7 +15,12 @@ import {
 } from "../_shared/OccupationGroup.types";
 import { parsePath } from "common/parsePath/parsePath";
 import { Routes } from "routes.constant";
-import { IOccupationGroupService, OccupationGroupModelValidationError } from "../services/occupationGroup.service.type";
+import {
+  IOccupationGroupService,
+  OccupationGroupLanguageValidationError,
+  OccupationGroupModelValidationError,
+} from "../services/occupationGroup.service.type";
+import { unsupportedLanguageErrorResponse } from "../_shared/unsupportedLanguageErrorResponse";
 import { transform } from "./response";
 
 export class OccupationGroupCreateController {
@@ -34,7 +39,10 @@ export class OccupationGroupCreateController {
    *      tags:
    *        - occupationGroups
    *      summary: Create a new taxonomy occupation group.
-   *      description: Create a new taxonomy occupation group in a specific taxonomy model.
+   *      description: |
+   *        Create a new taxonomy occupation group in a specific taxonomy model.
+   *        Translatable fields (preferredLabel, altLabels, description) are objects keyed by language, and must
+   *        include the fallback language (en). Every other language must be in the model's availableLanguages.
    *      security:
    *       - api_key: []
    *       - jwt_auth: []
@@ -156,6 +164,12 @@ export class OccupationGroupCreateController {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       errorLoggerInstance.logError("Failed to create occupation group in the DB", error.name);
+      if (error instanceof OccupationGroupLanguageValidationError) {
+        return unsupportedLanguageErrorResponse(
+          OccupationGroupPOSTAPISpecs.Enums.Response.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+          error
+        );
+      }
       if (error instanceof OccupationGroupModelValidationError) {
         switch (error.code) {
           case ModelForOccupationGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID:

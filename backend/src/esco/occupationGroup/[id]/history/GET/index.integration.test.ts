@@ -16,7 +16,7 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { getMockStringId } from "_test_utilities/mockMongoId";
-import { getSimpleNewISCOGroupSpec } from "esco/_test_utilities/getNewSpecs";
+import { getSimpleNewISCOGroupSpec, toOccupationGroupCreateSpec } from "esco/_test_utilities/getNewSpecs";
 import { INewOccupationGroupSpec } from "esco/occupationGroup/_shared/OccupationGroup.types";
 
 async function createModelInDB() {
@@ -30,12 +30,14 @@ async function createModelInDB() {
 }
 
 async function createOccupationGroupInDB(modelId: string, spec?: Partial<INewOccupationGroupSpec>) {
-  return await getRepositoryRegistry().OccupationGroup.create({
-    ...getSimpleNewISCOGroupSpec(modelId, "group"),
-    originUri: `https://example.com/occupation-groups/${randomUUID()}`,
-    description: "An occupation group",
-    ...spec,
-  });
+  return await getRepositoryRegistry().OccupationGroup.create(
+    toOccupationGroupCreateSpec({
+      ...getSimpleNewISCOGroupSpec(modelId, "group"),
+      originUri: `https://example.com/occupation-groups/${randomUUID()}`,
+      description: "An occupation group",
+      ...spec,
+    })
+  );
 }
 
 describe("Test for occupationGroup History GET handler with a DB", () => {

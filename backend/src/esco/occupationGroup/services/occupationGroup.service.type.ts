@@ -18,6 +18,19 @@ export class OccupationGroupModelValidationError extends Error {
   }
 }
 
+/**
+ * Thrown when a translatable field of a create/update spec carries a language that is not in the model's
+ * availableLanguages.
+ */
+export class OccupationGroupLanguageValidationError extends Error {
+  constructor(
+    public field: string,
+    public language: string
+  ) {
+    super(`${field} uses an unsupported language '${language}' for this model`);
+  }
+}
+
 export interface FindPaginatedFilter {
   root?: boolean;
 }

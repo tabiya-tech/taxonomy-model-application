@@ -15,6 +15,7 @@ import {
   INewOccupationSpecWithoutImportId,
   IOccupation,
 } from "esco/occupations/_shared/occupation.types";
+import { toOccupationGroupCreateSpec } from "esco/_test_utilities/getNewSpecs";
 
 /**
  * Wraps a flat INewOccupationSpec (as the local spec builders in this file produce) into the multilingual shape
@@ -162,12 +163,12 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
 
     // AND a root level ISCOGroup with code 0
     const ISCOGroup_0 = await repositoryRegistry.OccupationGroup.create(
-      createISCOGroupSpec(givenModelId, "0", "ISCOGroup: 0")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "0", "ISCOGroup: 0"))
     );
     givenISCOGroups.push(ISCOGroup_0);
     // AND a 1st level ISCOGroup with code 01
     const ISCOGroup_01 = await repositoryRegistry.OccupationGroup.create(
-      createISCOGroupSpec(givenModelId, "01", "ISCOGroup: 01")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "01", "ISCOGroup: 01"))
     );
     givenISCOGroups.push(ISCOGroup_01);
 
@@ -192,43 +193,43 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     givenESCOOccupations.push(ESCOOccupation_0000_1);
     // AND a LocalGroup with code ABC (invalid)
     const LocalGroup_ABC = await repositoryRegistry.OccupationGroup.create(
-      createLocalGroupSpec(givenModelId, "ABC", "LocalGroup: ABC")
+      toOccupationGroupCreateSpec(createLocalGroupSpec(givenModelId, "ABC", "LocalGroup: ABC"))
     );
     givenLocalGroups.push(LocalGroup_ABC);
     // AND a 2nd level ISCOGroup with code 011
     const ISCOGroup_011 = await repositoryRegistry.OccupationGroup.create(
-      createISCOGroupSpec(givenModelId, "011", "ISCOGroup: 011")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "011", "ISCOGroup: 011"))
     );
     givenISCOGroups.push(ISCOGroup_011);
     // AND a 2nd level local group with code 01A
     const LocalGroup_01A = await repositoryRegistry.OccupationGroup.create(
-      createLocalGroupSpec(givenModelId, "01A", "LocalGroup: 01A")
+      toOccupationGroupCreateSpec(createLocalGroupSpec(givenModelId, "01A", "LocalGroup: 01A"))
     );
     givenLocalGroups.push(LocalGroup_01A);
     // AND a 2nd level isco group with a code that does not match the parent code (02) //INVALID
     const ISCOGroup_021 = await repositoryRegistry.OccupationGroup.create(
-      createISCOGroupSpec(givenModelId, "021", "ISCOGroup: 011")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "021", "ISCOGroup: 011"))
     );
     givenISCOGroups.push(ISCOGroup_021);
     // AND a 2nd level local group with a code that does not match the parent code (0B) //INVALID
     const LocalGroup_0B = await repositoryRegistry.OccupationGroup.create(
-      createLocalGroupSpec(givenModelId, `0B`, "LocalGroup: 0B")
+      toOccupationGroupCreateSpec(createLocalGroupSpec(givenModelId, `0B`, "LocalGroup: 0B"))
     );
     givenLocalGroups.push(LocalGroup_0B);
     // AND a 3rd level local group with code 01AB
     const LocalGroup_01AB = await repositoryRegistry.OccupationGroup.create(
-      createLocalGroupSpec(givenModelId, "01AB", "LocalGroup: 01AB")
+      toOccupationGroupCreateSpec(createLocalGroupSpec(givenModelId, "01AB", "LocalGroup: 01AB"))
     );
     givenLocalGroups.push(LocalGroup_01AB);
     // AND a 3rd level ISCOGroup with code 0222
     const ISCOGroup_0222 = await repositoryRegistry.OccupationGroup.create(
       // an isco group cannot be created with code 01a2, so we are creating one that is valid, but still should not be allowed to create a hierarchy
-      createISCOGroupSpec(givenModelId, "0222", "ISCOGroup: 01A")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "0222", "ISCOGroup: 01A"))
     );
     givenISCOGroups.push(ISCOGroup_0222);
     // AND a 3rd level ISCOGroup with code 0111
     const ISCOGroup_0111 = await repositoryRegistry.OccupationGroup.create(
-      createISCOGroupSpec(givenModelId, "0111", "ISCOGroup: 0111")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "0111", "ISCOGroup: 0111"))
     );
     givenISCOGroups.push(ISCOGroup_0111);
     // AND an esco occupation with a code that does not match the parent code (0200.1) //INVALID
@@ -271,7 +272,7 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     givenESCOOccupations.push(ESCOOccupation_0111_1);
     // AND a 4th level local group with code 0111A
     const LocalGroup_0111A = await repositoryRegistry.OccupationGroup.create(
-      createLocalGroupSpec(givenModelId, "0111A", "LocalGroup: 0111A")
+      toOccupationGroupCreateSpec(createLocalGroupSpec(givenModelId, "0111A", "LocalGroup: 0111A"))
     );
     givenLocalGroups.push(LocalGroup_0111A);
     // AND a local occupation with code 01AB_1
@@ -342,22 +343,22 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     givenESCOOccupations.push(ESCOOccupation_3333_1);
     // AND a local group with code DDD
     const LocalGroup_DDD = await repositoryRegistry.OccupationGroup.create(
-      createLocalGroupSpec(givenModelId, "DDD", "LocalGroup: DDD")
+      toOccupationGroupCreateSpec(createLocalGroupSpec(givenModelId, "DDD", "LocalGroup: DDD"))
     );
     givenLocalGroups.push(LocalGroup_DDD);
     // AND an isco group with code 9999
     const ISCOGroup_9999 = await repositoryRegistry.OccupationGroup.create(
-      createISCOGroupSpec(givenModelId, "9999", "ISCOGroup: 9999")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "9999", "ISCOGroup: 9999"))
     );
     givenISCOGroups.push(ISCOGroup_9999);
     // AND a local group with code CCC
     const LocalGroup_CCC = await repositoryRegistry.OccupationGroup.create(
-      createLocalGroupSpec(givenModelId, "CCC", "LocalGroup: CCC")
+      toOccupationGroupCreateSpec(createLocalGroupSpec(givenModelId, "CCC", "LocalGroup: CCC"))
     );
     givenLocalGroups.push(LocalGroup_CCC);
     // AND an isco group with code 8888
     const ISCOGroup_8888 = await repositoryRegistry.OccupationGroup.create(
-      createISCOGroupSpec(givenModelId, "8888", "ISCOGroup: 8888")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "8888", "ISCOGroup: 8888"))
     );
     givenISCOGroups.push(ISCOGroup_8888);
     // AND an esco occupation with a code that does not match the parent code (0111.1.2.1) //INVALID
@@ -662,12 +663,12 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
 
     // AND a root level Local group with code A
     const LocalGroup_A = await repositoryRegistry.OccupationGroup.create(
-      createLocalGroupSpec(givenModelId, "A", "LocalGroup: A")
+      toOccupationGroupCreateSpec(createLocalGroupSpec(givenModelId, "A", "LocalGroup: A"))
     );
     givenLocalGroups.push(LocalGroup_A);
     // AND a 1st level Local group with code AA
     const LocalGroup_AA = await repositoryRegistry.OccupationGroup.create(
-      createLocalGroupSpec(givenModelId, "AA", "LocalGroup: AA")
+      toOccupationGroupCreateSpec(createLocalGroupSpec(givenModelId, "AA", "LocalGroup: AA"))
     );
     givenLocalGroups.push(LocalGroup_AA);
     // AND a local occupation with code LocalOccupation: A_1
@@ -680,13 +681,13 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     // AND an isco group with code 4444
     const ISCOGroup_4444 = await repositoryRegistry.OccupationGroup.create(
       // an isco group with code A4 cannot be created, so we create an isco group that is valid, but should not be allowed to create a hierarchy
-      createISCOGroupSpec(givenModelId, "4444", "ISCOGroup: 4444")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "4444", "ISCOGroup: 4444"))
     );
     givenISCOGroups.push(ISCOGroup_4444);
     // AND an isco group with code 5555
     const ISCOGroup_5555 = await repositoryRegistry.OccupationGroup.create(
       // an isco group with code AA5 cannot be created, so we create an isco group that is valid, but should not be allowed to create a hierarchy
-      createISCOGroupSpec(givenModelId, "5555", "ISCOGroup: 5555")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "5555", "ISCOGroup: 5555"))
     );
     givenISCOGroups.push(ISCOGroup_5555);
     // AND a local occupation with code AA_1
@@ -699,7 +700,7 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
     // AND an isco group with code 6666
     const ISCOGroup_6666 = await repositoryRegistry.OccupationGroup.create(
       // an isco group with code AA_16 cannot be created, so we create an isco group that is valid, but should not be allowed to create a hierarchy
-      createISCOGroupSpec(givenModelId, "6666", "ISCOGroup: 6666")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "6666", "ISCOGroup: 6666"))
     );
     givenISCOGroups.push(ISCOGroup_6666);
     // AND an esco occupation with code 7777.1
@@ -823,12 +824,12 @@ describe("Test the OccupationHierarchy Repository graph structure", () => {
 
     // AND an isco group with code 8
     const ISCOGroup_8 = await repositoryRegistry.OccupationGroup.create(
-      createISCOGroupSpec(givenModelId, "8", "ISCOGroup: 8")
+      toOccupationGroupCreateSpec(createISCOGroupSpec(givenModelId, "8", "ISCOGroup: 8"))
     );
     givenISCOGroups.push(ISCOGroup_8);
     // AND a Local group with code C
     const LocalGroup_C = await repositoryRegistry.OccupationGroup.create(
-      createLocalGroupSpec(givenModelId, "C", "LocalGroup: C")
+      toOccupationGroupCreateSpec(createLocalGroupSpec(givenModelId, "C", "LocalGroup: C"))
     );
     givenLocalGroups.push(LocalGroup_C);
     // AND a local occupation with code 9_1

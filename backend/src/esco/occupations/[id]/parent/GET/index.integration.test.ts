@@ -14,6 +14,7 @@ import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { ObjectTypes } from "esco/common/objectTypes";
+import { toOccupationGroupCreateSpec } from "esco/_test_utilities/getNewSpecs";
 
 describe("Test for occupation Parent GET handler with a DB", () => {
   const ajv = new Ajv({
@@ -115,16 +116,18 @@ describe("Test for occupation Parent GET handler with a DB", () => {
     const givenModelId = givenModel.id;
 
     const groupRepository = getRepositoryRegistry().OccupationGroup;
-    const givenParent = await groupRepository.create({
-      modelId: givenModelId,
-      code: "1234",
-      preferredLabel: "Parent Group",
-      groupType: ObjectTypes.ISCOGroup,
-      originUri: "http://example.com/parent-group",
-      UUIDHistory: [randomUUID()],
-      description: "group description",
-      altLabels: [],
-    });
+    const givenParent = await groupRepository.create(
+      toOccupationGroupCreateSpec({
+        modelId: givenModelId,
+        code: "1234",
+        preferredLabel: "Parent Group",
+        groupType: ObjectTypes.ISCOGroup,
+        originUri: "http://example.com/parent-group",
+        UUIDHistory: [randomUUID()],
+        description: "group description",
+        altLabels: [],
+      })
+    );
 
     const occupationRepository = getRepositoryRegistry().occupation;
     const givenChild = await occupationRepository.create({

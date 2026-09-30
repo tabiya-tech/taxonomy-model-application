@@ -10,6 +10,7 @@ import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serv
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
 import {
   IOccupationGroupService,
+  OccupationGroupLanguageValidationError,
   OccupationGroupModelValidationError,
 } from "../../services/occupationGroup.service.type";
 import { ModelForOccupationGroupValidationErrorCode } from "../../_shared/OccupationGroup.types";
@@ -104,8 +105,8 @@ describe("OccupationGroupPATCHController", () => {
     getMockGetSchema().mockReturnValue(validateFunction as never);
 
     const payload = {
-      preferredLabel: "Patched Label",
-      description: "Patched description",
+      preferredLabel: { en: "Patched Label" },
+      description: { en: "Patched description" },
     };
     // AND the service returns a patched occupation group
     const patchedOccupationGroup = { id: "group-1", UUID: "uuid-1" };
@@ -124,8 +125,8 @@ describe("OccupationGroupPATCHController", () => {
       "group-1",
       "model-1",
       expect.objectContaining({
-        preferredLabel: "Patched Label",
-        description: "Patched description",
+        preferredLabel: { en: "Patched Label" },
+        description: { en: "Patched description" },
       })
     );
     // AND expect the response to be built from the patched group
@@ -142,7 +143,7 @@ describe("OccupationGroupPATCHController", () => {
 
     const payload = {
       modelId: "model-1",
-      preferredLabel: "Patched Label",
+      preferredLabel: { en: "Patched Label" },
     };
     const patchedOccupationGroup = { id: "group-1" };
     mockBuildPATCHResponse.mockReturnValue({ id: "group-1" } as never);
@@ -160,7 +161,7 @@ describe("OccupationGroupPATCHController", () => {
     expect(mockServiceRegistry.occupationGroup.patch).toHaveBeenCalledWith(
       "group-1",
       "model-1",
-      expect.objectContaining({ preferredLabel: "Patched Label" })
+      expect.objectContaining({ preferredLabel: { en: "Patched Label" } })
     );
   });
 
@@ -170,7 +171,7 @@ describe("OccupationGroupPATCHController", () => {
     getMockGetSchema().mockReturnValue(validateFunction as never);
 
     const payload = {
-      preferredLabel: "Patched Label",
+      preferredLabel: { en: "Patched Label" },
     };
     // AND the service returns null (not found)
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -198,7 +199,7 @@ describe("OccupationGroupPATCHController", () => {
 
     const payload = {
       modelId: "model-2",
-      preferredLabel: "Patched Label",
+      preferredLabel: { en: "Patched Label" },
     };
 
     const givenEvent = {
@@ -230,7 +231,7 @@ describe("OccupationGroupPATCHController", () => {
     getMockGetSchema().mockReturnValue(validateFunction as never);
 
     const payload = {
-      preferredLabel: "Patched Label",
+      preferredLabel: { en: "Patched Label" },
     };
     const patchedOccupationGroup = { id: "group-1" };
     mockBuildPATCHResponse.mockReturnValue({ id: "group-1" } as never);
@@ -252,7 +253,7 @@ describe("OccupationGroupPATCHController", () => {
     getMockGetSchema().mockReturnValue(validateFunction as never);
 
     const payload = {
-      preferredLabel: "Patched Label",
+      preferredLabel: { en: "Patched Label" },
     };
     // AND the service throws MODEL_NOT_FOUND error
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -282,7 +283,7 @@ describe("OccupationGroupPATCHController", () => {
     getMockGetSchema().mockReturnValue(validateFunction as never);
 
     const payload = {
-      preferredLabel: "Patched Label",
+      preferredLabel: { en: "Patched Label" },
     };
     // AND the service throws MODEL_IS_RELEASED error
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -308,13 +309,68 @@ describe("OccupationGroupPATCHController", () => {
     expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
   });
 
+  test("should pass a multi language payload to the service", async () => {
+    // GIVEN a valid request with translatable fields in several languages
+    getMockGetSchema().mockReturnValue(jest.fn().mockReturnValue(true) as never);
+    const givenPayload = {
+      preferredLabel: { fr: "Directeurs" },
+      description: { fr: null },
+      altLabels: [{ en: "Executives", fr: "Cadres" }],
+    };
+    // AND the service succeeds
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.patch = jest.fn().mockResolvedValue({ id: "group-1" });
+
+    // WHEN the handler is invoked
+    await new OccupationGroupPATCHController().patch(buildEvent(givenPayload));
+
+    // THEN expect the service to be called with every language of the translatable fields
+    expect(mockServiceRegistry.occupationGroup.patch).toHaveBeenCalledWith(
+      "group-1",
+      "model-1",
+      expect.objectContaining({
+        preferredLabel: givenPayload.preferredLabel,
+        description: givenPayload.description,
+        altLabels: givenPayload.altLabels,
+      })
+    );
+  });
+
+  test("should respond with BAD_REQUEST naming the field and the language when a language is not available in the model", async () => {
+    // GIVEN a valid request
+    getMockGetSchema().mockReturnValue(jest.fn().mockReturnValue(true) as never);
+    const givenPayload = {
+      preferredLabel: { fr: "Directeurs" },
+      description: { fr: null },
+      altLabels: [{ en: "Executives", fr: "Cadres" }],
+    };
+    // AND the service rejects a language that is not available in the model
+    const givenError = new OccupationGroupLanguageValidationError("preferredLabel", "fr");
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.patch = jest.fn().mockRejectedValue(givenError);
+
+    // WHEN the handler is invoked
+    const actualResponse = await new OccupationGroupPATCHController().patch(buildEvent(givenPayload));
+
+    // THEN expect BAD_REQUEST
+    expect(actualResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    // AND the error to name the field and the language
+    const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+      errorCode:
+        OccupationGroupAPISpecs.OccupationGroup.PATCH.Errors.Response.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+      message: "Field 'preferredLabel' uses a language not available in this model",
+      details: "Unsupported language: 'fr'",
+    };
+    expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+  });
+
   test("should respond with INTERNAL_SERVER_ERROR when failed to fetch model from DB", async () => {
     // GIVEN a valid PATCH request
     const validateFunction = jest.fn().mockReturnValue(true);
     getMockGetSchema().mockReturnValue(validateFunction as never);
 
     const payload = {
-      preferredLabel: "Patched Label",
+      preferredLabel: { en: "Patched Label" },
     };
     // AND the service throws FAILED_TO_FETCH_FROM_DB error
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -346,7 +402,7 @@ describe("OccupationGroupPATCHController", () => {
     getMockGetSchema().mockReturnValue(validateFunction as never);
 
     const payload = {
-      preferredLabel: "Patched Label",
+      preferredLabel: { en: "Patched Label" },
     };
     // AND the service throws an unknown validation error
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -376,7 +432,7 @@ describe("OccupationGroupPATCHController", () => {
     getMockGetSchema().mockReturnValue(validateFunction as never);
 
     const payload = {
-      preferredLabel: "Patched Label",
+      preferredLabel: { en: "Patched Label" },
     };
     // AND the service throws a generic error
     const mockServiceRegistry = mockGetServiceRegistry();
@@ -422,7 +478,7 @@ describe("OccupationGroupPATCHController", () => {
 
     const givenEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Label" } }),
       headers: { "Content-Type": "application/json" },
       pathParameters: {},
       path: "/invalid/path",
@@ -442,7 +498,7 @@ describe("OccupationGroupPATCHController", () => {
 
     const payload = {
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.LocalGroup,
-      preferredLabel: "Local Group Label",
+      preferredLabel: { en: "Local Group Label" },
     };
     const patchedOccupationGroup = { id: "group-1", UUID: "uuid-1" };
     mockBuildPATCHResponse.mockReturnValue({ id: "group-1" } as never);
@@ -464,7 +520,7 @@ describe("OccupationGroupPATCHController", () => {
 
     const payload = {
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "ISCO Group Label",
+      preferredLabel: { en: "ISCO Group Label" },
     };
     const patchedOccupationGroup = { id: "group-1" };
     mockBuildPATCHResponse.mockReturnValue({ id: "group-1" } as never);
@@ -482,7 +538,7 @@ describe("OccupationGroupPATCHController", () => {
     getMockGetSchema().mockReturnValue(validateFunction as never);
 
     const payload = {
-      preferredLabel: "Patched from exported handler",
+      preferredLabel: { en: "Patched from exported handler" },
     };
     const patchedOccupationGroup = { id: "group-1", UUID: "uuid-1" };
     mockBuildPATCHResponse.mockReturnValue({ id: "group-1" } as never);
@@ -508,7 +564,7 @@ describe("OccupationGroupPATCHController", () => {
 
     const givenEvent = {
       httpMethod: HTTP_VERBS.PATCH,
-      body: JSON.stringify({ preferredLabel: "Label" }),
+      body: JSON.stringify({ preferredLabel: { en: "Label" } }),
       headers: { "Content-Type": "application/json" },
       pathParameters: { modelId: "model-1", id: "group-1" },
       path: "/models/model-1/occupationGroups/group-1",
@@ -527,9 +583,9 @@ describe("OccupationGroupPATCHController", () => {
     const payload = {
       originUri: "https://updated.example.com",
       code: "9999",
-      altLabels: ["alt-new"],
+      altLabels: [{ en: "alt-new" }],
       UUIDHistory: ["old-uuid"],
-      preferredLabel: "All fields",
+      preferredLabel: { en: "All fields" },
     };
     const patchedOccupationGroup = { id: "group-1" };
     mockBuildPATCHResponse.mockReturnValue({ id: "group-1" } as never);
@@ -547,7 +603,7 @@ describe("OccupationGroupPATCHController", () => {
       expect.objectContaining({
         originUri: "https://updated.example.com",
         code: "9999",
-        altLabels: ["alt-new"],
+        altLabels: [{ en: "alt-new" }],
         UUIDHistory: ["old-uuid"],
       })
     );
@@ -557,7 +613,7 @@ describe("OccupationGroupPATCHController", () => {
     const validateFunction = jest.fn().mockReturnValue(true);
     getMockGetSchema().mockReturnValue(validateFunction as never);
 
-    const payload = { preferredLabel: "Lowercase header" };
+    const payload = { preferredLabel: { en: "Lowercase header" } };
     const patchedOccupationGroup = { id: "group-1" };
     mockBuildPATCHResponse.mockReturnValue({ id: "group-1" } as never);
 

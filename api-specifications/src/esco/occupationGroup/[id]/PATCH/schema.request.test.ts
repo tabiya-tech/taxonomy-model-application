@@ -8,6 +8,8 @@ import { getTestString } from "_test_utilities/specialCharacters";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import { getMockId } from "_test_utilities/mockMongoId";
 import OccupationGroupAPISpecs from "../../index";
+import LanguageAPISpecs from "language";
+import { testTranslatedStringArrayField, testTranslatedStringField } from "_test_utilities/translatedFieldTests";
 import OccupationGroupEnums from "../../_shared/enums";
 import OccupationGroupConstants from "../../_shared/constants";
 import OccupationGroupRegexes from "../../_shared/regex";
@@ -25,9 +27,23 @@ describe("Test objects against the OccupationGroupAPISpecs.OccupationGroup.PATCH
     originUri: "https://path/to/group",
     groupType: OccupationGroupEnums.ObjectTypes.LocalGroup,
     code: getTestLocalGroupCode(),
-    description: getTestString(OccupationGroupConstants.DESCRIPTION_MAX_LENGTH),
-    preferredLabel: getTestString(OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH),
-    altLabels: [getTestString(OccupationGroupConstants.ALT_LABEL_MAX_LENGTH)],
+    description: {
+      [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName]: getTestString(
+        OccupationGroupConstants.DESCRIPTION_MAX_LENGTH
+      ),
+    },
+    preferredLabel: {
+      [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName]: getTestString(
+        OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH
+      ),
+    },
+    altLabels: [
+      {
+        [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName]: getTestString(
+          OccupationGroupConstants.ALT_LABEL_MAX_LENGTH
+        ),
+      },
+    ],
     modelId: getMockId(1),
     UUIDHistory: [randomUUID(), randomUUID()],
   };
@@ -42,7 +58,15 @@ describe("Test objects against the OccupationGroupAPISpecs.OccupationGroup.PATCH
     "single field payload",
     OccupationGroupAPISpecs.OccupationGroup.PATCH.Schemas.Request.Payload,
     {
-      preferredLabel: "updated label",
+      preferredLabel: { fr: "Directeurs" },
+    }
+  );
+
+  testSchemaWithValidObject(
+    "payload deleting a non fallback language via null",
+    OccupationGroupAPISpecs.OccupationGroup.PATCH.Schemas.Request.Payload,
+    {
+      description: { fr: null },
     }
   );
 
@@ -125,6 +149,33 @@ describe("Test objects against the OccupationGroupAPISpecs.OccupationGroup.PATCH
             failureMessage
           );
         }
+      );
+    });
+
+    describe("Test validation of 'description'", () => {
+      testTranslatedStringField(
+        "description",
+        OccupationGroupConstants.DESCRIPTION_MAX_LENGTH,
+        OccupationGroupAPISpecs.OccupationGroup.PATCH.Schemas.Request.Payload,
+        "patch"
+      );
+    });
+
+    describe("Test validation of 'preferredLabel'", () => {
+      testTranslatedStringField(
+        "preferredLabel",
+        OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
+        OccupationGroupAPISpecs.OccupationGroup.PATCH.Schemas.Request.Payload,
+        "patch"
+      );
+    });
+
+    describe("Test validation of 'altLabels'", () => {
+      testTranslatedStringArrayField(
+        "altLabels",
+        OccupationGroupConstants.ALT_LABEL_MAX_LENGTH,
+        OccupationGroupAPISpecs.OccupationGroup.PATCH.Schemas.Request.Payload,
+        "patch"
       );
     });
 
