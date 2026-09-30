@@ -12,7 +12,11 @@ import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { INewSkillGroupSpecWithoutImportId, ModelForSkillGroupValidationErrorCode } from "../_shared/skillGroup.types";
 import { parsePath } from "common/parsePath/parsePath";
 import { Routes } from "routes.constant";
-import { ISkillGroupService, SkillGroupModelValidationError } from "../services/skillGroup.service.type";
+import {
+  ISkillGroupService,
+  SkillGroupLanguageValidationError,
+  SkillGroupModelValidationError,
+} from "../services/skillGroup.service.type";
 import { transform } from "./response";
 
 export class SkillGroupCreateController {
@@ -153,6 +157,14 @@ export class SkillGroupCreateController {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       errorLoggerInstance.logError("Failed to create skill group in the DB", error.name);
+      if (error instanceof SkillGroupLanguageValidationError) {
+        return errorResponsePOST(
+          StatusCodes.BAD_REQUEST,
+          SkillGroupPOSTAPISpecs.Enums.Response.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+          `Field '${error.field}' uses a language not available in this model`,
+          `Unsupported language: '${error.language}'`
+        );
+      }
       if (error instanceof SkillGroupModelValidationError) {
         switch (error.code) {
           case ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID:

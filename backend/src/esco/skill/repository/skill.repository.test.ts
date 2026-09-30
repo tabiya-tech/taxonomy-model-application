@@ -44,6 +44,7 @@ import {
   getSimpleNewSkillSpec,
   toOccupationGroupCreateSpec,
   toSkillCreateSpec,
+  toSkillGroupCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   expectedRelatedOccupationReference,
@@ -678,7 +679,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
       // The parent (SkillGroup)
       const givenParentSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "parent_1");
-      const givenParent_1 = await repositoryRegistry.skillGroup.create(givenParentSpecs_1);
+      const givenParent_1 = await repositoryRegistry.skillGroup.create(toSkillGroupCreateSpec(givenParentSpecs_1));
 
       // The parent (Skill)
       const givenParentSpecs_2 = getSimpleNewSkillSpec(givenModelId, "parent_2");
@@ -996,7 +997,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
         const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "SkillGroup");
         // @ts-ignore
         givenSkillGroupSpecs.id = givenID.toHexString();
-        const givenSkillGroup = await repositoryRegistry.skillGroup.create(givenSkillGroupSpecs);
+        const givenSkillGroup = await repositoryRegistry.skillGroup.create(
+          toSkillGroupCreateSpec(givenSkillGroupSpecs)
+        );
         // guard to ensure the id is the given one
         expect(givenSkillGroup.id).toEqual(givenID.toHexString());
 
@@ -1055,13 +1058,17 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // AND an SkillGroup G1 with some ID as the subject skill in the given model
         const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "SkillGroup 1");
-        const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(givenSkillGroupSpecs);
+        const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
+          toSkillGroupCreateSpec(givenSkillGroupSpecs)
+        );
 
         // AND a second skill group with the given ID in the given model
         const givenSkillGroupSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId, "SkillGroup 2");
         // @ts-ignore
         givenSkillGroupSpecs_2.id = givenID.toHexString();
-        const givenSkillGroup_2 = await repositoryRegistry.skillGroup.create(givenSkillGroupSpecs_2);
+        const givenSkillGroup_2 = await repositoryRegistry.skillGroup.create(
+          toSkillGroupCreateSpec(givenSkillGroupSpecs_2)
+        );
         // guard to ensure the id is the given one
         expect(givenSkillGroup_2.id).toEqual(givenID.toHexString());
 
@@ -2230,7 +2237,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       );
       // AND a parent skill group
       const givenParentGroup = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "parentGroup")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "parentGroup"))
       );
 
       // AND they are related in the hierarchy
@@ -2373,7 +2380,7 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
       const givenSubject = await repository.create(toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "subject")));
       // AND a child skill group
       const givenChildGroup = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "childGroup")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "childGroup"))
       );
 
       // AND they are related in the hierarchy (manually injected to bypass repository restrictions)

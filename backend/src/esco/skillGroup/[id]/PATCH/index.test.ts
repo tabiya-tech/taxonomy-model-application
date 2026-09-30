@@ -8,7 +8,11 @@ import * as responseModule from "./response";
 import { SkillGroupPATCHController, handler as exportedPatchHandler } from "./index";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
-import { ISkillGroupService, SkillGroupModelValidationError } from "../../services/skillGroup.service.type";
+import {
+  ISkillGroupService,
+  SkillGroupLanguageValidationError,
+  SkillGroupModelValidationError,
+} from "../../services/skillGroup.service.type";
 import { ModelForSkillGroupValidationErrorCode } from "../../_shared/skillGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
@@ -299,6 +303,48 @@ describe("SkillGroupPATCHController", () => {
       details: "",
     };
     expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+  });
+
+  test("should respond with BAD_REQUEST when a field uses a language not available in the model", async () => {
+    // GIVEN a valid PATCH request
+    const validateFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema().mockReturnValue(validateFunction as never);
+
+    const payload = { preferredLabel: { fr: "Directeurs" } };
+    // AND the service rejects because 'fr' is not one of the model's availableLanguages
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.skillGroup.patch = jest
+      .fn()
+      .mockRejectedValue(new SkillGroupLanguageValidationError("preferredLabel", "fr"));
+
+    // WHEN the handler is invoked
+    const controller = new SkillGroupPATCHController();
+    const actualResponse = await controller.patch(buildEvent(payload));
+
+    // THEN expect the handler to respond with BAD_REQUEST, naming the field and the language
+    expect(actualResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    const body = JSON.parse(actualResponse.body);
+    expect(body.errorCode).toEqual(
+      SkillGroupAPISpecs.SkillGroup.PATCH.Errors.Response.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE
+    );
+    expect(body.message).toEqual("Field 'preferredLabel' uses a language not available in this model");
+    expect(body.details).toEqual("Unsupported language: 'fr'");
+  });
+
+  test("should respond with BAD_REQUEST when a schema-invalid payload deletes the fallback language via null", async () => {
+    // GIVEN a PATCH payload that attempts to delete the fallback language, rejected by the request schema
+    const validateFunction = jest.fn().mockReturnValue(false);
+    getMockGetSchema().mockReturnValue(validateFunction as never);
+    const payload = { preferredLabel: { en: null } };
+
+    // WHEN the handler is invoked
+    const controller = new SkillGroupPATCHController();
+    const actualResponse = await controller.patch(buildEvent(payload));
+
+    // THEN expect the handler to respond with BAD_REQUEST before ever calling the service
+    expect(actualResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    const mockServiceRegistry = mockGetServiceRegistry();
+    expect(mockServiceRegistry.skillGroup.patch).not.toHaveBeenCalled();
   });
 
   test("should respond with INTERNAL_SERVER_ERROR when failed to fetch model from DB", async () => {

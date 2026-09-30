@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { ISkillReference } from "esco/skill/_shared/skill.types";
 import { EntityEmbeddingStatus } from "embeddings/entityEmbeddings/entityEmbedding.types";
 import { ITranslatedStringArrayDoc, ITranslatedStringDoc } from "common/language/translatedString.types";
+import LanguageAPISpecs from "api-specifications/language";
 
 /**
  * Describes how a skill group is saved in the database.
@@ -65,6 +66,14 @@ export interface ISkillGroupWithoutImportId extends Omit<ISkillGroup, "importId"
 // translatable fields of a skill group, stored as translated sub documents (e.g. { en: "Managers" })
 type SkillGroupTranslatableFields = "preferredLabel" | "altLabels" | "description" | "scopeNote";
 
+// same as SkillGroupTranslatableFields, kept as a runtime value for the repository, which treats altLabels
+// separately (it needs a Mongoose Map-array reset before being set, unlike the scalar fields)
+export const SKILLGROUP_TRANSLATABLE_STRING_FIELDS = ["preferredLabel", "description", "scopeNote"] as const;
+
+// same as SKILLGROUP_TRANSLATABLE_STRING_FIELDS, plus altLabels; used by the language validator, which does not
+// need to special-case altLabels
+export const SKILLGROUP_TRANSLATABLE_FIELDS = [...SKILLGROUP_TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
+
 // SkillGroup for export: not populated, translatable fields kept in every language instead of flattened to fallback
 export type ISkillGroupWithTranslations = Omit<ISkillGroup, SkillGroupTranslatableFields | "parents" | "children"> &
   Pick<ISkillGroupDoc, SkillGroupTranslatableFields>;
@@ -74,25 +83,55 @@ export type ISkillGroupWithTranslations = Omit<ISkillGroup, SkillGroupTranslatab
  */
 export type INewSkillGroupSpec = Omit<ISkillGroup, "id" | "UUID" | "parents" | "children" | "createdAt" | "updatedAt">;
 
+type ITranslatableFields = {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
+};
+
 /**
- * Describes how an SkillGroup is created with the API without import action.
+ * Describes how an SkillGroup is created with the API without import action (POST).
+ * Translatable fields accept the full multilingual object, unlike INewSkillGroupSpec's flat strings used by
+ * the CSV import path.
  */
-export type INewSkillGroupSpecWithoutImportId = Omit<INewSkillGroupSpec, "importId">;
+export type INewSkillGroupSpecWithoutImportId = Omit<INewSkillGroupSpec, "importId" | SkillGroupTranslatableFields> &
+  ITranslatableFields;
+
+// Same fields as ITranslatableFields, but each language may also be null to delete that translation.
+type IPartialTranslatableFields = {
+  preferredLabel?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  scopeNote?: LanguageAPISpecs.Types.IPartialTranslatedString;
+};
+
+/**
+ * The mutable fields shared by a full replacement (PUT) and a partial update (PATCH), before either
+ * verb's own treatment of the translatable fields is applied.
+ */
+type IUpdateSkillGroupBaseFields = Pick<
+  ISkillGroup,
+  "originUri" | "code" | "modelId" | "UUIDHistory" | SkillGroupTranslatableFields
+>;
 
 /**
  * Describes the mutable fields for a full SkillGroup replacement (PUT).
  * Excludes server-managed fields: id, UUID, importId, parents, children, createdAt, updatedAt.
+ * Translatable fields accept the full multilingual object: PUT replaces the whole localized value, so a
+ * language absent from the object is removed from the stored skill group.
  */
-export type IUpdateSkillGroupSpec = Pick<
-  ISkillGroup,
-  "originUri" | "code" | "preferredLabel" | "altLabels" | "description" | "scopeNote" | "modelId" | "UUIDHistory"
->;
+export type IUpdateSkillGroupSpec = Omit<IUpdateSkillGroupBaseFields, SkillGroupTranslatableFields> &
+  ITranslatableFields;
 
 /**
- * Describes the mutable fields for a partial SkillGroup update (PATCH).
- * All fields are optional.
+ * Describes the mutable fields for a partial SkillGroup update (PATCH). All fields are optional and left
+ * untouched when absent. Within a present translatable field, a language is set/overwritten, deleted (null),
+ * or left as-is (absent). altLabels has no stable per-item identity to merge by, so when present it is
+ * replaced wholesale, like POST/PUT, not merged per language.
  */
-export type IPartialUpdateSkillGroupSpec = Partial<IUpdateSkillGroupSpec>;
+export type IPartialUpdateSkillGroupSpec = Omit<Partial<IUpdateSkillGroupBaseFields>, SkillGroupTranslatableFields> &
+  IPartialTranslatableFields;
 
 /**
  * Like INewSkillGroupSpec but with translatable fields already expressed as localized Maps, for the

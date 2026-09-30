@@ -8,7 +8,11 @@ import * as responseModule from "./response";
 import { SkillGroupCreateController, handler } from "./index";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
-import { ISkillGroupService, SkillGroupModelValidationError } from "../services/skillGroup.service.type";
+import {
+  ISkillGroupService,
+  SkillGroupLanguageValidationError,
+  SkillGroupModelValidationError,
+} from "../services/skillGroup.service.type";
 import { ModelForSkillGroupValidationErrorCode } from "../_shared/skillGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
@@ -600,6 +604,59 @@ describe("SkillGroupCreateController", () => {
       details: "",
     };
     expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+  });
+
+  test("POST should respond with BAD_REQUEST when a field uses a language not available in the model", async () => {
+    const validateFunction = jest.fn().mockReturnValue(true);
+    getMockGetSchema().mockReturnValue(validateFunction as never);
+    const givenModelId = getMockStringId(1);
+    const givenPayload = {
+      modelId: givenModelId.toString(),
+      code: "S1",
+      preferredLabel: { en: "Managers", fr: "Directeurs" },
+      description: { en: "some random description" },
+      scopeNote: { en: "some random scopeNote" },
+      altLabels: [],
+      originUri: `http://some/path/to/api/resources/${randomUUID()}`,
+      UUIDHistory: [randomUUID()],
+    };
+
+    const givenEvent = {
+      httpMethod: HTTP_VERBS.POST,
+      body: JSON.stringify(givenPayload),
+      headers: { "Content-Type": "application/json" },
+      pathParameters: { modelId: givenModelId.toString() },
+      path: `/models/${givenModelId}/skillGroups`,
+    } as never;
+    checkRole.mockResolvedValue(true);
+
+    // GIVEN the service rejects because 'fr' is not one of the model's availableLanguages
+    const givenSkillGroupServiceMock = {
+      create: jest.fn().mockRejectedValue(new SkillGroupLanguageValidationError("preferredLabel", "fr")),
+      findById: jest.fn().mockResolvedValue(null),
+      findPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+      searchPaginated: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+      validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
+      findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+      findChildren: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),
+      getHistory: jest.fn(),
+      setParent: jest.fn(),
+      update: jest.fn(),
+      patch: jest.fn(),
+    } as ISkillGroupService;
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.skillGroup = givenSkillGroupServiceMock;
+
+    // WHEN the handler is invoked with the given event
+    const controller = new SkillGroupCreateController();
+    const actualResponse = await controller.postSkillGroup(givenEvent);
+
+    // THEN expect the handler to respond with BAD_REQUEST, naming the field and the language
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    const body = JSON.parse(actualResponse.body);
+    expect(body.errorCode).toEqual(SkillGroupAPISpecs.POST.Enums.Response.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE);
+    expect(body.message).toEqual("Field 'preferredLabel' uses a language not available in this model");
+    expect(body.details).toEqual("Unsupported language: 'fr'");
   });
 
   test("POST should respond with INTERNAL_SERVER_ERROR for unknown validation error code", async () => {

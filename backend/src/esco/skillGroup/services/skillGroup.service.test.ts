@@ -2,6 +2,7 @@ import { SkillGroupService } from "./skillGroup.service";
 import {
   ISkillGroupService,
   ISkillGroupPaginatedFilter,
+  SkillGroupLanguageValidationError,
   SkillGroupModelValidationError,
   SetSkillGroupParentError,
   SetSkillGroupParentErrorCode,
@@ -114,13 +115,13 @@ describe("Test the SkillGroupService", () => {
     test("should call repository.create with the given spec when model validation passes", async () => {
       const givenSpec: INewSkillGroupSpecWithoutImportId = {
         code: getTestSkillGroupCode(100),
-        preferredLabel: getRandomString(10),
+        preferredLabel: { en: getRandomString(10) },
         modelId: getMockStringId(2),
         UUIDHistory: [randomUUID()],
         originUri: "https://example.com",
-        description: getRandomString(20),
-        scopeNote: getRandomString(30),
-        altLabels: [getRandomString(5)],
+        description: { en: getRandomString(20) },
+        scopeNote: { en: getRandomString(30) },
+        altLabels: [{ en: getRandomString(5) }],
       };
 
       mockGetRepositoryRegistry.mockReturnValue({
@@ -128,12 +129,17 @@ describe("Test the SkillGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenSpec.modelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
 
       const expectedSkillGroup: ISkillGroup = {
         ...givenSpec,
+        preferredLabel: givenSpec.preferredLabel.en as string,
+        description: givenSpec.description.en as string,
+        scopeNote: givenSpec.scopeNote.en as string,
+        altLabels: givenSpec.altLabels.map((altLabel) => altLabel.en as string),
         id: getMockStringId(2),
         UUID: getRandomString(10),
         parents: [],
@@ -153,13 +159,13 @@ describe("Test the SkillGroupService", () => {
     test("should throw if model validation fails when model not found", async () => {
       const givenSpec: INewSkillGroupSpecWithoutImportId = {
         code: getTestSkillGroupCode(100),
-        preferredLabel: getRandomString(10),
+        preferredLabel: { en: getRandomString(10) },
         modelId: getMockStringId(2),
         UUIDHistory: [randomUUID()],
         originUri: "https://example.com",
-        description: getRandomString(20),
-        scopeNote: getRandomString(30),
-        altLabels: [getRandomString(5)],
+        description: { en: getRandomString(20) },
+        scopeNote: { en: getRandomString(30) },
+        altLabels: [{ en: getRandomString(5) }],
       };
 
       mockGetRepositoryRegistry.mockReturnValue({
@@ -174,13 +180,13 @@ describe("Test the SkillGroupService", () => {
     test("should throw if model validation fails when model is released", async () => {
       const givenSpec: INewSkillGroupSpecWithoutImportId = {
         code: getTestSkillGroupCode(100),
-        preferredLabel: getRandomString(10),
+        preferredLabel: { en: getRandomString(10) },
         modelId: getMockStringId(2),
         UUIDHistory: [randomUUID()],
         originUri: "https://example.com",
-        description: getRandomString(20),
-        scopeNote: getRandomString(30),
-        altLabels: [getRandomString(5)],
+        description: { en: getRandomString(20) },
+        scopeNote: { en: getRandomString(30) },
+        altLabels: [{ en: getRandomString(5) }],
       };
 
       mockGetRepositoryRegistry.mockReturnValue({
@@ -198,13 +204,13 @@ describe("Test the SkillGroupService", () => {
     test("should throw if repository.create throws", async () => {
       const givenSpec: INewSkillGroupSpecWithoutImportId = {
         code: getTestSkillGroupCode(100),
-        preferredLabel: getRandomString(10),
+        preferredLabel: { en: getRandomString(10) },
         modelId: getMockStringId(2),
         UUIDHistory: [randomUUID()],
         originUri: "https://example.com",
-        description: getRandomString(20),
-        scopeNote: getRandomString(30),
-        altLabels: [getRandomString(5)],
+        description: { en: getRandomString(20) },
+        scopeNote: { en: getRandomString(30) },
+        altLabels: [{ en: getRandomString(5) }],
       };
 
       mockGetRepositoryRegistry.mockReturnValue({
@@ -212,6 +218,7 @@ describe("Test the SkillGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenSpec.modelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -220,6 +227,62 @@ describe("Test the SkillGroupService", () => {
       mockRepository.create.mockRejectedValue(givenError);
 
       await expect(service.create(givenSpec)).rejects.toThrow(givenError);
+    });
+
+    test("should fetch the model only once", async () => {
+      // GIVEN a valid spec and a model that supports its languages
+      const givenSpec: INewSkillGroupSpecWithoutImportId = {
+        code: getTestSkillGroupCode(100),
+        preferredLabel: { en: getRandomString(10) },
+        modelId: getMockStringId(2),
+        UUIDHistory: [randomUUID()],
+        originUri: "https://example.com",
+        description: { en: getRandomString(20) },
+        scopeNote: { en: getRandomString(30) },
+        altLabels: [{ en: getRandomString(5) }],
+      };
+      const givenGetModelById = jest.fn().mockResolvedValue({
+        id: givenSpec.modelId,
+        released: false,
+        availableLanguages: ["en"],
+      } as IModelInfo);
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: { getModelById: givenGetModelById },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      mockRepository.create.mockResolvedValue({} as ISkillGroup);
+
+      // WHEN creating the skill group
+      await service.create(givenSpec);
+
+      // THEN expect the model to have been fetched exactly once, not once for model validation and once more
+      // for the available languages
+      expect(givenGetModelById).toHaveBeenCalledTimes(1);
+    });
+
+    test("should throw with FAILED_TO_FETCH_FROM_DB when fetching the model for language validation fails", async () => {
+      // GIVEN a spec whose model lookup rejects
+      const givenSpec: INewSkillGroupSpecWithoutImportId = {
+        code: getTestSkillGroupCode(100),
+        preferredLabel: { en: getRandomString(10) },
+        modelId: getMockStringId(2),
+        UUIDHistory: [randomUUID()],
+        originUri: "https://example.com",
+        description: { en: getRandomString(20) },
+        scopeNote: { en: getRandomString(30) },
+        altLabels: [{ en: getRandomString(5) }],
+      };
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockRejectedValue(new Error("DB failure")),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      // WHEN creating the skill group
+      // THEN expect the failure to be reported as FAILED_TO_FETCH_FROM_DB, not an uncaught rejection
+      await expect(service.create(givenSpec)).rejects.toThrow(SkillGroupModelValidationError);
+      await expect(service.create(givenSpec)).rejects.toMatchObject({
+        code: ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB,
+      });
     });
   });
 
@@ -803,10 +866,10 @@ describe("Test the SkillGroupService", () => {
       const givenSpec: IUpdateSkillGroupSpec = {
         originUri: "https://example.com",
         code: getTestSkillGroupCode(100),
-        preferredLabel: getRandomString(10),
-        altLabels: [getRandomString(5)],
-        description: getRandomString(20),
-        scopeNote: getRandomString(30),
+        preferredLabel: { en: getRandomString(10) },
+        altLabels: [{ en: getRandomString(5) }],
+        description: { en: getRandomString(20) },
+        scopeNote: { en: getRandomString(30) },
         modelId: givenModelId,
         UUIDHistory: [randomUUID()],
       };
@@ -816,12 +879,17 @@ describe("Test the SkillGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
       // AND the repository returns an updated skill group
       const expectedSkillGroup: ISkillGroup = {
         ...givenSpec,
+        preferredLabel: givenSpec.preferredLabel.en as string,
+        description: givenSpec.description.en as string,
+        scopeNote: givenSpec.scopeNote.en as string,
+        altLabels: givenSpec.altLabels.map((altLabel) => altLabel.en as string),
         id: givenId,
         UUID: getRandomString(10),
         parents: [],
@@ -848,10 +916,10 @@ describe("Test the SkillGroupService", () => {
       const givenSpec: IUpdateSkillGroupSpec = {
         originUri: "https://example.com",
         code: getTestSkillGroupCode(100),
-        preferredLabel: getRandomString(10),
-        altLabels: [getRandomString(5)],
-        description: getRandomString(20),
-        scopeNote: getRandomString(30),
+        preferredLabel: { en: getRandomString(10) },
+        altLabels: [{ en: getRandomString(5) }],
+        description: { en: getRandomString(20) },
+        scopeNote: { en: getRandomString(30) },
         modelId: givenModelId,
         UUIDHistory: [randomUUID()],
       };
@@ -861,6 +929,7 @@ describe("Test the SkillGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -881,10 +950,10 @@ describe("Test the SkillGroupService", () => {
       const givenSpec: IUpdateSkillGroupSpec = {
         originUri: "https://example.com",
         code: getTestSkillGroupCode(100),
-        preferredLabel: getRandomString(10),
-        altLabels: [getRandomString(5)],
-        description: getRandomString(20),
-        scopeNote: getRandomString(30),
+        preferredLabel: { en: getRandomString(10) },
+        altLabels: [{ en: getRandomString(5) }],
+        description: { en: getRandomString(20) },
+        scopeNote: { en: getRandomString(30) },
         modelId: givenModelId,
         UUIDHistory: [randomUUID()],
       };
@@ -899,6 +968,41 @@ describe("Test the SkillGroupService", () => {
       // THEN expect it to throw
       await expect(service.update(givenId, givenModelId, givenSpec)).rejects.toThrow(SkillGroupModelValidationError);
     });
+
+    test("should throw SkillGroupLanguageValidationError when a field uses a language not available in the model", async () => {
+      // GIVEN an id, modelId and a spec whose preferredLabel carries a language the model does not support
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IUpdateSkillGroupSpec = {
+        originUri: "https://example.com",
+        code: getTestSkillGroupCode(100),
+        preferredLabel: { en: "Managers", fr: "Directeurs" },
+        altLabels: [{ en: getRandomString(5) }],
+        description: { en: getRandomString(20) },
+        scopeNote: { en: getRandomString(30) },
+        modelId: givenModelId,
+        UUIDHistory: [randomUUID()],
+      };
+      // AND the model only supports the fallback language
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+            availableLanguages: ["en"],
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      // WHEN calling service.update
+      // THEN expect it to throw, naming the field and the language
+      await expect(service.update(givenId, givenModelId, givenSpec)).rejects.toThrow(SkillGroupLanguageValidationError);
+      await expect(service.update(givenId, givenModelId, givenSpec)).rejects.toMatchObject({
+        field: "preferredLabel",
+        language: "fr",
+      });
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
   });
 
   describe("patch", () => {
@@ -907,8 +1011,8 @@ describe("Test the SkillGroupService", () => {
       const givenId = getMockStringId(1);
       const givenModelId = getMockStringId(2);
       const givenSpec: IPartialUpdateSkillGroupSpec = {
-        preferredLabel: getRandomString(10),
-        description: getRandomString(20),
+        preferredLabel: { en: getRandomString(10) },
+        description: { en: getRandomString(20) },
       };
       // AND the model validation passes
       mockGetRepositoryRegistry.mockReturnValue({
@@ -916,6 +1020,7 @@ describe("Test the SkillGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -923,8 +1028,8 @@ describe("Test the SkillGroupService", () => {
       const expectedSkillGroup: ISkillGroup = {
         ...getISkillGroupMockData(1, givenModelId),
         id: givenId,
-        preferredLabel: givenSpec.preferredLabel!,
-        description: givenSpec.description!,
+        preferredLabel: givenSpec.preferredLabel!.en as string,
+        description: givenSpec.description!.en as string,
       };
       mockRepository.patch.mockResolvedValue(expectedSkillGroup);
 
@@ -942,7 +1047,7 @@ describe("Test the SkillGroupService", () => {
       const givenId = getMockStringId(1);
       const givenModelId = getMockStringId(2);
       const givenSpec: IPartialUpdateSkillGroupSpec = {
-        preferredLabel: getRandomString(10),
+        preferredLabel: { en: getRandomString(10) },
       };
       // AND the model validation passes
       mockGetRepositoryRegistry.mockReturnValue({
@@ -950,6 +1055,7 @@ describe("Test the SkillGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: false,
+            availableLanguages: ["en"],
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -968,7 +1074,7 @@ describe("Test the SkillGroupService", () => {
       const givenId = getMockStringId(1);
       const givenModelId = getMockStringId(2);
       const givenSpec: IPartialUpdateSkillGroupSpec = {
-        preferredLabel: getRandomString(10),
+        preferredLabel: { en: getRandomString(10) },
       };
       // AND the model validation fails (model not found)
       mockGetRepositoryRegistry.mockReturnValue({
@@ -980,6 +1086,55 @@ describe("Test the SkillGroupService", () => {
       // WHEN calling service.patch
       // THEN expect it to throw
       await expect(service.patch(givenId, givenModelId, givenSpec)).rejects.toThrow(SkillGroupModelValidationError);
+    });
+
+    test("should throw SkillGroupLanguageValidationError when a field uses a language not available in the model", async () => {
+      // GIVEN an id, modelId and a spec whose preferredLabel sets a language the model does not support
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IPartialUpdateSkillGroupSpec = {
+        preferredLabel: { fr: "Directeurs" },
+      };
+      // AND the model only supports the fallback language
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+            availableLanguages: ["en"],
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      // WHEN calling service.patch
+      // THEN expect it to throw, naming the field and the language
+      await expect(service.patch(givenId, givenModelId, givenSpec)).rejects.toThrow(SkillGroupLanguageValidationError);
+      expect(mockRepository.patch).not.toHaveBeenCalled();
+    });
+
+    test("should not throw when a language is only being deleted via null, even if unavailable", async () => {
+      // GIVEN an id, modelId and a spec that deletes a language via null
+      const givenId = getMockStringId(1);
+      const givenModelId = getMockStringId(2);
+      const givenSpec: IPartialUpdateSkillGroupSpec = {
+        preferredLabel: { fr: null },
+      };
+      // AND the model only supports the fallback language
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({
+            id: givenModelId,
+            released: false,
+            availableLanguages: ["en"],
+          } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+      mockRepository.patch.mockResolvedValue({ ...getISkillGroupMockData(1, givenModelId), id: givenId });
+
+      // WHEN calling service.patch
+      // THEN expect it not to throw, since deleting a language can never be unsupported
+      await expect(service.patch(givenId, givenModelId, givenSpec)).resolves.not.toBeNull();
+      expect(mockRepository.patch).toHaveBeenCalledWith(givenId, givenModelId, givenSpec);
     });
   });
 

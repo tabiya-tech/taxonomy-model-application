@@ -1,4 +1,4 @@
-import { ISkillGroupResponse, ISkillGroupRequest, ISkillGroupParam } from "../_shared/types";
+import { ISkillGroupResponse, ISkillGroupFullTranslatedRequest, ISkillGroupParam } from "../_shared/types";
 
 namespace SkillGroupPOSTTypes {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -7,7 +7,7 @@ namespace SkillGroupPOSTTypes {
     export type Payload = ISkillGroupResponse;
   }
   export namespace Request {
-    export type Payload = ISkillGroupRequest;
+    export type Payload = ISkillGroupFullTranslatedRequest;
     export namespace Param {
       export type Payload = ISkillGroupParam;
     }

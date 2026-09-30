@@ -4,6 +4,7 @@ namespace POSTSkillGroupEnums {
       export enum ErrorCodes {
         SKILL_GROUP_COULD_NOT_VALIDATE = "SKILL_GROUP_COULD_NOT_VALIDATE",
         UNABLE_TO_ALTER_RELEASED_MODEL = "UNABLE_TO_ALTER_RELEASED_MODEL",
+        UNSUPPORTED_LANGUAGE = "UNSUPPORTED_LANGUAGE",
       }
     }
     export namespace Status404 {

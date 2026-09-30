@@ -609,6 +609,34 @@ describe("Test mergeTranslatableFieldsFromPartialObjects()", () => {
     expect(actualMerged).toEqual({ preferredLabel: new Map([["en", "Cook"]]) });
   });
 
+  test("should never delete the fall back language, even when the spec sets it to null", () => {
+    // GIVEN a patch spec that sets the fall back language to null
+    const givenSpec = { preferredLabel: { en: null } };
+    // AND a document already translated in the fall back language and another language
+    const givenExistingDoc = {
+      preferredLabel: new Map([
+        ["en", "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ]),
+    };
+
+    // WHEN the translatable fields are merged against that document
+    const actualMerged = mergeTranslatableFieldsFromPartialObjects(
+      givenSpec,
+      givenTranslatableStringFields,
+      givenExistingDoc
+    );
+
+    // THEN expect the fall back language to be kept, untouched, as a defense-in-depth guard alongside the
+    // request schema's own rejection of a null fall back language
+    expect(actualMerged).toEqual({
+      preferredLabel: new Map([
+        ["en", "Cook"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "Cuisinier"],
+      ]),
+    });
+  });
+
   test("should leave a field the spec does not carry completely untouched", () => {
     // GIVEN a patch spec that carries one of the translatable fields only
     const givenSpec = { preferredLabel: { en: "Chef" } };
@@ -721,6 +749,17 @@ describe("Test findUnsupportedLanguage()", () => {
       expect(actual).toEqual({ field: expectedField, language: "fr" });
     }
   );
+
+  test("should return null for the fall back language even when the model's availableLanguages is empty", () => {
+    // GIVEN a spec translated in the fall back language only
+    const givenSpec = { preferredLabel: { en: "Cook" } };
+
+    // WHEN checking the spec against a model whose availableLanguages is empty
+    const actual = findUnsupportedLanguage(givenSpec, givenFields, []);
+
+    // THEN expect the fall back language to be treated as always supported
+    expect(actual).toBeNull();
+  });
 });
 
 describe("Test translatedValueReplacer()", () => {

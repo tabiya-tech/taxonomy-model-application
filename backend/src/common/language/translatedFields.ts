@@ -230,10 +230,13 @@ export function mergeTranslatableFieldsFromPartialObjects<Field extends string>(
       return;
     }
     const translations = readExistingTranslations((existingDoc as Record<string, unknown>)[field]);
+    const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
     Object.entries(patchValue).forEach(([dbKeyName, value]) => {
-      if (value === null) {
+      // The request schema already rejects a null fallback language; this repeats the check here so the
+      // fallback can never be deleted even by a caller that bypasses schema validation.
+      if (value === null && dbKeyName !== fallbackDbKeyName) {
         translations.delete(dbKeyName as TranslatedStringKey);
-      } else if (value !== undefined) {
+      } else if (value !== undefined && value !== null) {
         translations.set(dbKeyName as TranslatedStringKey, value);
       }
     });
@@ -243,6 +246,15 @@ export function mergeTranslatableFieldsFromPartialObjects<Field extends string>(
     merged.altLabels = wrapTranslatedArrayFromObjects(spec.altLabels);
   }
   return merged;
+}
+
+/**
+ * A language is supported when the model lists it, or when it is the fallback language: the fallback is
+ * architecturally mandatory (POST/PUT require it, PATCH can never delete it), so it is never really
+ * "unavailable" even when the model's own availableLanguages is empty or does not (yet) list it.
+ */
+function isSupported(language: string, availableLanguages: readonly string[]): boolean {
+  return language === getFallbackLanguageConfig().dbKeyName || availableLanguages.includes(language);
 }
 
 /**
@@ -266,7 +278,7 @@ export function findUnsupportedLanguage(
     const translations = (Array.isArray(value) ? value : [value]) as LanguageAPISpecs.Types.IPartialTranslatedString[];
     for (const translation of translations) {
       for (const [language, translated] of Object.entries(translation)) {
-        if (translated !== null && !availableLanguages.includes(language)) {
+        if (translated !== null && !isSupported(language, availableLanguages)) {
           return { field, language };
         }
       }

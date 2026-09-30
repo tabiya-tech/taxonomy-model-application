@@ -1,4 +1,5 @@
 import { RegExp_Str_NotEmptyString, RegExp_Str_UUIDv4, RegExp_Str_ID, RegExp_Str_URI } from "../../../regex";
+import LanguageAPISpecs from "../../../language";
 import SkillGroupConstants from "./constants";
 import SkillGroupEnums from "./enums";
 import SkillGroupRegexes from "./regex";
@@ -62,6 +63,58 @@ export const _baseProperties: any = {
     type: "string",
     pattern: RegExp_Str_ID,
   },
+};
+
+// The translatable string fields, in the shape getTranslatedString needs, shared by the request property
+// sets below so each field's description/maxLength/pattern is written once.
+const _translatableStringFields: Record<
+  string,
+  Omit<LanguageAPISpecs.Types.ITranslatedStringSchemaOptions, "required" | "allowNullToDelete">
+> = {
+  preferredLabel: {
+    description: "The preferred label of the skill group.",
+    maxLength: SkillGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
+    pattern: RegExp_Str_NotEmptyString,
+  },
+  description: {
+    description: "The description of the skill group.",
+    maxLength: SkillGroupConstants.DESCRIPTION_MAX_LENGTH,
+  },
+  scopeNote: {
+    description: "The scope note of the skill group.",
+    maxLength: SkillGroupConstants.MAX_SCOPE_NOTE_LENGTH,
+  },
+};
+
+const _altLabelsProperty = LanguageAPISpecs.Schemas.getTranslatedStringArray({
+  description: "The alternative labels of the skill group.",
+  maxLength: SkillGroupConstants.ALT_LABEL_MAX_LENGTH,
+  maxItems: SkillGroupConstants.ALT_LABELS_MAX_ITEMS,
+});
+
+// Multilingual variant of the translatable fields (full per-language object, fallback required), used by
+// POST and PUT. Kept separate from _baseProperties since the latter also backs the flat-string response.
+export const _baseRequestProperties = {
+  ..._baseProperties,
+  ...Object.fromEntries(
+    Object.entries(_translatableStringFields).map(([field, options]) => [
+      field,
+      LanguageAPISpecs.Schemas.getTranslatedString({ ...options, required: true }),
+    ])
+  ),
+  altLabels: _altLabelsProperty,
+};
+
+// PATCH variant: same fields, but a non-fallback language may be null to delete it, and none are required.
+export const _basePatchRequestProperties = {
+  ..._baseProperties,
+  ...Object.fromEntries(
+    Object.entries(_translatableStringFields).map(([field, options]) => [
+      field,
+      LanguageAPISpecs.Schemas.getTranslatedString({ ...options, allowNullToDelete: true }),
+    ])
+  ),
+  altLabels: _altLabelsProperty,
 };
 
 export const _baseSkillGroupURLParameter = {

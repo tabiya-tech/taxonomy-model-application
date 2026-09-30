@@ -56,12 +56,12 @@ async function createSkillInDB(modelId: string = getMockStringId(1)): Promise<IS
 async function createSkillGroupInDB(modelId: string = getMockStringId(1)) {
   return await getRepositoryRegistry().skillGroup.create({
     modelId: modelId,
-    preferredLabel: getRandomString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH),
-    description: getRandomString(SkillGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
-    altLabels: [getRandomString(SkillGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH)],
+    preferredLabel: { en: getRandomString(SkillGroupAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH) },
+    description: { en: getRandomString(SkillGroupAPISpecs.Constants.DESCRIPTION_MAX_LENGTH) },
+    altLabels: [{ en: getRandomString(SkillGroupAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) }],
     originUri: `http://some/path/to/api/resources/${randomUUID()}`,
     UUIDHistory: [randomUUID()],
-    scopeNote: getRandomString(SkillGroupAPISpecs.Constants.MAX_SCOPE_NOTE_LENGTH),
+    scopeNote: { en: getRandomString(SkillGroupAPISpecs.Constants.MAX_SCOPE_NOTE_LENGTH) },
     code: "S" + Math.floor(Math.random() * 100),
   });
 }

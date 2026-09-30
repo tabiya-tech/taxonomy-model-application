@@ -528,6 +528,7 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
           "ErrorCodes": {
             "SKILL_GROUP_COULD_NOT_VALIDATE": "SKILL_GROUP_COULD_NOT_VALIDATE",
             "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+            "UNSUPPORTED_LANGUAGE": "UNSUPPORTED_LANGUAGE",
           },
         },
         "Status404": {
@@ -580,8 +581,39 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
             "altLabels": {
               "description": "The alternative labels of the skill group.",
               "items": {
-                "maxLength": 256,
-                "type": "string",
+                "additionalProperties": false,
+                "description": "The alternative labels of the skill group.",
+                "properties": {
+                  "am": {
+                    "description": "The alternative labels of the skill group. (Amharic)",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "The alternative labels of the skill group. (English)",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The alternative labels of the skill group. (Spanish)",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "The alternative labels of the skill group. (French)",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "The alternative labels of the skill group. (Portuguese)",
+                    "maxLength": 256,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
               "maxItems": 200,
               "minItems": 0,
@@ -595,9 +627,39 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
               "type": "string",
             },
             "description": {
+              "additionalProperties": false,
               "description": "The description of the skill group.",
-              "maxLength": 6000,
-              "type": "string",
+              "properties": {
+                "am": {
+                  "description": "The description of the skill group. (Amharic)",
+                  "maxLength": 6000,
+                  "type": "string",
+                },
+                "en": {
+                  "description": "The description of the skill group. (English)",
+                  "maxLength": 6000,
+                  "type": "string",
+                },
+                "es": {
+                  "description": "The description of the skill group. (Spanish)",
+                  "maxLength": 6000,
+                  "type": "string",
+                },
+                "fr": {
+                  "description": "The description of the skill group. (French)",
+                  "maxLength": 6000,
+                  "type": "string",
+                },
+                "pt": {
+                  "description": "The description of the skill group. (Portuguese)",
+                  "maxLength": 6000,
+                  "type": "string",
+                },
+              },
+              "required": [
+                "en",
+              ],
+              "type": "object",
             },
             "modelId": {
               "description": "The identifier of the model for skill group.",
@@ -612,15 +674,79 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
               "type": "string",
             },
             "preferredLabel": {
+              "additionalProperties": false,
               "description": "The preferred label of the skill group.",
-              "maxLength": 256,
-              "pattern": "\\S",
-              "type": "string",
+              "properties": {
+                "am": {
+                  "description": "The preferred label of the skill group. (Amharic)",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "en": {
+                  "description": "The preferred label of the skill group. (English)",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "es": {
+                  "description": "The preferred label of the skill group. (Spanish)",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "fr": {
+                  "description": "The preferred label of the skill group. (French)",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+                "pt": {
+                  "description": "The preferred label of the skill group. (Portuguese)",
+                  "maxLength": 256,
+                  "pattern": "\\S",
+                  "type": "string",
+                },
+              },
+              "required": [
+                "en",
+              ],
+              "type": "object",
             },
             "scopeNote": {
+              "additionalProperties": false,
               "description": "The scope note of the skill group.",
-              "maxLength": 4000,
-              "type": "string",
+              "properties": {
+                "am": {
+                  "description": "The scope note of the skill group. (Amharic)",
+                  "maxLength": 4000,
+                  "type": "string",
+                },
+                "en": {
+                  "description": "The scope note of the skill group. (English)",
+                  "maxLength": 4000,
+                  "type": "string",
+                },
+                "es": {
+                  "description": "The scope note of the skill group. (Spanish)",
+                  "maxLength": 4000,
+                  "type": "string",
+                },
+                "fr": {
+                  "description": "The scope note of the skill group. (French)",
+                  "maxLength": 4000,
+                  "type": "string",
+                },
+                "pt": {
+                  "description": "The scope note of the skill group. (Portuguese)",
+                  "maxLength": 4000,
+                  "type": "string",
+                },
+              },
+              "required": [
+                "en",
+              ],
+              "type": "object",
             },
           },
           "required": [
@@ -1906,6 +2032,7 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
               "INVALID_MODEL_ID": "INVALID_MODEL_ID",
               "SKILL_GROUP_COULD_NOT_VALIDATE": "SKILL_GROUP_COULD_NOT_VALIDATE",
               "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+              "UNSUPPORTED_LANGUAGE": "UNSUPPORTED_LANGUAGE",
             },
           },
           "Status404": {
@@ -1942,8 +2069,39 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
               "altLabels": {
                 "description": "The alternative labels of the skill group.",
                 "items": {
-                  "maxLength": 256,
-                  "type": "string",
+                  "additionalProperties": false,
+                  "description": "The alternative labels of the skill group.",
+                  "properties": {
+                    "am": {
+                      "description": "The alternative labels of the skill group. (Amharic)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "en": {
+                      "description": "The alternative labels of the skill group. (English)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "es": {
+                      "description": "The alternative labels of the skill group. (Spanish)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "fr": {
+                      "description": "The alternative labels of the skill group. (French)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "pt": {
+                      "description": "The alternative labels of the skill group. (Portuguese)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "en",
+                  ],
+                  "type": "object",
                 },
                 "maxItems": 200,
                 "minItems": 0,
@@ -1957,9 +2115,48 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                 "type": "string",
               },
               "description": {
+                "additionalProperties": false,
                 "description": "The description of the skill group.",
-                "maxLength": 6000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The description of the skill group. (Amharic)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "The description of the skill group. (English)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The description of the skill group. (Spanish)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "The description of the skill group. (French)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "The description of the skill group. (Portuguese)",
+                    "maxLength": 6000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "modelId": {
                 "description": "The identifier of the model for skill group.",
@@ -1974,15 +2171,97 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                 "type": "string",
               },
               "preferredLabel": {
+                "additionalProperties": false,
                 "description": "The preferred label of the skill group.",
-                "maxLength": 256,
-                "pattern": "\\S",
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The preferred label of the skill group. (Amharic)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "The preferred label of the skill group. (English)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The preferred label of the skill group. (Spanish)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "The preferred label of the skill group. (French)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "The preferred label of the skill group. (Portuguese)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
               "scopeNote": {
+                "additionalProperties": false,
                 "description": "The scope note of the skill group.",
-                "maxLength": 4000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The scope note of the skill group. (Amharic)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "en": {
+                    "description": "The scope note of the skill group. (English)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The scope note of the skill group. (Spanish)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "fr": {
+                    "description": "The scope note of the skill group. (French)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                  "pt": {
+                    "description": "The scope note of the skill group. (Portuguese)",
+                    "maxLength": 4000,
+                    "type": [
+                      "string",
+                      "null",
+                    ],
+                  },
+                },
+                "type": "object",
               },
             },
             "type": "object",
@@ -2308,6 +2587,7 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
               "INVALID_MODEL_ID": "INVALID_MODEL_ID",
               "SKILL_GROUP_COULD_NOT_VALIDATE": "SKILL_GROUP_COULD_NOT_VALIDATE",
               "UNABLE_TO_ALTER_RELEASED_MODEL": "UNABLE_TO_ALTER_RELEASED_MODEL",
+              "UNSUPPORTED_LANGUAGE": "UNSUPPORTED_LANGUAGE",
             },
           },
           "Status404": {
@@ -2344,8 +2624,39 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
               "altLabels": {
                 "description": "The alternative labels of the skill group.",
                 "items": {
-                  "maxLength": 256,
-                  "type": "string",
+                  "additionalProperties": false,
+                  "description": "The alternative labels of the skill group.",
+                  "properties": {
+                    "am": {
+                      "description": "The alternative labels of the skill group. (Amharic)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "en": {
+                      "description": "The alternative labels of the skill group. (English)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "es": {
+                      "description": "The alternative labels of the skill group. (Spanish)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "fr": {
+                      "description": "The alternative labels of the skill group. (French)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                    "pt": {
+                      "description": "The alternative labels of the skill group. (Portuguese)",
+                      "maxLength": 256,
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "en",
+                  ],
+                  "type": "object",
                 },
                 "maxItems": 200,
                 "minItems": 0,
@@ -2359,9 +2670,39 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                 "type": "string",
               },
               "description": {
+                "additionalProperties": false,
                 "description": "The description of the skill group.",
-                "maxLength": 6000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The description of the skill group. (Amharic)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "The description of the skill group. (English)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The description of the skill group. (Spanish)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "The description of the skill group. (French)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "The description of the skill group. (Portuguese)",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
               "modelId": {
                 "description": "The identifier of the model for skill group.",
@@ -2376,15 +2717,79 @@ exports[`Test the skillGroup module The export module matches the snapshot 1`] =
                 "type": "string",
               },
               "preferredLabel": {
+                "additionalProperties": false,
                 "description": "The preferred label of the skill group.",
-                "maxLength": 256,
-                "pattern": "\\S",
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The preferred label of the skill group. (Amharic)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "The preferred label of the skill group. (English)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The preferred label of the skill group. (Spanish)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "The preferred label of the skill group. (French)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "The preferred label of the skill group. (Portuguese)",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
               "scopeNote": {
+                "additionalProperties": false,
                 "description": "The scope note of the skill group.",
-                "maxLength": 4000,
-                "type": "string",
+                "properties": {
+                  "am": {
+                    "description": "The scope note of the skill group. (Amharic)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "en": {
+                    "description": "The scope note of the skill group. (English)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "es": {
+                    "description": "The scope note of the skill group. (Spanish)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "fr": {
+                    "description": "The scope note of the skill group. (French)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                  "pt": {
+                    "description": "The scope note of the skill group. (Portuguese)",
+                    "maxLength": 4000,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "en",
+                ],
+                "type": "object",
               },
             },
             "required": [
