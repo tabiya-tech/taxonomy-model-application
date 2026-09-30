@@ -330,13 +330,28 @@ export function getNewSkillGroupSpec(): INewSkillGroupSpec {
 export function getNewSkillGroupSpecWithoutImportId(): INewSkillGroupSpecWithoutImportId {
   return {
     code: getTestSkillGroupCode(100),
-    preferredLabel: getTestString(LABEL_MAX_LENGTH),
+    preferredLabel: { en: getTestString(LABEL_MAX_LENGTH) },
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
     originUri: generateRandomUrl(),
-    description: getTestString(DESCRIPTION_MAX_LENGTH),
-    scopeNote: getTestString(SCOPE_NOTE_MAX_LENGTH),
-    altLabels: [getTestString(LABEL_MAX_LENGTH, "1_"), getTestString(LABEL_MAX_LENGTH, "2_")],
+    description: { en: getTestString(DESCRIPTION_MAX_LENGTH) },
+    scopeNote: { en: getTestString(SCOPE_NOTE_MAX_LENGTH) },
+    altLabels: [{ en: getTestString(LABEL_MAX_LENGTH, "1_") }, { en: getTestString(LABEL_MAX_LENGTH, "2_") }],
+  };
+}
+
+/**
+ * Wraps a flat INewSkillGroupSpec (as the existing spec builders produce, for createMany/import) into the
+ * multilingual shape create() expects, translatable fields in the fall back language only.
+ */
+export function toSkillGroupCreateSpec(spec: INewSkillGroupSpec): INewSkillGroupSpecWithoutImportId {
+  const wrap = (value: string) => ({ en: value });
+  return {
+    ...spec,
+    preferredLabel: wrap(spec.preferredLabel),
+    altLabels: spec.altLabels.map(wrap),
+    description: wrap(spec.description),
+    scopeNote: wrap(spec.scopeNote),
   };
 }
 

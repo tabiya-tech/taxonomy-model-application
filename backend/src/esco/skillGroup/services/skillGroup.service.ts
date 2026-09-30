@@ -1,10 +1,12 @@
 import {
   ISkillGroupHistoryEntry,
   ISkillGroupService,
+  SkillGroupLanguageValidationError,
   SkillGroupModelValidationError,
   SetSkillGroupParentError,
   SetSkillGroupParentErrorCode,
 } from "./skillGroup.service.type";
+import { findUnsupportedLanguage } from "common/language/translatedFields";
 import {
   ModelForSkillGroupValidationErrorCode,
   INewSkillGroupSpecWithoutImportId,
@@ -12,6 +14,7 @@ import {
   ISkillGroupChild,
   IPartialUpdateSkillGroupSpec,
   IUpdateSkillGroupSpec,
+  SKILLGROUP_TRANSLATABLE_FIELDS,
 } from "../_shared/skillGroup.types";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import { ISkillHierarchyRepository } from "esco/skillHierarchy/skillHierarchyRepository";
@@ -38,11 +41,47 @@ export class SkillGroupService implements ISkillGroupService {
   ) {}
 
   async create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup> {
-    const errorCode = await this.validateModelForSkillGroup(newSkillGroupSpec.modelId);
-    if (errorCode != null) {
-      throw new SkillGroupModelValidationError(errorCode);
+    const result = await this.validateModelAndGetAvailableLanguages(newSkillGroupSpec.modelId);
+    if (result.errorCode != null) {
+      throw new SkillGroupModelValidationError(result.errorCode);
     }
+
+    const unsupportedLanguage = findUnsupportedLanguage(
+      newSkillGroupSpec,
+      SKILLGROUP_TRANSLATABLE_FIELDS,
+      result.availableLanguages
+    );
+    if (unsupportedLanguage !== null) {
+      throw new SkillGroupLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
+    }
+
     return this.skillGroupRepository.create(newSkillGroupSpec);
+  }
+
+  /**
+   * Like validateModelForSkillGroup, but also returns the model's availableLanguages on success, in a single
+   * fetch. Kept separate from validateModelForSkillGroup so that method's existing callers (which compare its
+   * result directly against ModelForSkillGroupValidationErrorCode) are unaffected.
+   */
+  private async validateModelAndGetAvailableLanguages(
+    modelId: string
+  ): Promise<
+    | { errorCode: null; availableLanguages: string[] }
+    | { errorCode: ModelForSkillGroupValidationErrorCode; availableLanguages?: never }
+  > {
+    try {
+      const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
+      if (!model) {
+        return { errorCode: ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID };
+      }
+      if (model.released) {
+        return { errorCode: ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED };
+      }
+      return { errorCode: null, availableLanguages: model.availableLanguages ?? [] };
+    } catch (e: unknown) {
+      console.error("Error validating model for skill group:", e);
+      return { errorCode: ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB };
+    }
   }
 
   async findById(id: string): Promise<ISkillGroup | null> {
@@ -202,18 +241,40 @@ export class SkillGroupService implements ISkillGroupService {
   }
 
   async update(id: string, modelId: string, spec: IUpdateSkillGroupSpec): Promise<ISkillGroup | null> {
-    const errorCode = await this.validateModelForSkillGroup(modelId);
-    if (errorCode != null) {
-      throw new SkillGroupModelValidationError(errorCode);
+    const result = await this.validateModelAndGetAvailableLanguages(modelId);
+    if (result.errorCode != null) {
+      throw new SkillGroupModelValidationError(result.errorCode);
     }
+
+    const unsupportedLanguage = findUnsupportedLanguage(
+      spec,
+      SKILLGROUP_TRANSLATABLE_FIELDS,
+      result.availableLanguages
+    );
+    if (unsupportedLanguage !== null) {
+      throw new SkillGroupLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
+    }
+
     return this.skillGroupRepository.update(id, modelId, spec);
   }
 
   async patch(id: string, modelId: string, spec: IPartialUpdateSkillGroupSpec): Promise<ISkillGroup | null> {
-    const errorCode = await this.validateModelForSkillGroup(modelId);
-    if (errorCode != null) {
-      throw new SkillGroupModelValidationError(errorCode);
+    const result = await this.validateModelAndGetAvailableLanguages(modelId);
+    if (result.errorCode != null) {
+      throw new SkillGroupModelValidationError(result.errorCode);
     }
+
+    // A language explicitly set to null (a deletion) is never rejected as unsupported: removing a language
+    // cannot make the model's supported set outdated the way adding one can.
+    const unsupportedLanguage = findUnsupportedLanguage(
+      spec,
+      SKILLGROUP_TRANSLATABLE_FIELDS,
+      result.availableLanguages
+    );
+    if (unsupportedLanguage !== null) {
+      throw new SkillGroupLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
+    }
+
     return this.skillGroupRepository.patch(id, modelId, spec);
   }
 

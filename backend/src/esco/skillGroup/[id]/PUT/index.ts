@@ -4,7 +4,10 @@ import AuthAPISpecs from "api-specifications/auth";
 import SkillGroupAPISpecs from "api-specifications/esco/skillGroup";
 import { RoleRequired } from "auth/authorizer";
 import { IUpdateSkillGroupSpec, ModelForSkillGroupValidationErrorCode } from "esco/skillGroup/_shared/skillGroup.types";
-import { SkillGroupModelValidationError } from "esco/skillGroup/services/skillGroup.service.type";
+import {
+  SkillGroupLanguageValidationError,
+  SkillGroupModelValidationError,
+} from "esco/skillGroup/services/skillGroup.service.type";
 import { Routes } from "routes.constant";
 import { getResourcesBaseUrl } from "server/config/config";
 import { errorResponse, responseJSON, StatusCodes } from "server/httpUtils";
@@ -23,7 +26,10 @@ export class SkillGroupPUTController {
    *      tags:
    *        - skillGroups
    *      summary: Update an existing taxonomy skill group by replacing it.
-   *      description: Update an existing taxonomy skill group in a specific taxonomy model by replacing it.
+   *      description: |
+   *        Completely replace all mutable fields of an existing skill group in a specific taxonomy model.
+   *        For translatable fields, any language omitted from the payload's object is removed from the
+   *        stored skill group; the fallback language must always be included.
    *      security:
    *       - api_key: []
    *       - jwt_auth: []
@@ -130,6 +136,15 @@ export class SkillGroupPUTController {
       return responseJSON(StatusCodes.OK, buildPUTResponse(updatedSkillGroup, getResourcesBaseUrl()));
     } catch (error: unknown) {
       console.error("Failed to update skill group:", error);
+
+      if (error instanceof SkillGroupLanguageValidationError) {
+        return errorResponse(
+          StatusCodes.BAD_REQUEST,
+          SkillGroupAPISpecs.SkillGroup.PUT.Errors.Response.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+          `Field '${error.field}' uses a language not available in this model`,
+          `Unsupported language: '${error.language}'`
+        );
+      }
 
       if (error instanceof SkillGroupModelValidationError) {
         switch (error.code) {

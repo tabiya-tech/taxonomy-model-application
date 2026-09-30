@@ -1,5 +1,6 @@
 import SkillGroupEnums from "./enums";
 import ModelInfoTypes from "../../../modelInfo/types";
+import LanguageAPISpecs from "../../../language";
 
 // A reference to a skill group — the lightweight shape used when a group is shown from the outside (e.g. as it
 // appeared in a model in its history). Mirrors the SkillGroupReferenceSchema.
@@ -101,6 +102,29 @@ export interface ISkillGroupRequest {
   modelId: string;
 }
 
+type TranslatableFieldName = "preferredLabel" | "altLabels" | "description" | "scopeNote";
+
+type ITranslatableFields = {
+  preferredLabel: LanguageAPISpecs.Types.ITranslatedString;
+  altLabels: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description: LanguageAPISpecs.Types.ITranslatedString;
+  scopeNote: LanguageAPISpecs.Types.ITranslatedString;
+};
+
+// Same fields as ITranslatableFields, but each language may also be null to delete that translation.
+type IPartialTranslatableFields = {
+  preferredLabel?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  altLabels?: LanguageAPISpecs.Types.ITranslatedStringArray;
+  description?: LanguageAPISpecs.Types.IPartialTranslatedString;
+  scopeNote?: LanguageAPISpecs.Types.IPartialTranslatedString;
+};
+
+// Shared by POST and PUT: both take the full multilingual object for every translatable field.
+export type ISkillGroupFullTranslatedRequest = Omit<ISkillGroupRequest, TranslatableFieldName> & ITranslatableFields;
+
+export type ISkillGroupPATCHRequest = Omit<Partial<ISkillGroupRequest>, TranslatableFieldName> &
+  IPartialTranslatableFields;
+
 export interface ISkillGroupParam {
   modelId: string;
 }
@@ -146,7 +170,7 @@ namespace SkillGroupTypes {
       export type Payload = ISkillGroupResponse;
     }
     export namespace Request {
-      export type Payload = ISkillGroupRequest;
+      export type Payload = ISkillGroupFullTranslatedRequest;
       export namespace Param {
         export type Payload = ISkillGroupParam;
       }
@@ -155,7 +179,7 @@ namespace SkillGroupTypes {
 
   export namespace Detail.PUT {
     export namespace Request {
-      export type Payload = ISkillGroupRequest;
+      export type Payload = ISkillGroupFullTranslatedRequest;
     }
     export namespace Response {
       export type Payload = ISkillGroupResponse;
@@ -164,7 +188,7 @@ namespace SkillGroupTypes {
 
   export namespace Detail.PATCH {
     export namespace Request {
-      export type Payload = Partial<ISkillGroupRequest>;
+      export type Payload = ISkillGroupPATCHRequest;
     }
     export namespace Response {
       export type Payload = ISkillGroupResponse;

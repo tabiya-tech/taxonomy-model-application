@@ -37,6 +37,7 @@ import {
   getNewSkillGroupSpecWithoutImportId,
   toOccupationGroupCreateSpec,
   toSkillCreateSpec,
+  toSkillGroupCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailureNoSetup,
@@ -83,6 +84,7 @@ function expectedFromGivenSpecWithoutImportId(
   givenSpec: INewSkillGroupSpecWithoutImportId,
   newUUID: string
 ): ISkillGroup {
+  const fallbackKey = getFallbackLanguageConfig().dbKeyName as keyof typeof givenSpec.preferredLabel;
   return {
     children: [],
     parents: [],
@@ -90,6 +92,10 @@ function expectedFromGivenSpecWithoutImportId(
     id: expect.any(String),
     UUID: newUUID,
     UUIDHistory: [newUUID, ...givenSpec.UUIDHistory],
+    preferredLabel: givenSpec.preferredLabel[fallbackKey] ?? "",
+    altLabels: givenSpec.altLabels.map((altLabel) => altLabel[fallbackKey] ?? ""),
+    description: givenSpec.description[fallbackKey] ?? "",
+    scopeNote: givenSpec.scopeNote[fallbackKey] ?? "",
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
     importId: expect.toBeNil(),
@@ -290,7 +296,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     });
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
-      return repositoryRegistry.skillGroup.create(getNewSkillGroupSpec());
+      return repositoryRegistry.skillGroup.create(toSkillGroupCreateSpec(getNewSkillGroupSpec()));
     });
   });
 
@@ -567,7 +573,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       givenNewSkillGroupSpec.modelId = givenModelId;
 
       // WHEN creating the SkillGroup
-      const actualCreated = await repository.create(givenNewSkillGroupSpec);
+      const actualCreated = await repository.create(toSkillGroupCreateSpec(givenNewSkillGroupSpec));
 
       // THEN expect the raw document to carry them as localized sub documents keyed by the fallback language
       const actualRawDoc = await repository.Model.findById(actualCreated.id).lean();
@@ -596,7 +602,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     test("should find an SkillGroup by its id", async () => {
       // GIVEN an SkillGroup exists in the database
       const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1");
-      const givenSkillGroup = await repository.create(givenSkillGroupSpec);
+      const givenSkillGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpec));
 
       console.log(givenSkillGroup);
 
@@ -632,19 +638,19 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // THE subject (SkillGroup)
       const givenSubjectSpecs = getSimpleNewSkillGroupSpec(givenModelId, "subject");
-      const givenSubject = await repository.create(givenSubjectSpecs);
+      const givenSubject = await repository.create(toSkillGroupCreateSpec(givenSubjectSpecs));
 
       // The parent (SkillGroup)
       const givenParentSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "parent_1");
-      const givenParent_1 = await repository.create(givenParentSpecs_1);
+      const givenParent_1 = await repository.create(toSkillGroupCreateSpec(givenParentSpecs_1));
 
       // The parent (SkillGroup)
       const givenParentSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId, "parent_2");
-      const givenParent_2 = await repository.create(givenParentSpecs_2);
+      const givenParent_2 = await repository.create(toSkillGroupCreateSpec(givenParentSpecs_2));
 
       // The child SkillGroup
       const givenChildSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "child_1");
-      const givenChild_1 = await repository.create(givenChildSpecs_1);
+      const givenChild_1 = await repository.create(toSkillGroupCreateSpec(givenChildSpecs_1));
 
       // The child Skill
       const givenChildSpecs_2 = getSimpleNewSkillSpec(givenModelId, "child_2");
@@ -740,7 +746,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and non-SkillGroup document is a parent of an SkillGroup
         // The SkillGroup
         const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1");
-        const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
+        const givenSkillGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs));
         // The non-SkillGroup in this case a Skill
         const givenNewSkillSpec: INewSkillSpec = getSimpleNewSkillSpec(getMockStringId(1), "skill_1");
         const givenSkill = await repositoryRegistry.skill.create(toSkillCreateSpec(givenNewSkillSpec));
@@ -775,7 +781,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // GIVEN an inconsistency was introduced, and non-SkillGroup document is a child of an SkillGroup
         // The SkillGroup
         const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1");
-        const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
+        const givenSkillGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs));
         // The non-SkillGroup in this case an Occupation group
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getSimpleNewISCOGroupSpec(
           getMockStringId(1),
@@ -821,11 +827,11 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // The SkillGroup 1
         const givenModelId_1 = getMockStringId(1);
         const givenSkillGroupSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId_1, "group_1");
-        const givenSkillGroup_1 = await repository.create(givenSkillGroupSpecs_1);
+        const givenSkillGroup_1 = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs_1));
         // The SkillGroup 2
         const givenModelId_2 = getMockStringId(2);
         const givenSkillGroupSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId_2, "group_2");
-        const givenSkillGroup_2 = await repository.create(givenSkillGroupSpecs_2);
+        const givenSkillGroup_2 = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs_2));
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         // the third model
@@ -867,11 +873,11 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // The SkillGroup 1
         const givenModelId_1 = getMockStringId(1);
         const givenSkillGroupSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId_1, "group_1");
-        const givenSkillGroup_1 = await repository.create(givenSkillGroupSpecs_1);
+        const givenSkillGroup_1 = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs_1));
         // The SkillGroup 2
         const givenModelId_2 = getMockStringId(2);
         const givenSkillGroupSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId_2, "group_2");
-        const givenSkillGroup_2 = await repository.create(givenSkillGroupSpecs_2);
+        const givenSkillGroup_2 = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs_2));
 
         //@ts-ignore
         const givenInconsistentPair: ISkillHierarchyPairDoc = {
@@ -904,11 +910,11 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         // The SkillGroup 1
         const givenModelId_1 = getMockStringId(1);
         const givenSkillGroupSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId_1, "group_1");
-        const givenSkillGroup_1 = await repository.create(givenSkillGroupSpecs_1);
+        const givenSkillGroup_1 = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs_1));
         // The SkillGroup 2
         const givenModelId_2 = getMockStringId(2);
         const givenSkillGroupSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId_2, "group_2");
-        const givenSkillGroup_2 = await repository.create(givenSkillGroupSpecs_2);
+        const givenSkillGroup_2 = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs_2));
 
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
 
@@ -952,7 +958,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         const givenSubjectSpecs = getSimpleNewSkillGroupSpec(givenModelId, "subject");
         // @ts-ignore
         givenSubjectSpecs.id = givenID.toHexString();
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toSkillGroupCreateSpec(givenSubjectSpecs));
         // guard to ensure the id is the given one
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
@@ -1012,7 +1018,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         const givenSubjectSpecs = getSimpleNewSkillGroupSpec(givenModelId, "subject");
         // @ts-ignore
         givenSubjectSpecs.id = givenID.toHexString();
-        const givenSubject = await repository.create(givenSubjectSpecs);
+        const givenSubject = await repository.create(toSkillGroupCreateSpec(givenSubjectSpecs));
         // guard to ensure the id is the given one
         expect(givenSubject.id).toEqual(givenID.toHexString());
 
@@ -1026,11 +1032,15 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
         // AND a skill group with some ID  in the given model
         const givenSkillGroupSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "SkillGroup 1");
-        const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(givenSkillGroupSpecs_1);
+        const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
+          toSkillGroupCreateSpec(givenSkillGroupSpecs_1)
+        );
 
         // AND another skill group with some ID in the given model
         const givenSkillGroupSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId, "Skill Group");
-        const givenSkillGroup_2 = await repositoryRegistry.skillGroup.create(givenSkillGroupSpecs_2);
+        const givenSkillGroup_2 = await repositoryRegistry.skillGroup.create(
+          toSkillGroupCreateSpec(givenSkillGroupSpecs_2)
+        );
 
         // AND the Skill Group 1 is the parent of Skill 1
         // AND the Skill Group 2 is the parent of the subject SkillGroup
@@ -1306,7 +1316,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenSkillGroups: ISkillGroup[] = [];
       for (let i = 0; i < 3; i++) {
         const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(givenModelId, `group_${i}`);
-        const givenSkillGroup = await repository.create(givenSkillGroupSpec);
+        const givenSkillGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpec));
         givenSkillGroups.push(givenSkillGroup);
       }
 
@@ -1329,7 +1339,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenSkillGroups: ISkillGroup[] = [];
       for (let i = 0; i < 3; i++) {
         const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, `group_${i + 1}`);
-        const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
+        const givenSkillGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs));
         givenSkillGroups.push(givenSkillGroup);
       }
       // WHEN retrieving the skillGroups with a cursor pointing to group_3 (newest) and limit of 2
@@ -1376,9 +1386,15 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     test("should paginate consistently across mixed limits and cursor flow", async () => {
       // GIVEN a modelId and three skill groups created in order
       const givenModelId = getMockStringId(1);
-      const given_skill_group1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g1"));
-      const given_skill_group2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g2"));
-      const given_skill_group3 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g3"));
+      const given_skill_group1 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "g1"))
+      );
+      const given_skill_group2 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "g2"))
+      );
+      const given_skill_group3 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "g3"))
+      );
 
       // WHEN requesting first page with limit=3 and no cursor (desc by _id => newest first)
       const page2 = await repository.findPaginated(givenModelId, 3, -1);
@@ -1396,7 +1412,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // GIVEN a unique modelId and some skill groups
       const givenModelId = getMockStringId(999); // Use a unique modelId to avoid conflicts
       const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "test_group");
-      const createdGroup = await repository.create(givenSkillGroupSpecs);
+      const createdGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs));
 
       // WHEN finding paginated skillGroups with an invalid cursor
       const result = await repository.findPaginated(givenModelId, 2, -1);
@@ -1407,7 +1423,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     });
     test("should ignore an invalid cursor id value when paginating", async () => {
       const givenModelId = getMockStringId(1);
-      const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "group_1"));
+      const givenSkillGroup = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "group_1"))
+      );
 
       const aggregateSpy = jest.spyOn(repository.Model, "aggregate").mockReturnValue({
         exec: jest.fn().mockResolvedValue([givenSkillGroup]),
@@ -1430,11 +1448,15 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
 
       // Parent group
-      const parent = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "parent"));
+      const parent = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "parent"))
+      );
       // Subject group
-      const subject = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "subject"));
+      const subject = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "subject"))
+      );
       // Child group
-      const child = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "child"));
+      const child = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "child")));
 
       // Build hierarchy relations explicitly
       const hierarchy = await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
@@ -1472,7 +1494,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenSkillGroups: ISkillGroup[] = [];
       for (let i = 0; i < 3; i++) {
         const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(givenModelId, `group_${i}`);
-        const givenSkillGroup = await repository.create(givenSkillGroupSpec);
+        const givenSkillGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpec));
         givenSkillGroups.push(givenSkillGroup);
       }
 
@@ -1492,11 +1514,17 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     test("should filter paginated skillGroups by matching skill-group children", async () => {
       const givenModelId = getMockStringId(1);
       const parentWithSkillGroupChild = await repository.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "parent-group")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "parent-group"))
       );
-      const parentWithSkillChild = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "parent-skill"));
-      const unrelatedParent = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "unrelated-parent"));
-      const skillGroupChild = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "child-group"));
+      const parentWithSkillChild = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "parent-skill"))
+      );
+      const unrelatedParent = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "unrelated-parent"))
+      );
+      const skillGroupChild = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "child-group"))
+      );
       const skillChild = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "child-skill"))
       );
@@ -1550,7 +1578,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     test("should return an empty array when no matching parent skillGroups exist for the children filter", async () => {
       const givenModelId = getMockStringId(1);
-      const orphanChild = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "orphan-child"));
+      const orphanChild = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "orphan-child"))
+      );
       const aggregateSpy = jest.spyOn(repository.hierarchyModel, "aggregate").mockReturnValue({
         exec: jest.fn().mockResolvedValue([]),
       } as never);
@@ -1640,9 +1670,13 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
       // AND a root skillGroup that has no parent
-      const givenRootSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "root-group"));
+      const givenRootSkillGroup = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "root-group"))
+      );
       // AND a child skillGroup that has the root skillGroup as a parent
-      const givenChildSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "child-group"));
+      const givenChildSkillGroup = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "child-group"))
+      );
       await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
         {
           parentType: ObjectTypes.SkillGroup,
@@ -1663,9 +1697,15 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     test("should paginate with ascending sort order and a valid cursor", async () => {
       // GIVEN multiple skill groups in the same model
       const givenModelId = getMockStringId(1);
-      const givenSkillGroup1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "a_group"));
-      const givenSkillGroup2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "b_group"));
-      const givenSkillGroup3 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "c_group"));
+      const givenSkillGroup1 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "a_group"))
+      );
+      const givenSkillGroup2 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "b_group"))
+      );
+      const givenSkillGroup3 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "c_group"))
+      );
 
       // WHEN requesting paginated results with ascending sort and cursor at the first item
       const actual = await repository.findPaginated(givenModelId, 2, 1, givenSkillGroup1.id);
@@ -1678,9 +1718,15 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     test("should paginate with descending sort order and a valid cursor", async () => {
       // GIVEN multiple skill groups in the same model
       const givenModelId = getMockStringId(1);
-      const givenSkillGroup1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "a_group"));
-      const givenSkillGroup2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "b_group"));
-      const givenSkillGroup3 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "c_group"));
+      const givenSkillGroup1 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "a_group"))
+      );
+      const givenSkillGroup2 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "b_group"))
+      );
+      const givenSkillGroup3 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "c_group"))
+      );
 
       // WHEN requesting paginated results with descending sort and cursor at the last item
       const actual = await repository.findPaginated(givenModelId, 2, -1, givenSkillGroup3.id);
@@ -1695,11 +1741,13 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       test("should only return the SkillGroups whose requested field matches the search value (case-insensitive)", async () => {
         // GIVEN a model with three skill groups, two of which match the search value on preferredLabel
         const givenModelId = getMockStringId(1);
-        const givenDataScience = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "Data Science"));
-        const givenDataEngineering = await repository.create(
-          getSimpleNewSkillGroupSpec(givenModelId, "DATA engineering")
+        const givenDataScience = await repository.create(
+          toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "Data Science"))
         );
-        await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "Nursing"));
+        const givenDataEngineering = await repository.create(
+          toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "DATA engineering"))
+        );
+        await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "Nursing")));
 
         // WHEN searching for "data" on preferredLabel
         const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -1714,8 +1762,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       test("should treat the search value literally (regex special characters are escaped)", async () => {
         // GIVEN a model with a skill group whose label contains regex special characters
         const givenModelId = getMockStringId(1);
-        const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "a.b.c"));
-        await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "axbxc"));
+        const givenSkillGroup = await repository.create(
+          toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "a.b.c"))
+        );
+        await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "axbxc")));
 
         // WHEN searching for the literal value "a.b.c"
         const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -1735,12 +1785,12 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
         givenMatchingSpec.description = "Caring for the sick";
         givenMatchingSpec.scopeNote = "Excludes veterinary care";
         givenMatchingSpec.altLabels = ["Carers"];
-        const givenMatchingSkillGroup = await repository.create(givenMatchingSpec);
+        const givenMatchingSkillGroup = await repository.create(toSkillGroupCreateSpec(givenMatchingSpec));
         const givenOtherSpec = getSimpleNewSkillGroupSpec(givenModelId, "other");
         givenOtherSpec.description = "Writing software";
         givenOtherSpec.scopeNote = "Excludes hardware design";
         givenOtherSpec.altLabels = ["Developers"];
-        await repository.create(givenOtherSpec);
+        await repository.create(toSkillGroupCreateSpec(givenOtherSpec));
 
         // WHEN searching for a value that occurs in the description of the first skill group only
         const actualFoundByDescription = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -1776,7 +1826,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       test("should not match the search value on code, which stays monolingual", async () => {
         // GIVEN a model with a skill group whose code is a plain string, not a localized sub document
         const givenModelId = getMockStringId(1);
-        const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "a group"));
+        const givenSkillGroup = await repository.create(
+          toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "a group"))
+        );
 
         // WHEN searching for that code
         const actualFound = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -1792,7 +1844,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       test("should return an empty array when nothing matches the search value", async () => {
         // GIVEN a model with a skill group
         const givenModelId = getMockStringId(1);
-        await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "Nursing"));
+        await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "Nursing")));
 
         // WHEN searching for a value that matches nothing
         const actual = await repository.findPaginated(givenModelId, 10, -1, undefined, undefined, {
@@ -1810,9 +1862,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     test("should return the SkillGroups of the model with the given ids", async () => {
       // GIVEN a model with three skill groups
       const givenModelId = getMockStringId(1);
-      const given1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g1"));
-      const given2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g2"));
-      await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g3"));
+      const given1 = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "g1")));
+      const given2 = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "g2")));
+      await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "g3")));
 
       // WHEN finding two of them by id
       const actual = await repository.findByIds(givenModelId, [given1.id, given2.id]);
@@ -1825,8 +1877,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // GIVEN a model with one skill group, and another skill group in a different model
       const givenModelId = getMockStringId(1);
       const givenOtherModelId = getMockStringId(2);
-      const given = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "g1"));
-      const givenOther = await repository.create(getSimpleNewSkillGroupSpec(givenOtherModelId, "other"));
+      const given = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "g1")));
+      const givenOther = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenOtherModelId, "other"))
+      );
 
       // WHEN finding by a mix of a valid id, an invalid id and an id from another model
       const actual = await repository.findByIds(givenModelId, [given.id, "not-an-id", givenOther.id]);
@@ -1868,13 +1922,13 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
       // The root parent (SkillGroup)
       const givenParentSpecs = getSimpleNewSkillGroupSpec(givenModelId, "parent");
-      const givenParent = await repository.create(givenParentSpecs);
+      const givenParent = await repository.create(toSkillGroupCreateSpec(givenParentSpecs));
       // the 2nd level parent (SkillGroup)
       const givenSubjectSpecs = getSimpleNewSkillGroupSpec(givenModelId, "subject");
-      const givenSubject = await repository.create(givenSubjectSpecs);
+      const givenSubject = await repository.create(toSkillGroupCreateSpec(givenSubjectSpecs));
       // the child (SkillGroup)
       const givenChildSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "child_1");
-      const givenChild_1 = await repository.create(givenChildSpecs_1);
+      const givenChild_1 = await repository.create(toSkillGroupCreateSpec(givenChildSpecs_1));
       // the child (Skill)
       const givenChildSpecs_2 = getSimpleNewSkillSpec(givenModelId, "child_2");
       const givenChild_2 = await repositoryRegistry.skill.create(toSkillCreateSpec(givenChildSpecs_2));
@@ -1915,7 +1969,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // GIVEN a SkillGroup exists without a parent
       const givenModelId = getMockStringId(1);
       const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "group");
-      const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
+      const givenSkillGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs));
 
       // WHEN searching for it's parents by ti's id
       const actualFoundParents = await repository.findParents(givenModelId, givenSkillGroup.id, 10);
@@ -1940,10 +1994,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     });
     test("should paginate parents with limit and cursor", async () => {
       const givenModelId = getMockStringId(1);
-      const parent1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "p1"));
-      const parent2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "p2"));
-      const parent3 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "p3"));
-      const child = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "child"));
+      const parent1 = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "p1")));
+      const parent2 = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "p2")));
+      const parent3 = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "p3")));
+      const child = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "child")));
       await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
         {
           parentType: ObjectTypes.SkillGroup,
@@ -1980,13 +2034,13 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
       // The root parent (SkillGroup)
       const givenParentSpecs = getSimpleNewSkillGroupSpec(givenModelId, "parent");
-      const givenParent = await repository.create(givenParentSpecs);
+      const givenParent = await repository.create(toSkillGroupCreateSpec(givenParentSpecs));
       // The 2nd level parent (SkillGroup)
       const givenChildSpecs_1 = getSimpleNewSkillGroupSpec(givenModelId, "subject");
-      const givenChild_1 = await repository.create(givenChildSpecs_1);
+      const givenChild_1 = await repository.create(toSkillGroupCreateSpec(givenChildSpecs_1));
       // the child (SkillGroup)
       const givenChildSpecs_2 = getSimpleNewSkillGroupSpec(givenModelId, "child_1");
-      const givenChild_2 = await repository.create(givenChildSpecs_2);
+      const givenChild_2 = await repository.create(toSkillGroupCreateSpec(givenChildSpecs_2));
       // the child (Skill)
       const givenChildSpecs_3 = getSimpleNewSkillSpec(givenModelId, "child_2");
       const givenChild_3 = await repositoryRegistry.skill.create(toSkillCreateSpec(givenChildSpecs_3));
@@ -2055,7 +2109,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // GIVEN a SkillGroup exists without children
       const givenModelId = getMockStringId(1);
       const givenSkillGroupSpecs = getSimpleNewSkillGroupSpec(givenModelId, "group");
-      const givenSkillGroup = await repository.create(givenSkillGroupSpecs);
+      const givenSkillGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpecs));
       const actualFoundChildren = await repository.findChildren(givenModelId, givenSkillGroup.id, 10);
       // THEN expect no children to be found
       expect(actualFoundChildren).toHaveLength(0);
@@ -2075,10 +2129,12 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     });
     test("should paginate children with limit and cursor", async () => {
       const givenModelId = getMockStringId(1);
-      const parent = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "parent"));
-      const child1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "c1"));
-      const child2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "c2"));
-      const child3 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "c3"));
+      const parent = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "parent"))
+      );
+      const child1 = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "c1")));
+      const child2 = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "c2")));
+      const child3 = await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "c3")));
       await repositoryRegistry.skillHierarchy.createMany(givenModelId, [
         {
           parentType: ObjectTypes.SkillGroup,
@@ -2113,8 +2169,12 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // GIVEN two skill groups in different models
       const givenModelId1 = getMockStringId(1);
       const givenModelId2 = getMockStringId(2);
-      const givenGroup1 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId1, "group_1"));
-      const givenGroup2 = await repository.create(getSimpleNewSkillGroupSpec(givenModelId2, "group_2"));
+      const givenGroup1 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId1, "group_1"))
+      );
+      const givenGroup2 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId2, "group_2"))
+      );
       const givenMissingUUID = randomUUID();
 
       // WHEN resolving a set of UUIDs that includes both groups' UUIDs plus a non-existent UUID
@@ -2154,7 +2214,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     test("should null-fill every entry when none of the given UUIDs match a skill group", async () => {
       // GIVEN a skill group exists
-      await repository.create(getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1"));
+      await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1")));
       const givenUUIDs = [randomUUID(), randomUUID()];
 
       // WHEN resolving UUIDs that do not match any skill group
@@ -2166,7 +2226,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     test("should return an empty array when given an empty list of UUIDs", async () => {
       // GIVEN a skill group exists
-      await repository.create(getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1"));
+      await repository.create(toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1")));
 
       // WHEN resolving an empty list of UUIDs
       const actual = await repository.findHistoryReferencesByUUIDs([]);
@@ -2177,8 +2237,12 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     test("should use the UUID index and not do a collection scan", async () => {
       // GIVEN two skill groups exist in the database
-      const givenGroup1 = await repository.create(getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1"));
-      const givenGroup2 = await repository.create(getSimpleNewSkillGroupSpec(getMockStringId(2), "group_2"));
+      const givenGroup1 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(getMockStringId(1), "group_1"))
+      );
+      const givenGroup2 = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(getMockStringId(2), "group_2"))
+      );
 
       // WHEN resolving their UUIDs
       // setup find with explain to assert the query plan uses the UUID index and is not doing a collection scan
@@ -2209,15 +2273,15 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // GIVEN a SkillGroup exists in the database
       const givenModelId = getMockStringId(1);
       const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(givenModelId, "group_1");
-      const givenSkillGroup = await repository.create(givenSkillGroupSpec);
+      const givenSkillGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpec));
 
       // AND new values to update
       const givenUpdateSpec: IUpdateSkillGroupSpec = {
         code: getTestSkillGroupCode(200),
-        preferredLabel: "Updated Label",
-        altLabels: ["updated-alt-1"],
-        description: "Updated description",
-        scopeNote: "Updated scope note",
+        preferredLabel: { en: "Updated Label" },
+        altLabels: [{ en: "updated-alt-1" }],
+        description: { en: "Updated description" },
+        scopeNote: { en: "Updated scope note" },
         originUri: "https://updated.example.com",
         modelId: givenModelId,
         UUIDHistory: [randomUUID()],
@@ -2241,34 +2305,32 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actualUpdated!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenSkillGroup.updatedAt.getTime());
     });
 
-    test("should preserve a non fallback language translation of a field when updating it", async () => {
-      // GIVEN a SkillGroup exists in the database
+    test("should remove a language from a translatable field when the language is omitted from the payload", async () => {
+      // GIVEN a SkillGroup exists in the database, with a preferredLabel translated in French too
       const givenModelId = getMockStringId(1);
-      const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "group_1"));
-      // AND its preferredLabel also carries a French translation, stored directly (the flat-string repository API
-      // has no way to write a non fallback language)
+      const givenSkillGroup = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "group_1"))
+      );
       await repository.Model.updateOne({ _id: givenSkillGroup.id }, { $set: { "preferredLabel.fr": "Gestion" } });
 
-      // WHEN updating the SkillGroup, setting only the fallback language through the public API
+      // WHEN updating the SkillGroup with a preferredLabel that only carries the fallback language
       const givenUpdateSpec: IUpdateSkillGroupSpec = {
         code: givenSkillGroup.code,
-        preferredLabel: "Updated Label",
-        altLabels: ["updated-alt-1"],
-        description: "Updated description",
-        scopeNote: "Updated scope note",
+        preferredLabel: { en: "Updated Label" },
+        altLabels: [{ en: "updated-alt-1" }],
+        description: { en: "Updated description" },
+        scopeNote: { en: "Updated scope note" },
         originUri: "https://updated.example.com",
         modelId: givenModelId,
         UUIDHistory: givenSkillGroup.UUIDHistory,
       };
       await repository.update(givenSkillGroup.id, givenModelId, givenUpdateSpec);
 
-      // THEN expect the fallback language to have been updated, and the French translation to still be there
+      // THEN expect the French translation to have been removed: PUT replaces the whole localized object
       const actualRawDoc = await repository.Model.findById(givenSkillGroup.id).lean();
       const expectedFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-      expect(actualRawDoc?.preferredLabel).toEqual({
-        [expectedFallbackDbKeyName]: givenUpdateSpec.preferredLabel,
-        fr: "Gestion",
-      });
+      expect(actualRawDoc?.preferredLabel).toEqual({ [expectedFallbackDbKeyName]: "Updated Label" });
+      expect(actualRawDoc?.preferredLabel).not.toHaveProperty("fr");
     });
 
     test("should return null if the SkillGroup with the given id does not exist", async () => {
@@ -2276,10 +2338,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       const givenUpdateSpec: IUpdateSkillGroupSpec = {
         code: getTestSkillGroupCode(100),
-        preferredLabel: "Label",
+        preferredLabel: { en: "Label" },
         altLabels: [],
-        description: "Desc",
-        scopeNote: "ScopeNote",
+        description: { en: "Desc" },
+        scopeNote: { en: "ScopeNote" },
         originUri: "https://example.com",
         modelId: givenModelId,
         UUIDHistory: [randomUUID()],
@@ -2297,10 +2359,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       const givenUpdateSpec: IUpdateSkillGroupSpec = {
         code: getTestSkillGroupCode(100),
-        preferredLabel: "Label",
+        preferredLabel: { en: "Label" },
         altLabels: [],
-        description: "Desc",
-        scopeNote: "ScopeNote",
+        description: { en: "Desc" },
+        scopeNote: { en: "ScopeNote" },
         originUri: "https://example.com",
         modelId: givenModelId,
         UUIDHistory: [randomUUID()],
@@ -2316,16 +2378,18 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     test("should return null if the SkillGroup exists but belongs to a different model", async () => {
       // GIVEN a SkillGroup in model A
       const givenModelIdA = getMockStringId(1);
-      const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelIdA, "group_1"));
+      const givenSkillGroup = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelIdA, "group_1"))
+      );
 
       // WHEN updating with a different modelId
       const givenModelIdB = getMockStringId(2);
       const givenUpdateSpec: IUpdateSkillGroupSpec = {
         code: getTestSkillGroupCode(100),
-        preferredLabel: "Label",
+        preferredLabel: { en: "Label" },
         altLabels: [],
-        description: "Desc",
-        scopeNote: "ScopeNote",
+        description: { en: "Desc" },
+        scopeNote: { en: "ScopeNote" },
         originUri: "https://example.com",
         modelId: givenModelIdB,
         UUIDHistory: [randomUUID()],
@@ -2339,10 +2403,10 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       const givenSpec: IUpdateSkillGroupSpec = {
         code: getTestSkillGroupCode(100),
-        preferredLabel: "Label",
+        preferredLabel: { en: "Label" },
         altLabels: [],
-        description: "Desc",
-        scopeNote: "ScopeNote",
+        description: { en: "Desc" },
+        scopeNote: { en: "ScopeNote" },
         originUri: "https://example.com",
         modelId: getMockStringId(1),
         UUIDHistory: [randomUUID()],
@@ -2355,12 +2419,14 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     test("should successfully patch an existing SkillGroup with partial values", async () => {
       // GIVEN a SkillGroup exists in the database
       const givenModelId = getMockStringId(1);
-      const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelId, "group_1"));
+      const givenSkillGroup = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "group_1"))
+      );
 
       // WHEN patching with only preferredLabel and scopeNote
       const givenPatchSpec: IPartialUpdateSkillGroupSpec = {
-        preferredLabel: "Patched Label",
-        scopeNote: "Patched scope note",
+        preferredLabel: { en: "Patched Label" },
+        scopeNote: { en: "Patched scope note" },
       };
       const actualPatched = await repository.patch(givenSkillGroup.id, givenModelId, givenPatchSpec);
 
@@ -2379,21 +2445,19 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       expect(actualPatched!.updatedAt.getTime()).toBeGreaterThanOrEqual(givenSkillGroup.updatedAt.getTime());
     });
 
-    test("should preserve a non fallback language translation of a field when patching it, and leave other translatable fields untouched", async () => {
-      // GIVEN a SkillGroup exists in the database
+    test("should merge a single language into a translatable field, leaving other languages and fields untouched", async () => {
+      // GIVEN a SkillGroup exists in the database, with preferredLabel and description also translated in French
       const givenModelId = getMockStringId(1);
       const givenSkillGroupSpec = getSimpleNewSkillGroupSpec(givenModelId, "group_1");
       givenSkillGroupSpec.description = "A description of the group";
-      const givenSkillGroup = await repository.create(givenSkillGroupSpec);
-      // AND its preferredLabel and description also carry a French translation, stored directly (the flat-string
-      // repository API has no way to write a non fallback language)
+      const givenSkillGroup = await repository.create(toSkillGroupCreateSpec(givenSkillGroupSpec));
       await repository.Model.updateOne(
         { _id: givenSkillGroup.id },
         { $set: { "preferredLabel.fr": "Gestion", "description.fr": "Une description" } }
       );
 
-      // WHEN patching only preferredLabel through the public API
-      const givenPatchSpec: IPartialUpdateSkillGroupSpec = { preferredLabel: "Patched Label" };
+      // WHEN patching preferredLabel with only a new fallback-language value
+      const givenPatchSpec: IPartialUpdateSkillGroupSpec = { preferredLabel: { en: "Patched Label" } };
       await repository.patch(givenSkillGroup.id, givenModelId, givenPatchSpec);
 
       // THEN expect preferredLabel's fallback language to have been updated, and its French translation preserved
@@ -2410,11 +2474,30 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       });
     });
 
+    test("should delete a non fallback language translation when it is set to null", async () => {
+      // GIVEN a SkillGroup exists with a preferredLabel translated in French too
+      const givenModelId = getMockStringId(1);
+      const givenSkillGroup = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "group_1"))
+      );
+      await repository.Model.updateOne({ _id: givenSkillGroup.id }, { $set: { "preferredLabel.fr": "Gestion" } });
+
+      // WHEN patching preferredLabel with the French language set to null
+      const givenPatchSpec: IPartialUpdateSkillGroupSpec = { preferredLabel: { fr: null } };
+      await repository.patch(givenSkillGroup.id, givenModelId, givenPatchSpec);
+
+      // THEN expect the French translation to have been deleted, the fallback language untouched
+      const actualRawDoc = await repository.Model.findById(givenSkillGroup.id).lean();
+      const expectedFallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+      expect(actualRawDoc?.preferredLabel).toEqual({ [expectedFallbackDbKeyName]: givenSkillGroup.preferredLabel });
+      expect(actualRawDoc?.preferredLabel).not.toHaveProperty("fr");
+    });
+
     test("should return null if the SkillGroup with the given id does not exist", async () => {
       // GIVEN no SkillGroup with the given id exists
       const givenModelId = getMockStringId(1);
       const givenPatchSpec: IPartialUpdateSkillGroupSpec = {
-        preferredLabel: "Patched Label",
+        preferredLabel: { en: "Patched Label" },
       };
 
       // WHEN patching a non-existent SkillGroup
@@ -2428,7 +2511,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
       // GIVEN an invalid id
       const givenModelId = getMockStringId(1);
       const givenPatchSpec: IPartialUpdateSkillGroupSpec = {
-        preferredLabel: "Patched Label",
+        preferredLabel: { en: "Patched Label" },
       };
 
       // WHEN patching with an invalid id
@@ -2441,12 +2524,14 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
     test("should return null if the SkillGroup exists but belongs to a different model", async () => {
       // GIVEN a SkillGroup in model A
       const givenModelIdA = getMockStringId(1);
-      const givenSkillGroup = await repository.create(getSimpleNewSkillGroupSpec(givenModelIdA, "group_1"));
+      const givenSkillGroup = await repository.create(
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelIdA, "group_1"))
+      );
 
       // WHEN patching with a different modelId
       const givenModelIdB = getMockStringId(2);
       const givenPatchSpec: IPartialUpdateSkillGroupSpec = {
-        preferredLabel: "Patched Label",
+        preferredLabel: { en: "Patched Label" },
       };
       const actualPatched = await repository.patch(givenSkillGroup.id, givenModelIdB, givenPatchSpec);
 
@@ -2456,7 +2541,7 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       const givenSpec: IPartialUpdateSkillGroupSpec = {
-        preferredLabel: "Label",
+        preferredLabel: { en: "Label" },
       };
       return repositoryRegistry.skillGroup.patch(getMockStringId(1), getMockStringId(1), givenSpec);
     });

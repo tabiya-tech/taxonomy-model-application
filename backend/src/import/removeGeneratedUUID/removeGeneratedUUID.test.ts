@@ -20,6 +20,7 @@ import {
   getNewSkillSpec,
   toOccupationGroupCreateSpec,
   toSkillCreateSpec,
+  toSkillGroupCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import { getMockStringId } from "_test_utilities/mockMongoId";
 import {
@@ -249,7 +250,9 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewSkillGroupSpec = getNewSkillGroupSpec();
     givenNewSkillGroupSpec.modelId = givenCreatedModel.id;
     givenNewSkillGroupSpec.UUIDHistory = generateRandomUUIDs(0);
-    const givenCreatedSkillGroup = await repositoryRegistry.skillGroup.create(givenNewSkillGroupSpec);
+    const givenCreatedSkillGroup = await repositoryRegistry.skillGroup.create(
+      toSkillGroupCreateSpec(givenNewSkillGroupSpec)
+    );
     // AND a new UUID Item is added
     expect(givenCreatedSkillGroup.UUIDHistory).toHaveLength(1);
 
@@ -384,7 +387,9 @@ describe("RemoveGeneratedUUID", () => {
       const givenNewSkillGroupSpec = getNewSkillGroupSpec();
       givenNewSkillGroupSpec.modelId = givenCreatedModel.id;
       givenNewSkillGroupSpec.UUIDHistory = generateRandomUUIDs(count);
-      const givenCreatedSkillGroup = await repositoryRegistry.skillGroup.create(givenNewSkillGroupSpec);
+      const givenCreatedSkillGroup = await repositoryRegistry.skillGroup.create(
+        toSkillGroupCreateSpec(givenNewSkillGroupSpec)
+      );
       // AND UUIDHistory is increaased by 1 (1 new UUID is added)
       expect(givenCreatedSkillGroup.UUIDHistory).toHaveLength(count + 1);
       // AND the givenUUIDHistory is added on the bottom.
@@ -525,7 +530,9 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewSkillGroupSpec = getNewSkillGroupSpec();
     givenNewSkillGroupSpec.modelId = actualNewModel.id;
     givenNewSkillGroupSpec.UUIDHistory = [randomUUID()];
-    const actualNewSkillGroup = await repositoryRegistry.skillGroup.create(givenNewSkillGroupSpec);
+    const actualNewSkillGroup = await repositoryRegistry.skillGroup.create(
+      toSkillGroupCreateSpec(givenNewSkillGroupSpec)
+    );
     // AND an ISCO group is created with the modelId and a single item in the UUIDHistory
     const givenNewOccupationGroupSpec = getNewISCOGroupSpecs();
     givenNewOccupationGroupSpec.modelId = actualNewModel.id;

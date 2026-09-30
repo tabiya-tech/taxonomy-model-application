@@ -23,7 +23,7 @@ import {
 } from "esco/_test_utilities/createDocsInDB";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { getSimpleNewSkillGroupSpec } from "esco/_test_utilities/getNewSpecs";
+import { getSimpleNewSkillGroupSpec, toSkillGroupCreateSpec } from "esco/_test_utilities/getNewSpecs";
 
 function buildRequestEvent(modelId: string, queryStringParameters: object): APIGatewayProxyEvent {
   return {
@@ -388,15 +388,15 @@ describe("Test for skillGroup handler with a DB", () => {
       const givenModelId = givenModelInfo.id.toString();
       const givenOriginUri = "https://example.com/origin";
       const givenDataScience = await getRepositoryRegistry().skillGroup.create({
-        ...getSimpleNewSkillGroupSpec(givenModelId, "Data Science"),
+        ...toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "Data Science")),
         originUri: givenOriginUri,
       });
       const givenDataEngineering = await getRepositoryRegistry().skillGroup.create({
-        ...getSimpleNewSkillGroupSpec(givenModelId, "data engineering"),
+        ...toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "data engineering")),
         originUri: givenOriginUri,
       });
       await getRepositoryRegistry().skillGroup.create({
-        ...getSimpleNewSkillGroupSpec(givenModelId, "Nursing"),
+        ...toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "Nursing")),
         originUri: givenOriginUri,
       });
 

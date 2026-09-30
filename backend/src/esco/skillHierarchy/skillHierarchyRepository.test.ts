@@ -22,6 +22,7 @@ import {
   getSimpleNewSkillSpec,
   toOccupationGroupCreateSpec,
   toSkillCreateSpec,
+  toSkillGroupCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
   TestDBConnectionFailure,
@@ -95,7 +96,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
     const newSkillHierarchyPairSpecs: INewSkillHierarchyPairSpec[] = [];
     for (let i = 0; i < batchSize; i++) {
       const skillGroup = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(modelId, `skillGroup_${i}`)
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(modelId, `skillGroup_${i}`))
       );
       const skill = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(modelId, `skill_${i + 1}`))
@@ -145,16 +146,16 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       // GIVEN 4 SkillGroups exist in the database in the same model
       const givenModelId = getMockStringId(1);
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenGroup_1_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_1"))
       );
       const givenGroup_1_2 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_2")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_2"))
       );
       const givenGroup_1_2_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_2_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_2_1"))
       );
       // AND the following hierarchy
       const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
@@ -322,7 +323,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       // GIVEN a SkillGroup and a Skill exist in the database, in the same model
       const givenModelId = getMockStringId(1);
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -380,7 +381,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const groupSpec = getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1");
       //@ts-ignore
       groupSpec.id = givenObjectId;
-      const givenGroup_1 = await repositoryRegistry.skillGroup.create(groupSpec);
+      const givenGroup_1 = await repositoryRegistry.skillGroup.create(toSkillGroupCreateSpec(groupSpec));
       const skillSpec = getSimpleNewSkillSpec(givenModelId, "skill_1");
       //@ts-ignore
       skillSpec.id = givenObjectId;
@@ -438,13 +439,13 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       // GIVEN 3 SkillGroups exist in the database
       const givenModelId = getMockStringId(1);
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenGroup_1_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_1"))
       );
       const givenGroup_1_1_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_1_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_1_1"))
       );
       // AND the following hierarchy
       const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
@@ -511,7 +512,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       // AND linked with a parent-child relationship
       const givenModelId = getMockStringId(1);
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -570,7 +571,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in the same model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -602,7 +603,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in that model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -628,7 +629,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in that model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -660,7 +661,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in that model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -686,7 +687,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in that model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -712,7 +713,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // AND a SkillGroup and a Skill exist in the database, in that model
       const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -738,7 +739,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // AND 1 SkillGroup, 1 Skill  and 1 SkillGroup and a Skill exist in the database in that model
       const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -778,7 +779,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       const givenModelId = getMockStringId(1);
       // AND a SkillGroup, a Skill and a SkillGroup and a Skill exist in the database, in the same model
       const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill_1 = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -823,16 +824,16 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
         // GIVEN 4 SkillGroups exist in the database in the same model
         const givenModelId = getMockStringId(1);
         const givenGroup_1 = await repositoryRegistry.skillGroup.create(
-          getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+          toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
         );
         const givenGroup_1_1 = await repositoryRegistry.skillGroup.create(
-          getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_1")
+          toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_1"))
         );
         const givenGroup_1_2 = await repositoryRegistry.skillGroup.create(
-          getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_2")
+          toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_2"))
         );
         const givenGroup_1_2_1 = await repositoryRegistry.skillGroup.create(
-          getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_2_1")
+          toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1_2_1"))
         );
         // AND the following hierarchy
         const givenNewHierarchySpecs: INewSkillHierarchyPairSpec[] = [
@@ -874,7 +875,7 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
       // GIVEN a valid modelId, a skillGroup and a skill exist in the database
       const givenModelId = getMockStringId(1);
       const givenSkillGroup = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkill = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
@@ -900,10 +901,10 @@ describe("Test the SkillHierarchy Repository with an in-memory mongodb", () => {
     test("should update the parent of an existing hierarchy pair", async () => {
       const givenModelId = getMockStringId(1);
       const givenSkillGroup_1 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_1"))
       );
       const givenSkillGroup_2 = await repositoryRegistry.skillGroup.create(
-        getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_2")
+        toSkillGroupCreateSpec(getSimpleNewSkillGroupSpec(givenModelId, "skillGroup_2"))
       );
       const givenSkill = await repositoryRegistry.skill.create(
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))

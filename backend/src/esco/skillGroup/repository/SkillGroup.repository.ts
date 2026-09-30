@@ -36,11 +36,16 @@ import {
   setModelEntitiesEmbeddingStatus,
 } from "embeddings/entityEmbeddings/entityEmbeddingStatus";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import { wrapTranslatableFields } from "common/language/translatedFields";
+import {
+  mergeTranslatableFieldsFromPartialObjects,
+  wrapTranslatableFields,
+  wrapTranslatableFieldsFromObjects,
+} from "common/language/translatedFields";
+import { SKILLGROUP_TRANSLATABLE_STRING_FIELDS } from "../_shared/skillGroup.types";
 
 // fields stored as localized sub documents, wrapped/flattened by this repository. code is monolingual and is
 // deliberately absent from this list.
-const TRANSLATABLE_STRING_FIELDS = ["preferredLabel", "description", "scopeNote"] as const;
+const TRANSLATABLE_STRING_FIELDS = SKILLGROUP_TRANSLATABLE_STRING_FIELDS;
 
 // same as above, plus altLabels (an array of localized sub documents)
 const TRANSLATABLE_FIELDS = [...TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
@@ -178,11 +183,11 @@ export class SkillGroupRepository implements ISkillGroupRepository {
   }
 
   private newSpecWithoutImportIdToModel(
-    newSpe: INewSkillGroupSpecWithoutImportId
+    newSpec: INewSkillGroupSpecWithoutImportId
   ): mongoose.HydratedDocument<ISkillGroupDoc> {
     const newUUID = randomUUID();
     const newModel = new this.Model({
-      ...wrapTranslatableFields(newSpe, TRANSLATABLE_STRING_FIELDS),
+      ...wrapTranslatableFieldsFromObjects(newSpec, TRANSLATABLE_STRING_FIELDS),
       UUID: newUUID,
       importId: null,
     });
@@ -650,7 +655,10 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
+      // Reset before reassigning: setting altLabels (an array of Map subdocuments) directly, without first
+      // clearing it, makes Mongoose diff per language key instead of replacing the array, which Mongo rejects.
+      if (spec.altLabels !== undefined) doc.set("altLabels", []);
+      doc.set(wrapTranslatableFieldsFromObjects(spec, TRANSLATABLE_STRING_FIELDS));
       await doc.save();
       await doc.populate([populateSkillGroupParentsOptions, populateSkillGroupChildrenOptions]);
       return doc.toObject();
@@ -666,7 +674,10 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const doc = await this.Model.findOne({ _id: id, modelId: modelId }).exec();
       if (!doc) return null;
-      doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
+      // Reset before reassigning: setting altLabels (an array of Map subdocuments) directly, without first
+      // clearing it, makes Mongoose diff per language key instead of replacing the array, which Mongo rejects.
+      if (spec.altLabels !== undefined) doc.set("altLabels", []);
+      doc.set(mergeTranslatableFieldsFromPartialObjects(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
       await doc.populate([populateSkillGroupParentsOptions, populateSkillGroupChildrenOptions]);
       return doc.toObject();

@@ -1,23 +1,70 @@
 import { randomUUID } from "crypto";
 import {
-  testNonEmptyStringField,
   testNonEmptyURIStringField,
   testObjectIdField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
-  testStringField,
   testUUIDArray,
   testValidSchema,
 } from "_test_utilities/stdSchemaTests";
 
 import SkillGroupPOSTAPISpecs from "./index";
-import SkillGroupRegexes from "../_shared/regex";
 
 import { getTestString } from "_test_utilities/specialCharacters";
 import { getMockId } from "_test_utilities/mockMongoId";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import { getTestSkillGroupCode } from "../../_test_utilities/testUtils";
 import SkillGroupPOSTConstants from "./constants";
+import SkillGroupRegexes from "../_shared/regex";
+import LanguageAPISpecs from "language";
+
+const givenFallbackDbKeyName = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName;
+
+// GIVEN a function to test a translatable field of the POST request schema (an object keyed by language)
+function testTranslatedStringField(fieldName: string, maxLength: number) {
+  test.each([
+    [
+      CaseType.Failure,
+      "undefined",
+      undefined,
+      constructSchemaError("", "required", `must have required property '${fieldName}'`),
+    ],
+    [CaseType.Failure, "null", null, constructSchemaError(`/${fieldName}`, "type", "must be object")],
+    [CaseType.Success, "a single language value", { [givenFallbackDbKeyName]: getTestString(maxLength) }, undefined],
+    [
+      CaseType.Success,
+      "a multi language value",
+      { [givenFallbackDbKeyName]: getTestString(maxLength), fr: getTestString(maxLength) },
+      undefined,
+    ],
+    [
+      CaseType.Failure,
+      "a value missing the fallback language",
+      { fr: getTestString(maxLength) },
+      constructSchemaError(`/${fieldName}`, "required", `must have required property '${givenFallbackDbKeyName}'`),
+    ],
+    [
+      CaseType.Failure,
+      "a value translated in a language that is not in the registry",
+      { [givenFallbackDbKeyName]: getTestString(maxLength), tlh: "nuqneH" },
+      constructSchemaError(`/${fieldName}`, "additionalProperties", "must NOT have additional properties"),
+    ],
+    [
+      CaseType.Failure,
+      "a value longer than the maximum length in one language only",
+      { [givenFallbackDbKeyName]: getTestString(maxLength), fr: getTestString(maxLength + 1) },
+      constructSchemaError(`/${fieldName}/fr`, "maxLength", "must NOT have more than " + maxLength + " characters"),
+    ],
+  ] as const)(`(%s) Validate '${fieldName}' when it is %s`, (caseType, _description, givenValue, failure) => {
+    assertCaseForProperty(
+      fieldName,
+      { [fieldName]: givenValue },
+      SkillGroupPOSTAPISpecs.Schemas.Request.Payload,
+      caseType,
+      failure
+    );
+  });
+}
 
 describe("Test SkillGroupPOSTAPISpecs.Schemas.Request.Payload validity", () => {
   // WHEN the SkillGroupPOSTAPISpecs.POST.Request.Schema.Payload schema
@@ -29,10 +76,10 @@ describe("Test objects against the SkillGroupPOSTAPISpecs.Schemas.Request.Payloa
   const validRequestPayload = {
     originUri: "https://path/to/group",
     code: getTestSkillGroupCode(),
-    scopeNote: getTestString(SkillGroupPOSTConstants.MAX_SCOPE_NOTE_LENGTH),
-    description: getTestString(SkillGroupPOSTConstants.DESCRIPTION_MAX_LENGTH),
-    preferredLabel: getTestString(SkillGroupPOSTConstants.PREFERRED_LABEL_MAX_LENGTH),
-    altLabels: [getTestString(SkillGroupPOSTConstants.ALT_LABEL_MAX_LENGTH)],
+    scopeNote: { [givenFallbackDbKeyName]: getTestString(SkillGroupPOSTConstants.MAX_SCOPE_NOTE_LENGTH) },
+    description: { [givenFallbackDbKeyName]: getTestString(SkillGroupPOSTConstants.DESCRIPTION_MAX_LENGTH) },
+    preferredLabel: { [givenFallbackDbKeyName]: getTestString(SkillGroupPOSTConstants.PREFERRED_LABEL_MAX_LENGTH) },
+    altLabels: [{ [givenFallbackDbKeyName]: getTestString(SkillGroupPOSTConstants.ALT_LABEL_MAX_LENGTH) }],
     modelId: getMockId(1),
     UUIDHistory: [randomUUID(), randomUUID()],
   };
@@ -121,26 +168,14 @@ describe("Test objects against the SkillGroupPOSTAPISpecs.Schemas.Request.Payloa
       });
     });
     describe("Test validation of 'description'", () => {
-      testStringField<SkillGroupPOSTAPISpecs.Types.Request.Payload>(
-        "description",
-        SkillGroupPOSTAPISpecs.Constants.DESCRIPTION_MAX_LENGTH,
-        SkillGroupPOSTAPISpecs.Schemas.Request.Payload
-      );
+      testTranslatedStringField("description", SkillGroupPOSTAPISpecs.Constants.DESCRIPTION_MAX_LENGTH);
     });
     describe("Test validation of 'scopeNote'", () => {
-      testStringField<SkillGroupPOSTAPISpecs.Types.Request.Payload>(
-        "scopeNote",
-        SkillGroupPOSTAPISpecs.Constants.MAX_SCOPE_NOTE_LENGTH,
-        SkillGroupPOSTAPISpecs.Schemas.Request.Payload
-      );
+      testTranslatedStringField("scopeNote", SkillGroupPOSTAPISpecs.Constants.MAX_SCOPE_NOTE_LENGTH);
     });
 
     describe("Test validation of 'preferredLabel'", () => {
-      testNonEmptyStringField<SkillGroupPOSTAPISpecs.Types.Request.Payload>(
-        "preferredLabel",
-        SkillGroupPOSTAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH,
-        SkillGroupPOSTAPISpecs.Schemas.Request.Payload
-      );
+      testTranslatedStringField("preferredLabel", SkillGroupPOSTAPISpecs.Constants.PREFERRED_LABEL_MAX_LENGTH);
     });
     describe("Test validation of 'altLabels'", () => {
       test.each([
@@ -154,31 +189,40 @@ describe("Test objects against the SkillGroupPOSTAPISpecs.Schemas.Request.Payloa
         [CaseType.Failure, "empty string", "", constructSchemaError("/altLabels", "type", "must be array")],
         [
           CaseType.Failure,
-          "an array of objects",
-          [{}, {}],
-          [
-            constructSchemaError("/altLabels/0", "type", "must be string"),
-            constructSchemaError("/altLabels/1", "type", "must be string"),
-          ],
+          "array of items missing the fallback language",
+          [{ fr: "foo" }],
+          constructSchemaError("/altLabels/0", "required", `must have required property '${givenFallbackDbKeyName}'`),
         ],
         [
           CaseType.Failure,
-          "an array of same strings",
-          ["foo", "foo"],
+          "an array of the same translated value",
+          [{ [givenFallbackDbKeyName]: "foo" }, { [givenFallbackDbKeyName]: "foo" }],
           constructSchemaError(
             "/altLabels",
             "uniqueItems",
-            "must NOT have duplicate items (items ## 1 and 0 are identical)"
+            "must NOT have duplicate items (items ## 0 and 1 are identical)"
           ),
         ],
         [
           CaseType.Success,
-          "an array of valid altLabels strings",
+          "an array of single language values",
           [
-            getTestString(SkillGroupPOSTAPISpecs.Constants.ALT_LABEL_MAX_LENGTH),
-            getTestString(SkillGroupPOSTAPISpecs.Constants.ALT_LABEL_MAX_LENGTH - 1),
+            { [givenFallbackDbKeyName]: getTestString(SkillGroupPOSTAPISpecs.Constants.ALT_LABEL_MAX_LENGTH) },
+            { [givenFallbackDbKeyName]: getTestString(SkillGroupPOSTAPISpecs.Constants.ALT_LABEL_MAX_LENGTH - 1) },
           ],
           undefined,
+        ],
+        [
+          CaseType.Success,
+          "an array of multi language values",
+          [{ [givenFallbackDbKeyName]: "Managers", fr: "Directeurs" }],
+          undefined,
+        ],
+        [
+          CaseType.Failure,
+          "an array with an item translated in a language that is not in the registry",
+          [{ [givenFallbackDbKeyName]: "Managers", tlh: "nuqneH" }],
+          constructSchemaError("/altLabels/0", "additionalProperties", "must NOT have additional properties"),
         ],
       ])("(%s) Validate 'altLabels' when it is %s", (caseType, _description, givenValue, failureMessage) => {
         const givenObject = {

@@ -30,7 +30,7 @@ export function extractAndValidateIdParams(
   };
 
   const validatePathFunction = ajvInstance.getSchema(
-    SkillGroupAPISpecs.GET.Schemas.Request.Param.Payload.$id as string
+    SkillGroupAPISpecs.SkillGroup.Schemas.Request.Param.Payload.$id as string
   ) as ValidateFunction<SkillGroupAPISpecs.SkillGroup.Types.Param.Payload>;
 
   const isValidPathParameter = validatePathFunction(requestPathParameter);

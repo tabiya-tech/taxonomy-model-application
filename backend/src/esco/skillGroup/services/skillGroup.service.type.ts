@@ -32,6 +32,19 @@ export class SkillGroupModelValidationError extends Error {
   }
 }
 
+/**
+ * Thrown when a translatable field of a create/update spec carries a language that is not in the
+ * model's availableLanguages.
+ */
+export class SkillGroupLanguageValidationError extends Error {
+  constructor(
+    public field: string,
+    public language: string
+  ) {
+    super(`${field} uses an unsupported language '${language}' for this model`);
+  }
+}
+
 export enum SetSkillGroupParentErrorCode {
   CHILD_NOT_FOUND,
   PARENT_NOT_FOUND,
