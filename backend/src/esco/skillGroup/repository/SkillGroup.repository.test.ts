@@ -35,6 +35,7 @@ import {
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
   getNewSkillGroupSpecWithoutImportId,
+  toOccupationGroupCreateSpec,
   toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
@@ -780,7 +781,9 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
           getMockStringId(1),
           "group_1"
         );
-        const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
+        const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(
+          toOccupationGroupCreateSpec(givenNewOccupationGroupSpec)
+        );
         // it is import to cast the id to ObjectId, otherwise the parents will not be found
         const givenInconsistentPair: ISkillHierarchyPairDoc = {
           modelId: new mongoose.Types.ObjectId(givenSkillGroup.modelId),

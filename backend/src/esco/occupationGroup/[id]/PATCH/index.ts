@@ -8,7 +8,11 @@ import {
   IPartialUpdateOccupationGroupSpec,
   ModelForOccupationGroupValidationErrorCode,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
-import { OccupationGroupModelValidationError } from "esco/occupationGroup/services/occupationGroup.service.type";
+import {
+  OccupationGroupLanguageValidationError,
+  OccupationGroupModelValidationError,
+} from "esco/occupationGroup/services/occupationGroup.service.type";
+import { unsupportedLanguageErrorResponse } from "../../_shared/unsupportedLanguageErrorResponse";
 import { Routes } from "routes.constant";
 import { getResourcesBaseUrl } from "server/config/config";
 import { errorResponse, responseJSON, StatusCodes } from "server/httpUtils";
@@ -27,7 +31,11 @@ export class OccupationGroupPATCHController {
    *      tags:
    *        - occupationGroups
    *      summary: Update an existing taxonomy occupation group.
-   *      description: Update an existing taxonomy occupation group in a specific taxonomy model.
+   *      description: |
+   *        Update one or more fields of an existing taxonomy occupation group in a specific taxonomy model.
+   *        Only fields present in the payload are changed. Translatable fields merge per language: a language
+   *        present in the field's object is set (or deleted, if null) and an absent language is left untouched.
+   *        The fallback language (en) can never be deleted. altLabels, when present, replaces the whole list.
    *      security:
    *       - api_key: []
    *       - jwt_auth: []
@@ -138,6 +146,13 @@ export class OccupationGroupPATCHController {
       return responseJSON(StatusCodes.OK, buildPATCHResponse(updatedOccupationGroup, getResourcesBaseUrl()));
     } catch (error: unknown) {
       console.error("Failed to patch occupation group:", error);
+
+      if (error instanceof OccupationGroupLanguageValidationError) {
+        return unsupportedLanguageErrorResponse(
+          OccupationGroupAPISpecs.OccupationGroup.PATCH.Errors.Response.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+          error
+        );
+      }
 
       if (error instanceof OccupationGroupModelValidationError) {
         switch (error.code) {

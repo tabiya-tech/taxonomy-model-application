@@ -42,6 +42,7 @@ import {
   getSimpleNewESCOOccupationSpecWithParentCode,
   getSimpleNewLocalOccupationSpecWithParentCode,
   getSimpleNewISCOGroupSpecWithParentCode,
+  toOccupationGroupCreateSpec,
   toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
@@ -1384,7 +1385,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // The parent (Occupation Group) a leaf level ISCO group
       const givenParentSpecs = getSimpleNewISCOGroupSpec(givenModelId, "parent", true);
-      const givenParent = await repositoryRegistry.OccupationGroup.create(givenParentSpecs);
+      const givenParent = await repositoryRegistry.OccupationGroup.create(
+        toOccupationGroupCreateSpec(givenParentSpecs)
+      );
 
       // THE subject (Occupation)
       const givenSubjectSpecs = getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "subject", givenParent.code);
@@ -1486,7 +1489,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
       // The parent (Occupation Group)
       const givenParentSpecs = getSimpleNewLocalGroupSpec(givenModelId, "parent");
-      const givenParent = await repositoryRegistry.OccupationGroup.create(givenParentSpecs);
+      const givenParent = await repositoryRegistry.OccupationGroup.create(
+        toOccupationGroupCreateSpec(givenParentSpecs)
+      );
 
       // THE subject (Occupation)
       const givenSubjectSpecs = getSimpleNewLocalOccupationSpecWithParentCode(
@@ -1964,7 +1969,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         const givenOccupationGroupSpecs = getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup", true);
         // @ts-ignore
         givenOccupationGroupSpecs.id = givenID.toHexString();
-        const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs);
+        const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpecs)
+        );
         // guard to ensure the id is the given one
         expect(givenOccupationGroup.id).toEqual(givenID.toHexString());
 
@@ -2022,7 +2029,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // AND an OccupationGroup with some ID in the given model
         const givenOccupationGroupSpec_1 = getSimpleNewISCOGroupSpec(givenModelId, "OccupationGroup 1");
-        const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpec_1);
+        const givenOccupationGroup_1 = await repositoryRegistry.OccupationGroup.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpec_1)
+        );
 
         // AND another occupation with some ID in the given model
         const givenOccupationSpecs_1 = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1");
@@ -2048,7 +2057,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         );
         // @ts-ignore
         givenOccupationGroupSpecs_2.id = givenID.toHexString();
-        const givenOccupationGroup_2 = await repositoryRegistry.OccupationGroup.create(givenOccupationGroupSpecs_2);
+        const givenOccupationGroup_2 = await repositoryRegistry.OccupationGroup.create(
+          toOccupationGroupCreateSpec(givenOccupationGroupSpecs_2)
+        );
         // guard to ensure the id is the given one
         expect(givenOccupationGroup_2.id).toEqual(givenID.toHexString());
 
@@ -2146,7 +2157,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
 
         // The non-Skill in this case an OccupationGroup
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewISCOGroupSpecs();
-        const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
+        const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(
+          toOccupationGroupCreateSpec(givenNewOccupationGroupSpec)
+        );
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
         const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {
@@ -2604,7 +2617,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const modelId = getMockStringId(1);
       // AND a parent OccupationGroup
       const parent = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewISCOGroupSpec(modelId, "parent_group", true)
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(modelId, "parent_group", true))
       );
       // AND a child occupation
       const child = await repository.create(

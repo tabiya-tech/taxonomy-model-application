@@ -63,19 +63,11 @@ export async function createSkillInDB(modelId: string): Promise<ISkill> {
 }
 
 export async function createSkillGroupsInDB(count: number, modelId: string): Promise<ISkillGroup[]> {
-  const skillGroups: ISkillGroup[] = [];
-  for (let i = 0; i < count; i++) {
-    skillGroups.push(await createSkillGroupInDB(modelId));
-  }
-  return skillGroups;
+  return Promise.all(Array.from({ length: count }, () => createSkillGroupInDB(modelId)));
 }
 
 export async function createSkillsInDB(count: number, modelId: string): Promise<ISkill[]> {
-  const skills: ISkill[] = [];
-  for (let i = 0; i < count; i++) {
-    skills.push(await createSkillInDB(modelId));
-  }
-  return skills;
+  return Promise.all(Array.from({ length: count }, () => createSkillInDB(modelId)));
 }
 
 export async function linkSkillGroupToSkillChildrenInDB(
@@ -123,7 +115,13 @@ function getRandomOccupationGroup(modelId: string) {
 }
 
 export async function createOccupationGroupInDB(modelId: string = getMockStringId(1)) {
-  return await getRepositoryRegistry().OccupationGroup.create(getRandomOccupationGroup(modelId));
+  const { preferredLabel, description, altLabels, ...rest } = getRandomOccupationGroup(modelId);
+  return await getRepositoryRegistry().OccupationGroup.create({
+    ...rest,
+    preferredLabel: { en: preferredLabel },
+    description: { en: description },
+    altLabels: altLabels.map((altLabel) => ({ en: altLabel })),
+  });
 }
 
 export async function createChildOccupationGroups(parentOccupationGroup: string, count: number) {

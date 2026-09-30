@@ -35,7 +35,7 @@ export function extractAndValidateIdParams(
   };
 
   const validatePathFunction = ajvInstance.getSchema(
-    OccupationGroupAPISpecs.GET.Schemas.Request.Param.Payload.$id as string
+    OccupationGroupAPISpecs.OccupationGroup.Schemas.Request.Param.Payload.$id as string
   ) as ValidateFunction<OccupationGroupAPISpecs.OccupationGroup.Types.Param.Payload>;
 
   const isValidPathParameter = validatePathFunction(requestPathParameter);

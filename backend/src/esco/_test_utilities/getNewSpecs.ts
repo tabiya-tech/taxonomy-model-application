@@ -22,6 +22,20 @@ import { randomUUID } from "crypto";
 import { ObjectTypes } from "esco/common/objectTypes";
 
 /**
+ * Wraps a flat INewOccupationGroupSpec into the multilingual shape create() expects, in the fall back language only.
+ */
+export function toOccupationGroupCreateSpec(
+  spec: Omit<INewOccupationGroupSpec, "importId">
+): INewOccupationGroupSpecWithoutImportId {
+  return {
+    ...spec,
+    preferredLabel: { en: spec.preferredLabel },
+    altLabels: spec.altLabels.map((altLabel) => ({ en: altLabel })),
+    description: { en: spec.description },
+  };
+}
+
+/**
  * Helper functions to create an INewOccupationGroupSpec with random values,
  * that can be used for creating a new OccupationGroup
  */
@@ -41,14 +55,14 @@ export function getNewISCOGroupSpecs(leafNode: boolean = false): INewOccupationG
 
 export function getNewISCOGroupSpecsWithoutImportId(leafNode: boolean = false): INewOccupationGroupSpecWithoutImportId {
   return {
-    altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
+    altLabels: [{ en: getRandomString(LABEL_MAX_LENGTH) }, { en: getRandomString(LABEL_MAX_LENGTH) }],
     code: leafNode ? getMockRandomISCOGroupCode().padStart(4, "0") : getMockRandomISCOGroupCode(),
-    preferredLabel: getRandomString(LABEL_MAX_LENGTH),
+    preferredLabel: { en: getRandomString(LABEL_MAX_LENGTH) },
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
     originUri: generateRandomUrl(),
     groupType: ObjectTypes.ISCOGroup,
-    description: getTestString(DESCRIPTION_MAX_LENGTH),
+    description: { en: getTestString(DESCRIPTION_MAX_LENGTH) },
   };
 }
 
@@ -68,14 +82,14 @@ export function getNewLocalGroupSpecs(): INewOccupationGroupSpec {
 
 export function getNewLocalGroupSpecsWithoutImportId(): INewOccupationGroupSpecWithoutImportId {
   return {
-    altLabels: [getRandomString(LABEL_MAX_LENGTH), getRandomString(LABEL_MAX_LENGTH)],
+    altLabels: [{ en: getRandomString(LABEL_MAX_LENGTH) }, { en: getRandomString(LABEL_MAX_LENGTH) }],
     code: getMockRandomLocalGroupCode(),
-    preferredLabel: getRandomString(LABEL_MAX_LENGTH),
+    preferredLabel: { en: getRandomString(LABEL_MAX_LENGTH) },
     modelId: getMockStringId(2),
     UUIDHistory: [randomUUID()],
     originUri: generateRandomUrl(),
     groupType: ObjectTypes.LocalGroup,
-    description: getTestString(DESCRIPTION_MAX_LENGTH),
+    description: { en: getTestString(DESCRIPTION_MAX_LENGTH) },
   };
 }
 

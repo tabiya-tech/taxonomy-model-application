@@ -1,5 +1,5 @@
 import { SchemaObject } from "ajv";
-import { _baseProperties } from "../_shared/schemas.base";
+import { _baseRequestProperties, _requestExample } from "../_shared/schemas.base";
 import OccupationGroupEnums from "../_shared/enums";
 import OccupationGroupConstants from "../_shared/constants";
 import OccupationGroupRegexes from "../_shared/regex";
@@ -8,8 +8,9 @@ const SchemaPOSTRequest: SchemaObject = {
   $id: "/components/schemas/OccupationGroupRequestSchemaPOST",
   type: "object",
   additionalProperties: false,
+  examples: [_requestExample],
   properties: {
-    ...JSON.parse(JSON.stringify(_baseProperties)), // deep copy the base properties
+    ..._baseRequestProperties,
   },
   if: {
     properties: {

@@ -7,12 +7,13 @@ import {
   OccupationModelValidationError,
   ValidateModelResult,
 } from "./occupation.service.types";
-import { findUnsupportedLanguage, findUnsupportedLanguageInPartialSpec } from "./validateOccupationLanguages";
+import { findUnsupportedLanguage } from "common/language/translatedFields";
 import {
   INewOccupationSpecWithoutImportId,
   IOccupation,
   IPartialUpdateOccupationSpec,
   IUpdateOccupationSpec,
+  OCCUPATION_TRANSLATABLE_FIELDS,
 } from "../_shared/occupation.types";
 import { IOccupationRepository } from "../repository/occupation.repository";
 import { IModelRepository } from "modelInfo/modelInfoRepository";
@@ -43,7 +44,11 @@ export class OccupationService implements IOccupationService {
       throw new OccupationModelValidationError(result.errorCode);
     }
 
-    const unsupportedLanguage = findUnsupportedLanguage(newOccupationSpec, result.availableLanguages);
+    const unsupportedLanguage = findUnsupportedLanguage(
+      newOccupationSpec,
+      OCCUPATION_TRANSLATABLE_FIELDS,
+      result.availableLanguages
+    );
     if (unsupportedLanguage !== null) {
       throw new OccupationLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
     }
@@ -334,7 +339,11 @@ export class OccupationService implements IOccupationService {
       throw new OccupationModelValidationError(result.errorCode);
     }
 
-    const unsupportedLanguage = findUnsupportedLanguage(spec, result.availableLanguages);
+    const unsupportedLanguage = findUnsupportedLanguage(
+      spec,
+      OCCUPATION_TRANSLATABLE_FIELDS,
+      result.availableLanguages
+    );
     if (unsupportedLanguage !== null) {
       throw new OccupationLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
     }
@@ -350,7 +359,11 @@ export class OccupationService implements IOccupationService {
 
     // A language explicitly set to null (a deletion) is never rejected as unsupported: removing a language
     // cannot make the model's supported set outdated the way adding one can.
-    const unsupportedLanguage = findUnsupportedLanguageInPartialSpec(spec, result.availableLanguages);
+    const unsupportedLanguage = findUnsupportedLanguage(
+      spec,
+      OCCUPATION_TRANSLATABLE_FIELDS,
+      result.availableLanguages
+    );
     if (unsupportedLanguage !== null) {
       throw new OccupationLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
     }

@@ -8,7 +8,11 @@ import * as responseModule from "./response";
 import { OccupationGroupCreateController } from "./index";
 import { getServiceRegistry, ServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { HTTP_VERBS, StatusCodes } from "server/httpUtils";
-import { IOccupationGroupService, OccupationGroupModelValidationError } from "../services/occupationGroup.service.type";
+import {
+  IOccupationGroupService,
+  OccupationGroupLanguageValidationError,
+  OccupationGroupModelValidationError,
+} from "../services/occupationGroup.service.type";
 import { ModelForOccupationGroupValidationErrorCode } from "../_shared/OccupationGroup.types";
 import { usersRequestContext } from "_test_utilities/dataModel";
 import * as config from "server/config/config";
@@ -122,9 +126,9 @@ describe("OccupationGroupCreateController", () => {
       modelId: "model-1",
       code: "123",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Label",
-      description: "Description",
-      altLabels: ["Alt"],
+      preferredLabel: { en: "Label" },
+      description: { en: "Description" },
+      altLabels: [{ en: "Alt" }],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
     };
@@ -161,9 +165,9 @@ describe("OccupationGroupCreateController", () => {
       modelId: givenModel.id.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "some random label",
-      description: "some random description",
-      altLabels: ["some random alt label 1", "some random alt label 2"],
+      preferredLabel: { en: "some random label" },
+      description: { en: "some random description" },
+      altLabels: [{ en: "some random alt label 1" }, { en: "some random alt label 2" }],
       originUri: `http://some/path/to/api/resources/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
     };
@@ -236,9 +240,9 @@ describe("OccupationGroupCreateController", () => {
       modelId: givenModelId.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "some random label",
-      description: "some random description",
-      altLabels: ["some random alt label 1", "some random alt label 2"],
+      preferredLabel: { en: "some random label" },
+      description: { en: "some random description" },
+      altLabels: [{ en: "some random alt label 1" }, { en: "some random alt label 2" }],
       originUri: `http://some/path/to/api/resources/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
     };
@@ -329,9 +333,9 @@ describe("OccupationGroupCreateController", () => {
       modelId: "model-1",
       code: "123",
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "Label",
-      description: "Description",
-      altLabels: ["Alt"],
+      preferredLabel: { en: "Label" },
+      description: { en: "Description" },
+      altLabels: [{ en: "Alt" }],
       originUri: "https://example.com",
       UUIDHistory: ["uuid-1"],
     };
@@ -361,9 +365,9 @@ describe("OccupationGroupCreateController", () => {
       modelId: givenModel.id.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "some random label",
-      description: "some random description",
-      altLabels: ["some random alt label 1", "some random alt label 2"],
+      preferredLabel: { en: "some random label" },
+      description: { en: "some random description" },
+      altLabels: [{ en: "some random alt label 1" }, { en: "some random alt label 2" }],
       originUri: `http://some/path/to/api/resources/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
     };
@@ -431,6 +435,68 @@ describe("OccupationGroupCreateController", () => {
     };
     expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
   });
+  test("should pass a multi language payload to the service", async () => {
+    // GIVEN a valid request with translatable fields in several languages
+    getMockGetSchema().mockReturnValue(jest.fn().mockReturnValue(true) as never);
+    const givenPayload = {
+      modelId: "model-1",
+      code: "123",
+      groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+      preferredLabel: { en: "Managers", fr: "Directeurs" },
+      description: { en: "Description", fr: "Une description" },
+      altLabels: [{ en: "Executives", fr: "Cadres" }],
+      originUri: "https://example.com",
+      UUIDHistory: ["uuid-1"],
+    };
+    // AND the service succeeds
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.create = jest.fn().mockResolvedValue({ id: "group-1" });
+
+    // WHEN the handler is invoked
+    await new OccupationGroupCreateController().postOccupationGroup(buildEvent(givenPayload));
+
+    // THEN expect the service to be called with every language of the translatable fields
+    expect(mockServiceRegistry.occupationGroup.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        preferredLabel: givenPayload.preferredLabel,
+        description: givenPayload.description,
+        altLabels: givenPayload.altLabels,
+      })
+    );
+  });
+
+  test("should respond with BAD_REQUEST naming the field and the language when a language is not available in the model", async () => {
+    // GIVEN a valid request
+    getMockGetSchema().mockReturnValue(jest.fn().mockReturnValue(true) as never);
+    const givenPayload = {
+      modelId: "model-1",
+      code: "123",
+      groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
+      preferredLabel: { en: "Managers", fr: "Directeurs" },
+      description: { en: "Description", fr: "Une description" },
+      altLabels: [{ en: "Executives", fr: "Cadres" }],
+      originUri: "https://example.com",
+      UUIDHistory: ["uuid-1"],
+    };
+    // AND the service rejects a language that is not available in the model
+    const givenError = new OccupationGroupLanguageValidationError("preferredLabel", "fr");
+    const mockServiceRegistry = mockGetServiceRegistry();
+    mockServiceRegistry.occupationGroup.create = jest.fn().mockRejectedValue(givenError);
+
+    // WHEN the handler is invoked
+    const actualResponse = await new OccupationGroupCreateController().postOccupationGroup(buildEvent(givenPayload));
+
+    // THEN expect BAD_REQUEST
+    expect(actualResponse.statusCode).toBe(StatusCodes.BAD_REQUEST);
+    // AND the error to name the field and the language
+    const expectedErrorBody: ErrorAPISpecs.Types.Payload = {
+      errorCode: OccupationGroupAPISpecs.POST.Enums.Response.Status400.ErrorCodes.UNSUPPORTED_LANGUAGE,
+      message: "Field 'preferredLabel' uses a language not available in this model",
+      details: "Unsupported language: 'fr'",
+    };
+    expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+  });
+
   test("POST should respond with the BAD_REQUEST status code if modelId in payload does not match modelId in path", async () => {
     // GIVEN a valid request with mismatched modelIds
     const validateFunction = jest.fn().mockReturnValue(true);
@@ -441,9 +507,9 @@ describe("OccupationGroupCreateController", () => {
       modelId: givenModelIdInPayload.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "some random label",
-      description: "some random description",
-      altLabels: ["some random alt label 1", "some random alt label 2"],
+      preferredLabel: { en: "some random label" },
+      description: { en: "some random description" },
+      altLabels: [{ en: "some random alt label 1" }, { en: "some random alt label 2" }],
       originUri: `http://some/path/to/api/resources/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
     };
@@ -484,9 +550,9 @@ describe("OccupationGroupCreateController", () => {
       modelId: givenModelIdInPayload.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "some random label",
-      description: "some random description",
-      altLabels: ["some random alt label 1", "some random alt label 2"],
+      preferredLabel: { en: "some random label" },
+      description: { en: "some random description" },
+      altLabels: [{ en: "some random alt label 1" }, { en: "some random alt label 2" }],
       originUri: `http://some/path/to/api/resources/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
     };
@@ -537,9 +603,9 @@ describe("OccupationGroupCreateController", () => {
       modelId: givenModelId,
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "some random label",
-      description: "some random description",
-      altLabels: ["some random alt label 1", "some random alt label 2"],
+      preferredLabel: { en: "some random label" },
+      description: { en: "some random description" },
+      altLabels: [{ en: "some random alt label 1" }, { en: "some random alt label 2" }],
       originUri: `http://some/path/to/api/resources/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
     };
@@ -590,9 +656,9 @@ describe("OccupationGroupCreateController", () => {
       modelId: givenModelId.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "some random label",
-      description: "some random description",
-      altLabels: ["some random alt label 1", "some random alt label 2"],
+      preferredLabel: { en: "some random label" },
+      description: { en: "some random description" },
+      altLabels: [{ en: "some random alt label 1" }, { en: "some random alt label 2" }],
       originUri: `http://some/path/to/api/resources/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
     };
@@ -645,9 +711,9 @@ describe("OccupationGroupCreateController", () => {
       modelId: givenModelId.toString(),
       code: getMockRandomISCOGroupCode(),
       groupType: OccupationGroupAPISpecs.Enums.ObjectTypes.ISCOGroup,
-      preferredLabel: "some random label",
-      description: "some random description",
-      altLabels: ["some random alt label 1", "some random alt label 2"],
+      preferredLabel: { en: "some random label" },
+      description: { en: "some random description" },
+      altLabels: [{ en: "some random alt label 1" }, { en: "some random alt label 2" }],
       originUri: `http://some/path/to/api/resources/${randomUUID()}`,
       UUIDHistory: [randomUUID()],
     };

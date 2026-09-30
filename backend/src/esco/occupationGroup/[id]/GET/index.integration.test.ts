@@ -14,7 +14,7 @@ import { initOnce } from "server/init";
 import { getConnectionManager } from "server/connection/connectionManager";
 import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
-import { getSimpleNewISCOGroupSpec } from "esco/_test_utilities/getNewSpecs";
+import { getSimpleNewISCOGroupSpec, toOccupationGroupCreateSpec } from "esco/_test_utilities/getNewSpecs";
 
 describe("Test for occupationGroup detail GET handler with a DB", () => {
   const ajv = new Ajv({
@@ -52,11 +52,13 @@ describe("Test for occupationGroup detail GET handler with a DB", () => {
       license: "MIT",
       UUIDHistory: [],
     });
-    const givenOccupationGroup = await getRepositoryRegistry().OccupationGroup.create({
-      ...getSimpleNewISCOGroupSpec(givenModel.id, "occupation-group"),
-      originUri: "https://example.com/occupation-groups/detail",
-      description: "Occupation group detail",
-    });
+    const givenOccupationGroup = await getRepositoryRegistry().OccupationGroup.create(
+      toOccupationGroupCreateSpec({
+        ...getSimpleNewISCOGroupSpec(givenModel.id, "occupation-group"),
+        originUri: "https://example.com/occupation-groups/detail",
+        description: "Occupation group detail",
+      })
+    );
 
     const givenEvent = {
       httpMethod: "GET",
@@ -80,11 +82,13 @@ describe("Test for occupationGroup detail GET handler with a DB", () => {
       license: "MIT",
       UUIDHistory: [],
     });
-    const givenOccupationGroup = await getRepositoryRegistry().OccupationGroup.create({
-      ...getSimpleNewISCOGroupSpec(givenModel.id, "occupation-group"),
-      originUri: "https://example.com/occupation-groups/detail",
-      description: "Occupation group detail",
-    });
+    const givenOccupationGroup = await getRepositoryRegistry().OccupationGroup.create(
+      toOccupationGroupCreateSpec({
+        ...getSimpleNewISCOGroupSpec(givenModel.id, "occupation-group"),
+        originUri: "https://example.com/occupation-groups/detail",
+        description: "Occupation group detail",
+      })
+    );
 
     const givenEvent = {
       httpMethod: "GET",

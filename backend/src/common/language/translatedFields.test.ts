@@ -1,6 +1,7 @@
 import LanguageAPISpecs from "api-specifications/language";
 import { setConfiguration } from "server/config/config";
 import {
+  findUnsupportedLanguage,
   mergeTranslatableFieldsFromPartialObjects,
   readExistingTranslations,
   readFallbackLanguageValue,
@@ -686,6 +687,40 @@ describe("Test mergeTranslatableFieldsFromPartialObjects()", () => {
     // THEN expect the spec to be unchanged
     expect(givenSpec).toEqual({ preferredLabel: { [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" } });
   });
+});
+
+describe("Test findUnsupportedLanguage()", () => {
+  const givenFields = ["preferredLabel", "altLabels"] as const;
+  const givenAvailableLanguages = ["en"];
+
+  test.each([
+    ["every language set is available", { preferredLabel: { en: "Cook" }, altLabels: [{ en: "Chef" }] }],
+    ["a translatable field is absent", { altLabels: [{ en: "Chef" }] }],
+    ["an unavailable language is deleted via null", { preferredLabel: { fr: null } }],
+    ["an unavailable language is set on a field that is not translatable", { code: { fr: "Cuisinier" } }],
+  ])("should return null when %s", (_description, givenSpec) => {
+    // GIVEN a spec
+    // WHEN finding an unsupported language against a model that only has the fall back language available
+    const actual = findUnsupportedLanguage(givenSpec, givenFields, givenAvailableLanguages);
+
+    // THEN expect no unsupported language to be found
+    expect(actual).toBeNull();
+  });
+
+  test.each([
+    ["a scalar field", { preferredLabel: { en: "Cook", fr: "Cuisinier" } }, "preferredLabel"],
+    ["an item of a list field", { altLabels: [{ en: "Chef" }, { en: "Line cook", fr: "Cuisinier" }] }, "altLabels"],
+  ])(
+    "should return the field and language when %s carries an unavailable language",
+    (_description, givenSpec, expectedField) => {
+      // GIVEN a spec that sets a language the model does not have
+      // WHEN finding an unsupported language against a model that only has the fall back language available
+      const actual = findUnsupportedLanguage(givenSpec, givenFields, givenAvailableLanguages);
+
+      // THEN expect the field and the unsupported language to be returned
+      expect(actual).toEqual({ field: expectedField, language: "fr" });
+    }
+  );
 });
 
 describe("Test translatedValueReplacer()", () => {

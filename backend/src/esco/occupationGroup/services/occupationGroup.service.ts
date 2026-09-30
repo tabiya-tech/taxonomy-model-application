@@ -2,6 +2,7 @@ import {
   IOccupationGroupHistoryEntry,
   FindPaginatedFilter,
   IOccupationGroupService,
+  OccupationGroupLanguageValidationError,
   OccupationGroupModelValidationError,
   SetOccupationGroupParentError,
   SetOccupationGroupParentErrorCode,
@@ -13,8 +14,10 @@ import {
   IOccupationGroupChild,
   IPartialUpdateOccupationGroupSpec,
   IUpdateOccupationGroupSpec,
+  OCCUPATION_GROUP_TRANSLATABLE_FIELDS,
   ValidateModelForOccupationGroupResult,
 } from "esco/occupationGroup/_shared/OccupationGroup.types";
+import { findUnsupportedLanguage } from "common/language/translatedFields";
 import { IOccupationGroupRepository } from "esco/occupationGroup/repository/OccupationGroup.repository";
 import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegistry";
 import { toModelReference } from "modelInfo/modelInfoReference";
@@ -39,11 +42,7 @@ export class OccupationGroupService implements IOccupationGroupService {
   ) {}
 
   async create(newOccupationGroupSpec: INewOccupationGroupSpecWithoutImportId): Promise<IOccupationGroup> {
-    // Validate model exists and is not released
-    const result = await this.validateModelForOccupationGroup(newOccupationGroupSpec.modelId);
-    if (result.errorCode != null) {
-      throw new OccupationGroupModelValidationError(result.errorCode);
-    }
+    await this.validateSpecForModel(newOccupationGroupSpec.modelId, newOccupationGroupSpec);
     return this.occupationGroupRepository.create(newOccupationGroupSpec);
   }
 
@@ -248,18 +247,12 @@ export class OccupationGroupService implements IOccupationGroupService {
   }
 
   async update(id: string, modelId: string, spec: IUpdateOccupationGroupSpec): Promise<IOccupationGroup | null> {
-    const result = await this.validateModelForOccupationGroup(modelId);
-    if (result.errorCode != null) {
-      throw new OccupationGroupModelValidationError(result.errorCode);
-    }
+    await this.validateSpecForModel(modelId, spec);
     return this.occupationGroupRepository.update(id, modelId, spec);
   }
 
   async patch(id: string, modelId: string, spec: IPartialUpdateOccupationGroupSpec): Promise<IOccupationGroup | null> {
-    const result = await this.validateModelForOccupationGroup(modelId);
-    if (result.errorCode != null) {
-      throw new OccupationGroupModelValidationError(result.errorCode);
-    }
+    await this.validateSpecForModel(modelId, spec);
     return this.occupationGroupRepository.patch(id, modelId, spec);
   }
 
@@ -276,6 +269,17 @@ export class OccupationGroupService implements IOccupationGroupService {
     } catch (e: unknown) {
       console.error("Error validating model for occupation group:", e);
       return { errorCode: ModelForOccupationGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB };
+    }
+  }
+
+  private async validateSpecForModel(modelId: string, spec: object): Promise<void> {
+    const result = await this.validateModelForOccupationGroup(modelId);
+    if (result.errorCode != null) {
+      throw new OccupationGroupModelValidationError(result.errorCode);
+    }
+    const unsupported = findUnsupportedLanguage(spec, OCCUPATION_GROUP_TRANSLATABLE_FIELDS, result.availableLanguages);
+    if (unsupported !== null) {
+      throw new OccupationGroupLanguageValidationError(unsupported.field, unsupported.language);
     }
   }
 

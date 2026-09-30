@@ -42,6 +42,7 @@ import {
   getSimpleNewLocalOccupationSpec,
   getSimpleNewSkillGroupSpec,
   getSimpleNewSkillSpec,
+  toOccupationGroupCreateSpec,
   toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
@@ -1513,7 +1514,9 @@ describe("Test the Skill Repository with an in-memory mongodb", () => {
 
         // The non-Skill in this case an OccupationGroup
         const givenNewOccupationGroupSpec: INewOccupationGroupSpec = getNewISCOGroupSpecs();
-        const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
+        const givenOccupationGroup = await repositoryRegistry.OccupationGroup.create(
+          toOccupationGroupCreateSpec(givenNewOccupationGroupSpec)
+        );
 
         // it is important to cast the id to ObjectId, otherwise the requiredSkills will not be found
         const givenInconsistentPair: IOccupationToSkillRelationPairDoc = {

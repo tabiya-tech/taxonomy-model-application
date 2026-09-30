@@ -16,6 +16,7 @@ import {
   getSimpleNewISCOGroupSpec,
   getSimpleNewLocalOccupationSpec,
   getSimpleNewSkillSpec,
+  toOccupationGroupCreateSpec,
   toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import {
@@ -505,7 +506,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         toSkillCreateSpec(getSimpleNewSkillSpec(givenModelId, "skill_1"))
       );
       const givenInvalidObject_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "group_1"))
       ); // Assuming there's an OccupationGroup model
 
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [
@@ -533,7 +534,7 @@ describe("Test the OccupationToSkillRelation Repository with an in-memory mongod
         toOccupationCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occupation_1"))
       );
       const givenInvalidObject_1 = await repositoryRegistry.OccupationGroup.create(
-        getSimpleNewISCOGroupSpec(givenModelId, "group_1")
+        toOccupationGroupCreateSpec(getSimpleNewISCOGroupSpec(givenModelId, "group_1"))
       ); // Assuming there's an OccupationGroup model
 
       const givenNewRelationSpecs: INewOccupationToSkillPairSpec[] = [

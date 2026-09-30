@@ -1,6 +1,4 @@
 import {
-  testStringField,
-  testNonEmptyStringField,
   testSchemaWithAdditionalProperties,
   testSchemaWithValidObject,
   testValidSchema,
@@ -14,6 +12,8 @@ import { getTestString } from "_test_utilities/specialCharacters";
 import { CaseType, assertCaseForProperty, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 
 import OccupationGroupPOSTAPISpecs from "./index";
+import LanguageAPISpecs from "language";
+import { testTranslatedStringArrayField, testTranslatedStringField } from "_test_utilities/translatedFieldTests";
 import OccupationGroupConstants from "../_shared/constants";
 import { getMockId } from "_test_utilities/mockMongoId";
 import OccupationGroupEnums from "../_shared/enums";
@@ -35,9 +35,23 @@ describe("Test objects against the OccupationGroupPOSTAPISpecs.Schemas.Request.P
     originUri: "https://path/to/group",
     groupType: OccupationGroupEnums.ObjectTypes.LocalGroup,
     code: getTestLocalGroupCode(),
-    description: getTestString(OccupationGroupConstants.DESCRIPTION_MAX_LENGTH),
-    preferredLabel: getTestString(OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH),
-    altLabels: [getTestString(OccupationGroupConstants.ALT_LABEL_MAX_LENGTH)],
+    description: {
+      [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName]: getTestString(
+        OccupationGroupConstants.DESCRIPTION_MAX_LENGTH
+      ),
+    },
+    preferredLabel: {
+      [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName]: getTestString(
+        OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH
+      ),
+    },
+    altLabels: [
+      {
+        [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName]: getTestString(
+          OccupationGroupConstants.ALT_LABEL_MAX_LENGTH
+        ),
+      },
+    ],
     modelId: getMockId(1),
     UUIDHistory: [randomUUID(), randomUUID()],
   };
@@ -125,72 +139,30 @@ describe("Test objects against the OccupationGroupPOSTAPISpecs.Schemas.Request.P
     });
 
     describe("Test validation of 'description'", () => {
-      testStringField<OccupationGroupPOSTAPISpecs.Types.Request.Payload>(
+      testTranslatedStringField(
         "description",
         OccupationGroupConstants.DESCRIPTION_MAX_LENGTH,
-        OccupationGroupPOSTAPISpecs.Schemas.Request.Payload
+        OccupationGroupPOSTAPISpecs.Schemas.Request.Payload,
+        "full"
       );
     });
 
     describe("Test validation of 'preferredLabel'", () => {
-      testNonEmptyStringField<OccupationGroupPOSTAPISpecs.Types.Request.Payload>(
+      testTranslatedStringField(
         "preferredLabel",
         OccupationGroupConstants.PREFERRED_LABEL_MAX_LENGTH,
-        OccupationGroupPOSTAPISpecs.Schemas.Request.Payload
+        OccupationGroupPOSTAPISpecs.Schemas.Request.Payload,
+        "full"
       );
     });
 
     describe("Test validation of 'altLabels'", () => {
-      test.each([
-        [
-          CaseType.Failure,
-          "undefined",
-          undefined,
-          constructSchemaError("", "required", "must have required property 'altLabels'"),
-        ],
-        [CaseType.Failure, "null", null, constructSchemaError("/altLabels", "type", "must be array")],
-        [CaseType.Failure, "empty string", "", constructSchemaError("/altLabels", "type", "must be array")],
-        [
-          CaseType.Failure,
-          "an array of objects",
-          [{}, {}],
-          [
-            constructSchemaError("/altLabels/0", "type", "must be string"),
-            constructSchemaError("/altLabels/1", "type", "must be string"),
-          ],
-        ],
-        [
-          CaseType.Failure,
-          "an array of same strings",
-          ["foo", "foo"],
-          constructSchemaError(
-            "/altLabels",
-            "uniqueItems",
-            "must NOT have duplicate items (items ## 1 and 0 are identical)"
-          ),
-        ],
-        [
-          CaseType.Success,
-          "an array of valid altLabels strings",
-          [
-            getTestString(OccupationGroupConstants.ALT_LABEL_MAX_LENGTH),
-            getTestString(OccupationGroupConstants.ALT_LABEL_MAX_LENGTH - 1),
-          ],
-          undefined,
-        ],
-      ])("(%s) Validate 'altLabels' when it is %s", (caseType, _description, givenValue, failureMessage) => {
-        const givenObject = {
-          altLabels: givenValue,
-        };
-
-        assertCaseForProperty(
-          "altLabels",
-          givenObject,
-          OccupationGroupPOSTAPISpecs.Schemas.Request.Payload,
-          caseType,
-          failureMessage
-        );
-      });
+      testTranslatedStringArrayField(
+        "altLabels",
+        OccupationGroupConstants.ALT_LABEL_MAX_LENGTH,
+        OccupationGroupPOSTAPISpecs.Schemas.Request.Payload,
+        "full"
+      );
     });
 
     describe("Test validation of 'modelId'", () => {

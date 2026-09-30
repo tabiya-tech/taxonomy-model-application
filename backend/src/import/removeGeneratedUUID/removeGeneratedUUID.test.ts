@@ -18,6 +18,7 @@ import {
   getNewLocalOccupationSpec,
   getNewSkillGroupSpec,
   getNewSkillSpec,
+  toOccupationGroupCreateSpec,
   toSkillCreateSpec,
 } from "esco/_test_utilities/getNewSpecs";
 import { getMockStringId } from "_test_utilities/mockMongoId";
@@ -256,14 +257,16 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewOccupationGroupSpec = getNewISCOGroupSpecs();
     givenNewOccupationGroupSpec.modelId = givenCreatedModel.id;
     givenNewOccupationGroupSpec.UUIDHistory = generateRandomUUIDs(0);
-    const givenCreatedOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
+    const givenCreatedOccupationGroup = await repositoryRegistry.OccupationGroup.create(
+      toOccupationGroupCreateSpec(givenNewOccupationGroupSpec)
+    );
 
     // AND a Local group is created with the modelId and a single item in the UUIDHistory
     const givenNewLocalOccupationGroupSpec = getNewLocalGroupSpecs();
     givenNewLocalOccupationGroupSpec.modelId = givenCreatedModel.id;
     givenNewLocalOccupationGroupSpec.UUIDHistory = generateRandomUUIDs(0);
     const givenCreatedLocalOccupationGroup = await repositoryRegistry.OccupationGroup.create(
-      givenNewLocalOccupationGroupSpec
+      toOccupationGroupCreateSpec(givenNewLocalOccupationGroupSpec)
     );
     // AND a new UUID Item is added
     expect(givenCreatedOccupationGroup.UUIDHistory).toHaveLength(1);
@@ -393,14 +396,16 @@ describe("RemoveGeneratedUUID", () => {
       const givenNewOccupationGroupSpec = getNewISCOGroupSpecs();
       givenNewOccupationGroupSpec.modelId = givenCreatedModel.id;
       givenNewOccupationGroupSpec.UUIDHistory = generateRandomUUIDs(count);
-      const givenCreatedOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
+      const givenCreatedOccupationGroup = await repositoryRegistry.OccupationGroup.create(
+        toOccupationGroupCreateSpec(givenNewOccupationGroupSpec)
+      );
 
       // AND a Local group is created with the modelId and a single item in the UUIDHistory
       const givenNewLocalOccupationGroupSpec = getNewLocalGroupSpecs();
       givenNewLocalOccupationGroupSpec.modelId = givenCreatedModel.id;
       givenNewLocalOccupationGroupSpec.UUIDHistory = generateRandomUUIDs(count);
       const givenCreatedLocalOccupationGroup = await repositoryRegistry.OccupationGroup.create(
-        givenNewLocalOccupationGroupSpec
+        toOccupationGroupCreateSpec(givenNewLocalOccupationGroupSpec)
       );
 
       // AND UUIDHistory is increaased by 1 (1 new UUID is added)
@@ -525,14 +530,16 @@ describe("RemoveGeneratedUUID", () => {
     const givenNewOccupationGroupSpec = getNewISCOGroupSpecs();
     givenNewOccupationGroupSpec.modelId = actualNewModel.id;
     givenNewOccupationGroupSpec.UUIDHistory = [randomUUID()];
-    const actualNewOccupationGroup = await repositoryRegistry.OccupationGroup.create(givenNewOccupationGroupSpec);
+    const actualNewOccupationGroup = await repositoryRegistry.OccupationGroup.create(
+      toOccupationGroupCreateSpec(givenNewOccupationGroupSpec)
+    );
 
     // AND a Local group is created with the modelId and a single item in the UUIDHistory
     const givenNewLocalOccupationGroupSpec = getNewLocalGroupSpecs();
     givenNewLocalOccupationGroupSpec.modelId = actualNewModel.id;
     givenNewLocalOccupationGroupSpec.UUIDHistory = [randomUUID()];
     const actualNewLocalOccupationGroup = await repositoryRegistry.OccupationGroup.create(
-      givenNewLocalOccupationGroupSpec
+      toOccupationGroupCreateSpec(givenNewLocalOccupationGroupSpec)
     );
 
     // AND a different model exists in the database

@@ -194,6 +194,8 @@ export const OCCUPATION_TRANSLATABLE_STRING_FIELDS = [
   "regulatedProfessionNote",
 ] as const satisfies ReadonlyArray<keyof IOccupationDoc>;
 
+export const OCCUPATION_TRANSLATABLE_FIELDS = [...OCCUPATION_TRANSLATABLE_STRING_FIELDS, "altLabels"] as const;
+
 export type INewOccupationSpecLocalized = Omit<
   INewOccupationSpec,
   "preferredLabel" | "altLabels" | "description" | "definition" | "scopeNote" | "regulatedProfessionNote"
