@@ -3161,10 +3161,10 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
     test("should throw OccupationHasChildrenError if occupation has children", async () => {
       const modelId = getMockStringId(1);
       const parentSpec = getSimpleNewESCOOccupationSpec(modelId, "parent_occ");
-      const parent = await repository.create(parentSpec);
+      const parent = await repository.create(toCreateSpec(parentSpec));
 
       const childSpec = getSimpleNewESCOOccupationSpecWithParentCode(modelId, "child_occ", parent.code);
-      const child = await repository.create(childSpec);
+      const child = await repository.create(toCreateSpec(childSpec));
 
       await repositoryRegistry.occupationHierarchy.createMany(modelId, [
         {
@@ -3182,7 +3182,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN an existing occupation
       const givenModelId = getMockStringId(1);
       const givenSpec = getSimpleNewESCOOccupationSpec(givenModelId, "occ_to_delete");
-      const givenOccupation = await repository.create(givenSpec);
+      const givenOccupation = await repository.create(toCreateSpec(givenSpec));
 
       // WHEN deleting the occupation
       const actual = await repository.delete(givenOccupation.id, givenModelId);
@@ -3197,7 +3197,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN an existing occupation and a findOne that throws
       const givenModelId = getMockStringId(1);
       const givenSpec = getSimpleNewESCOOccupationSpec(givenModelId, "occ_err");
-      const givenOccupation = await repository.create(givenSpec);
+      const givenOccupation = await repository.create(toCreateSpec(givenSpec));
       const findOneSpy = jest.spyOn(repository.Model, "findOne").mockImplementation(() => {
         throw new Error("Unexpected DB failure");
       });
@@ -3215,7 +3215,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       // GIVEN an occupation exists in the database
       const givenModelId = getMockStringId(1);
       const givenOccupation = await repository.create(
-        getSimpleNewESCOOccupationSpec(givenModelId, "occ_with_embeddings")
+        toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "occ_with_embeddings"))
       );
 
       // AND embeddings exist for the occupation
@@ -3257,14 +3257,14 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenOccupationSpec = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_collision");
       // @ts-ignore
       givenOccupationSpec._id = givenObjectId;
-      const givenOccupation = await repository.create(givenOccupationSpec);
+      const givenOccupation = await repository.create(toCreateSpec(givenOccupationSpec));
 
       // Guard to verify shared _id
       expect(givenGroup.id).toEqual(givenOccupation.id);
 
       // AND a child occupation linked to the OccupationGroup as parent (parentId: givenObjectId, parentType: ISCOGroup)
       const childOfGroup = await repository.create(
-        getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child_of_group", givenGroup.code)
+        toCreateSpec(getSimpleNewESCOOccupationSpecWithParentCode(givenModelId, "child_of_group", givenGroup.code))
       );
       await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
         {
@@ -3276,7 +3276,9 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       ]);
 
       // AND a parent occupation linked to givenOccupation as child (childId: givenObjectId, childType: ESCOOccupation)
-      const parentOfOccupation = await repository.create(getSimpleNewESCOOccupationSpec(givenModelId, "parent_of_occ"));
+      const parentOfOccupation = await repository.create(
+        toCreateSpec(getSimpleNewESCOOccupationSpec(givenModelId, "parent_of_occ"))
+      );
       await repositoryRegistry.occupationHierarchy.createMany(givenModelId, [
         {
           parentId: parentOfOccupation.id,
