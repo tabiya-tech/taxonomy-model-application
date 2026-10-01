@@ -723,6 +723,7 @@ describe("Test the OccupationService", () => {
           indexName: OccupationsEmbeddingsVectorSearchIndexName,
           modelId: givenModelId,
           embeddingServiceId: givenEmbeddingServiceId,
+          language: "en",
           queryVector: [0.1, 0.2, 0.3],
           searchFields: givenSearchFields,
           limit: givenLimit + 1,

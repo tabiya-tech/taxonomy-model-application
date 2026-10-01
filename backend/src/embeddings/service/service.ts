@@ -47,7 +47,7 @@ export interface IEmbeddingServiceDependencies {
  * so that every entity type is processed by the exact same flow.
  */
 interface IEntityTypeHandler {
-  findById: (id: string) => Promise<IEmbeddableEntity | null>;
+  findById: (id: string, language: string) => Promise<IEmbeddableEntity | null>;
   setEmbeddingStatus: (spec: ISetEntityEmbeddingStatusSpec) => Promise<void>;
   // Only the entity-agnostic operations are needed, so that the handlers of all the entity types share one shape.
   embeddingRepository: Pick<IEntityEmbeddingRepository, "upsert" | "findByEntity">;
@@ -83,22 +83,22 @@ export class EmbeddingService implements IEmbeddingService {
     this.embeddingModelServiceFactory = dependencies.embeddingModelServiceFactory;
     this.entityTypeHandlers = {
       [EmbeddableEntityType.Skill]: {
-        findById: (id) => dependencies.skillRepository.findById(id),
+        findById: (id, language) => dependencies.skillRepository.findById(id, language),
         setEmbeddingStatus: (spec) => dependencies.skillRepository.setEntityEmbeddingStatus(spec),
         embeddingRepository: dependencies.skillEmbeddingRepository,
       },
       [EmbeddableEntityType.SkillGroup]: {
-        findById: (id) => dependencies.skillGroupRepository.findById(id),
+        findById: (id, language) => dependencies.skillGroupRepository.findById(id, language),
         setEmbeddingStatus: (spec) => dependencies.skillGroupRepository.setEntityEmbeddingStatus(spec),
         embeddingRepository: dependencies.skillGroupEmbeddingRepository,
       },
       [EmbeddableEntityType.Occupation]: {
-        findById: (id) => dependencies.occupationRepository.findById(id),
+        findById: (id, language) => dependencies.occupationRepository.findById(id, language),
         setEmbeddingStatus: (spec) => dependencies.occupationRepository.setEntityEmbeddingStatus(spec),
         embeddingRepository: dependencies.occupationEmbeddingRepository,
       },
       [EmbeddableEntityType.OccupationGroup]: {
-        findById: (id) => dependencies.occupationGroupRepository.findById(id),
+        findById: (id, language) => dependencies.occupationGroupRepository.findById(id, language),
         setEmbeddingStatus: (spec) => dependencies.occupationGroupRepository.setEntityEmbeddingStatus(spec),
         embeddingRepository: dependencies.occupationGroupEmbeddingRepository,
       },
@@ -185,7 +185,7 @@ export class EmbeddingService implements IEmbeddingService {
     const handler = this.entityTypeHandlers[task.entityType];
     try {
       // Fetch the entity and make sure it exists in the given model.
-      const entity = await handler.findById(task.entityId);
+      const entity = await handler.findById(task.entityId, task.language);
       if (entity === null || entity.modelId !== task.modelId) {
         throw new Error(`the ${task.entityType} ${task.entityId} was not found in model ${task.modelId}`);
       }
@@ -195,6 +195,7 @@ export class EmbeddingService implements IEmbeddingService {
         modelId: task.modelId,
         entityId: task.entityId,
         embeddingServiceId,
+        language: task.language,
         status: EntityEmbeddingStatus.IN_PROGRESS,
       });
 
@@ -209,7 +210,8 @@ export class EmbeddingService implements IEmbeddingService {
       const existingEmbeddings = await handler.embeddingRepository.findByEntity(
         task.modelId,
         task.entityId,
-        embeddingServiceId
+        embeddingServiceId,
+        task.language
       );
       const existingHashByField = new Map(
         existingEmbeddings.map((embedding) => [embedding.sourceField, embedding.sourceHash])
@@ -275,6 +277,7 @@ export class EmbeddingService implements IEmbeddingService {
           modelId: task.modelId,
           entityId: task.entityId,
           embeddingServiceId,
+          language: task.language,
           sourceField: staleSources[i].field,
           sourceHash: staleSources[i].hash,
           sourceText: staleSources[i].text,
@@ -286,6 +289,7 @@ export class EmbeddingService implements IEmbeddingService {
         modelId: task.modelId,
         entityId: task.entityId,
         embeddingServiceId,
+        language: task.language,
         status: EntityEmbeddingStatus.COMPLETED,
       });
       await this.recordTaskOutcome(processState, { completedDocuments: 1 });
@@ -315,6 +319,7 @@ export class EmbeddingService implements IEmbeddingService {
         modelId: task.modelId,
         entityId: task.entityId,
         embeddingServiceId: processState.embeddingServiceId,
+        language: task.language,
         status: EntityEmbeddingStatus.FAILED,
       });
     } catch (statusError: unknown) {

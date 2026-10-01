@@ -3236,6 +3236,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
         modelId: givenModelId,
         entityId: givenOccupation.id,
         embeddingServiceId: "service-123",
+        language: "en",
         sourceHash: "hash-123",
         sourceField: EmbeddableField.preferredLabel,
         sourceText: "occ_with_embeddings",
@@ -3252,7 +3253,8 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const embeddings = await repositoryRegistry.occupationEmbedding.findByEntity(
         givenModelId,
         givenOccupation.id,
-        "service-123"
+        "service-123",
+        "en"
       );
       expect(embeddings).toEqual([]);
     });

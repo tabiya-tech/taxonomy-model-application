@@ -34,6 +34,7 @@ export enum EntityEmbeddingIdPath {
 export interface IEntityEmbeddingDoc {
   modelId: mongoose.Types.ObjectId;
   embeddingServiceId: string;
+  language: string;
   sourceHash: string;
   sourceField: EmbeddableField;
   sourceText: string;
@@ -79,6 +80,7 @@ export interface IEntityEmbedding {
   modelId: string;
   entityId: string;
   embeddingServiceId: string;
+  language: string;
   sourceHash: string;
   sourceField: EmbeddableField;
   sourceText: string;
@@ -102,6 +104,8 @@ export interface IVectorSearchParams {
   modelId: string;
   /** The id of the embedding service whose vectors should be searched (an index filter field). */
   embeddingServiceId: string;
+  /** The language dbKeyName to restrict the search to (an index filter field). */
+  language: string;
   /** The embedding of the search value, produced by the same embedding service as the stored vectors. */
   queryVector: number[];
   /** The source fields to search on; only embeddings of these fields are considered (an index filter field). */
@@ -128,6 +132,7 @@ export interface ISetEntityEmbeddingStatusSpec {
   modelId: string;
   entityId: string;
   embeddingServiceId: string;
+  language: string;
   status: EntityEmbeddingStatus;
 }
 

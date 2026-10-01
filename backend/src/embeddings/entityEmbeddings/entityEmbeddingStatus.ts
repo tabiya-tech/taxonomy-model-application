@@ -16,7 +16,7 @@ export async function setEntityEmbeddingStatus<T>(
     .updateOne(
       { _id: { $eq: spec.entityId }, modelId: { $eq: spec.modelId } } as mongoose.FilterQuery<T>,
       {
-        $set: { [`embeddingStatus.${spec.embeddingServiceId}`]: spec.status },
+        $set: { [`embeddingStatus.${spec.embeddingServiceId}|${spec.language}`]: spec.status },
       } as mongoose.UpdateQuery<T>
     )
     .exec();
@@ -37,7 +37,7 @@ export async function setModelEntitiesEmbeddingStatus<T>(
     .updateMany(
       { modelId: { $eq: spec.modelId } } as mongoose.FilterQuery<T>,
       {
-        $set: { [`embeddingStatus.${spec.embeddingServiceId}`]: spec.status },
+        $set: { [`embeddingStatus.${spec.embeddingServiceId}|${spec.language}`]: spec.status },
       } as mongoose.UpdateQuery<T>
     )
     .exec();

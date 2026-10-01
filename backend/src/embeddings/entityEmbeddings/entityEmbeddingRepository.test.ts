@@ -18,6 +18,7 @@ function getNewEntityEmbeddingSpec(overrides: Partial<INewEntityEmbeddingSpec> =
     modelId: getMockStringId(1),
     entityId: getMockStringId(2),
     embeddingServiceId: "77bb8ff3-a6b0-460b-bcaa-00631a907852",
+    language: "en",
     sourceHash: "md5:5eb63bbbe01eeed093cb22bb8f5acdc3",
     sourceField: EmbeddableField.preferredLabel,
     sourceText: "some source text",
@@ -178,11 +179,12 @@ describe.each([
         // AND an embedding of the same entity in a different model
         await repository.upsert(getNewEntityEmbeddingSpec({ modelId: getMockStringId(98) }));
 
-        // WHEN finding the embeddings of the entity for the embedding service
+        // WHEN finding the embeddings of the entity for the embedding service and language
         const actualEntityEmbeddings = await repository.findByEntity(
           givenPreferredLabelSpec.modelId,
           givenPreferredLabelSpec.entityId,
-          givenPreferredLabelSpec.embeddingServiceId
+          givenPreferredLabelSpec.embeddingServiceId,
+          givenPreferredLabelSpec.language
         );
 
         // THEN expect only the two embeddings of the given entity, model and service to be found
@@ -201,7 +203,8 @@ describe.each([
         const actualEntityEmbeddings = await repository.findByEntity(
           getMockStringId(1),
           getMockStringId(2),
-          "77bb8ff3-a6b0-460b-bcaa-00631a907852"
+          "77bb8ff3-a6b0-460b-bcaa-00631a907852",
+          "en"
         );
 
         // THEN expect an empty array to be returned
@@ -212,7 +215,8 @@ describe.each([
         return repositoryRegistry[registryKey as "skillEmbedding"].findByEntity(
           getMockStringId(1),
           getMockStringId(2),
-          "77bb8ff3-a6b0-460b-bcaa-00631a907852"
+          "77bb8ff3-a6b0-460b-bcaa-00631a907852",
+          "en"
         );
       });
     });
@@ -253,7 +257,12 @@ describe.each([
         await repository.delete(givenModelId, givenEntityId);
 
         // THEN expect embeddings for the given entity and model to be deleted
-        const found = await repository.findByEntity(givenModelId, givenEntityId, givenSpec1.embeddingServiceId);
+        const found = await repository.findByEntity(
+          givenModelId,
+          givenEntityId,
+          givenSpec1.embeddingServiceId,
+          givenSpec1.language
+        );
         expect(found).toEqual([]);
 
         // AND expect embeddings for other entities and models to remain
