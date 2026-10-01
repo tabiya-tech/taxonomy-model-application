@@ -1,4 +1,10 @@
 import "_test_utilities/consoleMock";
+import LanguageAPISpecs from "api-specifications/language";
+import {
+  acceptLanguageHeaders,
+  LANGUAGE_NEGOTIATION_CASES,
+  MODEL_LANGUAGES,
+} from "../../_test_utilities/languageNegotiationCases";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import ErrorAPISpecs from "api-specifications/error";
 import * as queryModule from "./query";
@@ -96,7 +102,9 @@ describe("SkillGroupDetailController", () => {
     mockTransform.mockReturnValue(transformedSkillGroup as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findById = jest.fn().mockResolvedValue(skillGroup);
 
     const controller = new SkillGroupDetailController();
@@ -104,7 +112,10 @@ describe("SkillGroupDetailController", () => {
 
     expect(mockGetSkillGroupDetailPathParameters).toHaveBeenCalledWith("/models/model-1/skillGroups/group-1");
     expect(mockServiceRegistry.skillGroup.validateModelForSkillGroup).toHaveBeenCalledWith("model-1");
-    expect(mockServiceRegistry.skillGroup.findById).toHaveBeenCalledWith("group-1");
+    expect(mockServiceRegistry.skillGroup.findById).toHaveBeenCalledWith(
+      "group-1",
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName
+    );
     expect(mockTransform).toHaveBeenCalledWith(skillGroup, "https://resources.example.com");
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
     expect(JSON.parse(actualResponse.body)).toEqual(transformedSkillGroup);
@@ -139,7 +150,7 @@ describe("SkillGroupDetailController", () => {
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
-      .mockResolvedValue(ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+      .mockResolvedValue({ errorCode: ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID });
 
     const controller = new SkillGroupDetailController();
     const actualResponse = await controller.getSkillGroup(buildEvent("/models/model-1/skillGroups/group-1"));
@@ -160,7 +171,7 @@ describe("SkillGroupDetailController", () => {
     const mockServiceRegistry = mockGetServiceRegistry();
     mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
-      .mockResolvedValue(ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
+      .mockResolvedValue({ errorCode: ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB });
 
     const controller = new SkillGroupDetailController();
     const actualResponse = await controller.getSkillGroup(buildEvent("/models/model-1/skillGroups/group-1"));
@@ -179,7 +190,10 @@ describe("SkillGroupDetailController", () => {
     } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.findById = jest.fn().mockResolvedValue(Promise.reject(new Error("DB error")));
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
+    mockServiceRegistry.skillGroup.findById = jest.fn().mockRejectedValue(new Error("DB error"));
     const controller = new SkillGroupDetailController();
     const actualResponse = await controller.getSkillGroup(buildEvent("/models/model-1/skillGroups/group-1"));
     expect(actualResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -199,7 +213,9 @@ describe("SkillGroupDetailController", () => {
     } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findById = jest.fn().mockRejectedValue("repository failed");
 
     const controller = new SkillGroupDetailController();
@@ -221,7 +237,9 @@ describe("SkillGroupDetailController", () => {
     } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findById = jest.fn().mockResolvedValue(null);
 
     const controller = new SkillGroupDetailController();
@@ -271,5 +289,38 @@ describe("SkillGroupDetailController", () => {
     });
     expect(typeof JSON.parse(actualResponse.body).details).toBe("string");
     expect(JSON.parse(actualResponse.body)).toEqual(expectedErrorBody);
+  });
+  describe("language negotiation", () => {
+    test.each(LANGUAGE_NEGOTIATION_CASES)(
+      "GET should serve the skill group in the negotiated language when the request carries %s",
+      async (_description, givenAcceptLanguage, expectedLanguage) => {
+        // GIVEN a model available in the fallback and a secondary language
+        getMockGetSchema().mockReturnValue(jest.fn().mockReturnValue(true) as never);
+        mockGetSkillGroupDetailPathParameters.mockReturnValue({ modelId: "model-1", id: "group-1" } as never);
+        mockTransform.mockReturnValue({ id: "group-1" } as never);
+        const mockServiceRegistry = mockGetServiceRegistry();
+        mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
+          .fn()
+          .mockResolvedValue({ errorCode: null, availableLanguages: MODEL_LANGUAGES });
+        mockServiceRegistry.skillGroup.findById = jest.fn().mockResolvedValue({ id: "group-1" });
+        // AND a request with the given Accept-Language header
+        const givenEvent = {
+          ...buildEvent("/models/model-1/skillGroups/group-1"),
+          headers: acceptLanguageHeaders(givenAcceptLanguage),
+        };
+
+        // WHEN the handler is invoked
+        const actualResponse = await new SkillGroupDetailController().getSkillGroup(givenEvent);
+
+        // THEN expect the response to be served in the expected language
+        expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+        expect(actualResponse.headers).toMatchObject({
+          "Content-Language": expectedLanguage.shortCode,
+          Vary: "Accept-Language",
+        });
+        // AND the translatable fields to be resolved to that language
+        expect(mockServiceRegistry.skillGroup.findById).toHaveBeenCalledWith("group-1", expectedLanguage.dbKeyName);
+      }
+    );
   });
 });

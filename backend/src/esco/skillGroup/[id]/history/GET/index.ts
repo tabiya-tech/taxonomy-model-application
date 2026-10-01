@@ -7,12 +7,12 @@ import ErrorAPISpecs from "api-specifications/error";
 import { RoleRequired } from "auth/authorizer";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { ajvInstance } from "validator";
-import { errorResponse, errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponse, errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { ModelForSkillGroupValidationErrorCode } from "esco/skillGroup/_shared/skillGroup.types";
 import { ISkillGroupService } from "esco/skillGroup/services/skillGroup.service.type";
 import { getSkillGroupHistoryPathParameters } from "./query";
 import { buildHistoryResponse } from "./response";
+import { resolveSkillGroupReadLanguage } from "esco/skillGroup/_shared/resolveReadLanguage";
 
 export class SkillGroupHistoryController {
   private readonly skillGroupService: ISkillGroupService;
@@ -48,9 +48,28 @@ export class SkillGroupHistoryController {
    *      required: true
    *      schema:
    *        $ref: '#/components/schemas/SkillGroupRequestByIdParamSchemaGET/properties/id'
+   *    - in: header
+   *      name: Accept-Language
+   *      required: false
+   *      schema:
+   *        type: string
+   *        example: "fr, en;q=0.9"
+   *      description: >
+   *        Preferred response language. The server picks the best match from the model's available languages
+   *        and falls back to the default language if none match.
    *   responses:
    *     '200':
    *       description: Successfully retrieved the skill group history.
+   *       headers:
+   *         Content-Language:
+   *           schema:
+   *             type: string
+   *             example: "fr"
+   *           description: The language of the response body.
+   *         Vary:
+   *           schema:
+   *             type: string
+   *             example: "Accept-Language"
    *       content:
    *         application/json:
    *           schema:
@@ -93,28 +112,20 @@ export class SkillGroupHistoryController {
         );
       }
 
-      // The skill group's own model must exist, but unlike write operations a released model is valid here:
-      // the history intentionally includes released models, so MODEL_IS_RELEASED (and null) are accepted.
-      const validationResult = await this.skillGroupService.validateModelForSkillGroup(requestPathParameter.modelId);
-      if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          SkillGroupAPISpecs.SkillGroup.History.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${requestPathParameter.modelId}`
-        );
-      }
-      if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillGroupAPISpecs.SkillGroup.History.GET.Enums.Response.Status500.ErrorCodes
-            .DB_FAILED_TO_RETRIEVE_SKILL_GROUP_HISTORY,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
+      const readLanguage = resolveSkillGroupReadLanguage(
+        event,
+        await this.skillGroupService.validateModelForSkillGroup(requestPathParameter.modelId),
+        requestPathParameter.modelId,
+        {
+          modelNotFound: SkillGroupAPISpecs.SkillGroup.History.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          dbFailedToRetrieve:
+            SkillGroupAPISpecs.SkillGroup.History.GET.Enums.Response.Status500.ErrorCodes
+              .DB_FAILED_TO_RETRIEVE_SKILL_GROUP_HISTORY,
+        }
+      );
+      if ("statusCode" in readLanguage) return readLanguage;
 
-      const history = await this.skillGroupService.getHistory(requestPathParameter.id);
+      const history = await this.skillGroupService.getHistory(requestPathParameter.id, readLanguage.language);
       if (history === null) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
@@ -124,7 +135,7 @@ export class SkillGroupHistoryController {
         );
       }
 
-      return responseJSON(StatusCodes.OK, buildHistoryResponse(history));
+      return response(StatusCodes.OK, buildHistoryResponse(history), readLanguage.headers);
     } catch (error: unknown) {
       console.error("Failed to get skill group history:", error);
       errorLoggerInstance.logError(
