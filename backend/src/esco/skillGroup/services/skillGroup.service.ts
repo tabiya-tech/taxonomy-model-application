@@ -9,13 +9,13 @@ import {
 import { findUnsupportedLanguage } from "common/language/translatedFields";
 import {
   ModelForSkillGroupValidationErrorCode,
-  ValidateModelForSkillGroupResult,
   INewSkillGroupSpecWithoutImportId,
   ISkillGroup,
   ISkillGroupChild,
   IPartialUpdateSkillGroupSpec,
   IUpdateSkillGroupSpec,
   SKILLGROUP_TRANSLATABLE_FIELDS,
+  ValidateModelForSkillGroupResult,
 } from "../_shared/skillGroup.types";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import { ISkillHierarchyRepository } from "esco/skillHierarchy/skillHierarchyRepository";
@@ -43,46 +43,12 @@ export class SkillGroupService implements ISkillGroupService {
   ) {}
 
   async create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup> {
-    const result = await this.validateModelAndGetAvailableLanguages(newSkillGroupSpec.modelId);
-    if (result.errorCode != null) {
-      throw new SkillGroupModelValidationError(result.errorCode);
-    }
-
-    const unsupportedLanguage = findUnsupportedLanguage(
-      newSkillGroupSpec,
-      SKILLGROUP_TRANSLATABLE_FIELDS,
-      result.availableLanguages
-    );
-    if (unsupportedLanguage !== null) {
-      throw new SkillGroupLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
-    }
-
+    await this.assertModelIsEditableAndLanguagesAreAvailable(newSkillGroupSpec.modelId, newSkillGroupSpec);
     return this.skillGroupRepository.create(newSkillGroupSpec);
   }
 
-  /**
-   * Like validateModelForSkillGroup, but also returns the model's availableLanguages on success, in a single
-   * fetch. Kept separate from validateModelForSkillGroup so that method's existing callers (which compare its
-   * result directly against ModelForSkillGroupValidationErrorCode) are unaffected.
-   */
-  async validateModelAndGetAvailableLanguages(modelId: string): Promise<ValidateModelForSkillGroupResult> {
-    try {
-      const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
-      if (!model) {
-        return { errorCode: ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID };
-      }
-      if (model.released) {
-        return { errorCode: ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED };
-      }
-      return { errorCode: null, availableLanguages: model.availableLanguages ?? [] };
-    } catch (e: unknown) {
-      console.error("Error validating model for skill group:", e);
-      return { errorCode: ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB };
-    }
-  }
-
-  async findById(id: string): Promise<ISkillGroup | null> {
-    return this.skillGroupRepository.findById(id);
+  async findById(id: string, language?: string): Promise<ISkillGroup | null> {
+    return this.skillGroupRepository.findById(id, language);
   }
 
   async findPaginated(
@@ -90,10 +56,19 @@ export class SkillGroupService implements ISkillGroupService {
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
     desc: boolean = true,
-    filter?: ISkillGroupPaginatedFilter
+    filter?: ISkillGroupPaginatedFilter,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     const sortOrder = desc ? -1 : 1;
-    const items = await this.skillGroupRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id, filter);
+    const items = await this.skillGroupRepository.findPaginated(
+      modelId,
+      limit + 1,
+      sortOrder,
+      cursor?.id,
+      filter,
+      undefined,
+      language
+    );
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
 
@@ -143,7 +118,8 @@ export class SkillGroupService implements ISkillGroupService {
 
   /**
    * Searches an unreleased (or not-yet-embedded) model's skill groups with a case-insensitive regex, paginated with
-   * the same keyset (_id) cursor as the plain list endpoint.
+   * the same keyset (_id) cursor as the plain list endpoint. `language` is both the language matched on and the one
+   * the returned skill groups' fields are resolved to.
    */
   private async regexSearchPaginated(
     modelId: string,
@@ -228,57 +204,54 @@ export class SkillGroupService implements ISkillGroupService {
     return { items, nextCursor };
   }
 
-  async validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null> {
+  async validateModelForSkillGroup(modelId: string): Promise<ValidateModelForSkillGroupResult> {
     try {
       const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
       if (!model) {
-        return ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
+        return { errorCode: ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID };
       }
-      if (model.released) {
-        return ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED;
-      }
-      return null;
+      return {
+        errorCode: model.released ? ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED : null,
+        availableLanguages: model.availableLanguages ?? [],
+      };
     } catch (e: unknown) {
       console.error("Error validating model for skill group:", e);
-      return ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
+      return { errorCode: ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB };
+    }
+  }
+
+  /**
+   * Throws a SkillGroupModelValidationError unless the model exists and is not released.
+   */
+  private async assertModelIsEditable(modelId: string): Promise<string[]> {
+    const result = await this.validateModelForSkillGroup(modelId);
+    if (result.errorCode != null) {
+      throw new SkillGroupModelValidationError(result.errorCode);
+    }
+    return result.availableLanguages;
+  }
+
+  /**
+   * Like assertModelIsEditable, and also throws a SkillGroupLanguageValidationError when a translatable field of
+   * the spec sets a language that is not available in the model.
+   */
+  private async assertModelIsEditableAndLanguagesAreAvailable(modelId: string, spec: object): Promise<void> {
+    const availableLanguages = await this.assertModelIsEditable(modelId);
+    const unsupportedLanguage = findUnsupportedLanguage(spec, SKILLGROUP_TRANSLATABLE_FIELDS, availableLanguages);
+    if (unsupportedLanguage !== null) {
+      throw new SkillGroupLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
     }
   }
 
   async update(id: string, modelId: string, spec: IUpdateSkillGroupSpec): Promise<ISkillGroup | null> {
-    const result = await this.validateModelAndGetAvailableLanguages(modelId);
-    if (result.errorCode != null) {
-      throw new SkillGroupModelValidationError(result.errorCode);
-    }
-
-    const unsupportedLanguage = findUnsupportedLanguage(
-      spec,
-      SKILLGROUP_TRANSLATABLE_FIELDS,
-      result.availableLanguages
-    );
-    if (unsupportedLanguage !== null) {
-      throw new SkillGroupLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
-    }
-
+    await this.assertModelIsEditableAndLanguagesAreAvailable(modelId, spec);
     return this.skillGroupRepository.update(id, modelId, spec);
   }
 
   async patch(id: string, modelId: string, spec: IPartialUpdateSkillGroupSpec): Promise<ISkillGroup | null> {
-    const result = await this.validateModelAndGetAvailableLanguages(modelId);
-    if (result.errorCode != null) {
-      throw new SkillGroupModelValidationError(result.errorCode);
-    }
-
     // A language explicitly set to null (a deletion) is never rejected as unsupported: removing a language
     // cannot make the model's supported set outdated the way adding one can.
-    const unsupportedLanguage = findUnsupportedLanguage(
-      spec,
-      SKILLGROUP_TRANSLATABLE_FIELDS,
-      result.availableLanguages
-    );
-    if (unsupportedLanguage !== null) {
-      throw new SkillGroupLanguageValidationError(unsupportedLanguage.field, unsupportedLanguage.language);
-    }
-
+    await this.assertModelIsEditableAndLanguagesAreAvailable(modelId, spec);
     return this.skillGroupRepository.patch(id, modelId, spec);
   }
 
@@ -286,10 +259,11 @@ export class SkillGroupService implements ISkillGroupService {
     modelId: string,
     id: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     return this.findPaginatedRelation(
-      () => this.skillGroupRepository.findParents(modelId, id, limit + 1, cursor),
+      () => this.skillGroupRepository.findParents(modelId, id, limit + 1, cursor, language),
       limit
     );
   }
@@ -298,10 +272,11 @@ export class SkillGroupService implements ISkillGroupService {
     modelId: string,
     id: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{ items: ISkillGroupChild[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     return this.findPaginatedRelation(
-      () => this.skillGroupRepository.findChildren(modelId, id, limit + 1, cursor),
+      () => this.skillGroupRepository.findChildren(modelId, id, limit + 1, cursor, language),
       limit
     );
   }
@@ -332,10 +307,7 @@ export class SkillGroupService implements ISkillGroupService {
     parentType: ObjectTypes.SkillGroup;
     modelId: string;
   }): Promise<ISkillGroup> {
-    const errorCode = await this.validateModelForSkillGroup(params.modelId);
-    if (errorCode != null) {
-      throw new SkillGroupModelValidationError(errorCode);
-    }
+    await this.assertModelIsEditable(params.modelId);
 
     const child = await this.skillGroupRepository.findById(params.childId);
     if (!child || child.modelId !== params.modelId) {
@@ -359,8 +331,8 @@ export class SkillGroupService implements ISkillGroupService {
     return parent;
   }
 
-  async getHistory(skillGroupId: string): Promise<ISkillGroupHistoryEntry[] | null> {
-    const skillGroup = await this.skillGroupRepository.findById(skillGroupId);
+  async getHistory(skillGroupId: string, language?: string): Promise<ISkillGroupHistoryEntry[] | null> {
+    const skillGroup = await this.skillGroupRepository.findById(skillGroupId, language);
     if (!skillGroup) {
       return null;
     }
@@ -375,7 +347,7 @@ export class SkillGroupService implements ISkillGroupService {
     const modelRepository = getRepositoryRegistry().modelInfo;
 
     // Resolve each historical UUID to the skill group's reference (as it was in that model) + its modelId.
-    const historyReferences = await this.skillGroupRepository.findHistoryReferencesByUUIDs(uuidHistory);
+    const historyReferences = await this.skillGroupRepository.findHistoryReferencesByUUIDs(uuidHistory, language);
     const referenceByUUID = new Map(historyReferences.map((entry) => [entry.UUID, entry]));
 
     // Fetch the models for the resolved modelIds (single query) and map them to lightweight references.

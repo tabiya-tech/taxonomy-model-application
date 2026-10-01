@@ -97,7 +97,6 @@ describe("SkillGroupParentPOSTController", () => {
         findChildren: jest.fn(),
         searchPaginated: jest.fn(),
         validateModelForSkillGroup: jest.fn(),
-        validateModelAndGetAvailableLanguages: jest.fn(),
         getHistory: jest.fn(),
         update: jest.fn(),
         patch: jest.fn(),

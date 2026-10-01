@@ -4,7 +4,8 @@ import "_test_utilities/consoleMock";
 import mongoose, { Connection } from "mongoose";
 import { randomUUID } from "crypto";
 import { getNewConnection } from "server/connection/newConnection";
-import { initializeSchemaAndModel } from "./SkillGroup.model";
+import { initializeSchemaAndModel, toObjectInLanguage } from "./SkillGroup.model";
+import LanguageAPISpecs from "api-specifications/language";
 import { getMockObjectId } from "_test_utilities/mockMongoId";
 import { generateRandomUrl, getRandomString, getTestString, WHITESPACE } from "_test_utilities/getMockRandomData";
 import { assertCaseForProperty, CaseType } from "_test_utilities/dataModel";
@@ -171,6 +172,37 @@ describe("Test the definition of the skillGroup Model", () => {
     // THEN expect both items to be present, the one lacking the fallback language read as an empty string rather
     // than being silently dropped from the array
     expect(actualObject.altLabels).toEqual(["kept", ""]);
+  });
+
+  test("should flatten the translatable fields to the language given to toObject(), falling back per field", async () => {
+    // GIVEN a skillGroup whose preferredLabel and first altLabel are translated in a secondary language,
+    // while its description, scopeNote and second altLabel are translated in the fallback language only
+    const givenSecondaryDbKeyName = LanguageAPISpecs.Constants.Languages[1].dbKeyName;
+    const givenObject = {
+      UUID: randomUUID(),
+      code: getTestSkillGroupCode(100),
+      preferredLabel: { [fallbackDbKeyName]: "Management", [givenSecondaryDbKeyName]: "Gestion" },
+      modelId: getMockObjectId(2),
+      UUIDHistory: [randomUUID()],
+      originUri: "",
+      altLabels: [{ [fallbackDbKeyName]: "Leading", [givenSecondaryDbKeyName]: "Diriger" }, wrapTranslated("Running")],
+      description: wrapTranslated("The description"),
+      scopeNote: wrapTranslated("The scope note"),
+      importId: "",
+    } as unknown as ISkillGroupDoc;
+    const givenSkillGroupDocument = new skillGroupModel(givenObject);
+    await givenSkillGroupDocument.save();
+
+    // WHEN reading the document in the secondary language
+    const actualObject = givenSkillGroupDocument.toObject(toObjectInLanguage(givenSecondaryDbKeyName));
+
+    // THEN expect the translated fields in the secondary language and the others in the fallback language
+    expect(actualObject).toMatchObject({
+      preferredLabel: "Gestion",
+      altLabels: ["Diriger", "Running"],
+      description: "The description",
+      scopeNote: "The scope note",
+    });
   });
 
   describe("Validate skillGroup fields", () => {

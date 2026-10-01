@@ -52,6 +52,12 @@ import {
 } from "esco/_test_utilities/queriesWithExplainPlan";
 import { INDEX_FOR_CHILDREN, INDEX_FOR_PARENTS } from "esco/skillHierarchy/skillHierarchyModel";
 import { generateRandomUUIDs } from "_test_utilities/generateRandomUUIDs";
+import {
+  EXPECTED_IN_SECONDARY_LANGUAGE,
+  insertLocalizedSkillGroups,
+  LOCALIZED_IDS,
+} from "../_test_utilities/localizedSkillGroupData";
+import { SECONDARY_LANGUAGE } from "../_test_utilities/languageNegotiationCases";
 
 jest.mock("crypto", () => {
   const actual = jest.requireActual("crypto");
@@ -2265,6 +2271,149 @@ describe("Test the SkillGroup Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup<unknown>((repositoryRegistry) => {
       return repositoryRegistry.skillGroup.findHistoryReferencesByUUIDs([randomUUID()]);
+    });
+  });
+
+  describe("Test the language the read methods resolve the translatable fields to", () => {
+    const givenModelId = getMockStringId(1);
+    const expected = EXPECTED_IN_SECONDARY_LANGUAGE;
+
+    beforeEach(async () => {
+      // GIVEN a skill group, with a parent, a child skill group and a child skill, partially translated in a
+      // secondary language
+      await insertLocalizedSkillGroups(dbConnection, givenModelId);
+    });
+
+    // the translatable fields of the skill group under test, and of its references, in the secondary language
+    function expectSkillGroupInSecondaryLanguage(actualSkillGroup: ISkillGroup | null | undefined) {
+      expect(actualSkillGroup).toMatchObject({
+        id: LOCALIZED_IDS.skillGroup,
+        preferredLabel: expected.preferredLabel,
+        altLabels: expected.altLabels,
+        description: expected.description,
+        scopeNote: expected.scopeNote,
+      });
+      expect(actualSkillGroup!.parents.map((parent) => parent.preferredLabel)).toEqual([expected.parentPreferredLabel]);
+      expect(actualSkillGroup!.children.map((child) => child.preferredLabel)).toEqual([
+        expected.childSkillGroupPreferredLabel,
+        expected.childSkillPreferredLabel,
+      ]);
+    }
+
+    test("findById() should resolve the skill group and its references to the given language, per field", async () => {
+      // WHEN finding the skill group in the secondary language
+      const actualSkillGroup = await repository.findById(LOCALIZED_IDS.skillGroup, SECONDARY_LANGUAGE.dbKeyName);
+
+      // THEN expect the translated fields in the secondary language and the others in the fallback language
+      expectSkillGroupInSecondaryLanguage(actualSkillGroup);
+    });
+
+    test("findById() should resolve the fallback language exactly as it is stored when no language is given", async () => {
+      // WHEN finding the skill group without a language
+      const actualSkillGroup = await repository.findById(LOCALIZED_IDS.skillGroup);
+
+      // THEN expect the fallback language values
+      expect(actualSkillGroup).toMatchObject({
+        preferredLabel: "Management",
+        altLabels: ["Leading", "Running"],
+        description: expected.description,
+        scopeNote: expected.scopeNote,
+      });
+      expect(actualSkillGroup!.parents.map((parent) => parent.preferredLabel)).toEqual(["Parent group"]);
+    });
+
+    test("findPaginated() should resolve the skill groups and their references to the given language", async () => {
+      // WHEN finding the skill groups in the secondary language
+      const actualSkillGroups = await repository.findPaginated(
+        givenModelId,
+        10,
+        1,
+        undefined,
+        undefined,
+        undefined,
+        SECONDARY_LANGUAGE.dbKeyName
+      );
+
+      // THEN expect the skill group under test to be resolved to the secondary language
+      expectSkillGroupInSecondaryLanguage(actualSkillGroups.find((group) => group.id === LOCALIZED_IDS.skillGroup));
+    });
+
+    test("findByIds() should resolve the skill groups and their references to the given language", async () => {
+      // WHEN finding the skill group by its id in the secondary language
+      const actualSkillGroups = await repository.findByIds(
+        givenModelId,
+        [LOCALIZED_IDS.skillGroup],
+        SECONDARY_LANGUAGE.dbKeyName
+      );
+
+      // THEN expect it to be resolved to the secondary language
+      expectSkillGroupInSecondaryLanguage(actualSkillGroups[0]);
+    });
+
+    test("findParents() should resolve the parents to the given language", async () => {
+      // WHEN finding the parents of the child skill group in the secondary language
+      const actualParents = await repository.findParents(
+        givenModelId,
+        LOCALIZED_IDS.childSkillGroup,
+        10,
+        undefined,
+        SECONDARY_LANGUAGE.dbKeyName
+      );
+
+      // THEN expect the parent, the skill group under test, to be resolved to the secondary language
+      expectSkillGroupInSecondaryLanguage(actualParents[0]);
+    });
+
+    test("findChildren() should resolve the children to the given language, per field", async () => {
+      // WHEN finding the children of the parent in the secondary language
+      const actualChildren = await repository.findChildren(
+        givenModelId,
+        LOCALIZED_IDS.parent,
+        10,
+        undefined,
+        SECONDARY_LANGUAGE.dbKeyName
+      );
+
+      // THEN expect the child, the skill group under test, to be resolved to the secondary language, per field
+      expect(actualChildren).toEqual([
+        expect.objectContaining({
+          id: LOCALIZED_IDS.skillGroup,
+          preferredLabel: expected.preferredLabel,
+          altLabels: expected.altLabels,
+          description: expected.description,
+        }),
+      ]);
+    });
+
+    test("findChildren() should resolve the children of every type to the given language", async () => {
+      // WHEN finding the children of the skill group under test in the secondary language
+      const actualChildren = await repository.findChildren(
+        givenModelId,
+        LOCALIZED_IDS.skillGroup,
+        10,
+        undefined,
+        SECONDARY_LANGUAGE.dbKeyName
+      );
+
+      // THEN expect both the child skill group and the child skill to be resolved to the secondary language
+      expect(actualChildren.map((child) => child.preferredLabel)).toEqual([
+        expected.childSkillGroupPreferredLabel,
+        expected.childSkillPreferredLabel,
+      ]);
+    });
+
+    test("findHistoryReferencesByUUIDs() should resolve the references to the given language", async () => {
+      // GIVEN the UUID of the skill group under test
+      const givenSkillGroup = await repository.findById(LOCALIZED_IDS.skillGroup);
+
+      // WHEN resolving its history references in the secondary language
+      const actualReferences = await repository.findHistoryReferencesByUUIDs(
+        [givenSkillGroup!.UUID],
+        SECONDARY_LANGUAGE.dbKeyName
+      );
+
+      // THEN expect the reference to be resolved to the secondary language
+      expect(actualReferences[0].reference?.preferredLabel).toEqual(expected.preferredLabel);
     });
   });
 
