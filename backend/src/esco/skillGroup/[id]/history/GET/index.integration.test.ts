@@ -1,4 +1,5 @@
 import "_test_utilities/consoleMock";
+import { describeLanguageNegotiation } from "../../../_test_utilities/describeLanguageNegotiation";
 
 import { APIGatewayProxyEvent } from "aws-lambda";
 import Ajv, { ValidateFunction } from "ajv";
@@ -148,5 +149,13 @@ describe("Test for skillGroup History GET handler with a DB", () => {
     expect(JSON.parse(actualResponse.body).errorCode).toEqual(
       SkillGroupAPISpecs.SkillGroup.History.GET.Enums.Response.Status404.ErrorCodes.SKILL_GROUP_NOT_FOUND
     );
+  });
+
+  describeLanguageNegotiation({
+    handler: skillGroupHistoryHandler,
+    subPath: "/history",
+    fixture: "history",
+    actualValues: (body: { preferredLabel: string }[]) => body.map((entry) => entry.preferredLabel),
+    expectedValues: (values) => [values.skillGroup],
   });
 });

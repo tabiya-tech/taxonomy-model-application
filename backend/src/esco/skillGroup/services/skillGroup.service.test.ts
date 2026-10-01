@@ -1,3 +1,4 @@
+import LanguageAPISpecs from "api-specifications/language";
 import { SkillGroupService } from "./skillGroup.service";
 import {
   ISkillGroupService,
@@ -42,6 +43,8 @@ jest.mock("server/repositoryRegistry/repositoryRegistry");
 const mockGetRepositoryRegistry = getRepositoryRegistry as jest.MockedFunction<typeof getRepositoryRegistry>;
 
 describe("Test the SkillGroupService", () => {
+  // the dbKeyName of the language the read methods are asked to resolve the translatable fields to
+  const givenLanguage = LanguageAPISpecs.Constants.Languages[1].dbKeyName;
   let service: ISkillGroupService;
   let mockRepository: jest.Mocked<ISkillGroupRepository>;
   let mockSkillHierarchyRepository: jest.Mocked<ISkillHierarchyRepository>;
@@ -249,10 +252,10 @@ describe("Test the SkillGroupService", () => {
       mockRepository.findById.mockResolvedValue(expectedSkillGroup);
 
       // WHEN calling service.findById
-      const actual = await service.findById(givenId);
+      const actual = await service.findById(givenId, givenLanguage);
 
       // THEN expect repository.findById to have been called with the given id
-      expect(mockRepository.findById).toHaveBeenCalledWith(givenId);
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenId, givenLanguage);
       // AND the returned skillGroup to be the expected one
       expect(actual).toBe(expectedSkillGroup);
     });
@@ -265,10 +268,10 @@ describe("Test the SkillGroupService", () => {
       mockRepository.findById.mockResolvedValue(null);
 
       // WHEN calling service.findById
-      const actual = await service.findById(givenId);
+      const actual = await service.findById(givenId, givenLanguage);
 
       // THEN expect repository.findById to have been called with the given id
-      expect(mockRepository.findById).toHaveBeenCalledWith(givenId);
+      expect(mockRepository.findById).toHaveBeenCalledWith(givenId, givenLanguage);
       // AND the returned skillGroup to be null
       expect(actual).toBeNull();
     });
@@ -280,7 +283,7 @@ describe("Test the SkillGroupService", () => {
       mockRepository.findById.mockRejectedValue(new Error("Repository error"));
 
       // WHEN calling service.findById
-      const promise = service.findById(givenId);
+      const promise = service.findById(givenId, givenLanguage);
       // THEN expect it to throw the same error
       await expect(promise).rejects.toThrow("Repository error");
     });
@@ -321,11 +324,21 @@ describe("Test the SkillGroupService", () => {
         givenModelId,
         { id: getMockStringId(10), createdAt: new Date("2023-01-01T00:00:00.000Z") },
         givenLimit,
-        givenDesc
+        givenDesc,
+        undefined,
+        givenLanguage
       );
 
       // THEN expect repository.findPaginated to have been called with the correct parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10), undefined);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        -1,
+        getMockStringId(10),
+        undefined,
+        undefined,
+        givenLanguage
+      );
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(10);
       expect(actual.nextCursor).toEqual({
@@ -368,11 +381,21 @@ describe("Test the SkillGroupService", () => {
         givenModelId,
         { id: getMockStringId(10), createdAt: new Date("2023-01-01T00:00:00.000Z") },
         givenLimit,
-        givenDesc
+        givenDesc,
+        undefined,
+        givenLanguage
       );
 
       // THEN expect repository.findPaginated to have been called with the correct parameters
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, getMockStringId(10), undefined);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        -1,
+        getMockStringId(10),
+        undefined,
+        undefined,
+        givenLanguage
+      );
       // AND expect the returned paginated result
       expect(actual.items).toHaveLength(6);
       expect(actual.nextCursor).toBeNull();
@@ -408,10 +431,25 @@ describe("Test the SkillGroupService", () => {
       mockRepository.findPaginated.mockResolvedValue(mockItems);
 
       // WHEN calling service.findPaginated with desc=false
-      const actual = await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc);
+      const actual = await service.findPaginated(
+        givenModelId,
+        undefined,
+        givenLimit,
+        givenDesc,
+        undefined,
+        givenLanguage
+      );
 
       // THEN expect repository.findPaginated to have been called with the ascending sort
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, undefined, undefined);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        1,
+        undefined,
+        undefined,
+        undefined,
+        givenLanguage
+      );
       // AND expect the returned result
       expect(actual.items).toHaveLength(5);
     });
@@ -449,10 +487,18 @@ describe("Test the SkillGroupService", () => {
       mockRepository.findPaginated.mockResolvedValue(mockItems);
 
       // WHEN calling service.findPaginated with a children filter
-      await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc, givenFilter);
+      await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc, givenFilter, givenLanguage);
 
       // THEN expect repository.findPaginated to have been called with the filter
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, undefined, givenFilter);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        -1,
+        undefined,
+        givenFilter,
+        undefined,
+        givenLanguage
+      );
     });
 
     test("should forward the root filter when provided", async () => {
@@ -468,10 +514,18 @@ describe("Test the SkillGroupService", () => {
       mockRepository.findPaginated.mockResolvedValue([]);
 
       // WHEN calling service.findPaginated with a root filter
-      await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc, givenFilter);
+      await service.findPaginated(givenModelId, undefined, givenLimit, givenDesc, givenFilter, givenLanguage);
 
       // THEN expect repository.findPaginated to have been called with the root filter
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, undefined, givenFilter);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        -1,
+        undefined,
+        givenFilter,
+        undefined,
+        givenLanguage
+      );
     });
 
     test("should build ascending cursor filter when cursor is provided", async () => {
@@ -506,11 +560,21 @@ describe("Test the SkillGroupService", () => {
         givenModelId,
         { id: givenCursorId, createdAt: new Date("2023-01-01T00:00:00.000Z") },
         givenLimit,
-        givenDesc
+        givenDesc,
+        undefined,
+        givenLanguage
       );
 
       // THEN expect repository.findPaginated to have been called with cursorId for ascending cursor
-      expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, 1, givenCursorId, undefined);
+      expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+        givenModelId,
+        11,
+        1,
+        givenCursorId,
+        undefined,
+        undefined,
+        givenLanguage
+      );
     });
 
     test("should handle descending sort order", async () => {
@@ -550,7 +614,9 @@ describe("Test the SkillGroupService", () => {
           createdAt: new Date("2023-01-01T00:00:00.000Z"),
         },
         givenLimit,
-        givenDesc
+        givenDesc,
+        undefined,
+        givenLanguage
       );
 
       // THEN expect repository.findPaginate to have been called with the descending sort
@@ -559,7 +625,9 @@ describe("Test the SkillGroupService", () => {
         givenLimit + 1,
         -1,
         getMockStringId(10),
-        undefined
+        undefined,
+        undefined,
+        givenLanguage
       );
       // AND expect the returned result
       expect(actual.items).toHaveLength(6);
@@ -618,7 +686,8 @@ describe("Test the SkillGroupService", () => {
           givenSearchValue,
           givenSearchFields,
           undefined,
-          givenLimit
+          givenLimit,
+          givenLanguage
         );
 
         // THEN expect the regex search to have been used (not the vector search)
@@ -631,7 +700,8 @@ describe("Test the SkillGroupService", () => {
           {
             value: givenSearchValue,
             fields: givenSearchFields,
-          }
+          },
+          givenLanguage
         );
         expect(mockSkillGroupEmbeddingRepository.vectorSearch).not.toHaveBeenCalled();
         // AND expect a page of `limit` items and a keyset nextCursor pointing at the last item
@@ -646,7 +716,14 @@ describe("Test the SkillGroupService", () => {
         mockRepository.findPaginated.mockResolvedValue(givenSkillGroups(1, givenModelId));
 
         // WHEN searching
-        const actual = await service.searchPaginated(givenModelId, givenSearchValue, givenSearchFields, undefined, 10);
+        const actual = await service.searchPaginated(
+          givenModelId,
+          givenSearchValue,
+          givenSearchFields,
+          undefined,
+          10,
+          givenLanguage
+        );
 
         // THEN expect no next cursor
         expect(actual.nextCursor).toBeNull();
@@ -661,7 +738,14 @@ describe("Test the SkillGroupService", () => {
         const givenCursor = encodeCursor(getMockStringId(50), new Date("2023-05-05T00:00:00.000Z"));
 
         // WHEN searching with the cursor
-        await service.searchPaginated(givenModelId, givenSearchValue, givenSearchFields, givenCursor, 10);
+        await service.searchPaginated(
+          givenModelId,
+          givenSearchValue,
+          givenSearchFields,
+          givenCursor,
+          10,
+          givenLanguage
+        );
 
         // THEN expect the decoded cursor id to have been forwarded to the repository
         expect(mockRepository.findPaginated).toHaveBeenCalledWith(
@@ -673,7 +757,8 @@ describe("Test the SkillGroupService", () => {
           {
             value: givenSearchValue,
             fields: givenSearchFields,
-          }
+          },
+          givenLanguage
         );
       });
 
@@ -685,13 +770,28 @@ describe("Test the SkillGroupService", () => {
         mockRepository.findPaginated.mockResolvedValue(givenSkillGroups(1, givenModelId));
 
         // WHEN searching
-        const actual = await service.searchPaginated(givenModelId, givenSearchValue, givenSearchFields, undefined, 10);
+        const actual = await service.searchPaginated(
+          givenModelId,
+          givenSearchValue,
+          givenSearchFields,
+          undefined,
+          10,
+          givenLanguage
+        );
 
         // THEN expect the regex search to have been used and no vector search attempted
-        expect(mockRepository.findPaginated).toHaveBeenCalledWith(givenModelId, 11, -1, undefined, undefined, {
-          value: givenSearchValue,
-          fields: givenSearchFields,
-        });
+        expect(mockRepository.findPaginated).toHaveBeenCalledWith(
+          givenModelId,
+          11,
+          -1,
+          undefined,
+          undefined,
+          {
+            value: givenSearchValue,
+            fields: givenSearchFields,
+          },
+          givenLanguage
+        );
         expect(mockSkillGroupEmbeddingRepository.vectorSearch).not.toHaveBeenCalled();
         expect(actual.items).toHaveLength(1);
       });
@@ -726,11 +826,18 @@ describe("Test the SkillGroupService", () => {
           givenSearchValue,
           givenSearchFields,
           undefined,
-          givenLimit
+          givenLimit,
+          givenLanguage
         );
 
         // THEN expect the query value to have been embedded with the model's embedding service
         expect(mockEmbeddingModelServiceFactory).toHaveBeenCalledWith(givenEmbeddingServiceId);
+        // AND the ranked skill groups to have been hydrated in the given language
+        expect(mockRepository.findByIds).toHaveBeenCalledWith(
+          givenModelId,
+          rankedSkillGroups.slice(0, givenLimit).map((group) => group.id),
+          givenLanguage
+        );
         expect(mockEmbeddingModelService.generateEmbedding).toHaveBeenCalledWith(givenSearchValue);
         // AND the vector search to have been scoped to the model, service, fields and paginated by offset 0
         expect(mockSkillGroupEmbeddingRepository.vectorSearch).toHaveBeenCalledWith({
@@ -766,7 +873,8 @@ describe("Test the SkillGroupService", () => {
           givenSearchValue,
           givenSearchFields,
           givenCursor,
-          givenLimit
+          givenLimit,
+          givenLanguage
         );
 
         // THEN expect the offset to have been forwarded and advanced by `limit`
@@ -786,7 +894,14 @@ describe("Test the SkillGroupService", () => {
         mockRepository.findByIds.mockResolvedValue(rankedSkillGroups);
 
         // WHEN searching
-        const actual = await service.searchPaginated(givenModelId, givenSearchValue, givenSearchFields, undefined, 10);
+        const actual = await service.searchPaginated(
+          givenModelId,
+          givenSearchValue,
+          givenSearchFields,
+          undefined,
+          10,
+          givenLanguage
+        );
 
         // THEN expect no next cursor and all items returned
         expect(actual.nextCursor).toBeNull();
@@ -983,7 +1098,25 @@ describe("Test the SkillGroupService", () => {
     });
   });
 
-  describe("validateModelForOccupationGroup", () => {
+  describe("validateModelForSkillGroup", () => {
+    const givenAvailableLanguages = ["en", "fr"];
+
+    test("should return no languages when the model does not declare any", async () => {
+      // GIVEN a model that exists, is not released and does not declare its languages
+      const givenModelId = getMockStringId(1);
+      mockGetRepositoryRegistry.mockReturnValue({
+        modelInfo: {
+          getModelById: jest.fn().mockResolvedValue({ id: givenModelId, released: false } as IModelInfo),
+        },
+      } as unknown as ReturnType<typeof getRepositoryRegistry>);
+
+      // WHEN calling service.validateModelForSkillGroup
+      const actual = await service.validateModelForSkillGroup(givenModelId);
+
+      // THEN expect it to return valid, with no languages
+      expect(actual).toEqual({ errorCode: null, availableLanguages: [] });
+    });
+
     test("should return valid when model exists and is not released", async () => {
       // GIVEN a modelId
       const givenModelId = getMockStringId(1);
@@ -993,6 +1126,7 @@ describe("Test the SkillGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: false,
+            availableLanguages: givenAvailableLanguages,
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
@@ -1000,8 +1134,8 @@ describe("Test the SkillGroupService", () => {
       // WHEN calling service.validateModelForSkillGroup
       const actual = await service.validateModelForSkillGroup(givenModelId);
 
-      // THEN expect it to return valid
-      expect(actual).toEqual(null);
+      // THEN expect it to return valid, with the model's languages
+      expect(actual).toEqual({ errorCode: null, availableLanguages: givenAvailableLanguages });
     });
 
     test("should return invalid when model does not exist", async () => {
@@ -1019,7 +1153,7 @@ describe("Test the SkillGroupService", () => {
       const actual = await service.validateModelForSkillGroup(givenModelId);
 
       // THEN expect it to return invalid due to released model
-      expect(actual).toEqual(ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+      expect(actual).toEqual({ errorCode: ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID });
     });
     test("should return invalid when model is released", async () => {
       // GIVEN a modelId
@@ -1030,13 +1164,17 @@ describe("Test the SkillGroupService", () => {
           getModelById: jest.fn().mockResolvedValue({
             id: givenModelId,
             released: true,
+            availableLanguages: givenAvailableLanguages,
           } as IModelInfo),
         },
       } as unknown as ReturnType<typeof getRepositoryRegistry>);
       // WHEN calling service.validateModelForSkillGroup
       const actual = await service.validateModelForSkillGroup(givenModelId);
-      // THEN expect it to return invalid due to released model
-      expect(actual).toEqual(ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED);
+      // THEN expect it to return invalid due to released model, still with the model's languages for read endpoints
+      expect(actual).toEqual({
+        errorCode: ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED,
+        availableLanguages: givenAvailableLanguages,
+      });
     });
     test("should return invalid when getModelById throws", async () => {
       // GIVEN a modelId
@@ -1054,7 +1192,7 @@ describe("Test the SkillGroupService", () => {
       const actual = await service.validateModelForSkillGroup(givenModelId);
 
       // THEN expect it to return invalid due to error
-      expect(actual).toEqual(ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB);
+      expect(actual).toEqual({ errorCode: ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB });
 
       // AND console.error was called
       expect(consoleErrorSpy).toHaveBeenCalledWith("Error validating model for skill group:", givenError);
@@ -1089,9 +1227,15 @@ describe("Test the SkillGroupService", () => {
       ];
       mockRepository.findParents.mockResolvedValue(expectedParents);
 
-      const actual = await service.findParents(givenModelId, givenParentId, 20);
+      const actual = await service.findParents(givenModelId, givenParentId, 20, undefined, givenLanguage);
 
-      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenParentId, 21, undefined);
+      expect(mockRepository.findParents).toHaveBeenCalledWith(
+        givenModelId,
+        givenParentId,
+        21,
+        undefined,
+        givenLanguage
+      );
       expect(actual).toEqual({ items: expectedParents, nextCursor: null });
     });
     test("should return empty items and null nextCursor when no parents", async () => {
@@ -1099,9 +1243,9 @@ describe("Test the SkillGroupService", () => {
       const givenId = getMockStringId(1);
       mockRepository.findParents.mockResolvedValue([]);
 
-      const actual = await service.findParents(givenModelId, givenId, 20);
+      const actual = await service.findParents(givenModelId, givenId, 20, undefined, givenLanguage);
 
-      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenId, 21, undefined);
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenId, 21, undefined, givenLanguage);
       expect(actual).toEqual({ items: [], nextCursor: null });
     });
     test("should return nextCursor when more items exist", async () => {
@@ -1127,21 +1271,22 @@ describe("Test the SkillGroupService", () => {
       const item2 = { ...item1, id: getMockStringId(3), createdAt: new Date("2024-01-02") };
       mockRepository.findParents.mockResolvedValue([item1, item2]);
 
-      const actual = await service.findParents(givenModelId, givenId, 1);
+      const actual = await service.findParents(givenModelId, givenId, 1, undefined, givenLanguage);
 
-      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenId, 2, undefined);
+      expect(mockRepository.findParents).toHaveBeenCalledWith(givenModelId, givenId, 2, undefined, givenLanguage);
       expect(actual.items).toHaveLength(1);
       expect(actual.items[0]).toEqual(item1);
       expect(actual.nextCursor).toEqual({ _id: item1.id, createdAt: item1.createdAt });
     });
     test("should pass cursor to repository when provided", async () => {
       mockRepository.findParents.mockResolvedValue([]);
-      await service.findParents(getMockStringId(0), getMockStringId(1), 10, getMockStringId(5));
+      await service.findParents(getMockStringId(0), getMockStringId(1), 10, getMockStringId(5), givenLanguage);
       expect(mockRepository.findParents).toHaveBeenCalledWith(
         getMockStringId(0),
         getMockStringId(1),
         11,
-        getMockStringId(5)
+        getMockStringId(5),
+        givenLanguage
       );
     });
   });
@@ -1168,9 +1313,15 @@ describe("Test the SkillGroupService", () => {
 
       mockRepository.findChildren.mockResolvedValue([expectedChildren]);
 
-      const actual = await service.findChildren(givenModelId, givenParentId, 20);
+      const actual = await service.findChildren(givenModelId, givenParentId, 20, undefined, givenLanguage);
 
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenParentId, 21, undefined);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(
+        givenModelId,
+        givenParentId,
+        21,
+        undefined,
+        givenLanguage
+      );
       expect(actual).toEqual({ items: [expectedChildren], nextCursor: null });
     });
 
@@ -1178,8 +1329,8 @@ describe("Test the SkillGroupService", () => {
       const givenModelId = getMockStringId(0);
       const givenId = getMockStringId(1);
       mockRepository.findChildren.mockResolvedValue([]);
-      const actual = await service.findChildren(givenModelId, givenId, 20);
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenId, 21, undefined);
+      const actual = await service.findChildren(givenModelId, givenId, 20, undefined, givenLanguage);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenId, 21, undefined, givenLanguage);
       expect(actual).toEqual({ items: [], nextCursor: null });
     });
 
@@ -1203,9 +1354,15 @@ describe("Test the SkillGroupService", () => {
       const child2 = { ...child1, id: getMockStringId(3), createdAt: new Date("2024-01-02") };
       mockRepository.findChildren.mockResolvedValue([child1, child2]);
 
-      const actual = await service.findChildren(givenModelId, givenParentId, 1);
+      const actual = await service.findChildren(givenModelId, givenParentId, 1, undefined, givenLanguage);
 
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenParentId, 2, undefined);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(
+        givenModelId,
+        givenParentId,
+        2,
+        undefined,
+        givenLanguage
+      );
       expect(actual.items).toHaveLength(1);
       expect(actual.items[0]).toEqual(child1);
       expect(actual.nextCursor).toEqual({ _id: child1.id, createdAt: child1.createdAt });
@@ -1229,9 +1386,15 @@ describe("Test the SkillGroupService", () => {
       const child2 = { ...child1, id: getMockStringId(3) };
       mockRepository.findChildren.mockResolvedValue([child1, child2]);
 
-      const actual = await service.findChildren(givenModelId, givenParentId, 1);
+      const actual = await service.findChildren(givenModelId, givenParentId, 1, undefined, givenLanguage);
 
-      expect(mockRepository.findChildren).toHaveBeenCalledWith(givenModelId, givenParentId, 2, undefined);
+      expect(mockRepository.findChildren).toHaveBeenCalledWith(
+        givenModelId,
+        givenParentId,
+        2,
+        undefined,
+        givenLanguage
+      );
       expect(actual.items).toHaveLength(1);
       expect(actual.nextCursor).not.toBeNull();
       expect(actual.nextCursor?.createdAt).toBeInstanceOf(Date);
@@ -1239,12 +1402,13 @@ describe("Test the SkillGroupService", () => {
 
     test("should pass cursor to repository when provided", async () => {
       mockRepository.findChildren.mockResolvedValue([]);
-      await service.findChildren(getMockStringId(0), getMockStringId(1), 10, getMockStringId(5));
+      await service.findChildren(getMockStringId(0), getMockStringId(1), 10, getMockStringId(5), givenLanguage);
       expect(mockRepository.findChildren).toHaveBeenCalledWith(
         getMockStringId(0),
         getMockStringId(1),
         11,
-        getMockStringId(5)
+        getMockStringId(5),
+        givenLanguage
       );
     });
   });
@@ -1490,7 +1654,7 @@ describe("Test the SkillGroupService", () => {
       mockModelInfoRepository({});
 
       // WHEN calling getHistory
-      const actual = await service.getHistory(getMockStringId(1));
+      const actual = await service.getHistory(getMockStringId(1), givenLanguage);
 
       // THEN expect null and no further lookups
       expect(actual).toBeNull();
@@ -1503,7 +1667,7 @@ describe("Test the SkillGroupService", () => {
       mockModelInfoRepository({});
 
       // WHEN calling getHistory
-      const actual = await service.getHistory(getMockStringId(1));
+      const actual = await service.getHistory(getMockStringId(1), givenLanguage);
 
       // THEN expect an empty array and no further lookups
       expect(actual).toEqual([]);
@@ -1540,7 +1704,7 @@ describe("Test the SkillGroupService", () => {
       });
 
       // WHEN calling getHistory
-      const actual = await service.getHistory(getMockStringId(1));
+      const actual = await service.getHistory(getMockStringId(1), givenLanguage);
 
       // THEN expect one entry per resolvable UUID in UUIDHistory order (A before B), missing skipped
       expect(actual).toEqual([
@@ -1549,11 +1713,10 @@ describe("Test the SkillGroupService", () => {
       ]);
       // AND resolution uses single batched queries (no N+1): UUIDs -> refs+modelIds, then modelIds -> models
       expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledTimes(1);
-      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledWith([
-        givenUuidA,
-        givenUuidMissing,
-        givenUuidB,
-      ]);
+      expect(mockRepository.findHistoryReferencesByUUIDs).toHaveBeenCalledWith(
+        [givenUuidA, givenUuidMissing, givenUuidB],
+        givenLanguage
+      );
     });
 
     test("should return a model at most once even if several history UUIDs map to the same model", async () => {
@@ -1576,7 +1739,7 @@ describe("Test the SkillGroupService", () => {
       });
 
       // WHEN calling getHistory
-      const actual = await service.getHistory(getMockStringId(1));
+      const actual = await service.getHistory(getMockStringId(1), givenLanguage);
 
       // THEN the model appears only once (the first history UUID that maps to it wins)
       expect(actual).toHaveLength(1);
@@ -1598,7 +1761,7 @@ describe("Test the SkillGroupService", () => {
       });
 
       // WHEN calling getHistory
-      const actual = await service.getHistory(getMockStringId(1));
+      const actual = await service.getHistory(getMockStringId(1), givenLanguage);
 
       // THEN the entry is skipped
       expect(actual).toEqual([]);

@@ -16,7 +16,7 @@ import { getGlobalTransformOptions } from "server/repositoryRegistry/globalTrans
 import { SkillHierarchyModelPaths } from "esco/skillHierarchy/skillHierarchyModel";
 import { ObjectTypes } from "esco/common/objectTypes";
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
-import { readFallbackLanguageValue, readFallbackLanguageValues } from "common/language/translatedFields";
+import { readLanguageValuesWithFallback, readLanguageValueWithFallback } from "common/language/translatedFields";
 
 export const SkillGroupModelPaths = {
   parents: "parents",
@@ -87,12 +87,21 @@ export function initializeSchemaAndModel(dbConnection: mongoose.Connection): mon
   return dbConnection.model<ISkillGroupDoc>(MongooseModelName.SkillGroup, SkillGroupSchema);
 }
 
+/**
+ * The toObject() options that flatten the translatable fields to the given language, e.g.
+ * doc.toObject(toObjectInLanguage("fr")). Without a language, they are flattened to the fall back language.
+ */
+export function toObjectInLanguage(language?: string): mongoose.ToObjectOptions {
+  return { language } as mongoose.ToObjectOptions;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const _TransformFn = (doc: any, ret: any) => {
-  const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
-  ret.preferredLabel = readFallbackLanguageValue(ret.preferredLabel, fallbackDbKeyName);
-  ret.description = readFallbackLanguageValue(ret.description, fallbackDbKeyName);
-  ret.scopeNote = readFallbackLanguageValue(ret.scopeNote, fallbackDbKeyName);
-  ret.altLabels = readFallbackLanguageValues(ret.altLabels, fallbackDbKeyName);
+const _TransformFn = (_doc: any, ret: any, options: any) => {
+  // every field falls back on its own to the fall back language when it is not translated in the language
+  const language: string = options?.language ?? getFallbackLanguageConfig().dbKeyName;
+  ret.preferredLabel = readLanguageValueWithFallback(ret.preferredLabel, language);
+  ret.description = readLanguageValueWithFallback(ret.description, language);
+  ret.scopeNote = readLanguageValueWithFallback(ret.scopeNote, language);
+  ret.altLabels = readLanguageValuesWithFallback(ret.altLabels, language);
   return ret;
 };

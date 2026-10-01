@@ -17,6 +17,7 @@ import {
   populateSkillGroupParentsOptions,
 } from "../_shared/populateSkillHierarchyOptions";
 import { getSkillGroupDocReference, SkillGroupDocument } from "../_shared/skillGroupReference";
+import { toObjectInLanguage } from "../model/SkillGroup.model";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
 import { buildSearchCondition } from "esco/common/searchCondition";
 import { Readable } from "node:stream";
@@ -68,7 +69,15 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
   create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup>;
   createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]>;
   createManyLocalized(newSkillGroupSpecs: INewSkillGroupSpecLocalized[]): Promise<ISkillGroup[]>;
-  findById(id: string): Promise<ISkillGroup | null>;
+  /**
+   * Finds a SkillGroup by its id, with parents and children populated.
+   *
+   * @param {string} id - The id of the SkillGroup.
+   * @param {string} [language] - The dbKeyName of the language to resolve the translatable fields to, each field
+   * falling back to the fall back language. Defaults to the fall back language.
+   * @return {Promise<ISkillGroup | null>} - The SkillGroup, or null if not found.
+   */
+  findById(id: string, language?: string): Promise<ISkillGroup | null>;
   findAll(modelId: string): Readable;
 
   /**
@@ -84,7 +93,8 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
     sortOrder: 1 | -1,
     cursorId?: string,
     filter?: FindPaginatedFilter,
-    search?: { value: string; fields: string[] }
+    search?: { value: string; fields: string[] },
+    language?: string
   ): Promise<ISkillGroup[]>;
 
   /**
@@ -94,40 +104,36 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
    *
    * @param {string} modelId - The modelId of the SkillGroups.
    * @param {string[]} ids - The ids of the SkillGroups to fetch.
+   * @param {string} [language] - The dbKeyName of the language to resolve the translatable fields to.
    * @return {Promise<ISkillGroup[]>} - A Promise that resolves to the found SkillGroups.
    * Rejects with an error if the operation fails.
    */
-  findByIds(modelId: string, ids: string[]): Promise<ISkillGroup[]>;
+  findByIds(modelId: string, ids: string[], language?: string): Promise<ISkillGroup[]>;
   findParents(
     modelId: string | mongoose.Types.ObjectId,
     id: string | mongoose.Types.ObjectId,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<ISkillGroup[]>;
   findChildren(
     modelId: string | mongoose.Types.ObjectId,
     id: string | mongoose.Types.ObjectId,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<ISkillGroupChild[]>;
 
-  /**
-   * Finds, for each of the provided skill group UUIDs, the modelId of the skill group with that UUID.
-   * Used to resolve a skill group's UUIDHistory (its own past UUIDs) to the models it appeared in.
-   * Only UUIDs that match an existing skill group are returned; the result is not ordered by the input.
-   *
-   * @param {string[]} uuids - The skill group UUIDs to resolve.
-   * @return {Promise<{ UUID: string; modelId: string }[]>} - The UUID -> modelId pairs for the matched skill groups.
-   */
   /**
    * Resolves each of the provided skill group UUIDs (a group's own UUIDHistory) to the group's reference (as it
    * appeared in that model) and the modelId of the model it belonged to. Order-preserving against the input
    * UUIDs; entries whose UUID matches no group carry null modelId and null reference.
    *
    * @param {string[]} uuids - The skill group UUIDs to resolve.
+   * @param {string} [language] - The dbKeyName of the language to resolve the references' preferredLabel to.
    * @return {Promise<ISkillGroupModelHistoryReference[]>} - The resolved reference + modelId per input UUID.
    */
-  findHistoryReferencesByUUIDs(uuids: string[]): Promise<ISkillGroupModelHistoryReference[]>;
+  findHistoryReferencesByUUIDs(uuids: string[], language?: string): Promise<ISkillGroupModelHistoryReference[]>;
 
   /**
    * Fully replaces the mutable fields of a SkillGroup (PUT semantics).
@@ -157,6 +163,27 @@ export class SkillGroupRepository implements ISkillGroupRepository {
   constructor(model: mongoose.Model<ISkillGroupDoc>, hierarchyModel: mongoose.Model<ISkillHierarchyPairDoc>) {
     this.Model = model;
     this.hierarchyModel = hierarchyModel;
+  }
+
+  /**
+   * Flattens a skill group document to a plain object, its translatable fields resolved to the given language.
+   */
+  private toObject(doc: mongoose.Document<unknown, unknown, ISkillGroupDoc>, language?: string): ISkillGroup {
+    return doc.toObject(toObjectInLanguage(language)) as unknown as ISkillGroup;
+  }
+
+  /**
+   * Hydrates the raw results of an aggregation to skill group documents and populates their parents and children,
+   * all resolved to the given language. Needed because aggregate() returns plain objects, but populate() requires
+   * mongoose documents.
+   */
+  private async hydrateAndPopulate(results: unknown[], language?: string): Promise<ISkillGroup[]> {
+    const hydrated = results.map((r) => this.Model.hydrate(r));
+    const populated = await this.Model.populate(hydrated, [
+      populateSkillGroupParentsOptions(language),
+      populateSkillGroupChildrenOptions(language),
+    ]);
+    return populated.map((doc) => this.toObject(doc, language));
   }
 
   async setEntityEmbeddingStatus(spec: ISetEntityEmbeddingStatusSpec): Promise<void> {
@@ -289,14 +316,14 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     });
   }
 
-  async findById(id: string): Promise<ISkillGroup | null> {
+  async findById(id: string, language?: string): Promise<ISkillGroup | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
       const skillGroup = await this.Model.findById(id)
-        .populate(populateSkillGroupParentsOptions)
-        .populate(populateSkillGroupChildrenOptions)
+        .populate(populateSkillGroupParentsOptions(language))
+        .populate(populateSkillGroupChildrenOptions(language))
         .exec();
-      return skillGroup != null ? skillGroup.toObject() : null;
+      return skillGroup != null ? this.toObject(skillGroup, language) : null;
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findById: findById failed", { cause: e });
       console.error(err);
@@ -310,7 +337,8 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     sortOrder: 1 | -1,
     cursorId?: string,
     filter?: FindPaginatedFilter,
-    search?: { value: string; fields: string[] }
+    search?: { value: string; fields: string[] },
+    language?: string
   ): Promise<ISkillGroup[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
@@ -400,13 +428,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
 
       const results = await this.Model.aggregate(pipeline).exec();
 
-      const hydrated = results.map((r) => this.Model.hydrate(r));
-      const populated = await this.Model.populate(hydrated, [
-        populateSkillGroupParentsOptions,
-        populateSkillGroupChildrenOptions,
-      ]);
-
-      return populated.map((doc) => doc.toObject());
+      return this.hydrateAndPopulate(results, language);
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findPaginated: findPaginated failed", { cause: e });
       console.error(err);
@@ -414,7 +436,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
   }
 
-  async findByIds(modelId: string, ids: string[]): Promise<ISkillGroup[]> {
+  async findByIds(modelId: string, ids: string[], language?: string): Promise<ISkillGroup[]> {
     try {
       const validIds = ids
         .filter((id) => mongoose.Types.ObjectId.isValid(id))
@@ -426,13 +448,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
 
       const results = await this.Model.aggregate([{ $match: { modelId: modelIdObj, _id: { $in: validIds } } }]).exec();
 
-      const hydrated = results.map((r) => this.Model.hydrate(r));
-      const populated = await this.Model.populate(hydrated, [
-        populateSkillGroupParentsOptions,
-        populateSkillGroupChildrenOptions,
-      ]);
-
-      return populated.map((doc) => doc.toObject());
+      return this.hydrateAndPopulate(results, language);
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findByIds: findByIds failed", { cause: e });
       console.error(err);
@@ -471,7 +487,8 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     modelId: string | mongoose.Types.ObjectId,
     id: string | mongoose.Types.ObjectId,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<ISkillGroup[]> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return [] as ISkillGroup[];
@@ -501,12 +518,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       ];
       const results = await this.hierarchyModel.aggregate(pipeline).exec();
       if (!results.length) return [] as ISkillGroup[];
-      const hydrated = results.map((r) => this.Model.hydrate(r));
-      const populated = await this.Model.populate(hydrated, [
-        populateSkillGroupParentsOptions,
-        populateSkillGroupChildrenOptions,
-      ]);
-      return populated.map((doc) => doc.toObject());
+      return this.hydrateAndPopulate(results, language);
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findParents: findParents failed", { cause: e });
       console.error(err);
@@ -518,7 +530,8 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     modelId: string | mongoose.Types.ObjectId,
     id: string | mongoose.Types.ObjectId,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<ISkillGroupChild[]> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return [] as ISkillGroupChild[];
@@ -532,14 +545,18 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       }
 
       const fallbackDbKeyName = getFallbackLanguageConfig().dbKeyName;
+      const languageDbKeyName = language ?? fallbackDbKeyName;
+      // the value of a localized sub document in the language, or in the fall back language when the language is
+      // not translated (or is blank), the same way the model's toObject transform reads it
+      const readTranslated = (input: string) => {
+        const inLanguage = { $ifNull: [{ $getField: { field: languageDbKeyName, input } }, ""] };
+        const inFallback = { $ifNull: [{ $getField: { field: fallbackDbKeyName, input } }, ""] };
+        return { $cond: [{ $gt: [{ $strLenCP: { $trim: { input: inLanguage } } }, 0] }, inLanguage, inFallback] };
+      };
       // reads straight off the raw collections, bypassing the owning model's toObject transform, so a
       // translatable field must be flattened here, tolerating both a plain string and a localized sub document
       const flattenTranslatedString = (path: string) => ({
-        $cond: [
-          { $eq: [{ $type: path }, "object"] },
-          { $ifNull: [{ $getField: { field: fallbackDbKeyName, input: path } }, ""] },
-          path,
-        ],
+        $cond: [{ $eq: [{ $type: path }, "object"] }, readTranslated(path), path],
       });
       const flattenTranslatedStringArray = (path: string) => ({
         $cond: [
@@ -549,11 +566,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
               input: path,
               as: "item",
               in: {
-                $cond: [
-                  { $eq: [{ $type: "$$item" }, "object"] },
-                  { $ifNull: [{ $getField: { field: fallbackDbKeyName, input: "$$item" } }, ""] },
-                  "$$item",
-                ],
+                $cond: [{ $eq: [{ $type: "$$item" }, "object"] }, readTranslated("$$item"), "$$item"],
               },
             },
           },
@@ -652,7 +665,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       if (!doc) return null;
       doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
-      await doc.populate([populateSkillGroupParentsOptions, populateSkillGroupChildrenOptions]);
+      await doc.populate([populateSkillGroupParentsOptions(), populateSkillGroupChildrenOptions()]);
       return doc.toObject();
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.update: update failed.", { cause: e });
@@ -668,7 +681,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       if (!doc) return null;
       doc.set(wrapTranslatableFields(spec, TRANSLATABLE_STRING_FIELDS, doc));
       await doc.save();
-      await doc.populate([populateSkillGroupParentsOptions, populateSkillGroupChildrenOptions]);
+      await doc.populate([populateSkillGroupParentsOptions(), populateSkillGroupChildrenOptions()]);
       return doc.toObject();
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.patch: patch failed.", { cause: e });
@@ -677,7 +690,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
   }
 
-  async findHistoryReferencesByUUIDs(uuids: string[]): Promise<ISkillGroupModelHistoryReference[]> {
+  async findHistoryReferencesByUUIDs(uuids: string[], language?: string): Promise<ISkillGroupModelHistoryReference[]> {
     try {
       // Pass a bare array (not an explicit { $in: [...] }): mongoose applies $in automatically, and unlike an
       // operator object this is not rewritten by the connection's sanitizeFilter=true.
@@ -693,7 +706,7 @@ export class SkillGroupRepository implements ISkillGroupRepository {
           return { UUID: uuid, modelId: null, reference: null };
         }
         // Reuse the shared reference mapper; the reference itself does not carry the modelId, so split it out.
-        const { modelId, ...reference } = getSkillGroupDocReference(skillGroup as SkillGroupDocument);
+        const { modelId, ...reference } = getSkillGroupDocReference(skillGroup as SkillGroupDocument, language);
         return { UUID: uuid, modelId: modelId.toString(), reference };
       });
     } catch (e: unknown) {

@@ -1,0 +1,42 @@
+{
+  "data": [
+    {
+      "id": "650000000000000000000003",
+      "parentId": "650000000000000000000002",
+      "UUID": "8a1e4c55-0000-4000-8000-000000000003",
+      "originUUID": "8a1e4c55-0000-4000-8000-000000000003",
+      "path": "https://path/to/resources/models/{{modelId}}/skillGroups/650000000000000000000003",
+      "tabiyaPath": "https://path/to/resources/models/{{modelId}}/skillGroups/8a1e4c55-0000-4000-8000-000000000003",
+      "UUIDHistory": ["8a1e4c55-0000-4000-8000-000000000003"],
+      "originUri": "https://example.com/skillGroups/S1.1.1",
+      "code": "S1.1.1",
+      "description": "",
+      "preferredLabel": "Child group",
+      "altLabels": [],
+      "objectType": "skillgroup",
+      "modelId": "{{modelId}}",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "650000000000000000000004",
+      "parentId": "650000000000000000000002",
+      "UUID": "8a1e4c55-0000-4000-8000-000000000004",
+      "originUUID": "8a1e4c55-0000-4000-8000-000000000004",
+      "path": "https://path/to/resources/models/{{modelId}}/skills/650000000000000000000004",
+      "tabiyaPath": "https://path/to/resources/models/{{modelId}}/skills/8a1e4c55-0000-4000-8000-000000000004",
+      "UUIDHistory": ["8a1e4c55-0000-4000-8000-000000000004"],
+      "originUri": "https://example.com/skills/child",
+      "description": "",
+      "preferredLabel": "Child skill",
+      "altLabels": [],
+      "objectType": "skill",
+      "isLocalized": false,
+      "modelId": "{{modelId}}",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "limit": 20,
+  "nextCursor": null
+}

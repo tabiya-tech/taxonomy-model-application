@@ -3265,7 +3265,7 @@ describe("Test the Occupation Repository with an in-memory mongodb", () => {
       const givenGroupSpec = getSimpleNewISCOGroupSpec(givenModelId, "group_collision", true);
       // @ts-ignore
       givenGroupSpec._id = givenObjectId;
-      const givenGroup = await repositoryRegistry.OccupationGroup.create(givenGroupSpec);
+      const givenGroup = await repositoryRegistry.OccupationGroup.create(toOccupationGroupCreateSpec(givenGroupSpec));
 
       const givenOccupationSpec = getSimpleNewESCOOccupationSpec(givenModelId, "occupation_collision");
       // @ts-ignore

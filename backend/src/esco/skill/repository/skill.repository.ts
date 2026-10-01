@@ -30,6 +30,7 @@ import {
   populateSkillChildrenOptions,
   populateSkillParentsOptions,
 } from "../_shared/populateSkillHierarchyOptions";
+import { toObjectInLanguage } from "esco/skillGroup/model/SkillGroup.model";
 import {
   populateSkillGroupChildrenOptions,
   populateSkillGroupParentsOptions,
@@ -652,13 +653,14 @@ export class SkillRepository implements ISkillRepository {
       }
       if (skillGroups.length > 0) {
         await SkillGroupModel.populate(skillGroups, [
-          populateSkillGroupParentsOptions,
-          populateSkillGroupChildrenOptions,
+          populateSkillGroupParentsOptions(lang),
+          populateSkillGroupChildrenOptions(lang),
         ]);
       }
 
       return hydrated.map((doc) => {
-        const obj = doc.toObject();
+        // a skill group is flattened to the language by its model's transform, a skill is unwrapped below
+        const obj = doc.toObject(toObjectInLanguage(lang));
         return (isSkillObject(obj) ? unwrapSkillTranslatableFieldsForLanguage(obj, lang) : obj) as ISkill | ISkillGroup;
       });
     } catch (e: unknown) {
@@ -756,13 +758,14 @@ export class SkillRepository implements ISkillRepository {
       }
       if (skillGroups.length > 0) {
         await SkillGroupModel.populate(skillGroups, [
-          populateSkillGroupParentsOptions,
-          populateSkillGroupChildrenOptions,
+          populateSkillGroupParentsOptions(lang),
+          populateSkillGroupChildrenOptions(lang),
         ]);
       }
 
       return hydrated.map((doc) => {
-        const obj = doc.toObject();
+        // a skill group is flattened to the language by its model's transform, a skill is unwrapped below
+        const obj = doc.toObject(toObjectInLanguage(lang));
         return (isSkillObject(obj) ? unwrapSkillTranslatableFieldsForLanguage(obj, lang) : obj) as ISkill | ISkillGroup;
       });
     } catch (e: unknown) {

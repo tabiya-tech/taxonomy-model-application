@@ -12,6 +12,7 @@ import {
   ISkillGroupChild,
   IPartialUpdateSkillGroupSpec,
   IUpdateSkillGroupSpec,
+  ValidateModelForSkillGroupResult,
 } from "../_shared/skillGroup.types";
 import { ISkillGroupRepository } from "../repository/SkillGroup.repository";
 import { ISkillHierarchyRepository } from "esco/skillHierarchy/skillHierarchyRepository";
@@ -38,15 +39,12 @@ export class SkillGroupService implements ISkillGroupService {
   ) {}
 
   async create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup> {
-    const errorCode = await this.validateModelForSkillGroup(newSkillGroupSpec.modelId);
-    if (errorCode != null) {
-      throw new SkillGroupModelValidationError(errorCode);
-    }
+    await this.assertModelIsEditable(newSkillGroupSpec.modelId);
     return this.skillGroupRepository.create(newSkillGroupSpec);
   }
 
-  async findById(id: string): Promise<ISkillGroup | null> {
-    return this.skillGroupRepository.findById(id);
+  async findById(id: string, language?: string): Promise<ISkillGroup | null> {
+    return this.skillGroupRepository.findById(id, language);
   }
 
   async findPaginated(
@@ -54,10 +52,19 @@ export class SkillGroupService implements ISkillGroupService {
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
     desc: boolean = true,
-    filter?: ISkillGroupPaginatedFilter
+    filter?: ISkillGroupPaginatedFilter,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     const sortOrder = desc ? -1 : 1;
-    const items = await this.skillGroupRepository.findPaginated(modelId, limit + 1, sortOrder, cursor?.id, filter);
+    const items = await this.skillGroupRepository.findPaginated(
+      modelId,
+      limit + 1,
+      sortOrder,
+      cursor?.id,
+      filter,
+      undefined,
+      language
+    );
     const hasMore = items.length > limit;
     const pageItems = hasMore ? items.slice(0, limit) : items;
 
@@ -81,7 +88,8 @@ export class SkillGroupService implements ISkillGroupService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }> {
     // Vector (embeddings) similarity on released, already-embedded models; a case-insensitive regex otherwise.
     const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
@@ -94,25 +102,28 @@ export class SkillGroupService implements ISkillGroupService {
           searchValue,
           searchFields,
           cursor,
-          limit
+          limit,
+          language
         );
       }
       // The model is released but its embeddings have not been generated (completed) yet, so there is nothing to
       // search with vectors. Fall back to regex so the endpoint still returns useful results.
     }
-    return this.regexSearchPaginated(modelId, searchValue, searchFields, cursor, limit);
+    return this.regexSearchPaginated(modelId, searchValue, searchFields, cursor, limit, language);
   }
 
   /**
    * Searches an unreleased (or not-yet-embedded) model's skill groups with a case-insensitive regex, paginated with
-   * the same keyset (_id) cursor as the plain list endpoint.
+   * the same keyset (_id) cursor as the plain list endpoint. Matching is on the fall back language only; `language`
+   * resolves the returned skill groups' fields for display.
    */
   private async regexSearchPaginated(
     modelId: string,
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }> {
     // Newest first, consistent with the plain list endpoint's default order.
     const sortOrder = -1;
@@ -127,7 +138,8 @@ export class SkillGroupService implements ISkillGroupService {
       {
         value: searchValue,
         fields: searchFields,
-      }
+      },
+      language
     );
 
     const hasMore = items.length > limit;
@@ -152,7 +164,8 @@ export class SkillGroupService implements ISkillGroupService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }> {
     const offset = cursor ? decodeSearchCursor(cursor) : 0;
 
@@ -174,7 +187,7 @@ export class SkillGroupService implements ISkillGroupService {
 
     // Hydrate the ranked ids to full skill groups and re-apply the relevance order (findByIds does not preserve it).
     const ids = pageHits.map((hit) => hit.entityId);
-    const skillGroups = await this.skillGroupRepository.findByIds(modelId, ids);
+    const skillGroups = await this.skillGroupRepository.findByIds(modelId, ids, language);
     const skillGroupById = new Map(skillGroups.map((skillGroup) => [skillGroup.id, skillGroup]));
     const items = ids
       .map((id) => skillGroupById.get(id))
@@ -185,35 +198,39 @@ export class SkillGroupService implements ISkillGroupService {
     return { items, nextCursor };
   }
 
-  async validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null> {
+  async validateModelForSkillGroup(modelId: string): Promise<ValidateModelForSkillGroupResult> {
     try {
       const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
       if (!model) {
-        return ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID;
+        return { errorCode: ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID };
       }
-      if (model.released) {
-        return ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED;
-      }
-      return null;
+      return {
+        errorCode: model.released ? ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED : null,
+        availableLanguages: model.availableLanguages ?? [],
+      };
     } catch (e: unknown) {
       console.error("Error validating model for skill group:", e);
-      return ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
+      return { errorCode: ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB };
+    }
+  }
+
+  /**
+   * Throws a SkillGroupModelValidationError unless the model exists and is not released.
+   */
+  private async assertModelIsEditable(modelId: string): Promise<void> {
+    const { errorCode } = await this.validateModelForSkillGroup(modelId);
+    if (errorCode != null) {
+      throw new SkillGroupModelValidationError(errorCode);
     }
   }
 
   async update(id: string, modelId: string, spec: IUpdateSkillGroupSpec): Promise<ISkillGroup | null> {
-    const errorCode = await this.validateModelForSkillGroup(modelId);
-    if (errorCode != null) {
-      throw new SkillGroupModelValidationError(errorCode);
-    }
+    await this.assertModelIsEditable(modelId);
     return this.skillGroupRepository.update(id, modelId, spec);
   }
 
   async patch(id: string, modelId: string, spec: IPartialUpdateSkillGroupSpec): Promise<ISkillGroup | null> {
-    const errorCode = await this.validateModelForSkillGroup(modelId);
-    if (errorCode != null) {
-      throw new SkillGroupModelValidationError(errorCode);
-    }
+    await this.assertModelIsEditable(modelId);
     return this.skillGroupRepository.patch(id, modelId, spec);
   }
 
@@ -221,10 +238,11 @@ export class SkillGroupService implements ISkillGroupService {
     modelId: string,
     id: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     return this.findPaginatedRelation(
-      () => this.skillGroupRepository.findParents(modelId, id, limit + 1, cursor),
+      () => this.skillGroupRepository.findParents(modelId, id, limit + 1, cursor, language),
       limit
     );
   }
@@ -233,10 +251,11 @@ export class SkillGroupService implements ISkillGroupService {
     modelId: string,
     id: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{ items: ISkillGroupChild[]; nextCursor: { _id: string; createdAt: Date } | null }> {
     return this.findPaginatedRelation(
-      () => this.skillGroupRepository.findChildren(modelId, id, limit + 1, cursor),
+      () => this.skillGroupRepository.findChildren(modelId, id, limit + 1, cursor, language),
       limit
     );
   }
@@ -267,10 +286,7 @@ export class SkillGroupService implements ISkillGroupService {
     parentType: ObjectTypes.SkillGroup;
     modelId: string;
   }): Promise<ISkillGroup> {
-    const errorCode = await this.validateModelForSkillGroup(params.modelId);
-    if (errorCode != null) {
-      throw new SkillGroupModelValidationError(errorCode);
-    }
+    await this.assertModelIsEditable(params.modelId);
 
     const child = await this.skillGroupRepository.findById(params.childId);
     if (!child || child.modelId !== params.modelId) {
@@ -294,8 +310,8 @@ export class SkillGroupService implements ISkillGroupService {
     return parent;
   }
 
-  async getHistory(skillGroupId: string): Promise<ISkillGroupHistoryEntry[] | null> {
-    const skillGroup = await this.skillGroupRepository.findById(skillGroupId);
+  async getHistory(skillGroupId: string, language?: string): Promise<ISkillGroupHistoryEntry[] | null> {
+    const skillGroup = await this.skillGroupRepository.findById(skillGroupId, language);
     if (!skillGroup) {
       return null;
     }
@@ -310,7 +326,7 @@ export class SkillGroupService implements ISkillGroupService {
     const modelRepository = getRepositoryRegistry().modelInfo;
 
     // Resolve each historical UUID to the skill group's reference (as it was in that model) + its modelId.
-    const historyReferences = await this.skillGroupRepository.findHistoryReferencesByUUIDs(uuidHistory);
+    const historyReferences = await this.skillGroupRepository.findHistoryReferencesByUUIDs(uuidHistory, language);
     const referenceByUUID = new Map(historyReferences.map((entry) => [entry.UUID, entry]));
 
     // Fetch the models for the resolved modelIds (single query) and map them to lightweight references.
