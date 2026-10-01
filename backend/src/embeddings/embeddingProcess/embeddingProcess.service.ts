@@ -139,21 +139,28 @@ export class EmbeddingProcessService implements IEmbeddingProcessService {
 
   async publishEmbeddingTasks(processId: string, modelId: string, embeddingServiceId: string): Promise<void> {
     try {
-      // 1. Mark all the entities of the model as PENDING for this embedding service,
+      // 0. Read the model's available languages so that one embedding task is pushed per entity per language.
+      const model = await this.modelRepository.getModelById(modelId);
+      const availableLanguages = model?.availableLanguages ?? [];
+
+      // 1. Mark all the entities of the model as PENDING for this embedding service and each language,
       //    so that the entities reflect that their embeddings are about to be (re)generated.
-      const markPendingProps = { modelId, embeddingServiceId, status: EntityEmbeddingStatus.PENDING };
-      const markEntitiesPending = [
-        () => this.skillRepository.setModelEntitiesEmbeddingStatus(markPendingProps),
-        () => this.skillGroupRepository.setModelEntitiesEmbeddingStatus(markPendingProps),
-        () => this.occupationRepository.setModelEntitiesEmbeddingStatus(markPendingProps),
-        () => this.occupationGroupRepository.setModelEntitiesEmbeddingStatus(markPendingProps),
-      ];
-      for (const markPending of markEntitiesPending) {
-        await markPending();
+      for (const language of availableLanguages) {
+        const markPendingProps = { modelId, embeddingServiceId, language, status: EntityEmbeddingStatus.PENDING };
+        const markEntitiesPending = [
+          () => this.skillRepository.setModelEntitiesEmbeddingStatus(markPendingProps),
+          () => this.skillGroupRepository.setModelEntitiesEmbeddingStatus(markPendingProps),
+          () => this.occupationRepository.setModelEntitiesEmbeddingStatus(markPendingProps),
+          () => this.occupationGroupRepository.setModelEntitiesEmbeddingStatus(markPendingProps),
+        ];
+        for (const markPending of markEntitiesPending) {
+          await markPending();
+        }
       }
 
-      // 2. Loop through all the entities of the model and push each of them to the embeddings queue.
-      //    The order follows the requirement: skills, skill groups, occupations, occupation groups.
+      // 2. Loop through all the entities of the model and push each of them to the embeddings queue,
+      //    once per available language. The order follows the requirement: skills, skill groups, occupations,
+      //    occupation groups.
       const entitySources: { entityType: EmbeddableEntityType; findAll: () => Readable }[] = [
         { entityType: EmbeddableEntityType.Skill, findAll: () => this.skillRepository.findAll(modelId) },
         { entityType: EmbeddableEntityType.SkillGroup, findAll: () => this.skillGroupRepository.findAll(modelId) },
@@ -166,7 +173,12 @@ export class EmbeddingProcessService implements IEmbeddingProcessService {
 
       let totalDocuments = 0;
       for (const entitySource of entitySources) {
-        totalDocuments += await this.pushEntitiesToQueue(modelId, entitySource.entityType, entitySource.findAll());
+        totalDocuments += await this.pushEntitiesToQueue(
+          modelId,
+          entitySource.entityType,
+          entitySource.findAll(),
+          availableLanguages
+        );
       }
 
       // 3. Update the embedding process state with the total number of documents that were pushed to the queue.
@@ -222,21 +234,26 @@ export class EmbeddingProcessService implements IEmbeddingProcessService {
   private async pushEntitiesToQueue(
     modelId: string,
     entityType: EmbeddableEntityType,
-    stream: Readable
+    stream: Readable,
+    languages: string[]
   ): Promise<number> {
     let count = 0;
     let tasksBuffer: IGenerateEmbeddingTask[] = [];
     for await (const entity of stream) {
-      tasksBuffer.push({
-        modelId,
-        entityId: (entity as { id: string }).id,
-        entityType,
-        fields: EMBEDDABLE_FIELDS_BY_ENTITY_TYPE[entityType],
-      });
-      count++;
-      if (tasksBuffer.length >= TASKS_FLUSH_SIZE) {
-        await this.embeddingClient.pushTasksToQueue(tasksBuffer);
-        tasksBuffer = [];
+      const entityId = (entity as { id: string }).id;
+      for (const language of languages) {
+        tasksBuffer.push({
+          modelId,
+          entityId,
+          entityType,
+          fields: EMBEDDABLE_FIELDS_BY_ENTITY_TYPE[entityType],
+          language,
+        });
+        count++;
+        if (tasksBuffer.length >= TASKS_FLUSH_SIZE) {
+          await this.embeddingClient.pushTasksToQueue(tasksBuffer);
+          tasksBuffer = [];
+        }
       }
     }
     if (tasksBuffer.length > 0) {

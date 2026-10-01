@@ -227,7 +227,8 @@ export const OccupationCodeProperty: mongoose.SchemaDefinitionProperty<string> =
 };
 
 // Embedding Status
-// is A map of embeddingServiceId -> status of the embeddings generation of the entity for that embedding service.
+// A map keyed by "<embeddingServiceId>|<language>" (e.g. "gemini|en") -> status of the embeddings generation
+// of the entity for that embedding service and language.
 // The path is absent (instead of an empty map) until an embedding process touches the entity for the first time.
 export const EmbeddingStatusProperty: mongoose.SchemaDefinitionProperty<Map<string, EntityEmbeddingStatus>> = {
   type: Map,

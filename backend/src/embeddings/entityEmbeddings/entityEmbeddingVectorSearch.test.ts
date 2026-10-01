@@ -25,6 +25,7 @@ describe("EntityEmbeddingRepository.vectorSearch (mocked model)", () => {
     indexName: SkillsEmbeddingsVectorSearchIndexName,
     modelId: getMockStringId(1),
     embeddingServiceId: "some-embedding-service-id",
+    language: "en",
     queryVector: [0.1, 0.2, 0.3],
     searchFields: [EmbeddableField.preferredLabel, EmbeddableField.description],
     limit: 3,

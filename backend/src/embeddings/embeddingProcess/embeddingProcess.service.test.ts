@@ -11,7 +11,7 @@ import { IEmbeddingProcessState } from "embeddings/embeddingProcessState/embeddi
 import { getMockStringId } from "_test_utilities/mockMongoId";
 
 function getMockModel(released: boolean) {
-  return { id: getMockStringId(1), released };
+  return { id: getMockStringId(1), released, availableLanguages: ["en"] };
 }
 
 function getMockEmbeddingProcessState(overrides: Partial<IEmbeddingProcessState> = {}): IEmbeddingProcessState {
@@ -42,7 +42,7 @@ function setupService(mocks: {
   refreshedProcessState?: IEmbeddingProcessState | null;
 }) {
   const modelRepository = {
-    getModelById: jest.fn().mockResolvedValue(mocks.model),
+    getModelById: jest.fn().mockResolvedValue(mocks.model !== undefined ? mocks.model : getMockModel(true)),
   };
   const givenUpdatedProcessState = mocks.updatedProcessState ?? getMockEmbeddingProcessState();
   const embeddingProcessStateRepository = {
@@ -347,16 +347,17 @@ describe("Test the EmbeddingProcessService", () => {
 
       // THEN expect one batch of tasks to be pushed per entity type
       expect(embeddingClient.pushTasksToQueue).toHaveBeenCalledTimes(4);
-      // AND expect the tasks for the skills to be pushed with the skill fields
+      // AND expect the tasks for the skills to be pushed with the skill fields and language
       expect(embeddingClient.pushTasksToQueue).toHaveBeenCalledWith(
         givenSkills.map((skill) => ({
           modelId: givenModelId,
           entityId: skill.id,
           entityType: EmbeddableEntityType.Skill,
           fields: [EmbeddableField.preferredLabel, EmbeddableField.description, EmbeddableField.altLabels],
+          language: "en",
         }))
       );
-      // AND expect the tasks for the skill groups to be pushed with the skill group fields
+      // AND expect the tasks for the skill groups to be pushed with the skill group fields and language
       expect(embeddingClient.pushTasksToQueue).toHaveBeenCalledWith([
         {
           modelId: givenModelId,
@@ -368,24 +369,27 @@ describe("Test the EmbeddingProcessService", () => {
             EmbeddableField.altLabels,
             EmbeddableField.scopeNote,
           ],
+          language: "en",
         },
       ]);
-      // AND expect the tasks for the occupations to be pushed
+      // AND expect the tasks for the occupations to be pushed with language
       expect(embeddingClient.pushTasksToQueue).toHaveBeenCalledWith([
         {
           modelId: givenModelId,
           entityId: givenOccupations[0].id,
           entityType: EmbeddableEntityType.Occupation,
           fields: [EmbeddableField.preferredLabel, EmbeddableField.description, EmbeddableField.altLabels],
+          language: "en",
         },
       ]);
-      // AND expect the tasks for the occupation groups to be pushed
+      // AND expect the tasks for the occupation groups to be pushed with language
       expect(embeddingClient.pushTasksToQueue).toHaveBeenCalledWith([
         {
           modelId: givenModelId,
           entityId: givenOccupationGroups[0].id,
           entityType: EmbeddableEntityType.OccupationGroup,
           fields: [EmbeddableField.preferredLabel, EmbeddableField.description, EmbeddableField.altLabels],
+          language: "en",
         },
       ]);
       // AND expect the process state to be updated with the total documents and the in-progress status
@@ -433,10 +437,11 @@ describe("Test the EmbeddingProcessService", () => {
       // WHEN publishing the embedding tasks for the process
       await service.publishEmbeddingTasks(givenProcessId, givenModelId, givenEmbeddingServiceId);
 
-      // THEN expect the entities of every entity collection to be marked as PENDING for the embedding service
+      // THEN expect the entities of every entity collection to be marked as PENDING for the embedding service and language
       const expectedMarkPendingProps = {
         modelId: givenModelId,
         embeddingServiceId: givenEmbeddingServiceId,
+        language: "en",
         status: EntityEmbeddingStatus.PENDING,
       };
       expect(skillRepository.setModelEntitiesEmbeddingStatus).toHaveBeenCalledTimes(1);

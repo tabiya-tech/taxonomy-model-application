@@ -27,6 +27,7 @@ import { IEmbeddingProcessStateRepository } from "embeddings/embeddingProcessSta
 import { EmbeddableField } from "embeddings/service/types";
 import { EmbeddingModelServiceFactory, getEmbeddingModelService } from "embeddings/models/embeddingModelServiceFactory";
 import { OccupationsEmbeddingsVectorSearchIndexName } from "embeddings/entityEmbeddings/vectorSearchIndex.constant";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { encodeCursor } from "../_shared/pagination/encodeCursor";
 import { decodeCursor } from "../_shared/pagination/decodeCursor";
 import { decodeSearchCursor, encodeSearchCursor } from "esco/common/searchCursor";
@@ -192,6 +193,7 @@ export class OccupationService implements IOccupationService {
       indexName: OccupationsEmbeddingsVectorSearchIndexName,
       modelId,
       embeddingServiceId,
+      language: language ?? getFallbackLanguageConfig().dbKeyName,
       queryVector,
       searchFields,
       limit: limit + 1,

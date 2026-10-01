@@ -31,15 +31,16 @@ export interface IEntityEmbeddingRepository<
   upsert(spec: INewEntityEmbeddingSpec): Promise<Entity>;
 
   /**
-   * Finds all the embeddings of the given entity for the given embedding service.
+   * Finds all the embeddings of the given entity for the given embedding service and language.
    *
    * @param {string} modelId - The unique ID of the model the entity belongs to.
    * @param {string} entityId - The unique ID of the entity.
    * @param {string} embeddingServiceId - The unique ID of the embedding service.
+   * @param {string} language - The language dbKeyName to filter by (e.g. "en").
    * @return {Promise<Entity[]>} - A Promise that resolves to the found embeddings (one per source field).
    * Rejects with an error if the operation fails.
    */
-  findByEntity(modelId: string, entityId: string, embeddingServiceId: string): Promise<Entity[]>;
+  findByEntity(modelId: string, entityId: string, embeddingServiceId: string, language: string): Promise<Entity[]>;
 
   /**
    * Deletes all embeddings of the given entity in the given model.
@@ -95,12 +96,13 @@ export class EntityEmbeddingRepository<
 
   async upsert(spec: INewEntityEmbeddingSpec): Promise<Entity> {
     try {
-      const { entityId, modelId, embeddingServiceId, sourceField, ...mutableFields } = spec;
+      const { entityId, modelId, embeddingServiceId, language, sourceField, ...mutableFields } = spec;
       const doc = await this.Model.findOneAndUpdate(
         {
           modelId: { $eq: modelId },
           [this.entityIdPath]: { $eq: entityId },
           embeddingServiceId: { $eq: embeddingServiceId },
+          language: { $eq: language },
           sourceField: { $eq: sourceField },
         },
         { $set: { ...mutableFields } },
@@ -114,12 +116,18 @@ export class EntityEmbeddingRepository<
     }
   }
 
-  async findByEntity(modelId: string, entityId: string, embeddingServiceId: string): Promise<Entity[]> {
+  async findByEntity(
+    modelId: string,
+    entityId: string,
+    embeddingServiceId: string,
+    language: string
+  ): Promise<Entity[]> {
     try {
       const docs = await this.Model.find({
         modelId: { $eq: modelId },
         [this.entityIdPath]: { $eq: entityId },
         embeddingServiceId: { $eq: embeddingServiceId },
+        language: { $eq: language },
       }).exec();
       return docs.map((doc) => this.toEntityEmbedding(doc));
     } catch (e: unknown) {
@@ -173,6 +181,7 @@ export class EntityEmbeddingRepository<
             filter: {
               modelId: new mongoose.Types.ObjectId(params.modelId),
               embeddingServiceId: { $eq: params.embeddingServiceId },
+              language: { $eq: params.language },
               sourceField: { $in: params.searchFields },
             },
           },
