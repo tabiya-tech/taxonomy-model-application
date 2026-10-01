@@ -1,4 +1,10 @@
 import "_test_utilities/consoleMock";
+import {
+  describeLanguageNegotiation,
+  expectedLocalizedValues,
+  localizedValuesOf,
+} from "../_test_utilities/describeLanguageNegotiation";
+import { LOCALIZED_IDS } from "../_test_utilities/localizedSkillGroupData";
 import Ajv, { ValidateFunction } from "ajv";
 import { Connection } from "mongoose";
 
@@ -411,5 +417,15 @@ describe("Test for skillGroup handler with a DB", () => {
       const actualIds = (JSON.parse(actualResponse.body).data as ISkillGroup[]).map((g) => g.id);
       expect(actualIds.sort()).toEqual([givenDataScience.id, givenDataEngineering.id].sort());
     });
+  });
+
+  describeLanguageNegotiation({
+    handler: skillGroupHandler,
+    subPath: "",
+    isList: true,
+    fixture: "list",
+    actualValues: (body: SkillGroupAPISpecs.Types.GET.Response.Payload) =>
+      localizedValuesOf(body.data.find((skillGroup) => skillGroup.id === LOCALIZED_IDS.skillGroup)!),
+    expectedValues: expectedLocalizedValues,
   });
 });

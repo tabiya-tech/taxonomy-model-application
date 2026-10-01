@@ -5,9 +5,9 @@ import {
   ISkillGroupChild,
   ISkillGroupReference,
   ModelForSkillGroupValidationErrorCode,
-  ValidateModelForSkillGroupResult,
   IPartialUpdateSkillGroupSpec,
   IUpdateSkillGroupSpec,
+  ValidateModelForSkillGroupResult,
 } from "../_shared/skillGroup.types";
 import { IModelInfoReference } from "modelInfo/modelInfo.types";
 import { EmbeddableField } from "embeddings/service/types";
@@ -67,14 +67,23 @@ export interface ISkillGroupService {
    */
   create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup>;
 
-  findById(id: string): Promise<ISkillGroup | null>;
+  /**
+   * Finds a SkillGroup by its id.
+   *
+   * @param {string} id - The id of the SkillGroup.
+   * @param {string} [language] - The dbKeyName of the language to resolve the translatable fields to, each field
+   * falling back to the fall back language. Defaults to the fall back language.
+   * @return {Promise<ISkillGroup | null>} - The SkillGroup, or null if not found.
+   */
+  findById(id: string, language?: string): Promise<ISkillGroup | null>;
 
   findPaginated(
     modelId: string,
     cursor: { id: string; createdAt: Date } | undefined,
     limit: number,
     desc?: boolean,
-    filter?: ISkillGroupPaginatedFilter
+    filter?: ISkillGroupPaginatedFilter,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   /**
@@ -90,6 +99,8 @@ export interface ISkillGroupService {
    * @param {EmbeddableField[]} searchFields - The fields to search the value on.
    * @param {string | undefined} cursor - The opaque pagination cursor from a previous page, if any.
    * @param {number} limit - The maximum number of SkillGroups to return.
+   * @param {string} [language] - The dbKeyName of the language to match on and to resolve the returned fields to.
+   * Defaults to the fall back language.
    * @return {Promise<{ items: ISkillGroup[]; nextCursor: string | null }>} - The page of SkillGroups (ordered by
    * relevance for vector search) and the encoded cursor of the next page, if any.
    */
@@ -102,13 +113,15 @@ export interface ISkillGroupService {
     language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }>;
 
-  validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null>;
-
   /**
-   * Like validateModelForSkillGroup but returns availableLanguages on success, in a single fetch.
-   * Use this on read endpoints that need to resolve Accept-Language against the model's languages.
+   * Validates that a model exists and is not released, for skill group write operations.
+   * Whenever the model exists, a released one included, the result carries the model's availableLanguages so that
+   * read endpoints can resolve the Accept-Language header against them.
+   *
+   * @param {string} modelId - The model ID to validate.
+   * @return {Promise<ValidateModelForSkillGroupResult>} - The validation result.
    */
-  validateModelAndGetAvailableLanguages(modelId: string): Promise<ValidateModelForSkillGroupResult>;
+  validateModelForSkillGroup(modelId: string): Promise<ValidateModelForSkillGroupResult>;
 
   /**
    * Fully replaces the mutable fields of a SkillGroup (PUT semantics).
@@ -136,14 +149,16 @@ export interface ISkillGroupService {
     modelId: string,
     id: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   findChildren(
     modelId: string,
     id: string,
     limit: number,
-    cursor?: string
+    cursor?: string,
+    language?: string
   ): Promise<{ items: ISkillGroupChild[]; nextCursor: { _id: string; createdAt: Date } | null }>;
 
   /**
@@ -171,8 +186,10 @@ export interface ISkillGroupService {
    * UUIDs that do not resolve to an existing skill group are skipped, and each model appears at most once.
    *
    * @param {string} skillGroupId - The ID of the SkillGroup.
+   * @param {string} [language] - The dbKeyName of the language to resolve the translatable fields to, each field
+   * falling back to the fall back language. Defaults to the fall back language.
    * @return {Promise<ISkillGroupHistoryEntry[] | null>} - The resolved history entries in UUIDHistory order,
    * or null if the SkillGroup does not exist.
    */
-  getHistory(skillGroupId: string): Promise<ISkillGroupHistoryEntry[] | null>;
+  getHistory(skillGroupId: string, language?: string): Promise<ISkillGroupHistoryEntry[] | null>;
 }

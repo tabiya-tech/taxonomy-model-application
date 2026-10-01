@@ -1,4 +1,6 @@
 import "_test_utilities/consoleMock";
+import { transformPaginatedChildren } from "./response";
+import { describeLanguageNegotiation } from "../../../_test_utilities/describeLanguageNegotiation";
 import Ajv, { ValidateFunction } from "ajv";
 import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
@@ -100,5 +102,14 @@ describe("Test for skillGroup children handler with a DB", () => {
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
     validateResponse(JSON.parse(actualResponse.body));
     expect(validateResponse.errors).toBeNull();
+  });
+
+  describeLanguageNegotiation({
+    handler: skillGroupHandler,
+    subPath: "/children",
+    fixture: "children",
+    actualValues: (body: ReturnType<typeof transformPaginatedChildren>) =>
+      body.data.map((child) => child.preferredLabel),
+    expectedValues: (values) => [values.childSkillGroup, values.childSkill],
   });
 });

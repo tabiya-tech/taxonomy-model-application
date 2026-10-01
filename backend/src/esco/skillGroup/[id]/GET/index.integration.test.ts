@@ -1,4 +1,9 @@
 import "_test_utilities/consoleMock";
+import {
+  describeLanguageNegotiation,
+  expectedLocalizedValues,
+  localizedValuesOf,
+} from "../../_test_utilities/describeLanguageNegotiation";
 import Ajv, { ValidateFunction } from "ajv";
 import { randomUUID } from "node:crypto";
 import { Connection } from "mongoose";
@@ -100,5 +105,13 @@ describe("Test for skillGroup detail handler with a DB", () => {
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
     validateResponse(JSON.parse(actualResponse.body));
     expect(validateResponse.errors).toBeNull();
+  });
+
+  describeLanguageNegotiation({
+    handler: skillGroupHandler,
+    subPath: "",
+    fixture: "detail",
+    actualValues: localizedValuesOf,
+    expectedValues: expectedLocalizedValues,
   });
 });

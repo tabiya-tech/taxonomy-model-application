@@ -160,8 +160,8 @@ export interface ISkillGroupReference extends Pick<ISkillGroup, "id" | "UUID" | 
  */
 export interface ISkillGroupReferenceDoc extends Pick<ISkillGroupDoc, "modelId" | "UUID" | "code"> {
   id: string;
-  // flattened to the fall back language by getSkillGroupDocReference, unlike the localized sub document it is
-  // stored as
+  // flattened to the requested language (falling back to the fall back language) by getSkillGroupDocReference,
+  // unlike the localized sub document it is stored as
   preferredLabel: string;
   objectType: ObjectTypes.SkillGroup | ObjectTypes.Skill;
 }
@@ -175,9 +175,21 @@ export enum ModelForSkillGroupValidationErrorCode {
   MODEL_IS_RELEASED,
 }
 
+/**
+ * The result of validating a model for skill group operations. Whenever the model exists it carries the model's
+ * availableLanguages, a released model included, so that read endpoints can resolve the Accept-Language header.
+ */
 export type ValidateModelForSkillGroupResult =
-  | { errorCode: null; availableLanguages: string[] }
-  | { errorCode: ModelForSkillGroupValidationErrorCode; availableLanguages?: never };
+  | {
+      errorCode: null | ModelForSkillGroupValidationErrorCode.MODEL_IS_RELEASED;
+      availableLanguages: string[];
+    }
+  | {
+      errorCode:
+        | ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID
+        | ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB;
+      availableLanguages?: never;
+    };
 /**
  * Base path parameters for skill group routes
  */

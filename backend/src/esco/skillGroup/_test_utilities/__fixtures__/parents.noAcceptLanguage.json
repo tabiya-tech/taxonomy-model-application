@@ -1,0 +1,33 @@
+{
+  "data": [
+    {
+      "id": "650000000000000000000001",
+      "UUID": "8a1e4c55-0000-4000-8000-000000000001",
+      "UUIDHistory": ["8a1e4c55-0000-4000-8000-000000000001"],
+      "code": "S1",
+      "originUri": "https://example.com/skillGroups/S1",
+      "preferredLabel": "Parent group",
+      "altLabels": [],
+      "description": "",
+      "scopeNote": "",
+      "parents": [],
+      "children": [
+        {
+          "id": "650000000000000000000002",
+          "UUID": "8a1e4c55-0000-4000-8000-000000000002",
+          "code": "S1.1",
+          "preferredLabel": "Management",
+          "objectType": "skillgroup"
+        }
+      ],
+      "originUUID": "8a1e4c55-0000-4000-8000-000000000001",
+      "path": "https://path/to/resources/models/{{modelId}}/skillGroups/650000000000000000000001",
+      "tabiyaPath": "https://path/to/resources/models/{{modelId}}/skillGroups/8a1e4c55-0000-4000-8000-000000000001",
+      "modelId": "{{modelId}}",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "limit": 20,
+  "nextCursor": null
+}

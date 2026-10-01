@@ -9,17 +9,15 @@ import { RoleRequired } from "auth/authorizer";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { ajvInstance } from "validator";
 import { getResourcesBaseUrl } from "server/config/config";
-import { errorResponse, errorResponseGET, response, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponse, errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { ModelForSkillGroupValidationErrorCode } from "../_shared/skillGroup.types";
 import { ISkillGroupPaginatedFilter, ISkillGroupService } from "../services/skillGroup.service.type";
 import { decodeCursor, encodeCursor, getSkillGroupsPathParameters } from "./query";
 import { transformPaginated } from "./response";
 import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
 import { EmbeddableField } from "embeddings/service/types";
 import { parseSearchCursor, SearchCursorLanguageMismatchError } from "esco/common/searchCursor";
-import { getAcceptLanguageHeader, resolveLanguageConfig } from "common/language/resolveLanguage";
-import { ValidateModelForSkillGroupResult } from "../_shared/skillGroup.types";
+import { resolveSkillGroupReadLanguage } from "esco/skillGroup/_shared/resolveReadLanguage";
 
 /**
  * Checks that a cursor token is well-formed for one of the two search pagination strategies: a keyset cursor
@@ -112,9 +110,28 @@ export class SkillGroupListController {
    *        required: false
    *        schema:
    *          $ref: '#/components/schemas/SkillGroupRequestQueryParamSchemaGET/properties/root'
+   *      - in: header
+   *        name: Accept-Language
+   *        required: false
+   *        schema:
+   *          type: string
+   *          example: "fr, en;q=0.9"
+   *        description: >
+   *          Preferred response language. The server picks the best match from the model's available languages
+   *          and falls back to the default language if none match.
    *    responses:
    *      '200':
    *        description: Successfully retrieved the paginated skill groups.
+   *        headers:
+   *          Content-Language:
+   *            schema:
+   *              type: string
+   *              example: "fr"
+   *            description: The language of the response body.
+   *          Vary:
+   *            schema:
+   *              type: string
+   *              example: "Accept-Language"
    *        content:
    *          application/json:
    *            schema:
@@ -173,27 +190,17 @@ export class SkillGroupListController {
         );
       }
 
-      const validationResult: ValidateModelForSkillGroupResult =
-        await this.skillGroupService.validateModelAndGetAvailableLanguages(requestPathParameter.modelId);
-      if (validationResult.errorCode === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          SkillGroupGETAPISpecs.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${requestPathParameter.modelId}`
-        );
-      }
-      if (validationResult.errorCode === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillGroupGETAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
-      // MODEL_IS_RELEASED is not an error for read endpoints; availableLanguages falls back to [] via the
-      // ValidateModelForSkillGroupResult shape, resolving to the fallback language.
-      const availableLanguages = validationResult.errorCode === null ? validationResult.availableLanguages : [];
+      const readLanguage = resolveSkillGroupReadLanguage(
+        event,
+        await this.skillGroupService.validateModelForSkillGroup(requestPathParameter.modelId),
+        requestPathParameter.modelId,
+        {
+          modelNotFound: SkillGroupGETAPISpecs.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          dbFailedToRetrieve:
+            SkillGroupGETAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        }
+      );
+      if ("statusCode" in readLanguage) return readLanguage;
 
       const rawQueryParams = (event.queryStringParameters || {}) as {
         limit?: string;
@@ -244,8 +251,6 @@ export class SkillGroupListController {
             ""
           );
         }
-        const languageConfig = resolveLanguageConfig(getAcceptLanguageHeader(event.headers), availableLanguages);
-        const language = languageConfig.dbKeyName;
         // searchFields defaults to preferredLabel. The schema has already validated that, when present, it is a
         // comma-separated list of known searchable field names, so the split values map cleanly to EmbeddableField.
         const searchFields: EmbeddableField[] = queryParams.searchFields
@@ -257,12 +262,12 @@ export class SkillGroupListController {
           searchFields,
           queryParams.cursor ?? undefined,
           limit,
-          language
+          readLanguage.language
         );
         return response(
           StatusCodes.OK,
           transformPaginated(searchPage.items, getResourcesBaseUrl(), limit, searchPage.nextCursor),
-          { "Content-Type": "application/json", "Content-Language": languageConfig.shortCode, Vary: "Accept-Language" }
+          readLanguage.headers
         );
       }
 
@@ -296,16 +301,18 @@ export class SkillGroupListController {
         decodedCursor,
         limit,
         true,
-        paginationFilter
+        paginationFilter,
+        readLanguage.language
       );
 
       let nextCursor: string | null = null;
       if (currentPageSkillGroups?.nextCursor?._id) {
         nextCursor = encodeCursor(currentPageSkillGroups.nextCursor._id, currentPageSkillGroups.nextCursor.createdAt);
       }
-      return responseJSON(
+      return response(
         StatusCodes.OK,
-        transformPaginated(currentPageSkillGroups.items, getResourcesBaseUrl(), limit, nextCursor)
+        transformPaginated(currentPageSkillGroups.items, getResourcesBaseUrl(), limit, nextCursor),
+        readLanguage.headers
       );
     } catch (error: unknown) {
       if (error instanceof SearchCursorLanguageMismatchError) {

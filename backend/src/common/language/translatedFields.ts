@@ -93,6 +93,40 @@ export function readLanguageValues(translatedValues: unknown, dbKeyName: string)
 }
 
 /**
+ * Reads the value of a language out of a translated value, falling back to the value of the fall back language,
+ * as it is stored, when the language is not translated (or is translated to a blank value).
+ *
+ * Reading the fall back language itself returns exactly what readFallbackLanguageValue() returns, so a response
+ * served in the fall back language is identical to one served before translations were language aware.
+ *
+ * @param translatedValue the translated value, as it is hydrated
+ * @param dbKeyName the dbKeyName of the language to read
+ * @returns the value of the language, the value of the fall back language when the language is not translated, or
+ *          an empty string when neither is translated
+ */
+export function readLanguageValueWithFallback(translatedValue: unknown, dbKeyName: string): string {
+  const value = readLanguageValue(translatedValue, dbKeyName);
+  return value.trim().length > 0
+    ? value
+    : readFallbackLanguageValue(translatedValue, getFallbackLanguageConfig().dbKeyName);
+}
+
+/**
+ * Reads the values of a language out of a list of translated values, every item falling back on its own as
+ * readLanguageValueWithFallback() does. Like readFallbackLanguageValues(), the list keeps its length and its order.
+ *
+ * @param translatedValues the list of translated values, absent on a document that never carried the path
+ * @param dbKeyName the dbKeyName of the language to read
+ * @returns the values of the language, an empty list when there is no list to read
+ */
+export function readLanguageValuesWithFallback(translatedValues: unknown, dbKeyName: string): string[] {
+  if (!Array.isArray(translatedValues)) {
+    return [];
+  }
+  return translatedValues.map((item: unknown) => readLanguageValueWithFallback(item, dbKeyName));
+}
+
+/**
  * Wraps a flat string into a translated value keyed by the fall back language, e.g. "Cook" into { en: "Cook" }.
  */
 export function wrapTranslated(value: string): ITranslatedStringDoc {

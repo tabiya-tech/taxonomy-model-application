@@ -8,6 +8,8 @@ import {
   readFallbackLanguageValues,
   readLanguageValue,
   readLanguageValues,
+  readLanguageValuesWithFallback,
+  readLanguageValueWithFallback,
   translatedValueReplacer,
   wrapTranslatableFields,
   wrapTranslatableFieldsFromObjects,
@@ -230,6 +232,68 @@ describe("Test readLanguageValues()", () => {
 
     // WHEN the language is read
     const actualValues = readLanguageValues(givenTranslatedValues, "en");
+
+    // THEN expect an empty list to be returned
+    expect(actualValues).toEqual([]);
+  });
+});
+
+describe("Test readLanguageValueWithFallback()", () => {
+  test.each([
+    ["translated in the language", { en: "Cook", [OTHER_LANGUAGE_DB_KEY_NAME]: "Cuisinier" }, "Cuisinier"],
+    ["not translated in the language", new Map([["en", "Cook"]]), "Cook"],
+    ["translated to a blank value in the language", { en: "Cook", [OTHER_LANGUAGE_DB_KEY_NAME]: "  " }, "Cook"],
+    ["a flat string, as a document that predates the localized fields migration carries it", "Cook", "Cook"],
+    ["translated in neither language", { [OTHER_LANGUAGE_DB_KEY_NAME]: "" }, ""],
+  ])("should read the other language of a value that is %s", (_description, givenTranslatedValue, expectedValue) => {
+    // GIVEN a translated value
+
+    // WHEN the other language is read
+    const actualValue = readLanguageValueWithFallback(givenTranslatedValue, OTHER_LANGUAGE_DB_KEY_NAME);
+
+    // THEN expect the value of the other language, or the value of the fall back language when it is not translated
+    expect(actualValue).toBe(expectedValue);
+  });
+
+  test("should read the fall back language exactly as it is stored, including a blank value", () => {
+    // GIVEN a translated value that is translated to a blank value in the fall back language
+    const givenBlankValue = "  ";
+    const givenTranslatedValue = new Map([["en", givenBlankValue]]);
+
+    // WHEN the fall back language is read
+    const actualValue = readLanguageValueWithFallback(givenTranslatedValue, "en");
+
+    // THEN expect the blank value, as readFallbackLanguageValue() returns it
+    expect(actualValue).toBe(readFallbackLanguageValue(givenTranslatedValue, "en"));
+    expect(actualValue).toBe(givenBlankValue);
+  });
+});
+
+describe("Test readLanguageValuesWithFallback()", () => {
+  test("should fall back on every item on its own, keeping the length and the order of the list", () => {
+    // GIVEN a list whose second item is not translated in the other language and whose third is translated in neither
+    const givenTranslatedValues = [
+      new Map([
+        ["en", "first"],
+        [OTHER_LANGUAGE_DB_KEY_NAME, "premier"],
+      ]),
+      new Map([["en", "second"]]),
+      {},
+    ];
+
+    // WHEN the other language is read
+    const actualValues = readLanguageValuesWithFallback(givenTranslatedValues, OTHER_LANGUAGE_DB_KEY_NAME);
+
+    // THEN expect the second item to fall back to the fall back language and the third to keep its slot
+    expect(actualValues).toEqual(["premier", "second", ""]);
+  });
+
+  test("should return an empty list when the values are not a list", () => {
+    // GIVEN no list of translated values
+    const givenTranslatedValues = undefined;
+
+    // WHEN the language is read
+    const actualValues = readLanguageValuesWithFallback(givenTranslatedValues, OTHER_LANGUAGE_DB_KEY_NAME);
 
     // THEN expect an empty list to be returned
     expect(actualValues).toEqual([]);

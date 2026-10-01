@@ -1,4 +1,10 @@
 import "_test_utilities/consoleMock";
+import LanguageAPISpecs from "api-specifications/language";
+import {
+  acceptLanguageHeaders,
+  LANGUAGE_NEGOTIATION_CASES,
+  MODEL_LANGUAGES,
+} from "../_test_utilities/languageNegotiationCases";
 import ErrorAPISpecs from "api-specifications/error";
 import * as authenticatorModule from "auth/authorizer";
 import * as queryModule from "./query";
@@ -59,8 +65,7 @@ describe("SkillGroupListController", () => {
         findParents: jest.fn(),
         findPaginated: jest.fn(),
         searchPaginated: jest.fn(),
-        validateModelForSkillGroup: jest.fn(),
-        validateModelAndGetAvailableLanguages: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
+        validateModelForSkillGroup: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
         findChildren: jest.fn(),
         getHistory: jest.fn(),
         setParent: jest.fn(),
@@ -114,7 +119,7 @@ describe("SkillGroupListController", () => {
     mockTransformPaginated.mockReturnValue(transformed as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
       .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue(paginatedResult);
@@ -143,7 +148,7 @@ describe("SkillGroupListController", () => {
     const givenItems = [{ ...getISkillGroupMockData(1, givenModelId), UUID: "foo", UUIDHistory: ["foo"] }];
     const givenNextCursor = "nextOpaqueCursor";
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
       .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.searchPaginated = jest
@@ -169,7 +174,7 @@ describe("SkillGroupListController", () => {
       [EmbeddableField.preferredLabel, EmbeddableField.description],
       undefined,
       100,
-      "en"
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName
     );
     expect(mockServiceRegistry.skillGroup.findPaginated).not.toHaveBeenCalled();
     // AND the response to be built with the service's already-encoded nextCursor
@@ -191,7 +196,7 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
       .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.searchPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
@@ -223,7 +228,7 @@ describe("SkillGroupListController", () => {
       [EmbeddableField.preferredLabel],
       givenCursor,
       100,
-      "en"
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName
     );
   });
 
@@ -253,7 +258,7 @@ describe("SkillGroupListController", () => {
       [EmbeddableField.preferredLabel],
       givenCursor,
       100,
-      "en"
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName
     );
   });
 
@@ -282,7 +287,7 @@ describe("SkillGroupListController", () => {
       [EmbeddableField.preferredLabel],
       givenCursor,
       100,
-      "en"
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName
     );
   });
 
@@ -357,8 +362,7 @@ describe("SkillGroupListController", () => {
         nextCursor: { _id: givenSkillGroups[1].id, createdAt: givenSkillGroups[0].createdAt },
       }),
       searchPaginated: jest.fn(),
-      validateModelForSkillGroup: jest.fn(),
-      validateModelAndGetAvailableLanguages: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
+      validateModelForSkillGroup: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
       findChildren: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn(),
       setParent: jest.fn(),
@@ -389,9 +393,16 @@ describe("SkillGroupListController", () => {
     });
 
     // verify the service was called correctly
-    expect(getServiceRegistry().skillGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, limit, true, {
-      root: false,
-    });
+    expect(getServiceRegistry().skillGroup.findPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      undefined,
+      limit,
+      true,
+      {
+        root: false,
+      },
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName
+    );
     // AND the response body contains a nextCursor (base64 encoded)
     const responseBody = JSON.parse(actualResponse.body);
     expect(responseBody.nextCursor).toBeDefined();
@@ -411,7 +422,7 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
       .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
@@ -420,9 +431,16 @@ describe("SkillGroupListController", () => {
     const actualResponse = await controller.getSkillGroups(buildEvent(`/models/${givenModelId}/skillGroups`));
 
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
-    expect(mockServiceRegistry.skillGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, 100, true, {
-      root: false,
-    });
+    expect(mockServiceRegistry.skillGroup.findPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      undefined,
+      100,
+      true,
+      {
+        root: false,
+      },
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName
+    );
   });
   test("GET skillGroups should forward children filters when both childrenIds and childrenType are provided", async () => {
     const validatePathFunction = jest.fn().mockReturnValue(true);
@@ -433,7 +451,7 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
       .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
@@ -447,11 +465,18 @@ describe("SkillGroupListController", () => {
     );
 
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
-    expect(mockServiceRegistry.skillGroup.findPaginated).toHaveBeenCalledWith(givenModelId, undefined, 100, true, {
-      root: false,
-      childrenIds,
-      childrenType,
-    });
+    expect(mockServiceRegistry.skillGroup.findPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      undefined,
+      100,
+      true,
+      {
+        root: false,
+        childrenIds,
+        childrenType,
+      },
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName
+    );
   });
 
   test("GET skillGroups should parse the 'root' query parameter and forward the result to the service as the root filter", async () => {
@@ -466,7 +491,7 @@ describe("SkillGroupListController", () => {
     // AND a service that resolves to an empty page
     const expectedDefaultLimit = 100;
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
       .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     const givenFindPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
@@ -489,9 +514,14 @@ describe("SkillGroupListController", () => {
     // AND expect the raw 'root' query parameter to have been parsed
     expect(mockParseBooleanQueryParam).toHaveBeenCalledWith(givenRawRoot);
     // AND expect the parsed value to be forwarded to the service as the root filter
-    expect(givenFindPaginated).toHaveBeenCalledWith(givenModelId, undefined, expectedDefaultLimit, true, {
-      root: givenParsedRoot,
-    });
+    expect(givenFindPaginated).toHaveBeenCalledWith(
+      givenModelId,
+      undefined,
+      expectedDefaultLimit,
+      true,
+      { root: givenParsedRoot },
+      LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.dbKeyName
+    );
   });
   test("GET skillGroups should respond with the BAD_REQUEST status code if the modelId is not passed as a path parameter", async () => {
     // AND GIVEN the repository fails to get the occupationGroups
@@ -589,7 +619,7 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: "model-1" } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
       .mockResolvedValue({ errorCode: null, availableLanguages: [] });
 
@@ -608,7 +638,7 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: "model-1" } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
       .mockResolvedValue({ errorCode: ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID });
 
@@ -632,8 +662,7 @@ describe("SkillGroupListController", () => {
       findPaginated: jest.fn(),
       searchPaginated: jest.fn(),
       findChildren: jest.fn(),
-      validateModelForSkillGroup: jest.fn(),
-      validateModelAndGetAvailableLanguages: jest
+      validateModelForSkillGroup: jest
         .fn()
         .mockResolvedValue({ errorCode: ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB }),
       getHistory: jest.fn(),
@@ -677,8 +706,7 @@ describe("SkillGroupListController", () => {
       findPaginated: jest.fn(),
       searchPaginated: jest.fn(),
       findParents: jest.fn().mockResolvedValue(null),
-      validateModelForSkillGroup: jest.fn(),
-      validateModelAndGetAvailableLanguages: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
+      validateModelForSkillGroup: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
       findChildren: jest.fn(),
       getHistory: jest.fn(),
       setParent: jest.fn(),
@@ -785,8 +813,7 @@ describe("SkillGroupListController", () => {
       findPaginated: jest.fn().mockRejectedValue("repository failed"),
       searchPaginated: jest.fn(),
       findParents: jest.fn().mockResolvedValue(null),
-      validateModelForSkillGroup: jest.fn(),
-      validateModelAndGetAvailableLanguages: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
+      validateModelForSkillGroup: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
       findChildren: jest.fn().mockResolvedValue(null),
       getHistory: jest.fn(),
       setParent: jest.fn(),
@@ -823,7 +850,7 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
       .fn()
       .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
@@ -834,5 +861,83 @@ describe("SkillGroupListController", () => {
 
     // THEN expect the OK status
     expect(actualResponse.statusCode).toBe(StatusCodes.OK);
+  });
+  describe("language negotiation", () => {
+    function givenModelInLanguages() {
+      getMockGetSchema().mockReturnValue(jest.fn().mockReturnValue(true) as never);
+      mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
+      mockTransformPaginated.mockReturnValue({ data: [], limit: 100, nextCursor: null } as never);
+      const mockServiceRegistry = mockGetServiceRegistry();
+      mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
+        .fn()
+        .mockResolvedValue({ errorCode: null, availableLanguages: MODEL_LANGUAGES });
+      mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
+      mockServiceRegistry.skillGroup.searchPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
+      return mockServiceRegistry;
+    }
+
+    test.each(LANGUAGE_NEGOTIATION_CASES)(
+      "GET should serve the skill groups in the negotiated language when the request carries %s",
+      async (_description, givenAcceptLanguage, expectedLanguage) => {
+        // GIVEN a model available in the fallback and a secondary language
+        const mockServiceRegistry = givenModelInLanguages();
+        // AND a request with the given Accept-Language header
+        const givenRequest = {
+          ...(buildEvent(`/models/${givenModelId}/skillGroups`) as object),
+          headers: acceptLanguageHeaders(givenAcceptLanguage),
+        };
+
+        // WHEN the handler is invoked
+        const actualResponse = await new SkillGroupListController().getSkillGroups(givenRequest as never);
+
+        // THEN expect the response to be served in the expected language
+        expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+        expect(actualResponse.headers).toMatchObject({
+          "Content-Language": expectedLanguage.shortCode,
+          Vary: "Accept-Language",
+        });
+        // AND the translatable fields to be resolved to that language
+        expect(mockServiceRegistry.skillGroup.findPaginated).toHaveBeenCalledWith(
+          givenModelId,
+          undefined,
+          100,
+          true,
+          { root: false },
+          expectedLanguage.dbKeyName
+        );
+      }
+    );
+
+    test.each(LANGUAGE_NEGOTIATION_CASES)(
+      "GET should serve the searched skill groups in the negotiated language when the request carries %s",
+      async (_description, givenAcceptLanguage, expectedLanguage) => {
+        // GIVEN a model available in the fallback and a secondary language
+        const mockServiceRegistry = givenModelInLanguages();
+        // AND a search request with the given Accept-Language header
+        const givenRequest = {
+          ...(buildEvent(`/models/${givenModelId}/skillGroups`, { query: "data" }) as object),
+          headers: acceptLanguageHeaders(givenAcceptLanguage),
+        };
+
+        // WHEN the handler is invoked
+        const actualResponse = await new SkillGroupListController().getSkillGroups(givenRequest as never);
+
+        // THEN expect the response to be served in the expected language
+        expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+        expect(actualResponse.headers).toMatchObject({
+          "Content-Language": expectedLanguage.shortCode,
+          Vary: "Accept-Language",
+        });
+        // AND the translatable fields to be resolved to that language
+        expect(mockServiceRegistry.skillGroup.searchPaginated).toHaveBeenCalledWith(
+          givenModelId,
+          "data",
+          [EmbeddableField.preferredLabel],
+          undefined,
+          100,
+          expectedLanguage.dbKeyName
+        );
+      }
+    );
   });
 });

@@ -1,0 +1,42 @@
+{
+  "id": "650000000000000000000002",
+  "UUID": "8a1e4c55-0000-4000-8000-000000000002",
+  "UUIDHistory": ["8a1e4c55-0000-4000-8000-000000000002"],
+  "code": "S1.1",
+  "originUri": "https://example.com/skillGroups/S1.1",
+  "preferredLabel": "Management",
+  "altLabels": ["Leading", "Running"],
+  "description": "Managing teams",
+  "scopeNote": "Scope of management",
+  "parents": [
+    {
+      "id": "650000000000000000000001",
+      "UUID": "8a1e4c55-0000-4000-8000-000000000001",
+      "code": "S1",
+      "preferredLabel": "Parent group",
+      "objectType": "skillgroup"
+    }
+  ],
+  "children": [
+    {
+      "id": "650000000000000000000003",
+      "UUID": "8a1e4c55-0000-4000-8000-000000000003",
+      "code": "S1.1.1",
+      "preferredLabel": "Child group",
+      "objectType": "skillgroup"
+    },
+    {
+      "id": "650000000000000000000004",
+      "UUID": "8a1e4c55-0000-4000-8000-000000000004",
+      "preferredLabel": "Child skill",
+      "objectType": "skill",
+      "isLocalized": false
+    }
+  ],
+  "originUUID": "8a1e4c55-0000-4000-8000-000000000002",
+  "path": "https://path/to/resources/models/{{modelId}}/skillGroups/650000000000000000000002",
+  "tabiyaPath": "https://path/to/resources/models/{{modelId}}/skillGroups/8a1e4c55-0000-4000-8000-000000000002",
+  "modelId": "{{modelId}}",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
+}

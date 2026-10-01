@@ -8,12 +8,12 @@ import { RoleRequired } from "auth/authorizer";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { ajvInstance } from "validator";
 import { getResourcesBaseUrl } from "server/config/config";
-import { errorResponse, errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponse, errorResponseGET, response, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
-import { ModelForSkillGroupValidationErrorCode } from "../../_shared/skillGroup.types";
 import { ISkillGroupService } from "../../services/skillGroup.service.type";
 import { getSkillGroupDetailPathParameters } from "./query";
 import { transform } from "./response";
+import { resolveSkillGroupReadLanguage } from "esco/skillGroup/_shared/resolveReadLanguage";
 
 export class SkillGroupDetailController {
   private readonly skillGroupService: ISkillGroupService;
@@ -46,9 +46,28 @@ export class SkillGroupDetailController {
    *      required: true
    *      schema:
    *        $ref: '#/components/schemas/SkillGroupRequestByIdParamSchemaGET/properties/id'
+   *    - in: header
+   *      name: Accept-Language
+   *      required: false
+   *      schema:
+   *        type: string
+   *        example: "fr, en;q=0.9"
+   *      description: >
+   *        Preferred response language. The server picks the best match from the model's available languages
+   *        and falls back to the default language if none match.
    *   responses:
    *     '200':
    *       description: Successfully retrieved the skill group.
+   *       headers:
+   *         Content-Language:
+   *           schema:
+   *             type: string
+   *             example: "fr"
+   *           description: The language of the response body.
+   *         Vary:
+   *           schema:
+   *             type: string
+   *             example: "Accept-Language"
    *       content:
    *         application/json:
    *           schema:
@@ -90,24 +109,18 @@ export class SkillGroupDetailController {
           })
         );
       }
-      const validationResult = await this.skillGroupService.validateModelForSkillGroup(requestPathParameter.modelId);
-      if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
-        return errorResponseGET(
-          StatusCodes.NOT_FOUND,
-          SkillGroupDetailAPISpecs.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
-          "Model not found",
-          `No model found with id: ${requestPathParameter.modelId}`
-        );
-      }
-      if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
-        return errorResponseGET(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
-          "Failed to fetch the model details from the DB",
-          ""
-        );
-      }
-      const skillGroup = await this.skillGroupService.findById(requestPathParameter.id);
+      const readLanguage = resolveSkillGroupReadLanguage(
+        event,
+        await this.skillGroupService.validateModelForSkillGroup(requestPathParameter.modelId),
+        requestPathParameter.modelId,
+        {
+          modelNotFound: SkillGroupDetailAPISpecs.GET.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
+          dbFailedToRetrieve:
+            SkillGroupAPISpecs.GET.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
+        }
+      );
+      if ("statusCode" in readLanguage) return readLanguage;
+      const skillGroup = await this.skillGroupService.findById(requestPathParameter.id, readLanguage.language);
       if (!skillGroup) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
@@ -116,7 +129,7 @@ export class SkillGroupDetailController {
           `No skill group found with id: ${requestPathParameter.id}`
         );
       }
-      return responseJSON(StatusCodes.OK, transform(skillGroup, getResourcesBaseUrl()));
+      return response(StatusCodes.OK, transform(skillGroup, getResourcesBaseUrl()), readLanguage.headers);
     } catch (error: unknown) {
       console.error("Failed to get skill group by id:", error);
       errorLoggerInstance.logError(
