@@ -20,6 +20,7 @@ import "../src/styles/variables.css"
 import type { Preview } from "@storybook/react";
 import CustomSnackbarProvider from "../src/theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider, QueryProvider } from "../src/app/providers";
+import { LanguageProvider } from "../src/language/LanguageProvider";
 import { AuthContext, authContextDefaultValue } from "../src/auth/AuthProvider";
 import { applyBrandingFromEnv } from "../src/branding/branding";
 
@@ -86,9 +87,11 @@ export const decorators = [
             <CustomSnackbarProvider>
               <AuthContext.Provider value={authContextValue}>
                 <QueryProvider>
-                  <div style={{ height: "100vh" }}>
-                    <Story />
-                  </div>
+                  <LanguageProvider>
+                    <div style={{ height: "100vh" }}>
+                      <Story />
+                    </div>
+                  </LanguageProvider>
                 </QueryProvider>
               </AuthContext.Provider>
             </CustomSnackbarProvider>

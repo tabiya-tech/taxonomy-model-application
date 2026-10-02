@@ -8,6 +8,7 @@ import applicationTheme, { ThemeMode } from "./theme/applicationTheme/applicatio
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import SnackbarProvider from "./theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider, AuthProvider, QueryProvider } from "src/app/providers";
+import { LanguageProvider } from "src/language/LanguageProvider";
 import { applyBrandingFromEnv } from "src/branding/branding";
 
 // Currently the fonts are downloaded from Google via the index.css
@@ -26,7 +27,9 @@ root.render(
         <AuthProvider>
           <SnackbarProvider>
             <QueryProvider>
-              <App />
+              <LanguageProvider>
+                <App />
+              </LanguageProvider>
             </QueryProvider>
           </SnackbarProvider>
         </AuthProvider>

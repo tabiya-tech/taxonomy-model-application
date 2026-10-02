@@ -14,8 +14,10 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CodeIcon from "@mui/icons-material/Code";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import LanguageIcon from "@mui/icons-material/Language";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import { getLanguageOptions } from "src/language/languages.service";
 
 const BUTTON_SX = {
   paddingY: (theme: Theme) => theme.fixedSpacing(theme.tabiyaSpacing.xs),
@@ -32,6 +34,7 @@ export const DATA_TEST_ID = {
   SKELETON: `explorer-header-skeleton-${uniqueId}`,
   MODEL_NAME: `explorer-header-model-name-${uniqueId}`,
   MODEL_SELECT: `explorer-header-model-select-${uniqueId}`,
+  LANGUAGE_SELECT: `explorer-header-language-select-${uniqueId}`,
   NO_MODELS_TEXT: `explorer-header-no-models-text-${uniqueId}`,
   BACK_LINK: `explorer-header-back-link-${uniqueId}`,
   API_BUTTON: `explorer-header-api-button-${uniqueId}`,
@@ -42,13 +45,16 @@ export const TEXT = {
   BACK_TO_DIRECTORY: "All taxonomies",
   API: "API",
   CSV: "CSV",
+  SELECT_LANGUAGE: "Select display language",
 };
 
 export interface ExplorerHeaderProps {
   models: ModelInfoTypes.ModelInfo[];
   selectedModel: ModelInfoTypes.ModelInfo | null;
   isLoading: boolean;
+  language: string;
   onModelChange: (modelId: string) => void;
+  onLanguageChange: (language: string) => void;
   onBackToDirectory: () => void;
   onOpenApiDocs: () => void;
   csvDownloadUrl?: string;
@@ -81,12 +87,15 @@ const ExplorerHeader = ({
   models,
   selectedModel,
   isLoading,
+  language,
   onModelChange,
+  onLanguageChange,
   onBackToDirectory,
   onOpenApiDocs,
   csvDownloadUrl,
 }: ExplorerHeaderProps) => {
   const theme = useTheme();
+  const languageOptions = selectedModel ? getLanguageOptions(selectedModel.availableLanguages) : [];
 
   if (isLoading) {
     return (
@@ -199,6 +208,28 @@ const ExplorerHeader = ({
             </MenuItem>
           ))}
         </Select>
+
+        {languageOptions.length > 1 && (
+          <Select
+            value={language}
+            onChange={(e: SelectChangeEvent) => onLanguageChange(e.target.value)}
+            startAdornment={<LanguageIcon sx={{ mr: 1, color: "text.secondary" }} />}
+            inputProps={{ "aria-label": TEXT.SELECT_LANGUAGE }}
+            data-testid={DATA_TEST_ID.LANGUAGE_SELECT}
+            sx={{
+              borderRadius: 1,
+              bgcolor: "common.white",
+              "& .MuiOutlinedInput-notchedOutline": { borderColor: "grey.300" },
+              "& .MuiSelect-select": { py: 0.75, pr: 2, display: "flex", alignItems: "center" },
+            }}
+          >
+            {languageOptions.map((option) => (
+              <MenuItem key={option.shortCode} value={option.shortCode}>
+                {option.name}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
       </Box>
 
       <Box display="flex" alignItems="center" gap={theme.tabiyaSpacing.sm}>

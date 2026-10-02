@@ -7,6 +7,7 @@ import applicationTheme, { ThemeMode } from "src/theme/applicationTheme/applicat
 import SnackbarProvider from "src/theme/SnackbarProvider/SnackbarProvider";
 import { IsOnlineProvider, QueryProvider } from "src/app/providers";
 import { AuthProvider } from "src/auth/AuthProvider";
+import { LanguageProvider } from "src/language/LanguageProvider";
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -14,7 +15,9 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
       <ThemeProvider theme={applicationTheme(ThemeMode.LIGHT)}>
         <AuthProvider>
           <SnackbarProvider>
-            <QueryProvider>{children}</QueryProvider>
+            <QueryProvider>
+              <LanguageProvider>{children}</LanguageProvider>
+            </QueryProvider>
           </SnackbarProvider>
         </AuthProvider>
       </ThemeProvider>
