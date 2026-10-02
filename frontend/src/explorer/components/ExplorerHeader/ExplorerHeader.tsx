@@ -18,6 +18,7 @@ import LanguageIcon from "@mui/icons-material/Language";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { getLanguageOptions } from "src/language/languages.service";
+import { useExplorerTranslations } from "src/explorer/explorerTranslations";
 
 const BUTTON_SX = {
   paddingY: (theme: Theme) => theme.fixedSpacing(theme.tabiyaSpacing.xs),
@@ -42,10 +43,8 @@ export const DATA_TEST_ID = {
 };
 
 export const TEXT = {
-  BACK_TO_DIRECTORY: "All taxonomies",
   API: "API",
   CSV: "CSV",
-  SELECT_LANGUAGE: "Select display language",
 };
 
 export interface ExplorerHeaderProps {
@@ -62,26 +61,29 @@ export interface ExplorerHeaderProps {
 
 const filenameFromUrl = (url: string): string => url.substring(url.lastIndexOf("/") + 1);
 
-const BackToDirectoryLink = ({ onClick }: { onClick: () => void }) => (
-  <Link
-    component="button"
-    type="button"
-    onClick={onClick}
-    underline="hover"
-    variant="body2"
-    data-testid={DATA_TEST_ID.BACK_LINK}
-    sx={{
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 0.5,
-      color: (theme) => theme.palette.text.secondary,
-      whiteSpace: "nowrap",
-    }}
-  >
-    <ArrowBackIcon sx={{ fontSize: "1rem" }} />
-    {TEXT.BACK_TO_DIRECTORY}
-  </Link>
-);
+const BackToDirectoryLink = ({ onClick }: { onClick: () => void }) => {
+  const t = useExplorerTranslations();
+  return (
+    <Link
+      component="button"
+      type="button"
+      onClick={onClick}
+      underline="hover"
+      variant="body2"
+      data-testid={DATA_TEST_ID.BACK_LINK}
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 0.5,
+        color: (theme) => theme.palette.text.secondary,
+        whiteSpace: "nowrap",
+      }}
+    >
+      <ArrowBackIcon sx={{ fontSize: "1rem" }} />
+      {t.BACK_TO_DIRECTORY}
+    </Link>
+  );
+};
 
 const ExplorerHeader = ({
   models,
@@ -95,6 +97,7 @@ const ExplorerHeader = ({
   csvDownloadUrl,
 }: ExplorerHeaderProps) => {
   const theme = useTheme();
+  const t = useExplorerTranslations();
   const languageOptions = selectedModel ? getLanguageOptions(selectedModel.availableLanguages) : [];
 
   if (isLoading) {
@@ -107,7 +110,7 @@ const ExplorerHeader = ({
   }
 
   if (!selectedModel) {
-    const message = models.length === 0 ? "No Models available" : "Model not found";
+    const message = models.length === 0 ? t.NO_MODELS_AVAILABLE : t.MODEL_NOT_FOUND;
     return (
       <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.sm} data-testid={DATA_TEST_ID.CONTAINER}>
         <BackToDirectoryLink onClick={onBackToDirectory} />
@@ -147,14 +150,14 @@ const ExplorerHeader = ({
               </Typography>
             );
           }}
-          inputProps={{ "aria-label": "Select taxonomy version" }}
+          inputProps={{ "aria-label": t.SELECT_TAXONOMY_VERSION }}
           data-testid={DATA_TEST_ID.MODEL_SELECT}
           MenuProps={{
             MenuListProps: {
               subheader: (
                 <ListSubheader>
                   <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ letterSpacing: 1 }}>
-                    SWITCH MODEL
+                    {t.SWITCH_MODEL}
                   </Typography>
                 </ListSubheader>
               ),
@@ -203,7 +206,7 @@ const ExplorerHeader = ({
                 </Typography>
               </Box>
               <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                {m.locale?.name ?? "Unknown Locale"}
+                {m.locale?.name ?? t.UNKNOWN_LOCALE}
               </Typography>
             </MenuItem>
           ))}
@@ -214,7 +217,7 @@ const ExplorerHeader = ({
             value={language}
             onChange={(e: SelectChangeEvent) => onLanguageChange(e.target.value)}
             startAdornment={<LanguageIcon sx={{ mr: 1, color: "text.secondary" }} />}
-            inputProps={{ "aria-label": TEXT.SELECT_LANGUAGE }}
+            inputProps={{ "aria-label": t.SELECT_LANGUAGE }}
             data-testid={DATA_TEST_ID.LANGUAGE_SELECT}
             sx={{
               borderRadius: 1,
@@ -248,7 +251,7 @@ const ExplorerHeader = ({
           href={csvDownloadUrl}
           {...(csvDownloadUrl ? { download: filenameFromUrl(csvDownloadUrl) } : {})}
           disabled={!csvDownloadUrl}
-          title={csvDownloadUrl ? "Download the taxonomy as CSV" : "No CSV export is available for this taxonomy yet"}
+          title={csvDownloadUrl ? t.CSV_DOWNLOAD_TOOLTIP : t.CSV_UNAVAILABLE_TOOLTIP}
           data-testid={DATA_TEST_ID.CSV_BUTTON}
           sx={BUTTON_SX}
         >

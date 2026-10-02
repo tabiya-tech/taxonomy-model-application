@@ -1,8 +1,11 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import ExplorerHeader, { DATA_TEST_ID, TEXT } from "./ExplorerHeader";
+import React from "react";
+import ExplorerHeader, { DATA_TEST_ID } from "./ExplorerHeader";
+import { getExplorerTranslations } from "src/explorer/explorerTranslations";
 import { render, screen, within } from "src/_test_utilities/test-utils";
+import { LanguageContext } from "src/language/LanguageProvider";
 import userEvent from "@testing-library/user-event";
 import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 
@@ -271,14 +274,16 @@ describe("ExplorerHeader", () => {
         // AND the language switcher is rendered, labelled for assistive technology
         const languageSelect = screen.getByTestId(DATA_TEST_ID.LANGUAGE_SELECT);
         expect(languageSelect).toBeInTheDocument();
-        expect(within(languageSelect).getByRole("combobox")).toHaveAccessibleName(TEXT.SELECT_LANGUAGE);
+        expect(within(languageSelect).getByRole("combobox")).toHaveAccessibleName(
+          getExplorerTranslations("en").SELECT_LANGUAGE
+        );
 
         // AND opening it lists every one of the model's available languages by name
         await userEvent.click(within(languageSelect).getByRole("combobox"));
         const listbox = await screen.findByRole("listbox");
         const options = within(listbox).getAllByRole("option");
         expect(options).toHaveLength(givenSelectedModel.availableLanguages.length);
-        expect(within(listbox).getByText("French")).toBeInTheDocument();
+        expect(within(listbox).getByText("Français")).toBeInTheDocument();
       });
 
       test("should call onLanguageChange with the picked language's short code when the user picks a different language", async () => {
@@ -304,7 +309,7 @@ describe("ExplorerHeader", () => {
         const combobox = within(screen.getByTestId(DATA_TEST_ID.LANGUAGE_SELECT)).getByRole("combobox");
         await userEvent.click(combobox);
         const listbox = await screen.findByRole("listbox");
-        await userEvent.click(within(listbox).getByText("French"));
+        await userEvent.click(within(listbox).getByText("Français"));
 
         // THEN onLanguageChange is called with French's short code
         expect(givenOnLanguageChange).toHaveBeenCalledWith("fr");
@@ -312,6 +317,70 @@ describe("ExplorerHeader", () => {
         expect(console.error).not.toHaveBeenCalled();
         expect(console.warn).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("display language", () => {
+    const renderInFrench = (ui: React.ReactElement) =>
+      render(
+        <LanguageContext.Provider
+          value={{ language: "fr", setLanguage: jest.fn(), preferredLanguage: null, setPreferredLanguage: jest.fn() }}
+        >
+          {ui}
+        </LanguageContext.Provider>
+      );
+
+    test("should render its texts in the selected display language", () => {
+      // GIVEN french is the selected display language
+      // AND a selected model without a CSV export
+      const givenModels = getArrayOfFakeModels(1);
+
+      // WHEN the component is rendered
+      renderInFrench(
+        <ExplorerHeader
+          isLoading={false}
+          language="fr"
+          models={givenModels}
+          selectedModel={givenModels[0]}
+          onModelChange={jest.fn()}
+          {...givenActionHandlers()}
+        />
+      );
+
+      // THEN expect the back link, the model select label and the CSV tooltip in french
+      expect(screen.getByTestId(DATA_TEST_ID.BACK_LINK)).toHaveTextContent("Toutes les taxonomies");
+      expect(within(screen.getByTestId(DATA_TEST_ID.MODEL_SELECT)).getByRole("combobox")).toHaveAccessibleName(
+        "Sélectionner la version de la taxonomie"
+      );
+      expect(screen.getByTestId(DATA_TEST_ID.CSV_BUTTON)).toHaveAttribute(
+        "title",
+        "Aucun export CSV n'est encore disponible pour cette taxonomie"
+      );
+      // AND expect no errors or warnings
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+    });
+
+    test.each([
+      ["there are no models", [], "Aucun modèle disponible"],
+      ["the model is not found", getArrayOfFakeModels(1), "Modèle introuvable"],
+    ])("should render the empty state in the selected display language when %s", (_, givenModels, expectedText) => {
+      // GIVEN french is the selected display language
+      // AND no model is selected
+      // WHEN the component is rendered
+      renderInFrench(
+        <ExplorerHeader
+          isLoading={false}
+          language="fr"
+          models={givenModels}
+          selectedModel={null}
+          onModelChange={jest.fn()}
+          {...givenActionHandlers()}
+        />
+      );
+
+      // THEN expect the french message
+      expect(screen.getByTestId(DATA_TEST_ID.NO_MODELS_TEXT)).toHaveTextContent(expectedText);
     });
   });
 });

@@ -2,13 +2,16 @@
 import "src/_test_utilities/consoleMock";
 
 import React from "react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { render, screen, waitFor, within } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import ExplorerPage from "./ExplorerPage";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import ExplorerService from "src/explorer/explorer.service";
-import { ExplorerTreeItem } from "src/explorer/components/ExplorerTreePanel/ExplorerTreePanel";
+import {
+  DATA_TEST_ID as TREE_PANEL_DATA_TEST_ID,
+  ExplorerTreeItem,
+} from "src/explorer/components/ExplorerTreePanel/ExplorerTreePanel";
 import { ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
 import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 import { routerPaths } from "src/app/routerPaths";
@@ -373,10 +376,12 @@ describe("ExplorerPage", () => {
       );
 
       // WHEN the user opens the language switcher and picks French
-      const combobox = within(screen.getByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByRole("combobox");
+      const combobox = within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByRole(
+        "combobox"
+      );
       await userEvent.click(combobox);
       const listbox = await screen.findByRole("listbox");
-      await userEvent.click(within(listbox).getByText("French"));
+      await userEvent.click(within(listbox).getByText("Français"));
 
       // THEN expect the tree and the selected item's detail to be refetched in the chosen language
       await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "fr"));
@@ -402,8 +407,121 @@ describe("ExplorerPage", () => {
       await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "fr"));
       // AND expect the switcher to reflect that language
       expect(
-        within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByText("French")
+        within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByText("Français")
       ).toBeInTheDocument();
+    });
+
+    // Renders the current URL's query string, so tests can assert on the language query parameter.
+    const LocationSearch = () => <div data-testid="location-search">{useLocation().search}</div>;
+    const renderWithLocation = (initialEntry: string) =>
+      render(
+        <MemoryRouter initialEntries={[initialEntry]}>
+          <LocationSearch />
+          <Routes>
+            <Route path={routerPaths.EXPLORER_OCCUPATIONS} element={<ExplorerPage initialTab="occupations" />} />
+            <Route path={routerPaths.EXPLORER_OCCUPATIONS_DETAIL} element={<ExplorerPage initialTab="occupations" />} />
+            <Route path={routerPaths.EXPLORER_SKILLS} element={<ExplorerPage initialTab="skills" />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+    const pickLanguage = async (name: string) => {
+      const combobox = within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByRole(
+        "combobox"
+      );
+      await userEvent.click(combobox);
+      await userEvent.click(within(await screen.findByRole("listbox")).getByText(name));
+    };
+
+    const pickModel = async (name: string) => {
+      const combobox = within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.MODEL_SELECT)).getByRole(
+        "combobox"
+      );
+      await userEvent.click(combobox);
+      await userEvent.click(within(await screen.findByRole("listbox")).getByText(name));
+    };
+
+    test("should keep the language in the URL when switching tabs", async () => {
+      // GIVEN the explorer page is shown in french
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModel]);
+      renderWithLocation(`/explorer/${givenModelId}/occupations?lang=fr`);
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "fr"));
+
+      // WHEN the user switches to the skills tab
+      await userEvent.click(screen.getByTestId(TREE_PANEL_DATA_TEST_ID.EXPLORER_TREE_PANEL_TAB_SKILLS));
+
+      // THEN expect the skills to be fetched in french
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills", "fr"));
+      // AND expect the language to still be in the URL
+      expect(screen.getByTestId("location-search")).toHaveTextContent("?lang=fr");
+    });
+
+    test("should keep the language in the URL when selecting an item", async () => {
+      // GIVEN the explorer page is shown in french
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModel]);
+      renderWithLocation(`/explorer/${givenModelId}/occupations?lang=fr`);
+      const givenItemText = `${givenRootGroup.code} · ${givenRootGroup.title}`;
+      expect(await screen.findByText(givenItemText)).toBeInTheDocument();
+
+      // WHEN the user selects an item
+      await userEvent.click(screen.getByText(givenItemText));
+
+      // THEN expect the item's detail to be fetched in french
+      await waitFor(() =>
+        expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, expect.objectContaining({ id: "grp-1" }), "fr")
+      );
+      // AND expect the language to still be in the URL
+      expect(screen.getByTestId("location-search")).toHaveTextContent("?lang=fr");
+    });
+
+    test("should restore the chosen language when coming back from a model that does not have it", async () => {
+      // GIVEN a model with english and french, and a model with english only
+      const givenEnglishOnlyModel = {
+        ...getArrayOfFakeModels(2)[1],
+        name: "English only taxonomy",
+        availableLanguages: ["en"],
+      };
+      const givenMultiLanguageModelWithName = { ...givenMultiLanguageModel, name: "Multilingual taxonomy" };
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModelWithName, givenEnglishOnlyModel]);
+      renderWithLocation(`/explorer/${givenModelId}/occupations`);
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "en"));
+      // AND the user chose french
+      await pickLanguage("Français");
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "fr"));
+
+      // WHEN the user switches to the english only model
+      await pickModel(givenEnglishOnlyModel.version);
+      // THEN expect it to be shown in english
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenEnglishOnlyModel.id, "occupations", "en"));
+      await waitFor(() => expect(screen.getByTestId("location-search")).toHaveTextContent("?lang=en"));
+
+      // WHEN the user switches back to the first model
+      await pickModel(givenMultiLanguageModelWithName.version);
+
+      // THEN expect it to be shown in french again (its french tree is already cached, so it is not refetched)
+      await waitFor(() => expect(screen.getByTestId("location-search")).toHaveTextContent("?lang=fr"));
+      expect(
+        within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByText("Français")
+      ).toBeInTheDocument();
+    });
+
+    test("should set the page's language to the displayed language, and restore it when leaving", async () => {
+      // GIVEN the page's language before the explorer is shown
+      const givenPreviousLanguage = "en";
+      document.documentElement.lang = givenPreviousLanguage;
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModel]);
+
+      // WHEN the explorer page is shown in french
+      const { unmount } = renderWithLocation(`/explorer/${givenModelId}/occupations?lang=fr`);
+
+      // THEN expect the page's language to be french
+      await waitFor(() => expect(document.documentElement.lang).toEqual("fr"));
+
+      // WHEN the explorer page is left
+      unmount();
+
+      // THEN expect the page's previous language to be restored
+      expect(document.documentElement.lang).toEqual(givenPreviousLanguage);
     });
 
     test("should fall back to the model's first available language when the URL names one it does not have", async () => {

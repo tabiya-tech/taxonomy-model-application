@@ -10,6 +10,7 @@ import {
   ExplorerRelatedSkill,
   ObjectType,
 } from "src/explorer/explorer.types";
+import { ExplorerTranslations, useExplorerTranslations } from "src/explorer/explorerTranslations";
 
 const uniqueId = "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a";
 export const DATA_TEST_ID = {
@@ -61,46 +62,66 @@ const isGroup = (objectType?: ObjectType): boolean => Boolean(objectType && GROU
 const isOccupation = (objectType?: ObjectType): boolean =>
   objectType === ObjectType.ESCOOccupation || objectType === ObjectType.LocalOccupation;
 
+const skillTypeLabel = (skillType: string | undefined, t: ExplorerTranslations): string => {
+  switch (skillType) {
+    case "skill/competence":
+      return t.SKILL_TYPE_SKILL_COMPETENCE;
+    case "knowledge":
+      return t.SKILL_TYPE_KNOWLEDGE;
+    case "language":
+      return t.SKILL_TYPE_LANGUAGE;
+    case "attitude":
+      return t.SKILL_TYPE_ATTITUDE;
+    default:
+      // An unknown skill type is shown as is, rather than hidden.
+      return skillType ? skillType.charAt(0).toUpperCase() + skillType.slice(1) : t.BADGE_SKILL;
+  }
+};
+
 // The colored "flag" shown under the title, indicating the entity's category.
-const getBadge = (item: ExplorerDetailItem, theme: Theme): { label: string; bgcolor: string; color: string } | null => {
+const getBadge = (
+  item: ExplorerDetailItem,
+  theme: Theme,
+  t: ExplorerTranslations
+): { label: string; bgcolor: string; color: string } | null => {
   const objectType = item.objectType;
   if (!objectType) return null;
   if (GROUP_OBJECT_TYPES.has(objectType))
     return {
-      label: "Group",
+      label: t.BADGE_GROUP,
       bgcolor: alpha(theme.palette.primary.main, 0.5),
       color: theme.palette.primary.main,
     };
-  if (objectType === ObjectType.ESCOOccupation) return { label: "Seen Economy", bgcolor: "#E7F0FB", color: "#265EA7" };
+  if (objectType === ObjectType.ESCOOccupation)
+    return { label: t.BADGE_SEEN_ECONOMY, bgcolor: "#E7F0FB", color: "#265EA7" };
   if (objectType === ObjectType.LocalOccupation)
-    return { label: "Unseen Economy", bgcolor: "#FBEEDD", color: "#B26A00" };
+    return { label: t.BADGE_UNSEEN_ECONOMY, bgcolor: "#FBEEDD", color: "#B26A00" };
   if (objectType === ObjectType.Skill) {
-    const label = item.skillType ? item.skillType.charAt(0).toUpperCase() + item.skillType.slice(1) : "Skill";
-    return { label, bgcolor: "#F3E8FB", color: "#7B1FA2" };
+    return { label: skillTypeLabel(item.skillType, t), bgcolor: "#F3E8FB", color: "#7B1FA2" };
   }
   return null;
 };
 
 // The label of the second (links) tab depends on the entity: occupations link to skills and vice-versa.
-const linksTabLabel = (objectType?: ObjectType): string => {
-  if (isOccupation(objectType)) return "Skills linked";
-  if (objectType === ObjectType.Skill) return "Occupations linked";
-  return "Links";
+const linksTabLabel = (t: ExplorerTranslations, objectType?: ObjectType): string => {
+  if (isOccupation(objectType)) return t.TAB_SKILLS_LINKED;
+  if (objectType === ObjectType.Skill) return t.TAB_OCCUPATIONS_LINKED;
+  return t.TAB_LINKS;
 };
 
-const typeLabel = (objectType?: ObjectType): string => {
+const typeLabel = (t: ExplorerTranslations, objectType?: ObjectType): string => {
   switch (objectType) {
     case ObjectType.ISCOGroup:
     case ObjectType.LocalGroup:
-      return "Occupation group";
+      return t.TYPE_OCCUPATION_GROUP;
     case ObjectType.SkillGroup:
-      return "Skill group";
+      return t.TYPE_SKILL_GROUP;
     case ObjectType.ESCOOccupation:
-      return "ESCO occupation";
+      return t.TYPE_ESCO_OCCUPATION;
     case ObjectType.LocalOccupation:
-      return "Local occupation";
+      return t.TYPE_LOCAL_OCCUPATION;
     case ObjectType.Skill:
-      return "Skill";
+      return t.TYPE_SKILL;
     default:
       return "—";
   }
@@ -167,6 +188,7 @@ const LinkSectionHeader = ({ label, count }: Readonly<{ label: string; count: nu
 
 const DefinitionTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
   const theme = useTheme();
+  const t = useExplorerTranslations();
   const contains = item.contains ?? [];
   const altLabels = (item.altLabels ?? []).filter(
     (label) => label.trim().toLowerCase() !== item.title.trim().toLowerCase()
@@ -174,13 +196,13 @@ const DefinitionTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) 
   return (
     <>
       <Typography variant="body1" fontWeight="bold" mb={1}>
-        Description
+        {t.DESCRIPTION}
       </Typography>
-      <Typography variant="body1">{item.definition || "No definition available"}</Typography>
+      <Typography variant="body1">{item.definition || t.NO_DEFINITION_AVAILABLE}</Typography>
       {altLabels.length > 0 && (
         <Box data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_ALT_LABELS}>
           <Typography variant="body1" fontWeight="bold" mt={3} mb={1}>
-            Also known as
+            {t.ALSO_KNOWN_AS}
           </Typography>
           <Box display="flex" flexWrap="wrap" gap={1}>
             {altLabels.map((label) => (
@@ -201,11 +223,11 @@ const DefinitionTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) 
       {isGroup(item.objectType) && (
         <Box data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_CONTAINS}>
           <Typography variant="body1" fontWeight="bold" mt={3} mb={1}>
-            Contains · {contains.length}
+            {t.CONTAINS} · {contains.length}
           </Typography>
           {contains.length === 0 ? (
             <Typography variant="body1" color="text.secondary">
-              Empty group.
+              {t.EMPTY_GROUP}
             </Typography>
           ) : (
             <Box display="flex" flexDirection="column" gap={theme.fixedSpacing(1.5)}>
@@ -242,6 +264,7 @@ const DefinitionTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) 
 };
 
 const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
+  const t = useExplorerTranslations();
   const essential = item.requiresSkills?.filter((s) => s.relationType === "essential") ?? [];
   const optional = item.requiresSkills?.filter((s) => s.relationType === "optional") ?? [];
   const requiredBy = item.requiredByOccupations ?? [];
@@ -249,7 +272,7 @@ const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
   if (essential.length === 0 && optional.length === 0 && requiredBy.length === 0) {
     return (
       <Typography variant="body1" color="text.secondary">
-        No links available for this item.
+        {t.NO_LINKS_AVAILABLE}
       </Typography>
     );
   }
@@ -258,7 +281,7 @@ const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
     <>
       {essential.length > 0 && (
         <Box mb={3}>
-          <LinkSectionHeader label="Essential skills" count={essential.length} />
+          <LinkSectionHeader label={t.ESSENTIAL_SKILLS} count={essential.length} />
           {essential.map((skill) => (
             <RelatedItemRow key={skill.id} item={skill} />
           ))}
@@ -266,7 +289,7 @@ const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
       )}
       {optional.length > 0 && (
         <Box mb={3}>
-          <LinkSectionHeader label="Optional skills" count={optional.length} />
+          <LinkSectionHeader label={t.OPTIONAL_SKILLS} count={optional.length} />
           {optional.map((skill) => (
             <RelatedItemRow key={skill.id} item={skill} />
           ))}
@@ -274,7 +297,7 @@ const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
       )}
       {requiredBy.length > 0 && (
         <Box mb={3}>
-          <LinkSectionHeader label="Occupations requiring this skill" count={requiredBy.length} />
+          <LinkSectionHeader label={t.OCCUPATIONS_REQUIRING_THIS_SKILL} count={requiredBy.length} />
           {requiredBy.map((occupation) => (
             <RelatedItemRow key={occupation.id} item={occupation} />
           ))}
@@ -285,14 +308,15 @@ const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
 };
 
 const DetailsTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
+  const t = useExplorerTranslations();
   const rows: { label: string; value: string }[] = [
-    { label: "Type", value: typeLabel(item.objectType) },
-    { label: "Code", value: item.code || "—" },
+    { label: t.DETAIL_TYPE, value: typeLabel(t, item.objectType) },
+    { label: t.DETAIL_CODE, value: item.code || "—" },
   ];
   if (isGroup(item.objectType)) {
-    rows.push({ label: "Children", value: String(item.contains?.length ?? 0) });
+    rows.push({ label: t.DETAIL_CHILDREN, value: String(item.contains?.length ?? 0) });
   }
-  rows.push({ label: "Alternative labels", value: String(item.altLabels?.length ?? 0) });
+  rows.push({ label: t.DETAIL_ALTERNATIVE_LABELS, value: String(item.altLabels?.length ?? 0) });
 
   return (
     <Box display="grid" gridTemplateColumns={{ xs: "1fr", sm: "1fr 1fr" }} columnGap={4} rowGap={2}>
@@ -326,6 +350,7 @@ const HistoryTabContent = ({
   history,
   isLoading,
 }: Readonly<{ history?: ExplorerHistoryItem[] | null; isLoading?: boolean }>) => {
+  const t = useExplorerTranslations();
   if (isLoading) {
     return (
       <Box
@@ -347,7 +372,7 @@ const HistoryTabContent = ({
   if (!history || history.length === 0) {
     return (
       <Typography variant="body1" color="text.secondary">
-        No history available.
+        {t.NO_HISTORY_AVAILABLE}
       </Typography>
     );
   }
@@ -384,6 +409,7 @@ const ExplorerDetailPanel = ({
 }: Readonly<ExplorerDetailPanelProps>) => {
   const [activeTab, setActiveTab] = useState(0);
   const theme = useTheme();
+  const t = useExplorerTranslations();
 
   // Reset to the Definition tab whenever a different item is selected, so a stale tab view isn't shown.
   useEffect(() => {
@@ -411,14 +437,14 @@ const ExplorerDetailPanel = ({
         data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL_EMPTY}
       >
         <Typography variant="body1" color="text.secondary">
-          Select an item to view its details
+          {t.SELECT_AN_ITEM}
         </Typography>
       </Box>
     );
   }
 
-  const badge = getBadge(item, theme);
-  const tabLabels = ["Definition", linksTabLabel(item.objectType), "Details", "History"];
+  const badge = getBadge(item, theme, t);
+  const tabLabels = [t.TAB_DEFINITION, linksTabLabel(t, item.objectType), t.TAB_DETAILS, t.TAB_HISTORY];
 
   return (
     <Box display="flex" flexDirection="column" data-testid={DATA_TEST_ID.EXPLORER_DETAIL_PANEL}>

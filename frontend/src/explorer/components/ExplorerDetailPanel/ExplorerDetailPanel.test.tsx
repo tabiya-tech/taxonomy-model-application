@@ -3,6 +3,8 @@ import "src/_test_utilities/consoleMock";
 
 import ExplorerDetailPanel, { DATA_TEST_ID, ExplorerDetailItem } from "./ExplorerDetailPanel";
 import { render, screen } from "src/_test_utilities/test-utils";
+import React from "react";
+import { LanguageContext } from "src/language/LanguageProvider";
 import userEvent from "@testing-library/user-event";
 import { ExplorerHistoryItem, ObjectType } from "src/explorer/explorer.types";
 
@@ -445,6 +447,122 @@ describe("ExplorerDetailPanel", () => {
       // THEN expect the panel to show the Definition tab again, rather than staying on History
       expect(screen.getByRole("tab", { name: "Definition", selected: true })).toBeInTheDocument();
       expect(screen.getByText(givenOccupationItem.definition as string)).toBeInTheDocument();
+    });
+  });
+
+  describe("display language", () => {
+    const renderInFrench = (ui: React.ReactElement) =>
+      render(
+        <LanguageContext.Provider
+          value={{ language: "fr", setLanguage: jest.fn(), preferredLanguage: null, setPreferredLanguage: jest.fn() }}
+        >
+          {ui}
+        </LanguageContext.Provider>
+      );
+
+    test("should render the empty state in the selected display language", () => {
+      // GIVEN french is the selected display language
+      // WHEN the component is rendered without an item
+      renderInFrench(<ExplorerDetailPanel item={null} />);
+
+      // THEN expect the french empty state message
+      expect(screen.getByText("Sélectionnez un élément pour afficher ses détails")).toBeInTheDocument();
+    });
+
+    test("should render the tabs, badge and definition tab of an occupation in the selected display language", () => {
+      // GIVEN french is the selected display language
+      // AND an occupation without a definition
+      const givenItem: ExplorerDetailItem = { ...givenOccupationItem, definition: undefined };
+
+      // WHEN the component is rendered
+      renderInFrench(<ExplorerDetailPanel item={givenItem} />);
+
+      // THEN expect the tab labels in french
+      ["Définition", "Compétences liées", "Détails", "Historique"].forEach((name) =>
+        expect(screen.getByRole("tab", { name })).toBeInTheDocument()
+      );
+      // AND the badge in french
+      expect(screen.getByTestId(DATA_TEST_ID.EXPLORER_DETAIL_PANEL_BADGE)).toHaveTextContent("Économie visible");
+      // AND the definition tab's titles and empty text in french
+      expect(screen.getByText("Description")).toBeInTheDocument();
+      expect(screen.getByText("Aucune définition disponible")).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.EXPLORER_DETAIL_PANEL_ALT_LABELS)).toHaveTextContent("Également appelé");
+      // AND expect no errors or warnings
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+    });
+
+    test("should render the links tab of an occupation in the selected display language", async () => {
+      // GIVEN french is the selected display language
+      // AND an occupation with essential and optional skills
+      renderInFrench(<ExplorerDetailPanel item={givenOccupationItem} />);
+
+      // WHEN the links tab is opened
+      await clickTab("Compétences liées");
+
+      // THEN expect the section titles in french
+      expect(screen.getByText(/Compétences essentielles/)).toBeInTheDocument();
+      expect(screen.getByText(/Compétences optionnelles/)).toBeInTheDocument();
+    });
+
+    test("should render the links tab of a skill in the selected display language", async () => {
+      // GIVEN french is the selected display language
+      // AND a skill required by an occupation
+      renderInFrench(<ExplorerDetailPanel item={givenSkillItem} />);
+
+      // THEN expect the skill type badge in french
+      expect(screen.getByTestId(DATA_TEST_ID.EXPLORER_DETAIL_PANEL_BADGE)).toHaveTextContent("Aptitude/compétence");
+
+      // WHEN the links tab is opened
+      await clickTab("Professions liées");
+
+      // THEN expect the section title in french
+      expect(screen.getByText(/Professions requérant cette compétence/)).toBeInTheDocument();
+    });
+
+    test("should render the empty links tab in the selected display language", async () => {
+      // GIVEN french is the selected display language
+      // AND a local occupation without links
+      renderInFrench(<ExplorerDetailPanel item={givenLocalOccupationItem} />);
+
+      // WHEN the links tab is opened
+      await clickTab("Compétences liées");
+
+      // THEN expect the french empty message
+      expect(screen.getByText("Aucun lien disponible pour cet élément.")).toBeInTheDocument();
+    });
+
+    test("should render the definition and details tabs of a group in the selected display language", async () => {
+      // GIVEN french is the selected display language
+      // AND an empty group
+      renderInFrench(<ExplorerDetailPanel item={givenEmptyGroupItem} />);
+
+      // THEN expect the badge, the contains title and the empty group text in french
+      expect(screen.getByTestId(DATA_TEST_ID.EXPLORER_DETAIL_PANEL_BADGE)).toHaveTextContent("Groupe");
+      expect(screen.getByTestId(DATA_TEST_ID.EXPLORER_DETAIL_PANEL_CONTAINS)).toHaveTextContent("Contient · 0");
+      expect(screen.getByText("Groupe vide.")).toBeInTheDocument();
+      // AND the links tab label in french
+      expect(screen.getByRole("tab", { name: "Liens" })).toBeInTheDocument();
+
+      // WHEN the details tab is opened
+      await clickTab("Détails");
+
+      // THEN expect the row labels and the type in french
+      ["Type", "Code", "Enfants", "Libellés alternatifs", "Groupe de professions"].forEach((text) =>
+        expect(screen.getByText(text)).toBeInTheDocument()
+      );
+    });
+
+    test("should render the empty history tab in the selected display language", async () => {
+      // GIVEN french is the selected display language
+      // AND an item without history
+      renderInFrench(<ExplorerDetailPanel item={givenOccupationItem} history={[]} />);
+
+      // WHEN the history tab is opened
+      await clickTab("Historique");
+
+      // THEN expect the french empty message
+      expect(screen.getByText("Aucun historique disponible.")).toBeInTheDocument();
     });
   });
 });

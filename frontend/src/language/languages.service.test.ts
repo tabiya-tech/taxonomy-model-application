@@ -19,9 +19,46 @@ describe("languages.service", () => {
   });
 
   describe("getLanguageName", () => {
-    test("should resolve a known short code to its human readable name", () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test.each([
+      ["en", "English"],
+      ["fr", "Français"],
+      ["es", "Español"],
+      ["pt", "Português"],
+    ])("should resolve '%s' to the language's own name '%s'", (givenShortCode, expectedName) => {
+      // GIVEN a short code of a language in the registry
+      // WHEN getLanguageName is called with it
+      const actualName = getLanguageName(givenShortCode);
+
+      // THEN expect the language's name written in that language, capitalized
+      expect(actualName).toEqual(expectedName);
+    });
+
+    test("should fall back to the registry name when the browser cannot name the language", () => {
       // GIVEN a short code of a language in the registry
       const givenShortCode = "fr";
+      // AND the browser does not support naming languages
+      jest.spyOn(Intl, "DisplayNames").mockImplementation(() => {
+        throw new Error("Intl.DisplayNames is not supported");
+      });
+
+      // WHEN getLanguageName is called with it
+      const actualName = getLanguageName(givenShortCode);
+
+      // THEN expect the registry's name for that language
+      expect(actualName).toEqual(LanguageAPISpecs.Helpers.getLanguageByShortCode(givenShortCode)?.name);
+    });
+
+    test("should fall back to the registry name when the browser has no name for the language", () => {
+      // GIVEN a short code of a language in the registry
+      const givenShortCode = "am";
+      // AND the browser has no name for it, so it returns the short code unchanged
+      jest
+        .spyOn(Intl, "DisplayNames")
+        .mockImplementation(() => ({ of: (code: string) => code }) as unknown as Intl.DisplayNames);
 
       // WHEN getLanguageName is called with it
       const actualName = getLanguageName(givenShortCode);
@@ -50,10 +87,10 @@ describe("languages.service", () => {
       // WHEN getLanguageOptions is called with them
       const actualOptions = getLanguageOptions(givenAvailableLanguages);
 
-      // THEN expect each short code to be paired with its registry name, in the same order
+      // THEN expect each short code to be paired with its own name, in the same order
       expect(actualOptions).toEqual([
-        { shortCode: "en", name: LanguageAPISpecs.Helpers.getLanguageByShortCode("en")?.name },
-        { shortCode: "fr", name: LanguageAPISpecs.Helpers.getLanguageByShortCode("fr")?.name },
+        { shortCode: "en", name: "English" },
+        { shortCode: "fr", name: "Français" },
       ]);
     });
 

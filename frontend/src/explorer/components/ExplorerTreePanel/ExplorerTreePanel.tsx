@@ -20,6 +20,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CircleIcon from "@mui/icons-material/Circle";
 import InputAdornment from "@mui/material/InputAdornment";
+import { ExplorerTranslations, useExplorerTranslations } from "src/explorer/explorerTranslations";
 
 const uniqueId = "a3f2c1d0-7e8b-4f9a-b5c6-2d1e0f3a4b5c";
 export const DATA_TEST_ID = {
@@ -36,9 +37,9 @@ export const DATA_TEST_ID = {
 
 // Occupation roots split into the seen economy (ESCO / ISCO groups) and the unseen
 // economy (ICATUS / local groups). Skills are shown as a flat list (no grouping).
-const OCCUPATION_GROUPS: { label: string; objectType: string }[] = [
-  { label: "Seen economy · ESCO", objectType: "iscogroup" },
-  { label: "Unseen economy · ICATUS", objectType: "localgroup" },
+const OCCUPATION_GROUPS: { labelKey: keyof ExplorerTranslations; objectType: string }[] = [
+  { labelKey: "SEEN_ECONOMY_GROUP", objectType: "iscogroup" },
+  { labelKey: "UNSEEN_ECONOMY_GROUP", objectType: "localgroup" },
 ];
 
 export type ExplorerTreeItem = {
@@ -185,6 +186,7 @@ const ExplorerTreePanel = ({
   isLoading = false,
 }: Readonly<ExplorerTreePanelProps>) => {
   const theme = useTheme();
+  const t = useExplorerTranslations();
 
   return (
     <Box
@@ -237,10 +239,10 @@ const ExplorerTreePanel = ({
           }}
         >
           <ToggleButton value="occupations" data-testid={DATA_TEST_ID.EXPLORER_TREE_PANEL_TAB_OCCUPATIONS}>
-            Occupations
+            {t.TAB_OCCUPATIONS}
           </ToggleButton>
           <ToggleButton value="skills" data-testid={DATA_TEST_ID.EXPLORER_TREE_PANEL_TAB_SKILLS}>
-            Skills
+            {t.TAB_SKILLS}
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>
@@ -248,7 +250,7 @@ const ExplorerTreePanel = ({
         <TextField
           fullWidth
           size="small"
-          placeholder={activeTab === "occupations" ? "Search occupations..." : "Search skills..."}
+          placeholder={activeTab === "occupations" ? t.SEARCH_OCCUPATIONS_PLACEHOLDER : t.SEARCH_SKILLS_PLACEHOLDER}
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
           data-testid={DATA_TEST_ID.EXPLORER_TREE_PANEL_SEARCH}
@@ -280,7 +282,7 @@ const ExplorerTreePanel = ({
         {!isLoading && items.length === 0 && (
           <Box px={2} py={2}>
             <Typography variant="body1" color="text.secondary">
-              {activeTab === "occupations" ? "No occupations found" : "No skills found"}
+              {activeTab === "occupations" ? t.NO_OCCUPATIONS_FOUND : t.NO_SKILLS_FOUND}
             </Typography>
           </Box>
         )}
@@ -296,7 +298,7 @@ const ExplorerTreePanel = ({
                   const groupItems = items.filter((item) => item.objectType === group.objectType);
                   if (groupItems.length === 0) return null;
                   return (
-                    <React.Fragment key={group.label}>
+                    <React.Fragment key={group.objectType}>
                       <ListSubheader
                         disableSticky
                         data-testid={DATA_TEST_ID.EXPLORER_TREE_PANEL_GROUP}
@@ -310,7 +312,7 @@ const ExplorerTreePanel = ({
                           borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
                         }}
                       >
-                        {group.label}
+                        {t[group.labelKey]}
                       </ListSubheader>
                       {groupItems.map((item) => (
                         <TreeNode

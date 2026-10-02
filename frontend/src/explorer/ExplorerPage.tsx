@@ -69,7 +69,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   }>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, preferredLanguage, setPreferredLanguage } = useLanguage();
 
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
@@ -88,16 +88,14 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   const selectedModel = models.find((m) => m.id === modelId) ?? null;
 
   const urlLanguage = searchParams.get(LANGUAGE_QUERY_PARAM);
-  // Priority: URL param, then current selection, then the model's first language.
+  // Priority: URL param, then the user's preferred language, then current selection, then the model's first language.
   // The URL is then synced to the result, so a shared link always reflects what's shown.
   useEffect(() => {
     if (!selectedModel) return;
+    const isAvailable = (shortCode: string | null): shortCode is string =>
+      !!shortCode && selectedModel.availableLanguages.includes(shortCode);
     const resolvedLanguage =
-      urlLanguage && selectedModel.availableLanguages.includes(urlLanguage)
-        ? urlLanguage
-        : selectedModel.availableLanguages.includes(language)
-        ? language
-        : selectedModel.availableLanguages[0];
+      [urlLanguage, preferredLanguage, language].find(isAvailable) ?? selectedModel.availableLanguages[0];
 
     if (resolvedLanguage !== language) {
       setLanguage(resolvedLanguage);
@@ -116,6 +114,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   }, [selectedModel?.id, urlLanguage]);
 
   const handleLanguageChange = (newLanguage: string) => {
+    setPreferredLanguage(newLanguage);
     setLanguage(newLanguage);
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
@@ -123,6 +122,15 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
       return next;
     });
   };
+
+  // Tell the browser and assistive technologies which language the page is in, while the explorer is shown.
+  useEffect(() => {
+    const previousLanguage = document.documentElement.lang;
+    document.documentElement.lang = language;
+    return () => {
+      document.documentElement.lang = previousLanguage;
+    };
+  }, [language]);
 
   useEffect(() => {
     const handle = setTimeout(() => setDebouncedSearchValue(searchValue), SEARCH_DEBOUNCE_MS);
@@ -246,6 +254,10 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   // The CSV button links directly to the model's most recent successful export (if any).
   const csvDownloadUrl = selectedModel ? getLatestSuccessfulExport(selectedModel)?.downloadUrl : undefined;
 
+  // Moving within the same model keeps the query parameters (the language), so the URL never loses it.
+  // Moving to another model does not: its language is resolved again, as it may not have the current one.
+  const navigateWithinModel = (pathname: string) => navigate({ pathname, search: searchParams.toString() });
+
   const handleModelChange = (newModelId: string) => {
     setSearchValue("");
     setDebouncedSearchValue("");
@@ -260,7 +272,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     if (!modelId) return;
     setSearchValue("");
     setDebouncedSearchValue("");
-    navigate(
+    navigateWithinModel(
       generatePath(tab === "occupations" ? routerPaths.EXPLORER_OCCUPATIONS : routerPaths.EXPLORER_SKILLS, { modelId })
     );
   };
@@ -268,9 +280,9 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   const handleSelectItem = (item: ExplorerTreeItem) => {
     if (!modelId) return;
     if (initialTab === "occupations") {
-      navigate(generatePath(routerPaths.EXPLORER_OCCUPATIONS_DETAIL, { modelId, occupationId: item.id }));
+      navigateWithinModel(generatePath(routerPaths.EXPLORER_OCCUPATIONS_DETAIL, { modelId, occupationId: item.id }));
     } else {
-      navigate(generatePath(routerPaths.EXPLORER_SKILLS_DETAIL, { modelId, skillId: item.id }));
+      navigateWithinModel(generatePath(routerPaths.EXPLORER_SKILLS_DETAIL, { modelId, skillId: item.id }));
     }
   };
 

@@ -30,6 +30,35 @@ describe("LanguageProvider", () => {
     expect(result.current.language).toEqual(givenLanguage);
   });
 
+  test("should have no preferred language when the user has not chosen one yet", () => {
+    // GIVEN a consumer wrapped in the LanguageProvider
+    // WHEN the preferred language is read
+    const { result } = renderHook(() => useLanguage(), { wrapper: LanguageProvider });
+
+    // THEN expect no preferred language
+    expect(result.current.preferredLanguage).toBeNull();
+  });
+
+  test("should keep the preferred language when the displayed language changes", () => {
+    // GIVEN a consumer wrapped in the LanguageProvider
+    const { result } = renderHook(() => useLanguage(), { wrapper: LanguageProvider });
+    // AND the user chose french
+    act(() => {
+      result.current.setPreferredLanguage("fr");
+      result.current.setLanguage("fr");
+    });
+
+    // WHEN the displayed language changes to english, e.g. because a model does not have french
+    act(() => {
+      result.current.setLanguage("en");
+    });
+
+    // THEN expect english to be displayed
+    expect(result.current.language).toEqual("en");
+    // AND expect french to still be the preferred language
+    expect(result.current.preferredLanguage).toEqual("fr");
+  });
+
   test("should return the default context value when used outside a LanguageProvider", () => {
     // GIVEN a consumer that is not wrapped in the LanguageProvider
     // WHEN the current language is read

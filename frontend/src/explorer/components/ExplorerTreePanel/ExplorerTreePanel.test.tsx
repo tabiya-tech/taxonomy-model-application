@@ -4,6 +4,7 @@ import "src/_test_utilities/consoleMock";
 import ExplorerTreePanel, { DATA_TEST_ID, ExplorerTreeItem } from "./ExplorerTreePanel";
 import { render, screen, within } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
+import { LanguageContext } from "src/language/LanguageProvider";
 
 const givenLeafItem: ExplorerTreeItem = {
   id: "occ-1120",
@@ -119,6 +120,46 @@ describe("ExplorerTreePanel", () => {
 
     // THEN expect the tab-appropriate empty message to be shown
     expect(screen.getByText(expectedMessage)).toBeInTheDocument();
+  });
+
+  test("should render its texts in the selected display language", () => {
+    // GIVEN french is the selected display language
+    // AND there are seen and unseen economy roots
+    // WHEN the component is rendered
+    render(
+      <LanguageContext.Provider
+        value={{ language: "fr", setLanguage: jest.fn(), preferredLanguage: null, setPreferredLanguage: jest.fn() }}
+      >
+        <ExplorerTreePanel {...defaultProps} items={[givenUnexpandedGroupItem, givenUnseenGroupItem]} />
+      </LanguageContext.Provider>
+    );
+
+    // THEN expect the tabs, search placeholder and group headers to be in french
+    expect(screen.getByTestId(DATA_TEST_ID.EXPLORER_TREE_PANEL_TAB_OCCUPATIONS)).toHaveTextContent("Professions");
+    expect(screen.getByTestId(DATA_TEST_ID.EXPLORER_TREE_PANEL_TAB_SKILLS)).toHaveTextContent("Compétences");
+    expect(screen.getByPlaceholderText("Rechercher des professions...")).toBeInTheDocument();
+    expect(screen.getByText("Économie visible · ESCO")).toBeInTheDocument();
+    expect(screen.getByText("Économie invisible · ICATUS")).toBeInTheDocument();
+    // AND expect no console errors or warnings
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  test("should render the empty state in the selected display language", () => {
+    // GIVEN french is the selected display language
+    // AND there are no skills
+    // WHEN the skills tab is rendered
+    render(
+      <LanguageContext.Provider
+        value={{ language: "fr", setLanguage: jest.fn(), preferredLanguage: null, setPreferredLanguage: jest.fn() }}
+      >
+        <ExplorerTreePanel {...defaultProps} activeTab="skills" items={[]} />
+      </LanguageContext.Provider>
+    );
+
+    // THEN expect the french empty message and search placeholder
+    expect(screen.getByText("Aucune compétence trouvée")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Rechercher des compétences...")).toBeInTheDocument();
   });
 
   test("should call onTabChange when a different tab is selected", async () => {

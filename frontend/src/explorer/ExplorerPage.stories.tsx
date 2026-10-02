@@ -7,6 +7,8 @@ import * as MockPayload from "src/modelInfo/_test_utilities/mockModelInfoPayload
 import { ObjectType } from "src/explorer/explorer.types";
 import { getApiUrl } from "src/envService";
 import { routerPaths } from "src/app/routerPaths";
+import { useLanguage } from "src/language/LanguageProvider";
+import { DEFAULT_LANGUAGE } from "src/language/languages.service";
 
 const MODELS_URL = getApiUrl() + "/models";
 
@@ -228,6 +230,103 @@ export const Skills: Story = {
     <Routes>
       <Route path={routerPaths.EXPLORER_SKILLS} element={<ExplorerPage initialTab="skills" />} />
       <Route path={routerPaths.EXPLORER_SKILLS_DETAIL} element={<ExplorerPage initialTab="skills" />} />
+    </Routes>
+  ),
+};
+
+// --- Multilingual model ---
+const multilingualModels = MockPayload.GET.getPayloadWithOneMultilingualModelInfo();
+const multilingualModelUrl = `${getApiUrl()}/models/${multilingualModels[0].id}`;
+
+const multilingualTexts: Record<string, { group: string; occupation: string; definition: string; skill: string }> = {
+  en: {
+    group: "Managers",
+    occupation: "Business services managers",
+    definition: "Business services managers plan, direct and coordinate the delivery of business services.",
+    skill: "manage budgets",
+  },
+  fr: {
+    group: "Directeurs et cadres de direction",
+    occupation: "Directeurs des services aux entreprises",
+    definition:
+      "Les directeurs des services aux entreprises planifient, dirigent et coordonnent la prestation de services.",
+    skill: "gérer des budgets",
+  },
+  es: {
+    group: "Directores y gerentes",
+    occupation: "Directores de servicios empresariales",
+    definition: "Los directores de servicios empresariales planifican, dirigen y coordinan la prestación de servicios.",
+    skill: "gestionar presupuestos",
+  },
+};
+
+// The mock addon does not pass the request headers to a response function, so the Accept-Language sent by the
+// explorer cannot be read there. The selected language is captured from the language context instead.
+let selectedLanguage = DEFAULT_LANGUAGE;
+const CaptureSelectedLanguage = ({ children }: { children: React.ReactNode }) => {
+  selectedLanguage = useLanguage().language;
+  return <>{children}</>;
+};
+const texts = () => multilingualTexts[selectedLanguage] ?? multilingualTexts[DEFAULT_LANGUAGE];
+
+const multilingualGroup = () => ({
+  id: "grp-1",
+  UUID: "grp-1-uuid",
+  code: "1",
+  preferredLabel: texts().group,
+  altLabels: [],
+  groupType: ObjectType.ISCOGroup,
+  children: [
+    { id: "occ-1120", code: "1120", preferredLabel: texts().occupation, objectType: ObjectType.ESCOOccupation },
+  ],
+});
+
+// Opens on an occupation in French. Switch the language from the header to see the UI texts and the data change.
+export const MultilingualModel: Story = {
+  decorators: [
+    (Story) => (
+      <CaptureSelectedLanguage>
+        <Story />
+      </CaptureSelectedLanguage>
+    ),
+  ],
+  parameters: {
+    initialEntries: [`/explorer/${multilingualModels[0].id}/occupations/occ-1120?lang=fr`],
+    mockData: [
+      { url: MODELS_URL, method: "GET", status: 200, response: multilingualModels },
+      {
+        url: `${multilingualModelUrl}/occupationGroups?root=true&limit=100`,
+        method: "GET",
+        status: 200,
+        response: () => paginated([multilingualGroup()]),
+      },
+      {
+        url: `${multilingualModelUrl}/occupationGroups/grp-1`,
+        method: "GET",
+        status: 200,
+        response: () => multilingualGroup(),
+      },
+      {
+        url: `${multilingualModelUrl}/occupations/occ-1120`,
+        method: "GET",
+        status: 200,
+        response: () => ({
+          id: "occ-1120",
+          UUID: "occ-1120-uuid",
+          code: "1120",
+          preferredLabel: texts().occupation,
+          definition: texts().definition,
+          altLabels: [],
+          occupationType: ObjectType.ESCOOccupation,
+          requiresSkills: [{ id: "skill-1", preferredLabel: texts().skill, relationType: "essential" }],
+        }),
+      },
+    ],
+  },
+  render: () => (
+    <Routes>
+      <Route path={routerPaths.EXPLORER_OCCUPATIONS} element={<ExplorerPage initialTab="occupations" />} />
+      <Route path={routerPaths.EXPLORER_OCCUPATIONS_DETAIL} element={<ExplorerPage initialTab="occupations" />} />
     </Routes>
   ),
 };
