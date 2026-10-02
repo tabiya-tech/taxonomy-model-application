@@ -33,9 +33,9 @@ export const HELP_TIP_TEXT = {
   ERROR:
     "The import process could not start or complete due to a technical error. Please try again later or contact us if the problem persists.",
   PARSING_ERROR:
-    "The csv files have inconsistencies that could not be resolved. The model was created but is not consistent. Please review the csv files and try again.",
+    "The csv files have inconsistencies that could not be resolved. The model was created but is not consistent. This includes csv files whose language columns (e.g. PREFERREDLABEL_FR) do not match the languages selected for the model, the data in an unselected language was not imported. Please review the csv files and the selected languages and try again.",
   PARSING_WARNING:
-    "One or more rows or some fields could not be imported, but the model was still created and is consistent. Please review the csv files and try again.",
+    "One or more rows or some fields could not be imported, but the model was still created and is consistent. This includes csv files or a model info file that do not declare their languages, which were imported in the fall back language. Please review the csv files and try again.",
 };
 
 const Bold = ({ children }: PropsWithChildren) => (

@@ -20,6 +20,12 @@ import userEvent from "@testing-library/user-event";
 import { unmockBrowserIsOnLine } from "src/_test_utilities/mockBrowserIsOnline";
 import * as PrimaryButtonModule from "src/theme/PrimaryButton/PrimaryButton";
 import parseSelectedModelInfoFile from "./components/parseSelectedModelInfoFile";
+import {
+  DATA_TEST_ID as MODEL_LANGUAGES_SELECT_FIELD_DATA_TEST_ID,
+  LanguagesSource,
+  TEXT as MODEL_LANGUAGES_SELECT_FIELD_TEXT,
+} from "src/import/components/ModelLanguagesSelectField";
+import LanguageAPISpecs from "api-specifications/language";
 
 // mock the parseSelectedModelInfoFile function
 jest.mock("src/import/components/parseSelectedModelInfoFile", () => {
@@ -638,5 +644,180 @@ describe("ImportModel dialog action tests", () => {
         },
       });
     });
+  });
+});
+
+describe("ImportModel dialog language selection tests", () => {
+  const FALLBACK_SHORT_CODE = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
+
+  const getLanguagesInput = () => screen.getByTestId(MODEL_LANGUAGES_SELECT_FIELD_DATA_TEST_ID.MODEL_LANGUAGES_INPUT);
+  const getLanguagesHelperText = () =>
+    screen.getByTestId(MODEL_LANGUAGES_SELECT_FIELD_DATA_TEST_ID.MODEL_LANGUAGES_HELPER_TEXT);
+
+  const toggleLanguage = async (shortCode: string) => {
+    const dropdownElement = screen.getByTestId(MODEL_LANGUAGES_SELECT_FIELD_DATA_TEST_ID.MODEL_LANGUAGES_DROPDOWN);
+    await userEvent.click(within(dropdownElement).getByRole("combobox"));
+    const option = screen
+      .getAllByTestId(MODEL_LANGUAGES_SELECT_FIELD_DATA_TEST_ID.MODEL_LANGUAGES_ITEM)
+      .find((item) => item.getAttribute("data-value") === shortCode);
+    await userEvent.click(option as HTMLElement);
+    // close the dropdown
+    await userEvent.keyboard("{Escape}");
+  };
+
+  it("should default the languages to the fall back language when no model info file is selected", async () => {
+    // GIVEN the dialog is visible
+    render(<ImportModelDialog {...testProps} />);
+    // AND the user fills in the dialog without a model info file
+    const givenData = getImportDataTestValues();
+    givenData.UUIDHistory = [];
+    await fillInImportDialog(givenData);
+
+    // WHEN the user clicks the import button
+    fireEvent.click(screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON));
+
+    // THEN expect the languages to be the fall back language
+    const expectedLanguages = [FALLBACK_SHORT_CODE];
+    expect(getLanguagesInput()).toHaveValue(expectedLanguages.join(","));
+    // AND the user to be told the languages are the default ones
+    expect(getLanguagesHelperText()).toHaveTextContent(
+      MODEL_LANGUAGES_SELECT_FIELD_TEXT.SOURCE[LanguagesSource.DEFAULT]
+    );
+    // AND the import data to carry the fall back language
+    await waitFor(() => {
+      expect(notifyOnCloseMock).toHaveBeenCalledWith({
+        name: "IMPORT",
+        importData: expect.objectContaining({ availableLanguages: expectedLanguages }),
+      });
+    });
+    // AND expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  it("should pre-fill the languages from a multi language model info file", async () => {
+    // GIVEN a model info file that declares several languages
+    const givenLanguagesFromFile = ["fr", "am"];
+    (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
+      UUIDHistory: ["foo", "bar"],
+      availableLanguages: givenLanguagesFromFile,
+      description: "",
+    });
+    // AND the dialog is visible
+    render(<ImportModelDialog {...testProps} />);
+
+    // WHEN the user fills in the dialog with the model info file
+    const givenData = getImportDataTestValues();
+    await fillInImportDialog(givenData);
+
+    // THEN expect the languages to be pre-filled from the file
+    await waitFor(() => {
+      expect(getLanguagesInput()).toHaveValue(givenLanguagesFromFile.join(","));
+    });
+    // AND the user to be told the languages were pre-filled from the file
+    expect(getLanguagesHelperText()).toHaveTextContent(
+      MODEL_LANGUAGES_SELECT_FIELD_TEXT.SOURCE[LanguagesSource.MODEL_INFO]
+    );
+    // AND the import data to carry the languages of the file
+    fireEvent.click(screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON));
+    await waitFor(() => {
+      expect(notifyOnCloseMock).toHaveBeenCalledWith({
+        name: "IMPORT",
+        importData: expect.objectContaining({ availableLanguages: givenLanguagesFromFile }),
+      });
+    });
+    // AND expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  it("should default the languages to the fall back language for a legacy model info file", async () => {
+    // GIVEN a legacy model info file without a LANGUAGES column
+    (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
+      UUIDHistory: ["foo", "bar"],
+      availableLanguages: [],
+      description: "",
+    });
+    // AND the dialog is visible
+    render(<ImportModelDialog {...testProps} />);
+
+    // WHEN the user fills in the dialog with the model info file
+    const givenData = getImportDataTestValues();
+    await fillInImportDialog(givenData);
+
+    // THEN expect the user to be told the file declares no languages
+    await waitFor(() => {
+      expect(getLanguagesHelperText()).toHaveTextContent(
+        MODEL_LANGUAGES_SELECT_FIELD_TEXT.SOURCE[LanguagesSource.LEGACY_MODEL_INFO]
+      );
+    });
+    // AND the languages to be the fall back language
+    const expectedLanguages = [FALLBACK_SHORT_CODE];
+    expect(getLanguagesInput()).toHaveValue(expectedLanguages.join(","));
+    // AND the import data to carry the fall back language
+    fireEvent.click(screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON));
+    await waitFor(() => {
+      expect(notifyOnCloseMock).toHaveBeenCalledWith({
+        name: "IMPORT",
+        importData: expect.objectContaining({ availableLanguages: expectedLanguages }),
+      });
+    });
+    // AND expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  it("should send the languages adjusted by the user after the pre-fill", async () => {
+    // GIVEN a model info file that declares some languages
+    (parseSelectedModelInfoFile as jest.Mock).mockResolvedValue({
+      UUIDHistory: ["foo", "bar"],
+      availableLanguages: ["en", "fr"],
+      description: "",
+    });
+    // AND the dialog is visible and filled in
+    render(<ImportModelDialog {...testProps} />);
+    await fillInImportDialog(getImportDataTestValues());
+    await waitFor(() => {
+      expect(getLanguagesInput()).toHaveValue("en,fr");
+    });
+
+    // WHEN the user adds a language
+    const givenLanguageToAdd = "es";
+    await toggleLanguage(givenLanguageToAdd);
+    // AND clicks the import button
+    fireEvent.click(screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON));
+
+    // THEN expect the import data to carry the adjusted languages
+    const expectedLanguages = ["en", "fr", givenLanguageToAdd];
+    await waitFor(() => {
+      expect(notifyOnCloseMock).toHaveBeenCalledWith({
+        name: "IMPORT",
+        importData: expect.objectContaining({ availableLanguages: expectedLanguages }),
+      });
+    });
+    // AND expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  it("should disable the import button when the user unselects every language", async () => {
+    // GIVEN the dialog is visible and filled in without a model info file
+    render(<ImportModelDialog {...testProps} />);
+    const givenData = getImportDataTestValues();
+    givenData.UUIDHistory = [];
+    await fillInImportDialog(givenData);
+    // guard: the import button is enabled
+    expect(screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON)).toBeEnabled();
+
+    // WHEN the user unselects the only selected language
+    await toggleLanguage(FALLBACK_SHORT_CODE);
+
+    // THEN expect the import button to be disabled
+    expect(screen.getByTestId(DATA_TEST_ID.IMPORT_BUTTON)).toBeDisabled();
+    // AND the user to be asked to select at least one language
+    expect(getLanguagesHelperText()).toHaveTextContent(MODEL_LANGUAGES_SELECT_FIELD_TEXT.NO_LANGUAGE_SELECTED_ERROR);
+    // AND expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
   });
 });
