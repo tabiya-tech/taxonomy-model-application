@@ -258,6 +258,7 @@ describe("ExplorerDetailPanel", () => {
       ["occupation (seen economy)", givenOccupationItem, "Seen Economy"],
       ["occupation (unseen economy)", givenLocalOccupationItem, "Unseen Economy"],
       ["skill", givenSkillItem, "Skill/competence"],
+      ["skill without a skill type", { ...givenSkillItem, skillType: undefined }, "Skill"],
       ["group", givenGroupItem, "Group"],
     ])("should render the %s badge", (_desc, item, expectedLabel) => {
       // GIVEN an item of a given type

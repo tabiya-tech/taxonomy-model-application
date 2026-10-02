@@ -2,13 +2,16 @@
 import "src/_test_utilities/consoleMock";
 
 import React from "react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { render, screen, waitFor } from "src/_test_utilities/test-utils";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { render, screen, waitFor, within } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import ExplorerPage from "./ExplorerPage";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
 import ExplorerService from "src/explorer/explorer.service";
-import { ExplorerTreeItem } from "src/explorer/components/ExplorerTreePanel/ExplorerTreePanel";
+import {
+  DATA_TEST_ID as TREE_PANEL_DATA_TEST_ID,
+  ExplorerTreeItem,
+} from "src/explorer/components/ExplorerTreePanel/ExplorerTreePanel";
 import { ExplorerItemDetail, ObjectType } from "src/explorer/explorer.types";
 import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 import { routerPaths } from "src/app/routerPaths";
@@ -104,7 +107,7 @@ describe("ExplorerPage", () => {
   afterEach(() => {
     jest.resetAllMocks();
     // undo any per-test query-default overrides (e.g. disabling retry) so they don't leak
-    queryClient.setQueryDefaults(explorerTreeQueryKey(givenModelId, "occupations", ""), {});
+    queryClient.setQueryDefaults(explorerTreeQueryKey(givenModelId, "occupations", "", "en"), {});
   });
 
   test("should fetch and render the root tree items for the current model and tab", async () => {
@@ -116,7 +119,7 @@ describe("ExplorerPage", () => {
     expect(await screen.findByText(`${givenRootGroup.code} · ${givenRootGroup.title}`)).toBeInTheDocument();
 
     // AND expect the correct model and tab to have been used to fetch the tree
-    expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations");
+    expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "en");
     // AND expect no errors or warnings to have been logged
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();
@@ -124,7 +127,7 @@ describe("ExplorerPage", () => {
 
   test("should render an empty tree without crashing when fetching the root items fails", async () => {
     // GIVEN fetching the root items will fail, and retries are disabled for this query
-    queryClient.setQueryDefaults(explorerTreeQueryKey(givenModelId, "occupations", ""), { retry: false });
+    queryClient.setQueryDefaults(explorerTreeQueryKey(givenModelId, "occupations", "", "en"), { retry: false });
     getRootItemsSpy.mockRejectedValue(new Error("network error"));
 
     // WHEN the explorer page is rendered
@@ -143,11 +146,11 @@ describe("ExplorerPage", () => {
     await userEvent.click(screen.getByText(`${givenRootGroup.code} · ${givenRootGroup.title}`));
 
     // THEN expect the service to have been asked for that group's children
-    await waitFor(() => expect(getChildrenSpy).toHaveBeenCalledWith(givenModelId, givenRootGroup));
+    await waitFor(() => expect(getChildrenSpy).toHaveBeenCalledWith(givenModelId, givenRootGroup, "en"));
     // AND expect the fetched child to be rendered in the tree
     expect(await screen.findByText(`${givenChildOccupation.code} · ${givenChildOccupation.title}`)).toBeInTheDocument();
     // AND expect the click's own selection side effect (navigating to the group's detail) to have settled
-    await waitFor(() => expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenRootGroup));
+    await waitFor(() => expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenRootGroup, "en"));
   });
 
   test("should lazily fetch and merge a grandchild's children when a nested node is expanded", async () => {
@@ -181,7 +184,7 @@ describe("ExplorerPage", () => {
     await userEvent.click(screen.getByText(`${givenChildGroup.code} · ${givenChildGroup.title}`));
 
     // THEN expect the grandchild's children to have been fetched and rendered too
-    await waitFor(() => expect(getChildrenSpy).toHaveBeenCalledWith(givenModelId, givenChildGroup));
+    await waitFor(() => expect(getChildrenSpy).toHaveBeenCalledWith(givenModelId, givenChildGroup, "en"));
     expect(await screen.findByText(`${givenGrandchild.code} · ${givenGrandchild.title}`)).toBeInTheDocument();
   });
 
@@ -202,7 +205,7 @@ describe("ExplorerPage", () => {
     await waitFor(() => expect(getItemDetailSpy).toHaveBeenCalled());
 
     // THEN expect getItemDetail to have been called with the selected tree item (carrying its objectType)
-    expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation);
+    expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation, "en");
     // AND expect the fetched definition to be rendered
     expect(await screen.findByText(givenDetail.definition)).toBeInTheDocument();
     // AND expect the item's model history to NOT have been fetched automatically, only on demand
@@ -227,7 +230,7 @@ describe("ExplorerPage", () => {
     await userEvent.click(screen.getByText("History"));
 
     // THEN expect the item's model history to have been fetched for the selected item
-    await waitFor(() => expect(getItemHistorySpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation));
+    await waitFor(() => expect(getItemHistorySpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation, "en"));
   });
 
   test("should reuse cached detail when revisiting a previously viewed item", async () => {
@@ -238,10 +241,14 @@ describe("ExplorerPage", () => {
     expect(await screen.findByText(`${givenRootGroup.code} · ${givenRootGroup.title}`)).toBeInTheDocument();
     await userEvent.click(screen.getByText(`${givenRootGroup.code} · ${givenRootGroup.title}`));
     await waitFor(() =>
-      expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, expect.objectContaining({ id: givenRootGroup.id }))
+      expect(getItemDetailSpy).toHaveBeenCalledWith(
+        givenModelId,
+        expect.objectContaining({ id: givenRootGroup.id }),
+        "en"
+      )
     );
     await userEvent.click(screen.getByText(`${givenChildOccupation.code} · ${givenChildOccupation.title}`));
-    await waitFor(() => expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation));
+    await waitFor(() => expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenChildOccupation, "en"));
     expect(getItemDetailSpy).toHaveBeenCalledTimes(2);
 
     // WHEN the user revisits the first item
@@ -263,13 +270,13 @@ describe("ExplorerPage", () => {
     await userEvent.click(screen.getByText("Skills"));
 
     // THEN expect the root items to be fetched again, for the skills tab
-    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills"));
+    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills", "en"));
   });
 
   test("should search skills as the user types on the skills tab, and render the matching results", async () => {
     // GIVEN the explorer page has rendered its root items on the skill tab
     renderExplorerPage("skills");
-    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills"));
+    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills", "en"));
 
     // WHEN the user types into the search field
     const searchInput = screen.getByPlaceholderText("Search skills...");
@@ -279,7 +286,7 @@ describe("ExplorerPage", () => {
     expect(searchSkillsSpy).not.toHaveBeenCalled();
 
     // AND expect it to eventually fire once, with the full typed value, and render the matching skill
-    await waitFor(() => expect(searchSkillsSpy).toHaveBeenCalledWith(givenModelId, "manage"));
+    await waitFor(() => expect(searchSkillsSpy).toHaveBeenCalledWith(givenModelId, "manage", "en"));
     await waitFor(() => expect(screen.getAllByText(givenSkillResult.title).length).toBeGreaterThan(0));
     // AND expect the occupations search to not have been used
     expect(searchOccupationsSpy).not.toHaveBeenCalled();
@@ -288,7 +295,7 @@ describe("ExplorerPage", () => {
   test("should search occupations as the user types on the occupations tab, and render the matching results", async () => {
     // GIVEN the explorer page has rendered its root items on the occupations tab
     renderExplorerPage("occupations");
-    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations"));
+    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "en"));
 
     // WHEN the user types into the search field
     const searchInput = screen.getByPlaceholderText("Search occupations...");
@@ -298,7 +305,7 @@ describe("ExplorerPage", () => {
     expect(searchOccupationsSpy).not.toHaveBeenCalled();
 
     // AND expect it to eventually fire once, with the full typed value, and render the matching occupation
-    await waitFor(() => expect(searchOccupationsSpy).toHaveBeenCalledWith(givenModelId, "manager"));
+    await waitFor(() => expect(searchOccupationsSpy).toHaveBeenCalledWith(givenModelId, "manager", "en"));
     await waitFor(() => expect(screen.getAllByText(givenOccupationResult.title).length).toBeGreaterThan(0));
     // AND expect the skills search to not have been used
     expect(searchSkillsSpy).not.toHaveBeenCalled();
@@ -307,10 +314,10 @@ describe("ExplorerPage", () => {
   test("should fall back to the root tree when the search field is cleared, reusing the cached root items", async () => {
     // GIVEN the explorer page has rendered search results on the skills tab
     renderExplorerPage("skills");
-    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills"));
+    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills", "en"));
     const searchInput = screen.getByPlaceholderText("Search skills...");
     await userEvent.type(searchInput, "manage");
-    await waitFor(() => expect(searchSkillsSpy).toHaveBeenCalledWith(givenModelId, "manage"));
+    await waitFor(() => expect(searchSkillsSpy).toHaveBeenCalledWith(givenModelId, "manage", "en"));
     await waitFor(() => expect(screen.getAllByText(givenSkillResult.title).length).toBeGreaterThan(0));
 
     // WHEN the user clears the search field
@@ -324,10 +331,10 @@ describe("ExplorerPage", () => {
   test("should clear the search field when switching tabs", async () => {
     // GIVEN the explorer page has rendered search results on the skills tab
     renderExplorerPage("skills");
-    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills"));
+    await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills", "en"));
     const searchInput = screen.getByPlaceholderText("Search skills...");
     await userEvent.type(searchInput, "manage");
-    await waitFor(() => expect(searchSkillsSpy).toHaveBeenCalledWith(givenModelId, "manage"));
+    await waitFor(() => expect(searchSkillsSpy).toHaveBeenCalledWith(givenModelId, "manage", "en"));
 
     // WHEN the user switches to the occupations tab
     await userEvent.click(screen.getByText("Occupations"));
@@ -344,6 +351,195 @@ describe("ExplorerPage", () => {
     // THEN expect the selected model's name to be shown in the header
     expect(await screen.findByText(givenModels[0].name)).toBeInTheDocument();
     expect(getAllModelsSpy).toHaveBeenCalled();
+  });
+
+  describe("language switching", () => {
+    const givenMultiLanguageModel = { ...givenModels[0], availableLanguages: ["en", "fr"] };
+
+    test("should not render the language switcher when the model has a single language", async () => {
+      // GIVEN the only model available has a single available language (the default fixture)
+      // WHEN the explorer page is rendered
+      renderExplorerPage("occupations");
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalled());
+
+      // THEN expect the language switcher to not be rendered
+      expect(screen.queryByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).not.toBeInTheDocument();
+    });
+
+    test("should list the model's available languages and refetch the tree and detail with the chosen language", async () => {
+      // GIVEN the selected model has more than one available language
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModel]);
+      renderExplorerPage("occupations");
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "en"));
+      await waitFor(() =>
+        expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, expect.objectContaining({ id: "grp-1" }), "en")
+      );
+
+      // WHEN the user opens the language switcher and picks French
+      const combobox = within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByRole(
+        "combobox"
+      );
+      await userEvent.click(combobox);
+      const listbox = await screen.findByRole("listbox");
+      await userEvent.click(within(listbox).getByText("Français"));
+
+      // THEN expect the tree and the selected item's detail to be refetched in the chosen language
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "fr"));
+      await waitFor(() =>
+        expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, expect.objectContaining({ id: "grp-1" }), "fr")
+      );
+    });
+
+    test("should restore the language from the URL's language query parameter", async () => {
+      // GIVEN the selected model has more than one available language
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModel]);
+
+      // WHEN the explorer page is rendered with a language query parameter in the URL
+      render(
+        <MemoryRouter initialEntries={[`/explorer/${givenModelId}/occupations?lang=fr`]}>
+          <Routes>
+            <Route path={routerPaths.EXPLORER_OCCUPATIONS} element={<ExplorerPage initialTab="occupations" />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+      // THEN expect the tree to have been fetched in the URL's language
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "fr"));
+      // AND expect it to never have been fetched in the default language first
+      expect(getRootItemsSpy).not.toHaveBeenCalledWith(givenModelId, "occupations", "en");
+      // AND expect the switcher to reflect that language
+      expect(
+        within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByText("Français")
+      ).toBeInTheDocument();
+    });
+
+    // Renders the current URL's query string, so tests can assert on the language query parameter.
+    const LocationSearch = () => <div data-testid="location-search">{useLocation().search}</div>;
+    const renderWithLocation = (initialEntry: string) =>
+      render(
+        <MemoryRouter initialEntries={[initialEntry]}>
+          <LocationSearch />
+          <Routes>
+            <Route path={routerPaths.EXPLORER_OCCUPATIONS} element={<ExplorerPage initialTab="occupations" />} />
+            <Route path={routerPaths.EXPLORER_OCCUPATIONS_DETAIL} element={<ExplorerPage initialTab="occupations" />} />
+            <Route path={routerPaths.EXPLORER_SKILLS} element={<ExplorerPage initialTab="skills" />} />
+          </Routes>
+        </MemoryRouter>
+      );
+
+    const pickLanguage = async (name: string) => {
+      const combobox = within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByRole(
+        "combobox"
+      );
+      await userEvent.click(combobox);
+      await userEvent.click(within(await screen.findByRole("listbox")).getByText(name));
+    };
+
+    const pickModel = async (name: string) => {
+      const combobox = within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.MODEL_SELECT)).getByRole(
+        "combobox"
+      );
+      await userEvent.click(combobox);
+      await userEvent.click(within(await screen.findByRole("listbox")).getByText(name));
+    };
+
+    test("should keep the language in the URL when switching tabs", async () => {
+      // GIVEN the explorer page is shown in french
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModel]);
+      renderWithLocation(`/explorer/${givenModelId}/occupations?lang=fr`);
+      expect(await screen.findByText(`${givenRootGroup.code} · ${givenRootGroup.title}`)).toBeInTheDocument();
+      expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "fr");
+
+      // WHEN the user switches to the skills tab
+      await userEvent.click(screen.getByTestId(TREE_PANEL_DATA_TEST_ID.EXPLORER_TREE_PANEL_TAB_SKILLS));
+
+      // THEN expect the skills to be fetched in french
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "skills", "fr"));
+      // AND expect the language to still be in the URL
+      expect(screen.getByTestId("location-search")).toHaveTextContent("?lang=fr");
+    });
+
+    test("should keep the language in the URL when selecting an item", async () => {
+      // GIVEN the explorer page is shown in french
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModel]);
+      renderWithLocation(`/explorer/${givenModelId}/occupations?lang=fr`);
+      const givenItemText = `${givenRootGroup.code} · ${givenRootGroup.title}`;
+      expect(await screen.findByText(givenItemText)).toBeInTheDocument();
+
+      // WHEN the user selects an item
+      await userEvent.click(screen.getByText(givenItemText));
+
+      // THEN expect the item's detail to be fetched in french
+      await waitFor(() =>
+        expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, expect.objectContaining({ id: "grp-1" }), "fr")
+      );
+      // AND expect the language to still be in the URL
+      expect(screen.getByTestId("location-search")).toHaveTextContent("?lang=fr");
+    });
+
+    test("should restore the chosen language when coming back from a model that does not have it", async () => {
+      // GIVEN a model with english and french, and a model with english only
+      const givenEnglishOnlyModel = {
+        ...getArrayOfFakeModels(2)[1],
+        name: "English only taxonomy",
+        availableLanguages: ["en"],
+      };
+      const givenMultiLanguageModelWithName = { ...givenMultiLanguageModel, name: "Multilingual taxonomy" };
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModelWithName, givenEnglishOnlyModel]);
+      renderWithLocation(`/explorer/${givenModelId}/occupations`);
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "en"));
+      // AND the user chose french
+      await pickLanguage("Français");
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "fr"));
+
+      // WHEN the user switches to the english only model
+      await pickModel(givenEnglishOnlyModel.version);
+      // THEN expect it to be shown in english
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenEnglishOnlyModel.id, "occupations", "en"));
+      await waitFor(() => expect(screen.getByTestId("location-search")).toHaveTextContent("?lang=en"));
+
+      // WHEN the user switches back to the first model
+      await pickModel(givenMultiLanguageModelWithName.version);
+
+      // THEN expect it to be shown in french again (its french tree is already cached, so it is not refetched)
+      await waitFor(() => expect(screen.getByTestId("location-search")).toHaveTextContent("?lang=fr"));
+      expect(
+        within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByText("Français")
+      ).toBeInTheDocument();
+    });
+
+    test("should fetch an item opened from a link only in the URL's language", async () => {
+      // GIVEN the selected model has more than one available language
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModel]);
+
+      // WHEN the explorer page is opened on an item with a language query parameter in the URL
+      renderWithLocation(`/explorer/${givenModelId}/occupations/${givenRootGroup.id}?lang=fr`);
+
+      // THEN expect the item's detail to be fetched in the URL's language
+      await waitFor(() =>
+        expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, expect.objectContaining({ id: "grp-1" }), "fr")
+      );
+      // AND expect nothing to have been fetched in the default language first
+      expect(getRootItemsSpy).not.toHaveBeenCalledWith(givenModelId, "occupations", "en");
+      expect(getItemDetailSpy).not.toHaveBeenCalledWith(givenModelId, expect.anything(), "en");
+    });
+
+    test("should fall back to the model's first available language when the URL names one it does not have", async () => {
+      // GIVEN the selected model only has English and French
+      getAllModelsSpy.mockResolvedValue([givenMultiLanguageModel]);
+
+      // WHEN the explorer page is rendered with an unsupported language in the URL
+      renderWithLocation(`/explorer/${givenModelId}/occupations?lang=de`);
+
+      // THEN expect the tree to have been fetched in the model's first available language instead
+      await waitFor(() => expect(getRootItemsSpy).toHaveBeenCalledWith(givenModelId, "occupations", "en"));
+      // AND expect the URL to be corrected to that language
+      await waitFor(() => expect(screen.getByTestId("location-search")).toHaveTextContent("?lang=en"));
+      // AND expect the language switcher to show the same language as the URL
+      expect(
+        within(await screen.findByTestId(EXPLORER_HEADER_DATA_TEST_ID.LANGUAGE_SELECT)).getByText("English")
+      ).toBeInTheDocument();
+    });
   });
 
   test.each([

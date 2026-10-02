@@ -141,6 +141,14 @@ export namespace GET {
       };
     });
   }
+
+  /**
+   * Get a mock ModelInfo payload with one model available in English, French and Spanish
+   */
+  export function getPayloadWithOneMultilingualModelInfo(): ModelInfoAPISpecs.Types.GET.Response.Payload {
+    const [model] = getPayloadWithArrayOfFakeModelInfo(1);
+    return [{ ...model, name: "Multilingual taxonomy", version: "v1.0.0", availableLanguages: ["en", "fr", "es"] }];
+  }
 }
 
 /**

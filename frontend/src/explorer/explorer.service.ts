@@ -131,12 +131,12 @@ export default class ExplorerService {
     this.apiServerUrl = apiServerUrl;
   }
 
-  private async getJSON<T>(url: string, serviceFunction: string): Promise<T> {
+  private async getJSON<T>(url: string, serviceFunction: string, language: string): Promise<T> {
     const serviceName = "ExplorerService";
     const errorFactory = getServiceErrorFactory(serviceName, serviceFunction, "GET", url);
     const response = await fetchWithAuth(url, {
       method: "GET",
-      headers: {},
+      headers: { "Accept-Language": language },
       expectedStatusCode: StatusCodes.OK,
       serviceName,
       serviceFunction,
@@ -155,21 +155,29 @@ export default class ExplorerService {
   }
 
   // Only a node's children can realistically exceed PAGE_LIMIT, so only getChildren uses this.
-  private async getAllPages<T>(buildUrl: (cursor: string | null) => string, serviceFunction: string): Promise<T[]> {
+  private async getAllPages<T>(
+    buildUrl: (cursor: string | null) => string,
+    serviceFunction: string,
+    language: string
+  ): Promise<T[]> {
     const results: T[] = [];
     let cursor: string | null = null;
     do {
-      const response: PaginatedResponse<T> = await this.getJSON(buildUrl(cursor), serviceFunction);
+      const response: PaginatedResponse<T> = await this.getJSON(buildUrl(cursor), serviceFunction, language);
       results.push(...response.data);
       cursor = response.nextCursor;
     } while (cursor !== null);
     return results;
   }
 
-  public async getRootItems(modelId: string, tab: "occupations" | "skills"): Promise<ExplorerTreeItem[]> {
+  public async getRootItems(
+    modelId: string,
+    tab: "occupations" | "skills",
+    language: string
+  ): Promise<ExplorerTreeItem[]> {
     const collection = tab === "occupations" ? "occupationGroups" : "skillGroups";
     const url = `${this.apiServerUrl}/models/${modelId}/${collection}?root=true&limit=${PAGE_LIMIT}`;
-    const response = await this.getJSON<PaginatedResponse<ExplorerApiNode>>(url, "getRootItems");
+    const response = await this.getJSON<PaginatedResponse<ExplorerApiNode>>(url, "getRootItems", language);
 
     // occupationGroups reports its own groupType; skillGroups reports nothing, so it's always a SkillGroup.
     const rootObjectType = (tab: "occupations" | "skills", node: ExplorerApiNode): ObjectType =>
@@ -178,12 +186,12 @@ export default class ExplorerService {
     return response.data.map((node) => toRootTreeItem(node, rootObjectType(tab, node)));
   }
 
-  public async getChildren(modelId: string, item: ExplorerTreeItem): Promise<ExplorerTreeItem[]> {
+  public async getChildren(modelId: string, item: ExplorerTreeItem, language: string): Promise<ExplorerTreeItem[]> {
     const collection = collectionForObjectType(item.objectType as ObjectType);
     const buildUrl = (cursor: string | null) =>
       `${this.apiServerUrl}/models/${modelId}/${collection}/${item.id}/children?limit=${PAGE_LIMIT}` +
       (cursor ? `&cursor=${encodeURIComponent(cursor)}` : "");
-    const nodes = await this.getAllPages<ExplorerApiNodeRef>(buildUrl, "getChildren");
+    const nodes = await this.getAllPages<ExplorerApiNodeRef>(buildUrl, "getChildren", language);
     return nodes.map(toChildTreeItem);
   }
 
@@ -192,35 +200,44 @@ export default class ExplorerService {
     collection: string,
     searchFields: string,
     searchValue: string,
-    serviceFunction: string
+    serviceFunction: string,
+    language: string
   ): Promise<ExplorerApiNode[]> {
     const url =
       `${this.apiServerUrl}/models/${modelId}/${collection}?query=${encodeURIComponent(searchValue)}` +
       `&searchFields=${encodeURIComponent(searchFields)}&limit=${PAGE_LIMIT}`;
-    const response = await this.getJSON<PaginatedResponse<ExplorerApiNode>>(url, serviceFunction);
+    const response = await this.getJSON<PaginatedResponse<ExplorerApiNode>>(url, serviceFunction, language);
     return response.data;
   }
 
-  public async searchSkills(modelId: string, searchValue: string): Promise<ExplorerTreeItem[]> {
-    const nodes = await this.searchCollection(modelId, "skills", SKILL_SEARCH_FIELDS, searchValue, "searchSkills");
+  public async searchSkills(modelId: string, searchValue: string, language: string): Promise<ExplorerTreeItem[]> {
+    const nodes = await this.searchCollection(
+      modelId,
+      "skills",
+      SKILL_SEARCH_FIELDS,
+      searchValue,
+      "searchSkills",
+      language
+    );
     return nodes.map((node) => toSearchResultTreeItem(node, ObjectType.Skill));
   }
 
-  public async searchOccupations(modelId: string, searchValue: string): Promise<ExplorerTreeItem[]> {
+  public async searchOccupations(modelId: string, searchValue: string, language: string): Promise<ExplorerTreeItem[]> {
     const nodes = await this.searchCollection(
       modelId,
       "occupations",
       OCCUPATION_SEARCH_FIELDS,
       searchValue,
-      "searchOccupations"
+      "searchOccupations",
+      language
     );
     return nodes.map((node) => toSearchResultTreeItem(node, occupationObjectType(node)));
   }
 
-  public async getItemDetail(modelId: string, item: ExplorerTreeItem): Promise<ExplorerItemDetail> {
+  public async getItemDetail(modelId: string, item: ExplorerTreeItem, language: string): Promise<ExplorerItemDetail> {
     const collection = collectionForObjectType(item.objectType as ObjectType);
     const url = `${this.apiServerUrl}/models/${modelId}/${collection}/${item.id}`;
-    const node = await this.getJSON<ExplorerApiDetailResponse>(url, "getItemDetail");
+    const node = await this.getJSON<ExplorerApiDetailResponse>(url, "getItemDetail", language);
     return {
       id: node.id,
       UUID: node.UUID,
@@ -243,10 +260,14 @@ export default class ExplorerService {
     };
   }
 
-  public async getItemHistory(modelId: string, item: ExplorerTreeItem): Promise<ExplorerHistoryItem[]> {
+  public async getItemHistory(
+    modelId: string,
+    item: ExplorerTreeItem,
+    language: string
+  ): Promise<ExplorerHistoryItem[]> {
     const collection = collectionForObjectType(item.objectType as ObjectType);
     const url = `${this.apiServerUrl}/models/${modelId}/${collection}/${item.id}/history`;
-    const entries = await this.getJSON<ExplorerApiHistoryItem[]>(url, "getItemHistory");
+    const entries = await this.getJSON<ExplorerApiHistoryItem[]>(url, "getItemHistory", language);
     return entries.map(toHistoryItem);
   }
 }

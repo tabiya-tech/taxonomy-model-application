@@ -10,6 +10,7 @@ import {
   ExplorerRelatedSkill,
   ObjectType,
 } from "src/explorer/explorer.types";
+import OccupationAPISpecs from "api-specifications/esco/occupation";
 
 const uniqueId = "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a";
 export const DATA_TEST_ID = {
@@ -241,9 +242,11 @@ const DefinitionTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) 
   );
 };
 
+const RelationType = OccupationAPISpecs.Enums.OccupationToSkillRelationType;
+
 const LinksTabContent = ({ item }: Readonly<{ item: ExplorerDetailItem }>) => {
-  const essential = item.requiresSkills?.filter((s) => s.relationType === "essential") ?? [];
-  const optional = item.requiresSkills?.filter((s) => s.relationType === "optional") ?? [];
+  const essential = item.requiresSkills?.filter((s) => s.relationType === RelationType.ESSENTIAL) ?? [];
+  const optional = item.requiresSkills?.filter((s) => s.relationType === RelationType.OPTIONAL) ?? [];
   const requiredBy = item.requiredByOccupations ?? [];
 
   if (essential.length === 0 && optional.length === 0 && requiredBy.length === 0) {
