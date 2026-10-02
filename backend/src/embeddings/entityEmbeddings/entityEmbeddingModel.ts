@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import LanguageAPISpecs from "api-specifications/language";
 import { EmbeddableField } from "embeddings/service/types";
 import {
   EntityEmbeddingIdPath,
@@ -35,6 +36,14 @@ function buildEntityEmbeddingSchema<Doc extends IEntityEmbeddingDoc>(
   const commonDefinition: mongoose.SchemaDefinition<IEntityEmbeddingDoc> = {
     modelId: { type: mongoose.Schema.Types.ObjectId, required: true },
     embeddingServiceId: { type: String, required: true },
+    language: {
+      type: String,
+      required: true,
+      validate: {
+        validator: (v: string) => LanguageAPISpecs.Constants.Languages.some((l) => l.dbKeyName === v),
+        message: "Path `language` must be a registered language dbKeyName.",
+      },
+    },
     sourceHash: { type: String, required: true },
     sourceField: { type: String, required: true, enum: Object.values(EmbeddableField) },
     sourceText: { type: String, required: true },
@@ -61,8 +70,8 @@ function buildEntityEmbeddingSchema<Doc extends IEntityEmbeddingDoc>(
       toJSON: getGlobalTransformOptions(),
     }
   );
-  // There is at most one embedding per (model, entity, embedding service, source field).
-  schema.index({ modelId: 1, [entityIdPath]: 1, embeddingServiceId: 1, sourceField: 1 }, { unique: true });
+  // There is at most one embedding per (model, entity, embedding service, source field, language).
+  schema.index({ modelId: 1, [entityIdPath]: 1, embeddingServiceId: 1, sourceField: 1, language: 1 }, { unique: true });
   return schema;
 }
 

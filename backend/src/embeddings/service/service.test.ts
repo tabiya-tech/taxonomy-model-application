@@ -47,6 +47,7 @@ function getMockTask(overrides: Partial<IGenerateEmbeddingTask> = {}): IGenerate
     entityId: givenEntityId,
     entityType: EmbeddableEntityType.Skill,
     fields: [EmbeddableField.preferredLabel, EmbeddableField.description],
+    language: "en",
     ...overrides,
   };
 }
@@ -119,19 +120,21 @@ describe("Test the EmbeddingService", () => {
       await service.processTask(givenTask);
 
       // THEN expect the entity to have been fetched
-      expect(dependencies.skillRepository.findById).toHaveBeenCalledWith(givenTask.entityId);
-      // AND expect the entity to have been marked as IN_PROGRESS for the embedding service
+      expect(dependencies.skillRepository.findById).toHaveBeenCalledWith(givenTask.entityId, givenTask.language);
+      // AND expect the entity to have been marked as IN_PROGRESS for the embedding service and language
       expect(dependencies.skillRepository.setEntityEmbeddingStatus).toHaveBeenCalledWith({
         modelId: givenTask.modelId,
         entityId: givenTask.entityId,
         embeddingServiceId: givenEmbeddingServiceId,
+        language: givenTask.language,
         status: EntityEmbeddingStatus.IN_PROGRESS,
       });
-      // AND expect the existing embeddings of the entity to have been fetched
+      // AND expect the existing embeddings of the entity to have been fetched for the language
       expect(dependencies.skillEmbeddingRepository.findByEntity).toHaveBeenCalledWith(
         givenTask.modelId,
         givenTask.entityId,
-        givenEmbeddingServiceId
+        givenEmbeddingServiceId,
+        givenTask.language
       );
       // AND expect the embedding model service to have been resolved for the embedding service of the process
       expect(dependencies.embeddingModelServiceFactory).toHaveBeenCalledWith(givenEmbeddingServiceId);
@@ -147,6 +150,7 @@ describe("Test the EmbeddingService", () => {
         modelId: givenTask.modelId,
         entityId: givenTask.entityId,
         embeddingServiceId: givenEmbeddingServiceId,
+        language: givenTask.language,
         sourceField: EmbeddableField.preferredLabel,
         sourceHash: computeSourceHash(givenEntity.preferredLabel),
         sourceText: givenEntity.preferredLabel,
@@ -156,16 +160,18 @@ describe("Test the EmbeddingService", () => {
         modelId: givenTask.modelId,
         entityId: givenTask.entityId,
         embeddingServiceId: givenEmbeddingServiceId,
+        language: givenTask.language,
         sourceField: EmbeddableField.description,
         sourceHash: computeSourceHash(givenEntity.description),
         sourceText: givenEntity.description,
         vector: givenVectors[1],
       });
-      // AND expect the entity to have been marked as COMPLETED for the embedding service
+      // AND expect the entity to have been marked as COMPLETED for the embedding service and language
       expect(dependencies.skillRepository.setEntityEmbeddingStatus).toHaveBeenCalledWith({
         modelId: givenTask.modelId,
         entityId: givenTask.entityId,
         embeddingServiceId: givenEmbeddingServiceId,
+        language: givenTask.language,
         status: EntityEmbeddingStatus.COMPLETED,
       });
       // AND expect the document to have been counted as completed on the embedding process
@@ -205,7 +211,8 @@ describe("Test the EmbeddingService", () => {
           findById: jest.Mock;
           setEntityEmbeddingStatus: jest.Mock;
         };
-        expect(actualEntityRepository.findById).toHaveBeenCalledWith(givenTask.entityId);
+        expect(actualEntityRepository.findById).toHaveBeenCalled();
+        expect(actualEntityRepository.findById.mock.calls[0][0]).toBe(givenTask.entityId);
         // AND expect the embeddings to have been stored with the embedding repository of the entity type
         const actualEmbeddingRepository = dependencies[
           expectedEmbeddingRepositoryKey as keyof typeof dependencies

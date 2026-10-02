@@ -41,8 +41,13 @@ export const EmbeddingQueueJobSchema: SchemaObject = {
         enum: Object.values(EmbeddableField),
       },
     },
+    language: {
+      description: 'The language dbKeyName to generate the embedding for (e.g. "en").',
+      type: "string",
+      minLength: 1,
+    },
   },
-  required: ["modelId", "entityId", "entityType", "fields"],
+  required: ["modelId", "entityId", "entityType", "fields", "language"],
 };
 
 // A dedicated Ajv instance keeps the embeddings lambda bundle self-contained,

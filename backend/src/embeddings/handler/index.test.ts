@@ -26,6 +26,7 @@ function getValidTask(index: number): IGenerateEmbeddingTask {
     entityId: getMockStringId(index),
     entityType: EmbeddableEntityType.Skill,
     fields: [EmbeddableField.preferredLabel],
+    language: "en",
   };
 }
 

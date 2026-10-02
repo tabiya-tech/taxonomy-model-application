@@ -11,6 +11,7 @@ function getValidEmbeddingQueueJob(): IGenerateEmbeddingTask {
     entityId: getMockStringId(2),
     entityType: EmbeddableEntityType.Skill,
     fields: [EmbeddableField.preferredLabel, EmbeddableField.description],
+    language: "en",
   };
 }
 
@@ -45,7 +46,7 @@ describe("Test the EmbeddingQueueJobSchema", () => {
     expect(actualIsValid).toBe(false);
   });
 
-  describe.each([["modelId"], ["entityId"], ["entityType"], ["fields"]])(
+  describe.each([["modelId"], ["entityId"], ["entityType"], ["fields"], ["language"]])(
     "should not validate a job that is missing the required property '%s'",
     (propertyName) => {
       test(`missing '${propertyName}'`, () => {

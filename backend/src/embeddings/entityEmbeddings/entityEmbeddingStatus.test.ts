@@ -102,6 +102,7 @@ describe.each(testCases)(
   "Test the embedding status methods of the $entityName repository with an in-memory mongodb",
   ({ entityName, getRepository, createEntity, findEmbeddingStatus, deleteAllEntities }) => {
     const givenEmbeddingServiceId = "77bb8ff3-a6b0-460b-bcaa-00631a907852";
+    const givenLanguage = "en";
 
     let dbConnection: Connection;
     let repositoryRegistry: RepositoryRegistry;
@@ -127,32 +128,36 @@ describe.each(testCases)(
     });
 
     describe("Test setEntityEmbeddingStatus", () => {
-      test("should set the embedding status of the entity for the embedding service", async () => {
+      test("should set the embedding status of the entity for the embedding service and language", async () => {
         // GIVEN an entity in the database without any embedding status
         const givenModelId = getMockStringId(1);
         const givenEntityId = await createEntity(repositoryRegistry, givenModelId, "Entity 1");
 
-        // WHEN setting the embedding status of the entity for the embedding service
+        // WHEN setting the embedding status of the entity for the embedding service and language
         await repository.setEntityEmbeddingStatus({
           modelId: givenModelId,
           entityId: givenEntityId,
           embeddingServiceId: givenEmbeddingServiceId,
+          language: givenLanguage,
           status: EntityEmbeddingStatus.IN_PROGRESS,
         });
 
-        // THEN expect the status to be stored on the entity under the embedding service id
+        // THEN expect the status to be stored on the entity under the composite key "embeddingServiceId.language"
         const actualEmbeddingStatus = await findEmbeddingStatus(repositoryRegistry, givenEntityId);
-        expect(actualEmbeddingStatus!.get(givenEmbeddingServiceId)).toEqual(EntityEmbeddingStatus.IN_PROGRESS);
+        expect(actualEmbeddingStatus!.get(`${givenEmbeddingServiceId}|${givenLanguage}`)).toEqual(
+          EntityEmbeddingStatus.IN_PROGRESS
+        );
       });
 
-      test("should overwrite the embedding status of the entity for the same embedding service", async () => {
-        // GIVEN an entity in the database with an IN_PROGRESS embedding status for the embedding service
+      test("should overwrite the embedding status of the entity for the same embedding service and language", async () => {
+        // GIVEN an entity in the database with an IN_PROGRESS embedding status for the embedding service and language
         const givenModelId = getMockStringId(1);
         const givenEntityId = await createEntity(repositoryRegistry, givenModelId, "Entity 1");
         const givenStatusSpec = {
           modelId: givenModelId,
           entityId: givenEntityId,
           embeddingServiceId: givenEmbeddingServiceId,
+          language: givenLanguage,
         };
         await repository.setEntityEmbeddingStatus({
           ...givenStatusSpec,
@@ -167,11 +172,13 @@ describe.each(testCases)(
 
         // THEN expect the status to have been overwritten
         const actualEmbeddingStatus = await findEmbeddingStatus(repositoryRegistry, givenEntityId);
-        expect(actualEmbeddingStatus!.get(givenEmbeddingServiceId)).toEqual(EntityEmbeddingStatus.COMPLETED);
+        expect(actualEmbeddingStatus!.get(`${givenEmbeddingServiceId}|${givenLanguage}`)).toEqual(
+          EntityEmbeddingStatus.COMPLETED
+        );
       });
 
       test("should keep the embedding status of the entity for a different embedding service", async () => {
-        // GIVEN an entity in the database with a COMPLETED embedding status for another embedding service
+        // GIVEN an entity in the database with a COMPLETED embedding status for another embedding service and language
         const givenModelId = getMockStringId(1);
         const givenOtherEmbeddingServiceId = "00000000-0000-0000-0000-000000000000";
         const givenEntityId = await createEntity(repositoryRegistry, givenModelId, "Entity 1");
@@ -179,21 +186,27 @@ describe.each(testCases)(
           modelId: givenModelId,
           entityId: givenEntityId,
           embeddingServiceId: givenOtherEmbeddingServiceId,
+          language: givenLanguage,
           status: EntityEmbeddingStatus.COMPLETED,
         });
 
-        // WHEN setting the embedding status of the entity for the embedding service
+        // WHEN setting the embedding status of the entity for the embedding service and language
         await repository.setEntityEmbeddingStatus({
           modelId: givenModelId,
           entityId: givenEntityId,
           embeddingServiceId: givenEmbeddingServiceId,
+          language: givenLanguage,
           status: EntityEmbeddingStatus.PENDING,
         });
 
-        // THEN expect the entity to have both statuses
+        // THEN expect the entity to have both statuses under their respective composite keys
         const actualEmbeddingStatus = await findEmbeddingStatus(repositoryRegistry, givenEntityId);
-        expect(actualEmbeddingStatus!.get(givenOtherEmbeddingServiceId)).toEqual(EntityEmbeddingStatus.COMPLETED);
-        expect(actualEmbeddingStatus!.get(givenEmbeddingServiceId)).toEqual(EntityEmbeddingStatus.PENDING);
+        expect(actualEmbeddingStatus!.get(`${givenOtherEmbeddingServiceId}|${givenLanguage}`)).toEqual(
+          EntityEmbeddingStatus.COMPLETED
+        );
+        expect(actualEmbeddingStatus!.get(`${givenEmbeddingServiceId}|${givenLanguage}`)).toEqual(
+          EntityEmbeddingStatus.PENDING
+        );
       });
 
       test("should not set the embedding status of an entity of a different model", async () => {
@@ -207,6 +220,7 @@ describe.each(testCases)(
           modelId: givenModelId,
           entityId: givenEntityId,
           embeddingServiceId: givenEmbeddingServiceId,
+          language: givenLanguage,
           status: EntityEmbeddingStatus.IN_PROGRESS,
         });
 
@@ -225,17 +239,20 @@ describe.each(testCases)(
         const givenEntity2Id = await createEntity(repositoryRegistry, givenModelId, "Entity 2");
         const givenOtherModelEntityId = await createEntity(repositoryRegistry, givenOtherModelId, "Entity 3");
 
-        // WHEN setting the embedding status of all the entities of the model
+        // WHEN setting the embedding status of all the entities of the model for the embedding service and language
         await repository.setModelEntitiesEmbeddingStatus({
           modelId: givenModelId,
           embeddingServiceId: givenEmbeddingServiceId,
+          language: givenLanguage,
           status: EntityEmbeddingStatus.PENDING,
         });
 
-        // THEN expect both entities of the model to have the status
+        // THEN expect both entities of the model to have the status under the composite key
         for (const givenEntityId of [givenEntity1Id, givenEntity2Id]) {
           const actualEmbeddingStatus = await findEmbeddingStatus(repositoryRegistry, givenEntityId);
-          expect(actualEmbeddingStatus!.get(givenEmbeddingServiceId)).toEqual(EntityEmbeddingStatus.PENDING);
+          expect(actualEmbeddingStatus!.get(`${givenEmbeddingServiceId}|${givenLanguage}`)).toEqual(
+            EntityEmbeddingStatus.PENDING
+          );
         }
         // AND expect the entity of the other model to not have been touched
         const actualOtherModelEmbeddingStatus = await findEmbeddingStatus(repositoryRegistry, givenOtherModelEntityId);

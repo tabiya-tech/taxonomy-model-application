@@ -28,6 +28,7 @@ import { IEmbeddingProcessStateRepository } from "embeddings/embeddingProcessSta
 import { EmbeddableField } from "embeddings/service/types";
 import { EmbeddingModelServiceFactory, getEmbeddingModelService } from "embeddings/models/embeddingModelServiceFactory";
 import { SkillGroupsEmbeddingsVectorSearchIndexName } from "embeddings/entityEmbeddings/vectorSearchIndex.constant";
+import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { encodeCursor, decodeCursor } from "../GET/query";
 import { decodeSearchCursor, encodeSearchCursor } from "esco/common/searchCursor";
 
@@ -202,6 +203,7 @@ export class SkillGroupService implements ISkillGroupService {
       indexName: SkillGroupsEmbeddingsVectorSearchIndexName,
       modelId,
       embeddingServiceId,
+      language: getFallbackLanguageConfig().dbKeyName,
       queryVector,
       searchFields,
       limit: limit + 1,

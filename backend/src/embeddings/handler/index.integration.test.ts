@@ -98,6 +98,7 @@ describe("Test the embeddings lambda handler with a DB", () => {
       entityId: givenSkill.id,
       entityType: EmbeddableEntityType.Skill,
       fields: [EmbeddableField.preferredLabel, EmbeddableField.description, EmbeddableField.altLabels],
+      language: "en",
     };
     return { givenModelId, givenSkill, givenProcessState, givenTask };
   }
@@ -115,7 +116,8 @@ describe("Test the embeddings lambda handler with a DB", () => {
     const actualEmbeddings = await getRepositoryRegistry().skillEmbedding.findByEntity(
       givenModelId,
       givenSkill.id,
-      givenEmbeddingServiceId
+      givenEmbeddingServiceId,
+      "en"
     );
     const expectedSourceTexts: Record<string, string> = {
       [EmbeddableField.preferredLabel]: givenSkill.preferredLabel,
@@ -133,9 +135,11 @@ describe("Test the embeddings lambda handler with a DB", () => {
       });
       expect(actualEmbedding.vector).toHaveLength(2);
     }
-    // AND expect the skill to have been marked as COMPLETED for the embedding service
+    // AND expect the skill to have been marked as COMPLETED for the embedding service and language
     const actualSkillDoc = await getRepositoryRegistry().skill.Model.findById(givenSkill.id).exec();
-    expect(actualSkillDoc!.embeddingStatus!.get(givenEmbeddingServiceId)).toEqual(EntityEmbeddingStatus.COMPLETED);
+    expect(actualSkillDoc!.embeddingStatus!.get(`${givenEmbeddingServiceId}|en`)).toEqual(
+      EntityEmbeddingStatus.COMPLETED
+    );
     // AND expect the embedding process to have counted the document and to have been completed
     const actualProcessState = await getRepositoryRegistry().embeddingProcessState.findById(givenProcessState.id);
     expect(actualProcessState).toMatchObject({
@@ -194,6 +198,7 @@ describe("Test the embeddings lambda handler with a DB", () => {
       entityId: skill.id,
       entityType: EmbeddableEntityType.Skill,
       fields: [EmbeddableField.preferredLabel],
+      language: "en",
     }));
     const givenEvent = getSQSEvent(givenTasks);
 
@@ -207,7 +212,8 @@ describe("Test the embeddings lambda handler with a DB", () => {
     const actualEmbeddings1 = await getRepositoryRegistry().skillEmbedding.findByEntity(
       givenModelId,
       givenSkill1.id,
-      givenEmbeddingServiceId
+      givenEmbeddingServiceId,
+      "en"
     );
     expect(actualEmbeddings1).toHaveLength(1);
     expect(actualEmbeddings1[0].sourceText).toEqual(givenSkill1.preferredLabel);
@@ -215,7 +221,8 @@ describe("Test the embeddings lambda handler with a DB", () => {
     const actualEmbeddings2 = await getRepositoryRegistry().skillEmbedding.findByEntity(
       givenModelId,
       givenSkill2.id,
-      givenEmbeddingServiceId
+      givenEmbeddingServiceId,
+      "en"
     );
     expect(actualEmbeddings2).toHaveLength(1);
     expect(actualEmbeddings2[0].sourceText).toEqual(givenSkill2.preferredLabel);

@@ -212,24 +212,28 @@ describe("Test the async-publish-embeddings-task lambda handler with a DB", () =
         entityId: skill.id,
         entityType: EmbeddableEntityType.Skill,
         fields: expectedFieldsByEntityType[EmbeddableEntityType.Skill],
+        language: "en",
       })),
       ...givenEntities.skillGroups.map((skillGroup) => ({
         modelId: givenModel.id,
         entityId: skillGroup.id,
         entityType: EmbeddableEntityType.SkillGroup,
         fields: expectedFieldsByEntityType[EmbeddableEntityType.SkillGroup],
+        language: "en",
       })),
       ...givenEntities.occupations.map((occupation) => ({
         modelId: givenModel.id,
         entityId: occupation.id,
         entityType: EmbeddableEntityType.Occupation,
         fields: expectedFieldsByEntityType[EmbeddableEntityType.Occupation],
+        language: "en",
       })),
       ...givenEntities.occupationGroups.map((occupationGroup) => ({
         modelId: givenModel.id,
         entityId: occupationGroup.id,
         entityType: EmbeddableEntityType.OccupationGroup,
         fields: expectedFieldsByEntityType[EmbeddableEntityType.OccupationGroup],
+        language: "en",
       })),
     ];
     expect(actualTasks).toHaveLength(expectedTasks.length);

@@ -87,6 +87,7 @@ describe.each([
         modelId: new mongoose.Types.ObjectId(),
         [givenEntityIdPath]: new mongoose.Types.ObjectId(),
         embeddingServiceId: "77bb8ff3-a6b0-460b-bcaa-00631a907852",
+        language: "en",
         sourceHash: "md5:5eb63bbbe01eeed093cb22bb8f5acdc3",
         sourceField: EmbeddableField.preferredLabel,
         sourceText: "some source text",
@@ -139,6 +140,31 @@ describe.each([
             assertCaseForProperty<IAnyEntityEmbeddingDoc>({
               model,
               propertyNames: fieldName,
+              caseType,
+              testValue: value,
+              expectedFailureMessage,
+            });
+          }
+        );
+      });
+
+      describe("Test validation of 'language'", () => {
+        test.each([
+          [CaseType.Failure, "undefined", undefined, "Path `language` is required."],
+          [CaseType.Failure, "null", null, "Path `language` is required."],
+          [
+            CaseType.Failure,
+            "an unregistered language code",
+            "xx",
+            "Path `language` must be a registered language dbKeyName.",
+          ],
+          [CaseType.Success, "a registered language code", "en", undefined],
+        ])(
+          `(%s) Validate 'language' when it is %s`,
+          (caseType: CaseType, _caseDescription, value, expectedFailureMessage) => {
+            assertCaseForProperty<IAnyEntityEmbeddingDoc>({
+              model,
+              propertyNames: "language",
               caseType,
               testValue: value,
               expectedFailureMessage,

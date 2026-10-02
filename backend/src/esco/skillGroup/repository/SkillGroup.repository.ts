@@ -38,6 +38,8 @@ import {
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import {
   mergeTranslatableFieldsFromPartialObjects,
+  readLanguageValue,
+  readLanguageValues,
   wrapTranslatableFields,
   wrapTranslatableFieldsFromObjects,
 } from "common/language/translatedFields";
@@ -73,7 +75,7 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
   create(newSkillGroupSpec: INewSkillGroupSpecWithoutImportId): Promise<ISkillGroup>;
   createMany(newSkillGroupSpecs: INewSkillGroupSpec[]): Promise<ISkillGroup[]>;
   createManyLocalized(newSkillGroupSpecs: INewSkillGroupSpecLocalized[]): Promise<ISkillGroup[]>;
-  findById(id: string): Promise<ISkillGroup | null>;
+  findById(id: string, language?: string): Promise<ISkillGroup | null>;
   findAll(modelId: string): Readable;
 
   /**
@@ -294,14 +296,23 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     });
   }
 
-  async findById(id: string): Promise<ISkillGroup | null> {
+  async findById(id: string, language?: string): Promise<ISkillGroup | null> {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
       const skillGroup = await this.Model.findById(id)
         .populate(populateSkillGroupParentsOptions)
         .populate(populateSkillGroupChildrenOptions)
         .exec();
-      return skillGroup != null ? skillGroup.toObject() : null;
+      if (skillGroup === null) return null;
+      const obj = skillGroup.toObject() as Record<string, unknown>;
+      return {
+        ...obj,
+        preferredLabel: readLanguageValue(obj.preferredLabel, lang),
+        description: readLanguageValue(obj.description, lang),
+        scopeNote: readLanguageValue(obj.scopeNote, lang),
+        altLabels: readLanguageValues(obj.altLabels, lang),
+      } as unknown as ISkillGroup;
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findById: findById failed", { cause: e });
       console.error(err);

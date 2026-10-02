@@ -65,6 +65,7 @@ export async function createSkillsVectorSearchIndex(
       { type: "vector", path: EMBEDDING_VECTOR_PATH, numDimensions, similarity: "cosine" },
       { type: "filter", path: "modelId" },
       { type: "filter", path: "embeddingServiceId" },
+      { type: "filter", path: "language" },
       { type: "filter", path: "sourceField" },
     ],
   };
