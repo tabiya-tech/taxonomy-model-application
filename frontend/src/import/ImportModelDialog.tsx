@@ -22,6 +22,10 @@ import LocaleAPISpecs from "api-specifications/locale";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import HelpTip from "src/theme/HelpTip/HelpTip";
 import ApproveModal from "../theme/ApproveModal/ApproveModal";
+import ModelLanguagesSelectField, { LanguagesSource } from "./components/ModelLanguagesSelectField";
+import LanguageAPISpecs from "api-specifications/language";
+
+const DEFAULT_LANGUAGES: string[] = [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode];
 
 const uniqueId = "72be571e-b635-4c15-85c6-897dab60d59f";
 export const DATA_TEST_ID = {
@@ -40,7 +44,7 @@ export interface ImportData {
   locale: LocaleAPISpecs.Types.Payload;
   selectedFiles: ImportFiles;
   UUIDHistory: string[];
-  /** The short codes of the languages the model carries data in, as declared in the model_info.csv file */
+  /** The short codes of the languages the model carries data in, pre-filled from the model_info.csv file and adjusted by the user */
   availableLanguages: string[];
   isOriginalESCOModel: boolean;
 }
@@ -62,6 +66,9 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
   const [modelDescription, setModelDescription] = useState("");
   const tempDescription = useRef<string>("");
 
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(DEFAULT_LANGUAGES);
+  const [languagesSource, setLanguagesSource] = useState<LanguagesSource>(LanguagesSource.DEFAULT);
+
   const handleClose = (event: CloseEvent) => {
     props.notifyOnClose(event);
   };
@@ -80,7 +87,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     selectedFiles: {},
     license: "",
     UUIDHistory: [],
-    availableLanguages: [],
+    availableLanguages: DEFAULT_LANGUAGES,
     isOriginalESCOModel: false,
   });
 
@@ -116,8 +123,26 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     data.current.UUIDHistory = newUUIDHistory;
   };
 
-  const handleAvailableLanguagesChange = (newAvailableLanguages: string[]) => {
-    data.current.availableLanguages = newAvailableLanguages;
+  const updateSelectedLanguages = (newLanguages: string[], source: LanguagesSource) => {
+    data.current.availableLanguages = newLanguages;
+    setSelectedLanguages(newLanguages);
+    setLanguagesSource(source);
+    validateData();
+  };
+
+  // newAvailableLanguages is null when no model info file is selected, and empty when the file has no LANGUAGES column
+  const handleFromModelInfoAvailableLanguagesChange = (newAvailableLanguages: string[] | null) => {
+    if (newAvailableLanguages === null) {
+      updateSelectedLanguages(DEFAULT_LANGUAGES, LanguagesSource.DEFAULT);
+    } else if (newAvailableLanguages.length === 0) {
+      updateSelectedLanguages(DEFAULT_LANGUAGES, LanguagesSource.LEGACY_MODEL_INFO);
+    } else {
+      updateSelectedLanguages(newAvailableLanguages, LanguagesSource.MODEL_INFO);
+    }
+  };
+
+  const handleLanguagesChange = (newLanguages: string[]) => {
+    updateSelectedLanguages(newLanguages, languagesSource);
   };
 
   const handleLicenseChange = (newLicense: string) => {
@@ -143,6 +168,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
     const invalid: boolean =
       currentData.name.length === 0 ||
       Object.keys(currentData.selectedFiles).length === 0 ||
+      currentData.availableLanguages.length === 0 ||
       currentData.locale === undefined;
     setIsImportButtonDisabled(invalid);
   };
@@ -177,6 +203,11 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
         <Stack margin={theme.tabiyaSpacing.xs} spacing={theme.fixedSpacing(theme.tabiyaSpacing.xl)}>
           <ModelNameField notifyModelNameChanged={handleNameChange} />
           <ModelLocalSelectField locales={props.availableLocales} notifyModelLocaleChanged={handleLocaleChange} />
+          <ModelLanguagesSelectField
+            selectedLanguages={selectedLanguages}
+            source={languagesSource}
+            notifyModelLanguagesChanged={handleLanguagesChange}
+          />
           <ModelDescriptionField
             modelDescription={modelDescription}
             notifyModelDescriptionChanged={handleDescriptionChange}
@@ -208,7 +239,7 @@ const ImportModelDialog = (props: Readonly<ImportModelDialogProps>) => {
             notifyUUIDHistoryChange={handleUUIDHistoryChange}
             notifyOnLicenseChange={handleLicenseChange}
             notifyOnDescriptionChange={handleFromModelInfoDescriptionChange}
-            notifyOnAvailableLanguagesChange={handleAvailableLanguagesChange}
+            notifyOnAvailableLanguagesChange={handleFromModelInfoAvailableLanguagesChange}
           />
         </Stack>
       </DialogContent>
