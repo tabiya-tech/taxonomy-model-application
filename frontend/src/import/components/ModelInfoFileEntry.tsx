@@ -10,7 +10,11 @@ import { useSnackbar } from "src/theme/SnackbarProvider/SnackbarProvider";
 export interface ModelInfoFileEntryProps {
   notifyUUIDHistoryChange?: (newUUIDHistory: string[]) => void;
   notifyOnDescriptionChange?: (description: string) => void;
-  notifyOnAvailableLanguagesChange?: (availableLanguages: string[]) => void;
+  /**
+   * Notified with the short codes of the languages declared in the LANGUAGES column of the model info file,
+   * an empty array when the file has no LANGUAGES column, or null when no model info file is selected
+   */
+  notifyOnAvailableLanguagesChange?: (availableLanguages: string[] | null) => void;
 }
 
 const uniqueId = "16c54d56-b091-48ce-826a-c721b0c3643d";
@@ -40,17 +44,18 @@ export const ModelInfoFileEntry = (props: Readonly<ModelInfoFileEntryProps>) => 
     }
   };
 
-  const notifyOnModelInfoChanges = (details: ModelInfoDetails) => {
+  // details is null when no model info file is selected
+  const notifyOnModelInfoChanges = (details: ModelInfoDetails | null) => {
     if (props.notifyUUIDHistoryChange) {
-      props.notifyUUIDHistoryChange(details.UUIDHistory);
+      props.notifyUUIDHistoryChange(details?.UUIDHistory ?? []);
     }
 
     if (props.notifyOnDescriptionChange) {
-      props.notifyOnDescriptionChange(details.description);
+      props.notifyOnDescriptionChange(details?.description ?? "");
     }
 
     if (props.notifyOnAvailableLanguagesChange) {
-      props.notifyOnAvailableLanguagesChange(details.availableLanguages);
+      props.notifyOnAvailableLanguagesChange(details?.availableLanguages ?? null);
     }
   };
 
@@ -62,11 +67,7 @@ export const ModelInfoFileEntry = (props: Readonly<ModelInfoFileEntryProps>) => 
         const modelInfoDetails = await parseSelectedModelInfoFile(file);
         notifyOnModelInfoChanges(modelInfoDetails);
       } catch (e) {
-        notifyOnModelInfoChanges({
-          UUIDHistory: [],
-          description: "",
-          availableLanguages: [],
-        });
+        notifyOnModelInfoChanges(null);
 
         console.error(e);
         enqueueSnackbar(`Error parsing file: ${file.name}. Please review the file and try again.`, {
@@ -75,11 +76,7 @@ export const ModelInfoFileEntry = (props: Readonly<ModelInfoFileEntryProps>) => 
         setSelectedFile(null);
       }
     } else {
-      notifyOnModelInfoChanges({
-        UUIDHistory: [],
-        description: "",
-        availableLanguages: [],
-      });
+      notifyOnModelInfoChanges(null);
     }
   };
 

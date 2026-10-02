@@ -10,7 +10,7 @@ export interface ImportFilesSelectionProps {
   notifyUUIDHistoryChange?: (newUUIDHistory: string[]) => void;
   notifyOnLicenseChange?: (license: string) => void;
   notifyOnDescriptionChange?: (description: string) => void;
-  notifyOnAvailableLanguagesChange?: (availableLanguages: string[]) => void;
+  notifyOnAvailableLanguagesChange?: (availableLanguages: string[] | null) => void;
 }
 
 const uniqueId = "e60583c2-9ce5-47e0-bb8f-d2a4349dde15";

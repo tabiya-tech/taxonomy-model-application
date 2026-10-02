@@ -178,7 +178,31 @@ describe("ModelInfoFileEntry action tests", () => {
     expect(givenMockNotification).toHaveBeenCalledWith(givenAvailableLanguages);
   });
 
-  it("should notify the notifyOnAvailableLanguagesChange handler with no language when the file is removed", async () => {
+  it("should notify the notifyOnAvailableLanguagesChange handler with an empty array when the file has no LANGUAGES column", async () => {
+    // GIVEN some file
+    const givenFile = new File([], "foo.csv", { type: "text/csv" });
+    // AND a notification handler
+    const givenMockNotification = jest.fn();
+    // AND the file is a legacy file that declares no language
+    const givenAvailableLanguages: string[] = [];
+    jest
+      .spyOn(require("./parseSelectedModelInfoFile"), "default")
+      .mockImplementationOnce(() => Promise.resolve({ availableLanguages: givenAvailableLanguages }));
+
+    // WHEN ModelInfoFileEntry is rendered
+    render(<ModelInfoFileEntry notifyOnAvailableLanguagesChange={givenMockNotification} />);
+    // AND a file is chosen
+    const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
+    fireEvent.change(fileInput, { target: { files: [givenFile] } });
+
+    // THEN expect the notification to have been called with an empty array, telling a legacy file from no file
+    const expectedAvailableLanguages: string[] = [];
+    await waitFor(() => {
+      expect(givenMockNotification).toHaveBeenCalledWith(expectedAvailableLanguages);
+    });
+  });
+
+  it("should notify the notifyOnAvailableLanguagesChange handler with null when the file is removed", async () => {
     // GIVEN some file
     const givenFile = new File([], "foo.csv", { type: "text/csv" });
     // AND a notification handler
@@ -196,11 +220,11 @@ describe("ModelInfoFileEntry action tests", () => {
     const fileRemoverFab = screen.getByTestId(DATA_TEST_ID.REMOVE_SELECTED_FILE_BUTTON);
     await clickDebouncedButton(fileRemoverFab);
 
-    // THEN expect the notification to have been called with no language
-    expect(givenMockNotification).toHaveBeenLastCalledWith([]);
+    // THEN expect the notification to have been called with null, as no model info file is selected anymore
+    expect(givenMockNotification).toHaveBeenLastCalledWith(null);
   });
 
-  it("should notify the notifyOnAvailableLanguagesChange handler with no language when the file cannot be parsed", async () => {
+  it("should notify the notifyOnAvailableLanguagesChange handler with null when the file cannot be parsed", async () => {
     // GIVEN some file
     const givenFile = new File([], "foo.csv", { type: "text/csv" });
     // AND a notification handler
@@ -217,9 +241,9 @@ describe("ModelInfoFileEntry action tests", () => {
     const fileInput = screen.getByTestId(DATA_TEST_ID.FILE_INPUT);
     fireEvent.change(fileInput, { target: { files: [givenFile] } });
 
-    // THEN expect the notification to have been called with no language
+    // THEN expect the notification to have been called with null, as the file is not selected
     await waitFor(() => {
-      expect(givenMockNotification).toHaveBeenCalledWith([]);
+      expect(givenMockNotification).toHaveBeenCalledWith(null);
     });
     // AND expect the error to have been logged to the console
     expect(console.error).toHaveBeenCalledWith(givenError);
