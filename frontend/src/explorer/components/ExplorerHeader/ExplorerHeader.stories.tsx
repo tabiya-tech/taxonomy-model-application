@@ -13,11 +13,13 @@ const meta: Meta<typeof ExplorerHeader> = {
   tags: ["autodocs"],
   argTypes: {
     onModelChange: { action: "onModelChange" },
+    onLanguageChange: { action: "onLanguageChange" },
   },
   args: {
     models: fakeModels,
     selectedModel: fakeModels[0],
     isLoading: false,
+    language: "en",
   },
 };
 
@@ -26,6 +28,20 @@ export default meta;
 type Story = StoryObj<typeof ExplorerHeader>;
 
 export const Shown: Story = {};
+
+export const SingleLanguage: Story = {
+  args: {
+    selectedModel: fakeModels[0],
+    language: "en",
+  },
+};
+
+export const MultiLanguage: Story = {
+  args: {
+    selectedModel: fakeModels[1],
+    language: "en",
+  },
+};
 
 export const Loading: Story = {
   args: {

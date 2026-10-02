@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate, generatePath } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, generatePath } from "react-router-dom";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material";
 import { useModels } from "src/modelInfo/useModels";
@@ -10,6 +10,7 @@ import {
   useExplorerItemHistory,
   useExplorerTree,
 } from "src/explorer/useExplorerQueries";
+import { useLanguage } from "src/language/LanguageProvider";
 import { ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
 import { getLatestSuccessfulExport } from "src/modeldirectory/components/ModelsCardList/components/VersionRow/VersionRow";
@@ -28,6 +29,8 @@ export const DATA_TEST_ID = {
 
 // Debounce so search doesn't fire a request on every keystroke.
 const SEARCH_DEBOUNCE_MS = 300;
+
+export const LANGUAGE_QUERY_PARAM = "lang";
 
 const findItemById = (items: ExplorerTreeItem[], id: string): ExplorerTreeItem | undefined => {
   for (const item of items) {
@@ -65,6 +68,8 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     skillId?: string;
   }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { language, setLanguage, preferredLanguage, setPreferredLanguage } = useLanguage();
 
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
@@ -82,6 +87,48 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
 
   const selectedModel = models.find((m) => m.id === modelId) ?? null;
 
+  const urlLanguage = searchParams.get(LANGUAGE_QUERY_PARAM);
+  // Resolved during render so the first fetch is already in the right language. Priority: URL, preferred, current, then
+  // the model's first language. While models load, the best guess is used and corrected once they load if unavailable.
+  const resolveLanguage = (): string => {
+    if (isLoadingModels) return urlLanguage ?? preferredLanguage ?? language;
+    // Without a model there are no available languages to check against.
+    if (!selectedModel) return language;
+    const isAvailable = (shortCode: string | null): shortCode is string =>
+      !!shortCode && selectedModel.availableLanguages.includes(shortCode);
+    return [urlLanguage, preferredLanguage, language].find(isAvailable) ?? selectedModel.availableLanguages[0];
+  };
+  const resolvedLanguage = resolveLanguage();
+
+  // Sync the shared language and the URL to the resolved language, so a shared link always reflects what's shown.
+  useEffect(() => {
+    if (!selectedModel) return;
+    if (resolvedLanguage !== language) {
+      setLanguage(resolvedLanguage);
+    }
+    if (resolvedLanguage !== urlLanguage) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set(LANGUAGE_QUERY_PARAM, resolvedLanguage);
+          return next;
+        },
+        { replace: true }
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedModel?.id, resolvedLanguage, urlLanguage]);
+
+  const handleLanguageChange = (newLanguage: string) => {
+    setPreferredLanguage(newLanguage);
+    setLanguage(newLanguage);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set(LANGUAGE_QUERY_PARAM, newLanguage);
+      return next;
+    });
+  };
+
   useEffect(() => {
     const handle = setTimeout(() => setDebouncedSearchValue(searchValue), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(handle);
@@ -94,7 +141,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     isPending: isTreeLoading,
     isError: isTreeError,
     error: treeError,
-  } = useExplorerTree(modelId, initialTab, trimmedSearchValue);
+  } = useExplorerTree(modelId, initialTab, trimmedSearchValue, resolvedLanguage);
 
   useEffect(() => {
     if (isTreeError) {
@@ -109,7 +156,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     setExpandedItems([]);
   }, [modelId, initialTab, trimmedSearchValue]);
 
-  const childrenResults = useExplorerChildren(modelId, expandedItems);
+  const childrenResults = useExplorerChildren(modelId, expandedItems, resolvedLanguage);
 
   const childrenByItemId = useMemo(() => {
     const map = new Map<string, { data?: ExplorerTreeItem[]; isLoading: boolean }>();
@@ -158,7 +205,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     isPending: isDetailPending,
     isError: isDetailError,
     error: detailError,
-  } = useExplorerItemDetail(modelId, selectedTreeItem ?? null);
+  } = useExplorerItemDetail(modelId, selectedTreeItem ?? null, resolvedLanguage);
   const isDetailLoading = !!selectedTreeItem && isDetailPending;
 
   useEffect(() => {
@@ -187,7 +234,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     isPending: isHistoryPending,
     isError: isHistoryError,
     error: historyError,
-  } = useExplorerItemHistory(modelId, selectedTreeItem ?? null, isHistoryTabOpened);
+  } = useExplorerItemHistory(modelId, selectedTreeItem ?? null, isHistoryTabOpened, resolvedLanguage);
   const isHistoryLoading = isHistoryTabOpened && isHistoryPending;
 
   useEffect(() => {
@@ -204,6 +251,10 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   // The CSV button links directly to the model's most recent successful export (if any).
   const csvDownloadUrl = selectedModel ? getLatestSuccessfulExport(selectedModel)?.downloadUrl : undefined;
 
+  // Moving within the same model keeps the query parameters (the language), so the URL never loses it.
+  // Moving to another model does not: its language is resolved again, as it may not have the current one.
+  const navigateWithinModel = (pathname: string) => navigate({ pathname, search: searchParams.toString() });
+
   const handleModelChange = (newModelId: string) => {
     setSearchValue("");
     setDebouncedSearchValue("");
@@ -218,7 +269,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     if (!modelId) return;
     setSearchValue("");
     setDebouncedSearchValue("");
-    navigate(
+    navigateWithinModel(
       generatePath(tab === "occupations" ? routerPaths.EXPLORER_OCCUPATIONS : routerPaths.EXPLORER_SKILLS, { modelId })
     );
   };
@@ -226,9 +277,9 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
   const handleSelectItem = (item: ExplorerTreeItem) => {
     if (!modelId) return;
     if (initialTab === "occupations") {
-      navigate(generatePath(routerPaths.EXPLORER_OCCUPATIONS_DETAIL, { modelId, occupationId: item.id }));
+      navigateWithinModel(generatePath(routerPaths.EXPLORER_OCCUPATIONS_DETAIL, { modelId, occupationId: item.id }));
     } else {
-      navigate(generatePath(routerPaths.EXPLORER_SKILLS_DETAIL, { modelId, skillId: item.id }));
+      navigateWithinModel(generatePath(routerPaths.EXPLORER_SKILLS_DETAIL, { modelId, skillId: item.id }));
     }
   };
 
@@ -240,7 +291,9 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
             models={models}
             selectedModel={selectedModel}
             isLoading={isLoadingModels}
+            language={resolvedLanguage}
             onModelChange={handleModelChange}
+            onLanguageChange={handleLanguageChange}
             onBackToDirectory={() => navigate(routerPaths.MODEL_DIRECTORY)}
             onOpenApiDocs={() => navigate(routerPaths.API_DOCS)}
             csvDownloadUrl={csvDownloadUrl}

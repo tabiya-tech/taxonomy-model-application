@@ -80,6 +80,17 @@ jest.mock("src/app/providers/index.tsx", () => {
   };
 });
 
+// mock LanguageProvider
+jest.mock("src/language/LanguageProvider", () => {
+  const mLanguageProvider = jest
+    .fn()
+    .mockImplementation(({ children }) => <div data-testid="language-provider-id">{children}</div>);
+  return {
+    __esModule: true,
+    LanguageProvider: mLanguageProvider,
+  };
+});
+
 describe("test the application bootstrapping", () => {
   beforeEach(() => {
     (console.error as jest.Mock).mockClear();
@@ -119,8 +130,12 @@ describe("test the application bootstrapping", () => {
       const queryProviderElement = within(snackbarProviderElement).getByTestId("query-provider-id");
       expect(queryProviderElement).toBeInTheDocument();
 
-      // AND expect the taxonomy app to be in the DOM and to be a child of the query provider
-      const taxonomyAppElement = within(queryProviderElement).getByTestId("tabiya-app-id");
+      // AND expect the language provider to be in the DOM and to be a child of the query provider
+      const languageProviderElement = within(queryProviderElement).getByTestId("language-provider-id");
+      expect(languageProviderElement).toBeInTheDocument();
+
+      // AND expect the taxonomy app to be in the DOM and to be a child of the language provider
+      const taxonomyAppElement = within(languageProviderElement).getByTestId("tabiya-app-id");
       expect(taxonomyAppElement).toBeInTheDocument();
     });
   });

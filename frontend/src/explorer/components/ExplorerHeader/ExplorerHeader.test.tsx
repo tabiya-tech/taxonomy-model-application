@@ -1,7 +1,7 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import ExplorerHeader, { DATA_TEST_ID } from "./ExplorerHeader";
+import ExplorerHeader, { DATA_TEST_ID, TEXT } from "./ExplorerHeader";
 import { render, screen, within } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
@@ -10,6 +10,7 @@ import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockMod
 const givenActionHandlers = () => ({
   onBackToDirectory: jest.fn(),
   onOpenApiDocs: jest.fn(),
+  onLanguageChange: jest.fn(),
 });
 
 describe("ExplorerHeader", () => {
@@ -27,6 +28,7 @@ describe("ExplorerHeader", () => {
       render(
         <ExplorerHeader
           isLoading={givenIsLoading}
+          language="en"
           models={[]}
           selectedModel={null}
           onModelChange={jest.fn()}
@@ -58,6 +60,7 @@ describe("ExplorerHeader", () => {
       render(
         <ExplorerHeader
           isLoading={givenIsLoading}
+          language="en"
           models={[]}
           selectedModel={givenSelectedModel}
           onModelChange={jest.fn()}
@@ -92,6 +95,7 @@ describe("ExplorerHeader", () => {
       render(
         <ExplorerHeader
           isLoading={givenIsLoading}
+          language="en"
           models={givenModels}
           selectedModel={givenSelectedModel}
           onModelChange={jest.fn()}
@@ -126,6 +130,7 @@ describe("ExplorerHeader", () => {
       render(
         <ExplorerHeader
           isLoading={givenIsLoading}
+          language="en"
           models={givenModels}
           selectedModel={givenSelectedModel}
           onModelChange={givenOnModelChange}
@@ -158,6 +163,7 @@ describe("ExplorerHeader", () => {
       render(
         <ExplorerHeader
           isLoading={false}
+          language="en"
           models={givenModels}
           selectedModel={givenModels[0]}
           onModelChange={jest.fn()}
@@ -180,6 +186,7 @@ describe("ExplorerHeader", () => {
       render(
         <ExplorerHeader
           isLoading={false}
+          language="en"
           models={givenModels}
           selectedModel={givenModels[0]}
           onModelChange={jest.fn()}
@@ -203,6 +210,7 @@ describe("ExplorerHeader", () => {
       render(
         <ExplorerHeader
           isLoading={false}
+          language="en"
           models={givenModels}
           selectedModel={givenModels[0]}
           onModelChange={jest.fn()}
@@ -214,6 +222,96 @@ describe("ExplorerHeader", () => {
       const csvButton = screen.getByTestId(DATA_TEST_ID.CSV_BUTTON);
       expect(csvButton).toBeDisabled();
       expect(csvButton).not.toHaveAttribute("href");
+    });
+
+    describe("language switcher", () => {
+      test("should not render the language switcher when the model has a single language", () => {
+        // GIVEN a model with a single available language
+        const givenModels = getArrayOfFakeModels(1);
+
+        // WHEN the component is rendered
+        render(
+          <ExplorerHeader
+            isLoading={false}
+            language="en"
+            models={givenModels}
+            selectedModel={givenModels[0]}
+            onModelChange={jest.fn()}
+            {...givenActionHandlers()}
+          />
+        );
+
+        // THEN expect no errors or warnings
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
+        // AND the language switcher is not rendered
+        expect(screen.queryByTestId(DATA_TEST_ID.LANGUAGE_SELECT)).not.toBeInTheDocument();
+      });
+
+      test("should render the language switcher listing the model's available languages when it has more than one", async () => {
+        // GIVEN a model with more than one available language
+        const givenModels = getArrayOfFakeModels(2);
+        const givenSelectedModel = givenModels[1];
+
+        // WHEN the component is rendered with the first of those languages selected
+        render(
+          <ExplorerHeader
+            isLoading={false}
+            language={givenSelectedModel.availableLanguages[0]}
+            models={givenModels}
+            selectedModel={givenSelectedModel}
+            onModelChange={jest.fn()}
+            {...givenActionHandlers()}
+          />
+        );
+
+        // THEN expect no errors or warnings
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
+        // AND the language switcher is rendered, labelled for assistive technology
+        const languageSelect = screen.getByTestId(DATA_TEST_ID.LANGUAGE_SELECT);
+        expect(languageSelect).toBeInTheDocument();
+        expect(within(languageSelect).getByRole("combobox")).toHaveAccessibleName(TEXT.SELECT_LANGUAGE);
+
+        // AND opening it lists every one of the model's available languages by name
+        await userEvent.click(within(languageSelect).getByRole("combobox"));
+        const listbox = await screen.findByRole("listbox");
+        const options = within(listbox).getAllByRole("option");
+        expect(options).toHaveLength(givenSelectedModel.availableLanguages.length);
+        expect(within(listbox).getByText("Français")).toBeInTheDocument();
+      });
+
+      test("should call onLanguageChange with the picked language's short code when the user picks a different language", async () => {
+        // GIVEN a model with more than one available language, with the first one currently selected
+        const givenModels = getArrayOfFakeModels(2);
+        const givenSelectedModel = givenModels[1];
+        const givenOnLanguageChange = jest.fn();
+
+        // WHEN the component is rendered
+        render(
+          <ExplorerHeader
+            isLoading={false}
+            language={givenSelectedModel.availableLanguages[0]}
+            models={givenModels}
+            selectedModel={givenSelectedModel}
+            onModelChange={jest.fn()}
+            {...givenActionHandlers()}
+            onLanguageChange={givenOnLanguageChange}
+          />
+        );
+
+        // AND the user opens the language switcher and picks French
+        const combobox = within(screen.getByTestId(DATA_TEST_ID.LANGUAGE_SELECT)).getByRole("combobox");
+        await userEvent.click(combobox);
+        const listbox = await screen.findByRole("listbox");
+        await userEvent.click(within(listbox).getByText("Français"));
+
+        // THEN onLanguageChange is called with French's short code
+        expect(givenOnLanguageChange).toHaveBeenCalledWith("fr");
+        // AND expect no errors or warnings
+        expect(console.error).not.toHaveBeenCalled();
+        expect(console.warn).not.toHaveBeenCalled();
+      });
     });
   });
 });

@@ -22,10 +22,12 @@ const getMockExplorerTreeItem = (overrides: Partial<ExplorerTreeItem> = {}): Exp
 describe("ExplorerService", () => {
   let givenApiServerUrl: string;
   let givenModelId: string;
+  let givenLanguage: string;
 
   beforeEach(() => {
     givenApiServerUrl = "/path/to/api";
     givenModelId = "model-1";
+    givenLanguage = "en";
   });
 
   afterEach(() => {
@@ -69,12 +71,12 @@ describe("ExplorerService", () => {
 
       // WHEN getRootItems is called for the occupations tab
       const service = new ExplorerService(givenApiServerUrl);
-      const actualItems = await service.getRootItems(givenModelId, "occupations");
+      const actualItems = await service.getRootItems(givenModelId, "occupations", givenLanguage);
 
       // THEN expect it to call the occupationGroups endpoint with root=true
       expect(apiServiceSpy).toHaveBeenCalledWith(
         `${givenApiServerUrl}/models/${givenModelId}/occupationGroups?root=true&limit=${PAGE_LIMIT}`,
-        expect.objectContaining({ method: "GET" })
+        expect.objectContaining({ method: "GET", headers: { "Accept-Language": givenLanguage } })
       );
 
       // AND expect each root item's objectType to be derived from its own groupType field
@@ -107,6 +109,27 @@ describe("ExplorerService", () => {
       ]);
     });
 
+    test("should send the given language as the Accept-Language header", async () => {
+      // GIVEN the occupationGroups endpoint returns a root group
+      // AND a language other than the default one
+      const givenOtherLanguage = "fr";
+      const apiServiceSpy = setupAPIServiceSpy(
+        StatusCodes.OK,
+        MockPayload.getMockPaginatedResponse([MockPayload.getMockOccupationGroupNode()]),
+        "application/json;charset=UTF-8"
+      );
+
+      // WHEN getRootItems is called with that language
+      const service = new ExplorerService(givenApiServerUrl);
+      await service.getRootItems(givenModelId, "occupations", givenOtherLanguage);
+
+      // THEN expect the request to carry that language as the Accept-Language header
+      expect(apiServiceSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ headers: { "Accept-Language": givenOtherLanguage } })
+      );
+    });
+
     test("should fall back to ISCOGroup when an occupation group is missing its groupType", async () => {
       // GIVEN a root occupation group with no groupType field
       const givenGroup = MockPayload.getMockOccupationGroupNode({ groupType: undefined });
@@ -118,7 +141,7 @@ describe("ExplorerService", () => {
 
       // WHEN getRootItems is called
       const service = new ExplorerService(givenApiServerUrl);
-      const actualItems = await service.getRootItems(givenModelId, "occupations");
+      const actualItems = await service.getRootItems(givenModelId, "occupations", givenLanguage);
 
       // THEN expect the item's objectType to default to ISCOGroup
       expect(actualItems[0].objectType).toEqual(ObjectType.ISCOGroup);
@@ -135,12 +158,12 @@ describe("ExplorerService", () => {
 
       // WHEN getRootItems is called for the skills tab
       const service = new ExplorerService(givenApiServerUrl);
-      const actualItems = await service.getRootItems(givenModelId, "skills");
+      const actualItems = await service.getRootItems(givenModelId, "skills", givenLanguage);
 
       // THEN expect it to call the skillGroups endpoint with root=true
       expect(apiServiceSpy).toHaveBeenCalledWith(
         `${givenApiServerUrl}/models/${givenModelId}/skillGroups?root=true&limit=${PAGE_LIMIT}`,
-        expect.objectContaining({ method: "GET" })
+        expect.objectContaining({ method: "GET", headers: { "Accept-Language": givenLanguage } })
       );
       // AND expect the item to be typed as a SkillGroup
       expect(actualItems[0].objectType).toEqual(ObjectType.SkillGroup);
@@ -155,7 +178,9 @@ describe("ExplorerService", () => {
       const service = new ExplorerService(givenApiServerUrl);
 
       // THEN expect it to reject with the same error
-      await expect(service.getRootItems(givenModelId, "occupations")).rejects.toMatchObject(givenFetchError);
+      await expect(service.getRootItems(givenModelId, "occupations", givenLanguage)).rejects.toMatchObject(
+        givenFetchError
+      );
     });
 
     test("on 200 with a malformed json response, should reject with INVALID_RESPONSE_BODY", async () => {
@@ -181,7 +206,9 @@ describe("ExplorerService", () => {
         message: expect.any(String),
         details: expect.anything(),
       };
-      await expect(service.getRootItems(givenModelId, "occupations")).rejects.toMatchObject(expectedError);
+      await expect(service.getRootItems(givenModelId, "occupations", givenLanguage)).rejects.toMatchObject(
+        expectedError
+      );
     });
   });
 
@@ -206,12 +233,12 @@ describe("ExplorerService", () => {
 
       // WHEN getChildren is called
       const service = new ExplorerService(givenApiServerUrl);
-      const actualChildren = await service.getChildren(givenModelId, givenItem);
+      const actualChildren = await service.getChildren(givenModelId, givenItem, givenLanguage);
 
       // THEN expect it to call the correct collection's children endpoint
       expect(apiServiceSpy).toHaveBeenCalledWith(
         `${givenApiServerUrl}/models/${givenModelId}/${expectedCollection}/item-1/children?limit=${PAGE_LIMIT}`,
-        expect.objectContaining({ method: "GET" })
+        expect.objectContaining({ method: "GET", headers: { "Accept-Language": givenLanguage } })
       );
       // AND expect the child ref to be mapped using its own objectType
       expect(actualChildren).toEqual([
@@ -240,7 +267,7 @@ describe("ExplorerService", () => {
 
       // WHEN getChildren is called
       const service = new ExplorerService(givenApiServerUrl);
-      const actualChildren = await service.getChildren(givenModelId, getMockExplorerTreeItem());
+      const actualChildren = await service.getChildren(givenModelId, getMockExplorerTreeItem(), givenLanguage);
 
       // THEN expect the subgroup to still be marked as expandable
       expect(actualChildren[0].hasChildren).toBe(true);
@@ -259,13 +286,13 @@ describe("ExplorerService", () => {
 
       // WHEN searchSkills is called with a search value
       const service = new ExplorerService(givenApiServerUrl);
-      const actualItems = await service.searchSkills(givenModelId, "manage business");
+      const actualItems = await service.searchSkills(givenModelId, "manage business", givenLanguage);
 
       // THEN expect it to call the skills endpoint with the query and searchFields params
       expect(apiServiceSpy).toHaveBeenCalledWith(
         `${givenApiServerUrl}/models/${givenModelId}/skills?query=manage%20business` +
           `&searchFields=preferredLabel%2CaltLabels%2Cdescription&limit=${PAGE_LIMIT}`,
-        expect.objectContaining({ method: "GET" })
+        expect.objectContaining({ method: "GET", headers: { "Accept-Language": givenLanguage } })
       );
       // AND expect the matched skill to be mapped to a leaf tree item typed as a Skill
       expect(actualItems).toEqual([
@@ -288,7 +315,7 @@ describe("ExplorerService", () => {
       const service = new ExplorerService(givenApiServerUrl);
 
       // THEN expect it to reject with the same error
-      await expect(service.searchSkills(givenModelId, "foo")).rejects.toMatchObject(givenFetchError);
+      await expect(service.searchSkills(givenModelId, "foo", givenLanguage)).rejects.toMatchObject(givenFetchError);
     });
   });
 
@@ -314,13 +341,13 @@ describe("ExplorerService", () => {
 
       // WHEN searchOccupations is called with a search value
       const service = new ExplorerService(givenApiServerUrl);
-      const actualItems = await service.searchOccupations(givenModelId, "business manager");
+      const actualItems = await service.searchOccupations(givenModelId, "business manager", givenLanguage);
 
       // THEN expect it to call the occupations endpoint with the query and searchFields params
       expect(apiServiceSpy).toHaveBeenCalledWith(
         `${givenApiServerUrl}/models/${givenModelId}/occupations?query=business%20manager` +
           `&searchFields=preferredLabel%2CaltLabels%2Cdescription&limit=${PAGE_LIMIT}`,
-        expect.objectContaining({ method: "GET" })
+        expect.objectContaining({ method: "GET", headers: { "Accept-Language": givenLanguage } })
       );
       // AND expect each matched occupation to be mapped to a leaf tree item typed by its occupation type
       expect(actualItems).toEqual([
@@ -350,7 +377,9 @@ describe("ExplorerService", () => {
       const service = new ExplorerService(givenApiServerUrl);
 
       // THEN expect it to reject with the same error
-      await expect(service.searchOccupations(givenModelId, "foo")).rejects.toMatchObject(givenFetchError);
+      await expect(service.searchOccupations(givenModelId, "foo", givenLanguage)).rejects.toMatchObject(
+        givenFetchError
+      );
     });
   });
 
@@ -367,12 +396,12 @@ describe("ExplorerService", () => {
 
       // WHEN getItemDetail is called
       const service = new ExplorerService(givenApiServerUrl);
-      const actualDetail = await service.getItemDetail(givenModelId, givenItem);
+      const actualDetail = await service.getItemDetail(givenModelId, givenItem, givenLanguage);
 
       // THEN expect it to call the occupation detail endpoint
       expect(apiServiceSpy).toHaveBeenCalledWith(
         `${givenApiServerUrl}/models/${givenModelId}/occupations/occ-1120`,
-        expect.objectContaining({ method: "GET" })
+        expect.objectContaining({ method: "GET", headers: { "Accept-Language": givenLanguage } })
       );
       // AND expect the objectType to come from the tree item, not the (absent) response field
       expect(actualDetail.objectType).toEqual(ObjectType.ESCOOccupation);
@@ -397,7 +426,7 @@ describe("ExplorerService", () => {
 
       // WHEN getItemDetail is called
       const service = new ExplorerService(givenApiServerUrl);
-      const actualDetail = await service.getItemDetail(givenModelId, givenItem);
+      const actualDetail = await service.getItemDetail(givenModelId, givenItem, givenLanguage);
 
       // THEN expect the objectType to come from the tree item
       expect(actualDetail.objectType).toEqual(ObjectType.SkillGroup);
@@ -412,7 +441,7 @@ describe("ExplorerService", () => {
 
       // WHEN getItemDetail is called
       const service = new ExplorerService(givenApiServerUrl);
-      const actualDetail = await service.getItemDetail(givenModelId, givenItem);
+      const actualDetail = await service.getItemDetail(givenModelId, givenItem, givenLanguage);
 
       // THEN expect the definition to fall back to the description
       expect(actualDetail.definition).toEqual("A group description.");
@@ -427,7 +456,7 @@ describe("ExplorerService", () => {
       const service = new ExplorerService(givenApiServerUrl);
 
       // THEN expect it to reject with the same error
-      await expect(service.getItemDetail(givenModelId, getMockExplorerTreeItem())).rejects.toMatchObject(
+      await expect(service.getItemDetail(givenModelId, getMockExplorerTreeItem(), givenLanguage)).rejects.toMatchObject(
         givenFetchError
       );
     });
@@ -459,12 +488,12 @@ describe("ExplorerService", () => {
 
       // WHEN getItemHistory is called
       const service = new ExplorerService(givenApiServerUrl);
-      const actualHistory = await service.getItemHistory(givenModelId, givenItem);
+      const actualHistory = await service.getItemHistory(givenModelId, givenItem, givenLanguage);
 
       // THEN expect it to call the skills history endpoint
       expect(apiServiceSpy).toHaveBeenCalledWith(
         `${givenApiServerUrl}/models/${givenModelId}/skills/skill-1/history`,
-        expect.objectContaining({ method: "GET" })
+        expect.objectContaining({ method: "GET", headers: { "Accept-Language": givenLanguage } })
       );
       // AND expect the id, model and preferred label of each entry to be returned, in order
       expect(actualHistory).toEqual([
@@ -479,7 +508,7 @@ describe("ExplorerService", () => {
 
       // WHEN getItemHistory is called
       const service = new ExplorerService(givenApiServerUrl);
-      const actualHistory = await service.getItemHistory(givenModelId, getMockExplorerTreeItem());
+      const actualHistory = await service.getItemHistory(givenModelId, getMockExplorerTreeItem(), givenLanguage);
 
       // THEN expect an empty array
       expect(actualHistory).toEqual([]);
@@ -492,9 +521,9 @@ describe("ExplorerService", () => {
 
       // WHEN calling getItemHistory THEN expect it to reject with the same error
       const service = new ExplorerService(givenApiServerUrl);
-      await expect(service.getItemHistory(givenModelId, getMockExplorerTreeItem())).rejects.toMatchObject(
-        givenFetchError
-      );
+      await expect(
+        service.getItemHistory(givenModelId, getMockExplorerTreeItem(), givenLanguage)
+      ).rejects.toMatchObject(givenFetchError);
     });
   });
 });
