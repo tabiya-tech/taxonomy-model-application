@@ -9,6 +9,7 @@ import {
 import { findUnsupportedLanguage } from "common/language/translatedFields";
 import {
   ModelForSkillGroupValidationErrorCode,
+  ValidateModelForSkillGroupResult,
   INewSkillGroupSpecWithoutImportId,
   ISkillGroup,
   ISkillGroupChild,
@@ -64,12 +65,7 @@ export class SkillGroupService implements ISkillGroupService {
    * fetch. Kept separate from validateModelForSkillGroup so that method's existing callers (which compare its
    * result directly against ModelForSkillGroupValidationErrorCode) are unaffected.
    */
-  private async validateModelAndGetAvailableLanguages(
-    modelId: string
-  ): Promise<
-    | { errorCode: null; availableLanguages: string[] }
-    | { errorCode: ModelForSkillGroupValidationErrorCode; availableLanguages?: never }
-  > {
+  async validateModelAndGetAvailableLanguages(modelId: string): Promise<ValidateModelForSkillGroupResult> {
     try {
       const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
       if (!model) {
@@ -121,7 +117,8 @@ export class SkillGroupService implements ISkillGroupService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }> {
     // Vector (embeddings) similarity on released, already-embedded models; a case-insensitive regex otherwise.
     const model = await getRepositoryRegistry().modelInfo.getModelById(modelId);
@@ -134,13 +131,14 @@ export class SkillGroupService implements ISkillGroupService {
           searchValue,
           searchFields,
           cursor,
-          limit
+          limit,
+          language
         );
       }
       // The model is released but its embeddings have not been generated (completed) yet, so there is nothing to
       // search with vectors. Fall back to regex so the endpoint still returns useful results.
     }
-    return this.regexSearchPaginated(modelId, searchValue, searchFields, cursor, limit);
+    return this.regexSearchPaginated(modelId, searchValue, searchFields, cursor, limit, language);
   }
 
   /**
@@ -152,7 +150,8 @@ export class SkillGroupService implements ISkillGroupService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }> {
     // Newest first, consistent with the plain list endpoint's default order.
     const sortOrder = -1;
@@ -167,7 +166,8 @@ export class SkillGroupService implements ISkillGroupService {
       {
         value: searchValue,
         fields: searchFields,
-      }
+      },
+      language
     );
 
     const hasMore = items.length > limit;
@@ -192,9 +192,11 @@ export class SkillGroupService implements ISkillGroupService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }> {
-    const offset = cursor ? decodeSearchCursor(cursor) : 0;
+    const lang = language ?? getFallbackLanguageConfig().dbKeyName;
+    const offset = cursor ? decodeSearchCursor(cursor, lang) : 0;
 
     const embeddingService = this.embeddingModelServiceFactory(embeddingServiceId);
     const queryVector = await embeddingService.generateEmbedding(searchValue);
@@ -203,7 +205,7 @@ export class SkillGroupService implements ISkillGroupService {
       indexName: SkillGroupsEmbeddingsVectorSearchIndexName,
       modelId,
       embeddingServiceId,
-      language: getFallbackLanguageConfig().dbKeyName,
+      language: lang,
       queryVector,
       searchFields,
       limit: limit + 1,
@@ -215,13 +217,13 @@ export class SkillGroupService implements ISkillGroupService {
 
     // Hydrate the ranked ids to full skill groups and re-apply the relevance order (findByIds does not preserve it).
     const ids = pageHits.map((hit) => hit.entityId);
-    const skillGroups = await this.skillGroupRepository.findByIds(modelId, ids);
+    const skillGroups = await this.skillGroupRepository.findByIds(modelId, ids, lang);
     const skillGroupById = new Map(skillGroups.map((skillGroup) => [skillGroup.id, skillGroup]));
     const items = ids
       .map((id) => skillGroupById.get(id))
       .filter((skillGroup): skillGroup is ISkillGroup => skillGroup !== undefined);
 
-    const nextCursor = hasMore ? encodeSearchCursor(offset + limit) : null;
+    const nextCursor = hasMore ? encodeSearchCursor(offset + limit, lang) : null;
 
     return { items, nextCursor };
   }

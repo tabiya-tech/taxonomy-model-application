@@ -8,7 +8,7 @@ import OccupationAPISpecs from "api-specifications/esco/occupation";
 import ErrorAPISpecs from "api-specifications/error";
 import { EmbeddableField } from "embeddings/service/types";
 import { decodeCursor } from "../_shared/pagination/decodeCursor";
-import { decodeSearchCursor } from "esco/common/searchCursor";
+import { parseSearchCursor } from "esco/common/searchCursor";
 
 /**
  * Checks that a cursor token is well-formed for one of the two pagination strategies this endpoint uses:
@@ -27,7 +27,7 @@ function isWellFormedCursor(cursor: string): boolean {
   }
 
   try {
-    decodeSearchCursor(cursor);
+    parseSearchCursor(cursor);
     return true;
   } catch {
     return false;

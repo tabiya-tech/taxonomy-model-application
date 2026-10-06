@@ -184,7 +184,8 @@ export class OccupationService implements IOccupationService {
     limit: number,
     language?: string
   ): Promise<{ items: IOccupation[]; nextCursor: string | null }> {
-    const offset = cursor ? decodeSearchCursor(cursor) : 0;
+    const lang = language ?? getFallbackLanguageConfig().dbKeyName;
+    const offset = cursor ? decodeSearchCursor(cursor, lang) : 0;
 
     const embeddingService = this.embeddingModelServiceFactory(embeddingServiceId);
     const queryVector = await embeddingService.generateEmbedding(searchValue);
@@ -193,7 +194,7 @@ export class OccupationService implements IOccupationService {
       indexName: OccupationsEmbeddingsVectorSearchIndexName,
       modelId,
       embeddingServiceId,
-      language: language ?? getFallbackLanguageConfig().dbKeyName,
+      language: lang,
       queryVector,
       searchFields,
       limit: limit + 1,
@@ -211,7 +212,7 @@ export class OccupationService implements IOccupationService {
       .map((id) => occupationById.get(id))
       .filter((occupation): occupation is IOccupation => occupation !== undefined);
 
-    const nextCursor = hasMore ? encodeSearchCursor(offset + limit) : null;
+    const nextCursor = hasMore ? encodeSearchCursor(offset + limit, lang) : null;
 
     return { items, nextCursor };
   }

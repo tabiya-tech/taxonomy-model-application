@@ -174,6 +174,10 @@ export enum ModelForSkillGroupValidationErrorCode {
   MODEL_NOT_FOUND_BY_ID,
   MODEL_IS_RELEASED,
 }
+
+export type ValidateModelForSkillGroupResult =
+  | { errorCode: null; availableLanguages: string[] }
+  | { errorCode: ModelForSkillGroupValidationErrorCode; availableLanguages?: never };
 /**
  * Base path parameters for skill group routes
  */

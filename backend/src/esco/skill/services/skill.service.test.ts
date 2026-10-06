@@ -717,22 +717,22 @@ describe("Test the SkillService", () => {
         // AND the page to hold `limit` items ordered by relevance (the ranked-hit order, not findByIds order)
         expect(actual.items).toHaveLength(givenLimit);
         expect(actual.items.map((s) => s.id)).toEqual(rankedSkills.slice(0, givenLimit).map((s) => s.id));
-        // AND the nextCursor to be an offset cursor pointing at the next page
-        expect(decodeSearchCursor(actual.nextCursor as string)).toEqual(givenLimit);
+        // AND the nextCursor to be an offset cursor for the same language, pointing at the next page
+        expect(decodeSearchCursor(actual.nextCursor as string, "en")).toEqual(givenLimit);
       });
 
       test("should apply the offset from the given cursor and advance it", async () => {
-        // GIVEN a released model and an offset cursor (page 2)
+        // GIVEN a released model and an offset cursor for English (page 2)
         const givenModelId = getMockStringId(1);
         const givenLimit = 5;
-        const givenCursor = encodeSearchCursor(5);
+        const givenCursor = encodeSearchCursor(5, "en");
         const rankedSkills = givenSkills(givenLimit + 1, givenModelId);
         mockSkillEmbeddingRepository.vectorSearch.mockResolvedValue(
           rankedSkills.map((skill, i) => ({ entityId: skill.id, score: 1 - i * 0.1 }))
         );
         mockRepository.findByIds.mockResolvedValue(rankedSkills);
 
-        // WHEN searching with the cursor
+        // WHEN searching with the cursor (no explicit language, defaults to English)
         const actual = await service.findPaginated(
           givenModelId,
           givenCursor,
@@ -745,7 +745,26 @@ describe("Test the SkillService", () => {
         expect(mockSkillEmbeddingRepository.vectorSearch).toHaveBeenCalledWith(
           expect.objectContaining({ offset: 5, limit: givenLimit + 1 })
         );
-        expect(decodeSearchCursor(actual.nextCursor as string)).toEqual(10);
+        expect(decodeSearchCursor(actual.nextCursor as string, "en")).toEqual(10);
+      });
+
+      test("should throw when a cursor issued for a different language is provided", async () => {
+        // GIVEN a released model and a cursor issued for French
+        const givenModelId = getMockStringId(1);
+        const givenCursorForFrench = encodeSearchCursor(5, "fr");
+
+        // WHEN searching in English (the default) with the French cursor
+        const actualPromise = service.findPaginated(
+          givenModelId,
+          givenCursorForFrench,
+          5,
+          givenSearchValue,
+          givenSearchFields
+          // no language arg → resolves to "en"
+        );
+
+        // THEN expect the service to reject with a language mismatch error
+        await expect(actualPromise).rejects.toThrow("fr");
       });
 
       test("should return a null cursor when the vector search has no next page", async () => {

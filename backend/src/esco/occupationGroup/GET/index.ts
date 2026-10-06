@@ -16,7 +16,7 @@ import { decodeCursor, encodeCursor, getOccupationGroupsPathParameters } from ".
 import { transformPaginated } from "./response";
 import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
 import { EmbeddableField } from "embeddings/service/types";
-import { decodeSearchCursor } from "esco/common/searchCursor";
+import { parseSearchCursor, SearchCursorLanguageMismatchError } from "esco/common/searchCursor";
 import { resolveLanguageFromModelResult } from "../_shared/resolveLanguageFromModelResult";
 
 /**
@@ -36,7 +36,7 @@ function isWellFormedSearchCursor(cursor: string): boolean {
   }
 
   try {
-    decodeSearchCursor(cursor);
+    parseSearchCursor(cursor);
     return true;
   } catch {
     return false;
@@ -303,6 +303,14 @@ export class OccupationGroupListController {
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      if (error instanceof SearchCursorLanguageMismatchError) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          OccupationGroupGETAPISpecs.Enums.Response.Status400.ErrorCodes.INVALID_NEXT_CURSOR_PARAMETER,
+          error.message,
+          ""
+        );
+      }
       console.error("Failed to retrieve occupation groups:", error);
       errorLoggerInstance.logError("Failed to retrieve the occupation groups from the DB", error.name);
       return errorResponseGET(

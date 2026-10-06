@@ -24,13 +24,13 @@ describe("Test buildSearchCondition()", () => {
     });
   });
 
-  test("should match a translatable field on the path of the fall back language", () => {
+  test("should match a translatable field on the path of the fall back language when no language is given", () => {
     // GIVEN a search on a translatable field and on a monolingual field
     const givenSearch = { value: "cook", fields: ["preferredLabel", "code"] };
     // AND preferredLabel is translated, code is not
     const givenTranslatableFields = ["preferredLabel", "altLabels"];
 
-    // WHEN the condition is built
+    // WHEN the condition is built without an explicit language
     const actualCondition = buildSearchCondition(givenSearch, givenTranslatableFields);
 
     // THEN expect the translatable field to be matched on its fall back language path, the other one as it is stored
@@ -38,6 +38,26 @@ describe("Test buildSearchCondition()", () => {
       $or: [
         { [`preferredLabel.${FALLBACK_DB_KEY_NAME}`]: { $regex: "cook", $options: "i" } },
         { code: { $regex: "cook", $options: "i" } },
+      ],
+    });
+  });
+
+  test("should match a translatable field on the path of the given language", () => {
+    // GIVEN a search on a translatable field and on a monolingual field
+    const givenSearch = { value: "cuisinier", fields: ["preferredLabel", "code"] };
+    // AND preferredLabel is translated
+    const givenTranslatableFields = ["preferredLabel", "altLabels"];
+    // AND the requested language is French
+    const givenLanguage = "fr";
+
+    // WHEN the condition is built with the French language
+    const actualCondition = buildSearchCondition(givenSearch, givenTranslatableFields, givenLanguage);
+
+    // THEN expect the translatable field to be matched on its French path, not the fallback
+    expect(actualCondition).toEqual({
+      $or: [
+        { "preferredLabel.fr": { $regex: "cuisinier", $options: "i" } },
+        { code: { $regex: "cuisinier", $options: "i" } },
       ],
     });
   });

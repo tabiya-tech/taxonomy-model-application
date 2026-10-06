@@ -11,6 +11,7 @@ import { RoleRequired } from "auth/authorizer";
 import { extractAndValidateModelIdParam } from "../_shared/params";
 import { getResourcesBaseUrl } from "server/config/config";
 import { resolveLanguageFromModelResult } from "../_shared/resolveLanguageFromModelResult";
+import { SearchCursorLanguageMismatchError } from "esco/common/searchCursor";
 
 export class SkillGetController {
   /**
@@ -151,6 +152,14 @@ export class SkillGetController {
         languageHeaders
       );
     } catch (error: unknown) {
+      if (error instanceof SearchCursorLanguageMismatchError) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          SkillAPISpecs.GET.Errors.Status400.ErrorCodes.INVALID_NEXT_CURSOR_PARAMETER,
+          error.message,
+          ""
+        );
+      }
       return errorResponseGET(
         StatusCodes.INTERNAL_SERVER_ERROR,
         SkillAPISpecs.GET.Errors.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILLS,

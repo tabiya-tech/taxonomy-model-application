@@ -732,22 +732,22 @@ describe("Test the OccupationService", () => {
         // AND the page to hold `limit` items ordered by relevance (the ranked-hit order, not findByIds order)
         expect(actual.items).toHaveLength(givenLimit);
         expect(actual.items.map((o) => o.id)).toEqual(rankedOccupations.slice(0, givenLimit).map((o) => o.id));
-        // AND the nextCursor to be an offset cursor pointing at the next page
-        expect(decodeSearchCursor(actual.nextCursor as string)).toEqual(givenLimit);
+        // AND the nextCursor to be an offset cursor for the same language, pointing at the next page
+        expect(decodeSearchCursor(actual.nextCursor as string, "en")).toEqual(givenLimit);
       });
 
       test("should apply the offset from the given cursor and advance it", async () => {
-        // GIVEN a released model and an offset cursor (page 2)
+        // GIVEN a released model and an offset cursor for English (page 2)
         const givenModelId = getMockStringId(1);
         const givenLimit = 5;
-        const givenCursor = encodeSearchCursor(5);
+        const givenCursor = encodeSearchCursor(5, "en");
         const rankedOccupations = givenOccupations(givenLimit + 1, givenModelId);
         mockOccupationEmbeddingRepository.vectorSearch.mockResolvedValue(
           rankedOccupations.map((occupation, i) => ({ entityId: occupation.id, score: 1 - i * 0.1 }))
         );
         mockRepository.findByIds.mockResolvedValue(rankedOccupations);
 
-        // WHEN searching with the cursor
+        // WHEN searching with the cursor (no explicit language, defaults to English)
         const actual = await service.searchPaginated(
           givenModelId,
           givenSearchValue,
@@ -760,7 +760,7 @@ describe("Test the OccupationService", () => {
         expect(mockOccupationEmbeddingRepository.vectorSearch).toHaveBeenCalledWith(
           expect.objectContaining({ offset: 5, limit: givenLimit + 1 })
         );
-        expect(decodeSearchCursor(actual.nextCursor as string)).toEqual(10);
+        expect(decodeSearchCursor(actual.nextCursor as string, "en")).toEqual(10);
       });
 
       test("should return a null cursor when the vector search has no next page", async () => {

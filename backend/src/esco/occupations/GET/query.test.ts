@@ -66,7 +66,7 @@ describe("parseGETQuery (occupations) unit tests", () => {
 
     test("should accept a valid vector-search (relevance offset) cursor", () => {
       // GIVEN an event with a valid vector-search cursor (an offset, not a keyset id/createdAt token)
-      const givenSearchCursor = encodeSearchCursor(10);
+      const givenSearchCursor = encodeSearchCursor(10, "en");
       const givenValidEvent = givenEvent({ query: "software", cursor: givenSearchCursor });
 
       // WHEN the query is parsed

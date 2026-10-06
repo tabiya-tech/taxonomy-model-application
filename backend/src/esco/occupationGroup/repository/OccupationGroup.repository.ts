@@ -653,7 +653,7 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       const matchStage: Record<string, unknown> = { modelId: modelIdObj };
 
       if (search) {
-        matchStage.$and = [buildSearchCondition(search, OCCUPATION_GROUP_TRANSLATABLE_FIELDS)];
+        matchStage.$and = [buildSearchCondition(search, OCCUPATION_GROUP_TRANSLATABLE_FIELDS, lang)];
       }
 
       // If a cursorId is provided, add it to the match stage to get results after the cursor

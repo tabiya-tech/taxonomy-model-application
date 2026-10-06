@@ -5,6 +5,7 @@ import {
   ISkillGroupChild,
   ISkillGroupReference,
   ModelForSkillGroupValidationErrorCode,
+  ValidateModelForSkillGroupResult,
   IPartialUpdateSkillGroupSpec,
   IUpdateSkillGroupSpec,
 } from "../_shared/skillGroup.types";
@@ -97,10 +98,17 @@ export interface ISkillGroupService {
     searchValue: string,
     searchFields: EmbeddableField[],
     cursor: string | undefined,
-    limit: number
+    limit: number,
+    language?: string
   ): Promise<{ items: ISkillGroup[]; nextCursor: string | null }>;
 
   validateModelForSkillGroup(modelId: string): Promise<ModelForSkillGroupValidationErrorCode | null>;
+
+  /**
+   * Like validateModelForSkillGroup but returns availableLanguages on success, in a single fetch.
+   * Use this on read endpoints that need to resolve Accept-Language against the model's languages.
+   */
+  validateModelAndGetAvailableLanguages(modelId: string): Promise<ValidateModelForSkillGroupResult>;
 
   /**
    * Fully replaces the mutable fields of a SkillGroup (PUT semantics).

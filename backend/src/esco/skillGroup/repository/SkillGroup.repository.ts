@@ -91,7 +91,8 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
     sortOrder: 1 | -1,
     cursorId?: string,
     filter?: FindPaginatedFilter,
-    search?: { value: string; fields: string[] }
+    search?: { value: string; fields: string[] },
+    language?: string
   ): Promise<ISkillGroup[]>;
 
   /**
@@ -104,7 +105,7 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
    * @return {Promise<ISkillGroup[]>} - A Promise that resolves to the found SkillGroups.
    * Rejects with an error if the operation fails.
    */
-  findByIds(modelId: string, ids: string[]): Promise<ISkillGroup[]>;
+  findByIds(modelId: string, ids: string[], language?: string): Promise<ISkillGroup[]>;
   findParents(
     modelId: string | mongoose.Types.ObjectId,
     id: string | mongoose.Types.ObjectId,
@@ -326,14 +327,15 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     sortOrder: 1 | -1,
     cursorId?: string,
     filter?: FindPaginatedFilter,
-    search?: { value: string; fields: string[] }
+    search?: { value: string; fields: string[] },
+    language?: string
   ): Promise<ISkillGroup[]> {
     try {
       const modelIdObj = new mongoose.Types.ObjectId(modelId);
       const matchStage: Record<string, unknown> = { modelId: modelIdObj };
 
       if (search) {
-        matchStage.$and = [buildSearchCondition(search, TRANSLATABLE_FIELDS)];
+        matchStage.$and = [buildSearchCondition(search, TRANSLATABLE_FIELDS, language)];
       }
 
       if (filter?.childrenIds && filter.childrenType) {
@@ -422,7 +424,17 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         populateSkillGroupChildrenOptions,
       ]);
 
-      return populated.map((doc) => doc.toObject());
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
+      return populated.map((doc) => {
+        const obj = doc.toObject() as Record<string, unknown>;
+        return {
+          ...obj,
+          preferredLabel: readLanguageValue(obj.preferredLabel, lang),
+          description: readLanguageValue(obj.description, lang),
+          scopeNote: readLanguageValue(obj.scopeNote, lang),
+          altLabels: readLanguageValues(obj.altLabels, lang),
+        } as unknown as ISkillGroup;
+      });
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findPaginated: findPaginated failed", { cause: e });
       console.error(err);
@@ -430,8 +442,9 @@ export class SkillGroupRepository implements ISkillGroupRepository {
     }
   }
 
-  async findByIds(modelId: string, ids: string[]): Promise<ISkillGroup[]> {
+  async findByIds(modelId: string, ids: string[], language?: string): Promise<ISkillGroup[]> {
     try {
+      const lang = language ?? getFallbackLanguageConfig().dbKeyName;
       const validIds = ids
         .filter((id) => mongoose.Types.ObjectId.isValid(id))
         .map((id) => new mongoose.Types.ObjectId(id));
@@ -448,7 +461,16 @@ export class SkillGroupRepository implements ISkillGroupRepository {
         populateSkillGroupChildrenOptions,
       ]);
 
-      return populated.map((doc) => doc.toObject());
+      return populated.map((doc) => {
+        const obj = doc.toObject() as Record<string, unknown>;
+        return {
+          ...obj,
+          preferredLabel: readLanguageValue(obj.preferredLabel, lang),
+          description: readLanguageValue(obj.description, lang),
+          scopeNote: readLanguageValue(obj.scopeNote, lang),
+          altLabels: readLanguageValues(obj.altLabels, lang),
+        } as unknown as ISkillGroup;
+      });
     } catch (e: unknown) {
       const err = new Error("SkillGroupRepository.findByIds: findByIds failed", { cause: e });
       console.error(err);
