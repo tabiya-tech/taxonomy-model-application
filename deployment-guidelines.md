@@ -62,6 +62,25 @@ To deploy the app on the testing environment, you have two options
 
 After the deployment on test, a step that requires approval is going to be initiated, once Approved deployment to production is going to follow up. but when it is rejected. no deployment is going to happen. We used [GitHub Protection rules](https://docs.github.com/en/actions/deployment/protecting-deployments/creating-custom-deployment-protection-rules) to enforce this on the confirmation environments.
 
+## Deploying a change that needs a data migration
+
+Some changes need the data of the database to be migrated to a new shape, e.g. the translatable fields that became sub documents keyed by language. The migrations are run by hand, **no pipeline runs them**, see [Data migrations](backend/README.md#data-migrations) for the runner and the runbook.
+
+> **The constraint:** the code that reads the new shape must not reach an environment before the database of that environment is migrated. A deployment does not wait for a migration, so the ordering is up to whoever merges and tags.
+
+To keep that ordering, such a change ships in two steps, each one its own pull request and its own release:
+
+1. **Code that tolerates both shapes**, together with the migration. It reads the old shape and the new one, so it can be deployed before or after the migration.
+2. **Code that reads the new shape only**. It is merged or tagged after the migration ran against the target environment.
+
+How this plays out on each environment:
+
+- **Development**: every push to `main`, and every push of a commit whose message contains `[pulumi up]`, deploys to development. Migrate the development database before merging step 2 into `main`.
+- **Testing**: every deployment to testing first restores the production database into the testing database, see [copy-database.yml](.github/workflows/copy-database.yml), and that restore is not ordered with the deployment of the backend. A migration run against the testing database is overwritten by the next deployment, so testing always runs against data of the shape production has. **Do not tag step 2 before the production database is migrated.**
+- **Production**: once step 1 is deployed to production, take a snapshot of the production database and migrate it, following the [runbook](backend/README.md#runbook). Then tag step 2, which is tested against the migrated data restored from production, and deployed to production on approval.
+
+To roll back step 2, redeploy step 1 before reverting the migration.
+
 ## Current Deployed Endpoints.
 
 - **Development**: [https://dev.taxonomy.tabiya.tech](https://dev.taxonomy.tabiya.tech)
