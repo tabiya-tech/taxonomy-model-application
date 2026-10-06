@@ -17,6 +17,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import LanguageIcon from "@mui/icons-material/Language";
 import PrimaryButton from "src/theme/PrimaryButton/PrimaryButton";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
+import LanguageAPISpecs from "api-specifications/language";
 import { getLanguageOptions } from "src/language/languages.service";
 
 const BUTTON_SX = {
@@ -52,9 +53,9 @@ export interface ExplorerHeaderProps {
   models: ModelInfoTypes.ModelInfo[];
   selectedModel: ModelInfoTypes.ModelInfo | null;
   isLoading: boolean;
-  language: string;
+  language: LanguageAPISpecs.Types.LanguageShortCode;
   onModelChange: (modelId: string) => void;
-  onLanguageChange: (language: string) => void;
+  onLanguageChange: (language: LanguageAPISpecs.Types.LanguageShortCode) => void;
   onBackToDirectory: () => void;
   onOpenApiDocs: () => void;
   csvDownloadUrl?: string;
@@ -212,7 +213,11 @@ const ExplorerHeader = ({
         {languageOptions.length > 1 && (
           <Select
             value={language}
-            onChange={(e: SelectChangeEvent) => onLanguageChange(e.target.value)}
+            onChange={(e: SelectChangeEvent) => {
+              // The options are the model's languages of the registry, so this only narrows the Select's string value.
+              const pickedLanguage = e.target.value;
+              if (LanguageAPISpecs.Helpers.isSupportedLanguage(pickedLanguage)) onLanguageChange(pickedLanguage);
+            }}
             startAdornment={<LanguageIcon sx={{ mr: 1, color: "text.secondary" }} />}
             inputProps={{ "aria-label": TEXT.SELECT_LANGUAGE }}
             data-testid={DATA_TEST_ID.LANGUAGE_SELECT}

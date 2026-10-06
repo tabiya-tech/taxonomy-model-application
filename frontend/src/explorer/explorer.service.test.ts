@@ -9,6 +9,7 @@ import { StatusCodes } from "http-status-codes";
 import { ServiceError } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { setupAPIServiceSpy } from "src/_test_utilities/fetchSpy";
+import LanguageAPISpecs from "api-specifications/language";
 
 const getMockExplorerTreeItem = (overrides: Partial<ExplorerTreeItem> = {}): ExplorerTreeItem => ({
   id: "grp-1",
@@ -22,12 +23,13 @@ const getMockExplorerTreeItem = (overrides: Partial<ExplorerTreeItem> = {}): Exp
 describe("ExplorerService", () => {
   let givenApiServerUrl: string;
   let givenModelId: string;
-  let givenLanguage: string;
+  let givenLanguage: LanguageAPISpecs.Types.LanguageShortCode;
 
   beforeEach(() => {
     givenApiServerUrl = "/path/to/api";
     givenModelId = "model-1";
-    givenLanguage = "en";
+    // A language other than the fall back one, so that a request that ignores the given language fails the assertions.
+    givenLanguage = "fr";
   });
 
   afterEach(() => {
@@ -107,27 +109,6 @@ describe("ExplorerService", () => {
           children: [],
         },
       ]);
-    });
-
-    test("should send the given language as the Accept-Language header", async () => {
-      // GIVEN the occupationGroups endpoint returns a root group
-      // AND a language other than the default one
-      const givenOtherLanguage = "fr";
-      const apiServiceSpy = setupAPIServiceSpy(
-        StatusCodes.OK,
-        MockPayload.getMockPaginatedResponse([MockPayload.getMockOccupationGroupNode()]),
-        "application/json;charset=UTF-8"
-      );
-
-      // WHEN getRootItems is called with that language
-      const service = new ExplorerService(givenApiServerUrl);
-      await service.getRootItems(givenModelId, "occupations", givenOtherLanguage);
-
-      // THEN expect the request to carry that language as the Accept-Language header
-      expect(apiServiceSpy).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({ headers: { "Accept-Language": givenOtherLanguage } })
-      );
     });
 
     test("should fall back to ISCOGroup when an occupation group is missing its groupType", async () => {
@@ -251,6 +232,46 @@ describe("ExplorerService", () => {
           children: undefined,
         },
       ]);
+    });
+
+    test("should fetch every page of children, each in the given language, and join them", async () => {
+      // GIVEN the children endpoint returns a first page with a cursor to a second, last page
+      const givenFirstChild = MockPayload.getMockChildRef({ id: "child-1" });
+      const givenSecondChild = MockPayload.getMockChildRef({ id: "child-2" });
+      const givenCursor = "cursor-1";
+      const toResponse = (body: object) =>
+        new Response(JSON.stringify(body), {
+          status: StatusCodes.OK,
+          headers: { "Content-Type": "application/json;charset=UTF-8" },
+        });
+      const apiServiceSpy = jest
+        .spyOn(require("src/apiService/APIService"), "fetchWithAuth")
+        .mockResolvedValueOnce(
+          toResponse(MockPayload.getMockPaginatedResponse([givenFirstChild], PAGE_LIMIT, givenCursor))
+        )
+        .mockResolvedValueOnce(toResponse(MockPayload.getMockPaginatedResponse([givenSecondChild], PAGE_LIMIT, null)));
+      const givenItem = getMockExplorerTreeItem({ id: "item-1", objectType: ObjectType.ISCOGroup });
+
+      // WHEN getChildren is called
+      const service = new ExplorerService(givenApiServerUrl);
+      const actualChildren = await service.getChildren(givenModelId, givenItem, givenLanguage);
+
+      // THEN expect both pages to have been requested, the second one with the cursor of the first
+      const expectedUrl = `${givenApiServerUrl}/models/${givenModelId}/occupationGroups/item-1/children?limit=${PAGE_LIMIT}`;
+      expect(apiServiceSpy).toHaveBeenCalledTimes(2);
+      expect(apiServiceSpy).toHaveBeenNthCalledWith(
+        1,
+        expectedUrl,
+        expect.objectContaining({ method: "GET", headers: { "Accept-Language": givenLanguage } })
+      );
+      // AND expect the second page to carry the given language as well
+      expect(apiServiceSpy).toHaveBeenNthCalledWith(
+        2,
+        `${expectedUrl}&cursor=${givenCursor}`,
+        expect.objectContaining({ method: "GET", headers: { "Accept-Language": givenLanguage } })
+      );
+      // AND expect the children of both pages to be returned, in order
+      expect(actualChildren.map((child) => child.id)).toEqual(["child-1", "child-2"]);
     });
 
     test("should mark a child as having children when it is itself a group, even if its children array is empty", async () => {

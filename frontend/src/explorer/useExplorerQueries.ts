@@ -1,4 +1,5 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { QueryKey, useQueries, useQuery } from "@tanstack/react-query";
+import LanguageAPISpecs from "api-specifications/language";
 import ExplorerService from "src/explorer/explorer.service";
 import { ExplorerTreeItem } from "src/explorer/components/ExplorerTreePanel/ExplorerTreePanel";
 import { getApiUrl } from "src/envService";
@@ -9,30 +10,43 @@ export const explorerTreeQueryKey = (
   modelId: string | undefined,
   tab: "occupations" | "skills",
   search: string,
-  language: string
+  language: LanguageAPISpecs.Types.LanguageShortCode
 ) => ["explorer", "tree", modelId, tab, search, language];
 
-export const explorerChildrenQueryKey = (modelId: string | undefined, itemId: string, language: string) => [
-  "explorer",
-  "children",
-  modelId,
-  itemId,
-  language,
-];
+export const explorerChildrenQueryKey = (
+  modelId: string | undefined,
+  itemId: string,
+  language: LanguageAPISpecs.Types.LanguageShortCode
+) => ["explorer", "children", modelId, itemId, language];
 
 export const explorerDetailQueryKey = (
   modelId: string | undefined,
   itemId: string,
   objectType: string,
-  language: string
+  language: LanguageAPISpecs.Types.LanguageShortCode
 ) => ["explorer", "detail", modelId, itemId, objectType, language];
 
 export const explorerHistoryQueryKey = (
   modelId: string | undefined,
   itemId: string,
   objectType: string,
-  language: string
+  language: LanguageAPISpecs.Types.LanguageShortCode
 ) => ["explorer", "history", modelId, itemId, objectType, language];
+
+// The language is the last part of every explorer query key. When it is the only part that changed, the previous
+// data stays on screen until the data in the new language arrives: the ids are the same in every language, so the
+// tree, the selected item and its open tab stay in place instead of blanking. Any other change (model, tab, search,
+// item) shows the loading state, as the previous data would be about something else.
+const keepPreviousDataOnLanguageChange =
+  (queryKey: QueryKey) =>
+  <T>(previousData: T | undefined, previousQuery: { queryKey: QueryKey } | undefined): T | undefined => {
+    if (!previousQuery) return undefined;
+    const previousQueryKey = previousQuery.queryKey;
+    const isSameQueryInAnotherLanguage =
+      previousQueryKey.length === queryKey.length &&
+      queryKey.slice(0, -1).every((part, index) => part === previousQueryKey[index]);
+    return isSameQueryInAnotherLanguage ? previousData : undefined;
+  };
 
 // Search results are always leaves, sorted by relevance; root items are grouped so local
 // groups (unseen economy) come after ESCO/ISCO groups (seen economy).
@@ -45,11 +59,12 @@ export const useExplorerTree = (
   modelId: string | undefined,
   tab: "occupations" | "skills",
   searchValue: string,
-  language: string
+  language: LanguageAPISpecs.Types.LanguageShortCode
 ) => {
   const trimmedSearchValue = searchValue.trim();
+  const queryKey = explorerTreeQueryKey(modelId, tab, trimmedSearchValue, language);
   return useQuery({
-    queryKey: explorerTreeQueryKey(modelId, tab, trimmedSearchValue, language),
+    queryKey,
     queryFn: async () => {
       if (!modelId) return [];
       if (trimmedSearchValue) {
@@ -61,6 +76,7 @@ export const useExplorerTree = (
       return localGroupsLast(items);
     },
     enabled: !!modelId,
+    placeholderData: keepPreviousDataOnLanguageChange(queryKey),
   });
 };
 
@@ -69,22 +85,32 @@ export const useExplorerTree = (
 export const useExplorerChildren = (
   modelId: string | undefined,
   expandedItems: ExplorerTreeItem[],
-  language: string
+  language: LanguageAPISpecs.Types.LanguageShortCode
 ) => {
   return useQueries({
-    queries: expandedItems.map((item) => ({
-      queryKey: explorerChildrenQueryKey(modelId, item.id, language),
-      queryFn: () => explorerService.getChildren(modelId as string, item, language),
-      enabled: !!modelId,
-    })),
+    queries: expandedItems.map((item) => {
+      const queryKey = explorerChildrenQueryKey(modelId, item.id, language);
+      return {
+        queryKey,
+        queryFn: () => explorerService.getChildren(modelId as string, item, language),
+        enabled: !!modelId,
+        placeholderData: keepPreviousDataOnLanguageChange(queryKey),
+      };
+    }),
   });
 };
 
-export const useExplorerItemDetail = (modelId: string | undefined, item: ExplorerTreeItem | null, language: string) => {
+export const useExplorerItemDetail = (
+  modelId: string | undefined,
+  item: ExplorerTreeItem | null,
+  language: LanguageAPISpecs.Types.LanguageShortCode
+) => {
+  const queryKey = explorerDetailQueryKey(modelId, item?.id ?? "", item?.objectType ?? "", language);
   return useQuery({
-    queryKey: explorerDetailQueryKey(modelId, item?.id ?? "", item?.objectType ?? "", language),
+    queryKey,
     queryFn: () => explorerService.getItemDetail(modelId as string, item as ExplorerTreeItem, language),
     enabled: !!modelId && !!item,
+    placeholderData: keepPreviousDataOnLanguageChange(queryKey),
   });
 };
 
@@ -92,11 +118,13 @@ export const useExplorerItemHistory = (
   modelId: string | undefined,
   item: ExplorerTreeItem | null,
   enabled: boolean,
-  language: string
+  language: LanguageAPISpecs.Types.LanguageShortCode
 ) => {
+  const queryKey = explorerHistoryQueryKey(modelId, item?.id ?? "", item?.objectType ?? "", language);
   return useQuery({
-    queryKey: explorerHistoryQueryKey(modelId, item?.id ?? "", item?.objectType ?? "", language),
+    queryKey,
     queryFn: () => explorerService.getItemHistory(modelId as string, item as ExplorerTreeItem, language),
     enabled: !!modelId && !!item && enabled,
+    placeholderData: keepPreviousDataOnLanguageChange(queryKey),
   });
 };

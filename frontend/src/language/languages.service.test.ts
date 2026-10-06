@@ -94,6 +94,20 @@ describe("languages.service", () => {
       ]);
     });
 
+    test("should leave out a short code that is not a language of the registry", () => {
+      // GIVEN a model's available languages that include a short code the registry does not have
+      const givenAvailableLanguages = ["en", "xx", "fr"];
+
+      // WHEN getLanguageOptions is called with them
+      const actualOptions = getLanguageOptions(givenAvailableLanguages);
+
+      // THEN expect only the languages of the registry to be offered, in the same order
+      expect(actualOptions).toEqual([
+        { shortCode: "en", name: "English" },
+        { shortCode: "fr", name: "Français" },
+      ]);
+    });
+
     test("should return an empty array when given no available languages", () => {
       // GIVEN no available languages
       const givenAvailableLanguages: string[] = [];
