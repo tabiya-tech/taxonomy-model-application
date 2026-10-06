@@ -100,13 +100,15 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     if (isLoadingModels) return urlLanguage ?? preferredLanguage ?? language;
     // Without a model there are no available languages to check against.
     if (!selectedModel) return language;
-    const isAvailable = (
-      shortCode: LanguageAPISpecs.Types.LanguageShortCode | null
-    ): shortCode is LanguageAPISpecs.Types.LanguageShortCode =>
-      shortCode !== null && selectedModel.availableLanguages.includes(shortCode);
     const firstAvailableLanguage =
-      selectedModel.availableLanguages.find(LanguageAPISpecs.Helpers.isSupportedLanguage) ?? DEFAULT_LANGUAGE;
-    return [urlLanguage, preferredLanguage, language].find(isAvailable) ?? firstAvailableLanguage;
+      selectedModel.availableLanguages.find((shortCode): shortCode is LanguageAPISpecs.Types.LanguageShortCode =>
+        LanguageAPISpecs.Helpers.isSupportedLanguage(shortCode)
+      ) ?? DEFAULT_LANGUAGE;
+    const firstResolvableLanguage = [urlLanguage, preferredLanguage, language].find(
+      (shortCode): shortCode is LanguageAPISpecs.Types.LanguageShortCode =>
+        shortCode !== null && selectedModel.availableLanguages.includes(shortCode)
+    );
+    return firstResolvableLanguage ?? firstAvailableLanguage;
   };
   const resolvedLanguage = resolveLanguage();
 

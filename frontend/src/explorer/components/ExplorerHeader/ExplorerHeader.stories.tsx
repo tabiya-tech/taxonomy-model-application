@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import React, { useState } from "react";
 import ExplorerHeader from "./ExplorerHeader";
 import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 
@@ -20,6 +21,20 @@ const meta: Meta<typeof ExplorerHeader> = {
     selectedModel: fakeModels[0],
     isLoading: false,
     language: "en",
+  },
+  // The header only reports the picked language, the page owns it. Keep it here, so that picking a language shows it.
+  render: function Render(args) {
+    const [language, setLanguage] = useState(args.language);
+    return (
+      <ExplorerHeader
+        {...args}
+        language={language}
+        onLanguageChange={(pickedLanguage) => {
+          setLanguage(pickedLanguage);
+          args.onLanguageChange(pickedLanguage);
+        }}
+      />
+    );
   },
 };
 

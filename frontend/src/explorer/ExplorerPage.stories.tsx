@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import ExplorerPage from "./ExplorerPage";
+import { Routes, Route, useSearchParams } from "react-router-dom";
+import LanguageAPISpecs from "api-specifications/language";
+import ExplorerPage, { LANGUAGE_QUERY_PARAM } from "./ExplorerPage";
 import { DATA_TEST_ID as TREE_PANEL_DATA_TEST_ID } from "src/explorer/components/ExplorerTreePanel/ExplorerTreePanel";
 import * as MockPayload from "src/modelInfo/_test_utilities/mockModelInfoPayload";
 import { ObjectType } from "src/explorer/explorer.types";
 import { getApiUrl } from "src/envService";
 import { routerPaths } from "src/app/routerPaths";
-import { useLanguage } from "src/language/LanguageProvider";
 import { DEFAULT_LANGUAGE } from "src/language/languages.service";
 
 const MODELS_URL = getApiUrl() + "/models";
@@ -261,10 +261,15 @@ const multilingualTexts: Record<string, { group: string; occupation: string; def
 };
 
 // The mock addon does not pass the request headers to a response function, so the Accept-Language sent by the
-// explorer cannot be read there. The selected language is captured from the language context instead.
+// explorer cannot be read there. The selected language is captured from the URL instead: the explorer requests the
+// language of the URL from the very first render, while the language context only catches up once the models load,
+// which would answer the first requests in the wrong language and cache that answer.
 let selectedLanguage = DEFAULT_LANGUAGE;
 const CaptureSelectedLanguage = ({ children }: { children: React.ReactNode }) => {
-  selectedLanguage = useLanguage().language;
+  const [searchParams] = useSearchParams();
+  const urlLanguage = searchParams.get(LANGUAGE_QUERY_PARAM);
+  selectedLanguage =
+    urlLanguage !== null && LanguageAPISpecs.Helpers.isSupportedLanguage(urlLanguage) ? urlLanguage : DEFAULT_LANGUAGE;
   return <>{children}</>;
 };
 const texts = () => multilingualTexts[selectedLanguage] ?? multilingualTexts[DEFAULT_LANGUAGE];

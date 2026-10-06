@@ -48,6 +48,6 @@ export const getLanguageName = (shortCode: string): string => {
  * @returns the short code and human readable name of each available language that is in the registry
  */
 export const getLanguageOptions = (availableLanguages: string[]): LanguageOption[] =>
-  availableLanguages
-    .filter(LanguageAPISpecs.Helpers.isSupportedLanguage)
-    .map((shortCode) => ({ shortCode, name: getLanguageName(shortCode) }));
+  availableLanguages.flatMap((shortCode) =>
+    LanguageAPISpecs.Helpers.isSupportedLanguage(shortCode) ? [{ shortCode, name: getLanguageName(shortCode) }] : []
+  );
