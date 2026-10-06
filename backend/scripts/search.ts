@@ -34,6 +34,8 @@ import {
  *   --fields <a,b,c>             (optional, default: all fields) The source fields to search on
  *                                (preferredLabel, description, altLabels, scopeNote).
  *   --limit <n>                  (optional, default: 10) The maximum number of hits per query.
+ *   --language <dbKeyName>       (optional, default: en) The language dbKeyName to restrict the search to.
+ *                                Must match the language the model was embedded in (e.g. "en", "fr").
  *
  * Example:
  *   yarn search --model 6123abc... --service 77bb8ff3-a6b0-460b-bcaa-00631a907852 \
@@ -105,6 +107,7 @@ interface IParsedArgs {
   queries: string[];
   fields: EmbeddableField[];
   limit: number;
+  language: string;
 }
 
 /**
@@ -161,7 +164,9 @@ export function parseArgs(argv: string[]): IParsedArgs {
     throw new Error(`Invalid --limit '${values.limit?.[0]}'. Must be a positive integer`);
   }
 
-  return { modelId, embeddingServiceId, collection, queries, fields: fields as EmbeddableField[], limit };
+  const language = values.language?.[0] ?? "en";
+
+  return { modelId, embeddingServiceId, collection, queries, fields: fields as EmbeddableField[], limit, language };
 }
 
 /**
@@ -181,6 +186,7 @@ async function runSearch(config: ICollectionConfig, args: IParsedArgs, query: st
     indexName: config.indexName,
     modelId: args.modelId,
     embeddingServiceId: args.embeddingServiceId,
+    language: args.language,
     queryVector,
     searchFields: args.fields,
     limit: args.limit,
@@ -216,7 +222,8 @@ async function main(): Promise<void> {
 
     console.info(
       `Searching '${args.collection}' embeddings of model ${args.modelId} ` +
-        `with embedding service ${args.embeddingServiceId} on fields [${args.fields.join(", ")}].`
+        `with embedding service ${args.embeddingServiceId} on fields [${args.fields.join(", ")}] ` +
+        `in language '${args.language}'.`
     );
 
     for (const query of args.queries) {

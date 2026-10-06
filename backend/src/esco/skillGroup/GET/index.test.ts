@@ -60,6 +60,7 @@ describe("SkillGroupListController", () => {
         findPaginated: jest.fn(),
         searchPaginated: jest.fn(),
         validateModelForSkillGroup: jest.fn(),
+        validateModelAndGetAvailableLanguages: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
         findChildren: jest.fn(),
         getHistory: jest.fn(),
         setParent: jest.fn(),
@@ -113,7 +114,9 @@ describe("SkillGroupListController", () => {
     mockTransformPaginated.mockReturnValue(transformed as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue(paginatedResult);
 
     const controller = new SkillGroupListController();
@@ -140,7 +143,9 @@ describe("SkillGroupListController", () => {
     const givenItems = [{ ...getISkillGroupMockData(1, givenModelId), UUID: "foo", UUIDHistory: ["foo"] }];
     const givenNextCursor = "nextOpaqueCursor";
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.searchPaginated = jest
       .fn()
       .mockResolvedValue({ items: givenItems, nextCursor: givenNextCursor });
@@ -163,7 +168,8 @@ describe("SkillGroupListController", () => {
       "data",
       [EmbeddableField.preferredLabel, EmbeddableField.description],
       undefined,
-      100
+      100,
+      "en"
     );
     expect(mockServiceRegistry.skillGroup.findPaginated).not.toHaveBeenCalled();
     // AND the response to be built with the service's already-encoded nextCursor
@@ -185,7 +191,9 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.searchPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
     mockTransformPaginated.mockReturnValue({ data: [], limit: 100, nextCursor: null } as never);
     return mockServiceRegistry;
@@ -214,7 +222,8 @@ describe("SkillGroupListController", () => {
       "data",
       [EmbeddableField.preferredLabel],
       givenCursor,
-      100
+      100,
+      "en"
     );
   });
 
@@ -243,7 +252,8 @@ describe("SkillGroupListController", () => {
       "data",
       [EmbeddableField.preferredLabel],
       givenCursor,
-      100
+      100,
+      "en"
     );
   });
 
@@ -271,7 +281,8 @@ describe("SkillGroupListController", () => {
       "data",
       [EmbeddableField.preferredLabel],
       givenCursor,
-      100
+      100,
+      "en"
     );
   });
 
@@ -346,7 +357,8 @@ describe("SkillGroupListController", () => {
         nextCursor: { _id: givenSkillGroups[1].id, createdAt: givenSkillGroups[0].createdAt },
       }),
       searchPaginated: jest.fn(),
-      validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
+      validateModelForSkillGroup: jest.fn(),
+      validateModelAndGetAvailableLanguages: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
       findChildren: jest.fn().mockResolvedValue([]),
       getHistory: jest.fn(),
       setParent: jest.fn(),
@@ -399,7 +411,9 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
 
     const controller = new SkillGroupListController();
@@ -419,7 +433,9 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
 
     const childrenIds = `${getMockStringId(2)};${getMockStringId(3)}`;
@@ -450,7 +466,9 @@ describe("SkillGroupListController", () => {
     // AND a service that resolves to an empty page
     const expectedDefaultLimit = 100;
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     const givenFindPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
     mockServiceRegistry.skillGroup.findPaginated = givenFindPaginated;
     mockTransformPaginated.mockReturnValue({ data: [], limit: expectedDefaultLimit, nextCursor: null } as never);
@@ -571,7 +589,9 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: "model-1" } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
 
     const controller = new SkillGroupListController();
     const actualResponse = await controller.getSkillGroups(buildEvent("/models/model-1/skillGroups", { limit: "bad" }));
@@ -588,9 +608,9 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: "model-1" } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest
+    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
       .fn()
-      .mockResolvedValue(ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID);
+      .mockResolvedValue({ errorCode: ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID });
 
     const controller = new SkillGroupListController();
     const actualResponse = await controller.getSkillGroups(buildEvent("/models/model-1/skillGroups"));
@@ -612,9 +632,10 @@ describe("SkillGroupListController", () => {
       findPaginated: jest.fn(),
       searchPaginated: jest.fn(),
       findChildren: jest.fn(),
-      validateModelForSkillGroup: jest
+      validateModelForSkillGroup: jest.fn(),
+      validateModelAndGetAvailableLanguages: jest
         .fn()
-        .mockResolvedValue(ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB),
+        .mockResolvedValue({ errorCode: ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB }),
       getHistory: jest.fn(),
       setParent: jest.fn(),
       create: jest.fn(),
@@ -657,6 +678,7 @@ describe("SkillGroupListController", () => {
       searchPaginated: jest.fn(),
       findParents: jest.fn().mockResolvedValue(null),
       validateModelForSkillGroup: jest.fn(),
+      validateModelAndGetAvailableLanguages: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
       findChildren: jest.fn(),
       getHistory: jest.fn(),
       setParent: jest.fn(),
@@ -763,7 +785,8 @@ describe("SkillGroupListController", () => {
       findPaginated: jest.fn().mockRejectedValue("repository failed"),
       searchPaginated: jest.fn(),
       findParents: jest.fn().mockResolvedValue(null),
-      validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
+      validateModelForSkillGroup: jest.fn(),
+      validateModelAndGetAvailableLanguages: jest.fn().mockResolvedValue({ errorCode: null, availableLanguages: [] }),
       findChildren: jest.fn().mockResolvedValue(null),
       getHistory: jest.fn(),
       setParent: jest.fn(),
@@ -800,7 +823,9 @@ describe("SkillGroupListController", () => {
     mockGetSkillGroupsPathParameters.mockReturnValue({ modelId: givenModelId } as never);
 
     const mockServiceRegistry = mockGetServiceRegistry();
-    mockServiceRegistry.skillGroup.validateModelForSkillGroup = jest.fn().mockResolvedValue(null);
+    mockServiceRegistry.skillGroup.validateModelAndGetAvailableLanguages = jest
+      .fn()
+      .mockResolvedValue({ errorCode: null, availableLanguages: [] });
     mockServiceRegistry.skillGroup.findPaginated = jest.fn().mockResolvedValue({ items: [], nextCursor: null });
     mockTransformPaginated.mockReturnValue({ data: [], limit: 100, nextCursor: null } as never);
 

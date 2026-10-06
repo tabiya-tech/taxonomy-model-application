@@ -9,7 +9,7 @@ import { RoleRequired } from "auth/authorizer";
 import errorLoggerInstance from "common/errorLogger/errorLogger";
 import { ajvInstance } from "validator";
 import { getResourcesBaseUrl } from "server/config/config";
-import { errorResponse, errorResponseGET, responseJSON, StatusCodes } from "server/httpUtils";
+import { errorResponse, errorResponseGET, response, responseJSON, StatusCodes } from "server/httpUtils";
 import { getServiceRegistry } from "server/serviceRegistry/serviceRegistry";
 import { ModelForSkillGroupValidationErrorCode } from "../_shared/skillGroup.types";
 import { ISkillGroupPaginatedFilter, ISkillGroupService } from "../services/skillGroup.service.type";
@@ -17,7 +17,9 @@ import { decodeCursor, encodeCursor, getSkillGroupsPathParameters } from "./quer
 import { transformPaginated } from "./response";
 import { parseBooleanQueryParam } from "common/formatters/parseBooleanQueryParam";
 import { EmbeddableField } from "embeddings/service/types";
-import { decodeSearchCursor } from "esco/common/searchCursor";
+import { parseSearchCursor, SearchCursorLanguageMismatchError } from "esco/common/searchCursor";
+import { getAcceptLanguageHeader, resolveLanguageConfig } from "common/language/resolveLanguage";
+import { ValidateModelForSkillGroupResult } from "../_shared/skillGroup.types";
 
 /**
  * Checks that a cursor token is well-formed for one of the two search pagination strategies: a keyset cursor
@@ -36,7 +38,7 @@ function isWellFormedSearchCursor(cursor: string): boolean {
   }
 
   try {
-    decodeSearchCursor(cursor);
+    parseSearchCursor(cursor);
     return true;
   } catch {
     return false;
@@ -171,8 +173,9 @@ export class SkillGroupListController {
         );
       }
 
-      const validationResult = await this.skillGroupService.validateModelForSkillGroup(requestPathParameter.modelId);
-      if (validationResult === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
+      const validationResult: ValidateModelForSkillGroupResult =
+        await this.skillGroupService.validateModelAndGetAvailableLanguages(requestPathParameter.modelId);
+      if (validationResult.errorCode === ModelForSkillGroupValidationErrorCode.MODEL_NOT_FOUND_BY_ID) {
         return errorResponseGET(
           StatusCodes.NOT_FOUND,
           SkillGroupGETAPISpecs.Enums.Response.Status404.ErrorCodes.MODEL_NOT_FOUND,
@@ -180,7 +183,7 @@ export class SkillGroupListController {
           `No model found with id: ${requestPathParameter.modelId}`
         );
       }
-      if (validationResult === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
+      if (validationResult.errorCode === ModelForSkillGroupValidationErrorCode.FAILED_TO_FETCH_FROM_DB) {
         return errorResponseGET(
           StatusCodes.INTERNAL_SERVER_ERROR,
           SkillGroupGETAPISpecs.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_RETRIEVE_SKILL_GROUPS,
@@ -188,6 +191,9 @@ export class SkillGroupListController {
           ""
         );
       }
+      // MODEL_IS_RELEASED is not an error for read endpoints; availableLanguages falls back to [] via the
+      // ValidateModelForSkillGroupResult shape, resolving to the fallback language.
+      const availableLanguages = validationResult.errorCode === null ? validationResult.availableLanguages : [];
 
       const rawQueryParams = (event.queryStringParameters || {}) as {
         limit?: string;
@@ -238,6 +244,8 @@ export class SkillGroupListController {
             ""
           );
         }
+        const languageConfig = resolveLanguageConfig(getAcceptLanguageHeader(event.headers), availableLanguages);
+        const language = languageConfig.dbKeyName;
         // searchFields defaults to preferredLabel. The schema has already validated that, when present, it is a
         // comma-separated list of known searchable field names, so the split values map cleanly to EmbeddableField.
         const searchFields: EmbeddableField[] = queryParams.searchFields
@@ -248,11 +256,13 @@ export class SkillGroupListController {
           queryParams.query,
           searchFields,
           queryParams.cursor ?? undefined,
-          limit
+          limit,
+          language
         );
-        return responseJSON(
+        return response(
           StatusCodes.OK,
-          transformPaginated(searchPage.items, getResourcesBaseUrl(), limit, searchPage.nextCursor)
+          transformPaginated(searchPage.items, getResourcesBaseUrl(), limit, searchPage.nextCursor),
+          { "Content-Type": "application/json", "Content-Language": languageConfig.shortCode, Vary: "Accept-Language" }
         );
       }
 
@@ -298,6 +308,14 @@ export class SkillGroupListController {
         transformPaginated(currentPageSkillGroups.items, getResourcesBaseUrl(), limit, nextCursor)
       );
     } catch (error: unknown) {
+      if (error instanceof SearchCursorLanguageMismatchError) {
+        return errorResponseGET(
+          StatusCodes.BAD_REQUEST,
+          SkillGroupGETAPISpecs.Enums.Response.Status400.ErrorCodes.INVALID_NEXT_CURSOR_PARAMETER,
+          error.message,
+          ""
+        );
+      }
       console.error("Failed to retrieve skill groups:", error);
       errorLoggerInstance.logError(
         "Failed to retrieve the skill groups from the DB",

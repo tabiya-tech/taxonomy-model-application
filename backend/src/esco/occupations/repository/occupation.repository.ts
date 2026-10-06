@@ -506,7 +506,7 @@ export class OccupationRepository implements IOccupationRepository {
       const matchStage: Record<string, unknown> = { ...filter, modelId: modelIdObj };
 
       if (search) {
-        matchStage.$and = [buildSearchCondition(search, OCCUPATION_TRANSLATABLE_FIELDS)];
+        matchStage.$and = [buildSearchCondition(search, OCCUPATION_TRANSLATABLE_FIELDS, lang)];
       }
 
       // If a cursorId is provided, add it to the match stage to get results after the cursor

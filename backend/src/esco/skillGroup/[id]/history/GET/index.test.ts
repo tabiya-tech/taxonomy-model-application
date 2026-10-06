@@ -42,6 +42,7 @@ describe("SkillGroupHistoryController", () => {
         findPaginated: jest.fn(),
         searchPaginated: jest.fn(),
         validateModelForSkillGroup: jest.fn().mockResolvedValue(null),
+        validateModelAndGetAvailableLanguages: jest.fn(),
         findChildren: jest.fn(),
         getHistory: jest.fn().mockResolvedValue([]),
         setParent: jest.fn(),

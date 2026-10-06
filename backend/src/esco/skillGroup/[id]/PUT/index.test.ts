@@ -63,6 +63,7 @@ describe("SkillGroupPUTController", () => {
         findPaginated: jest.fn(),
         searchPaginated: jest.fn(),
         validateModelForSkillGroup: jest.fn(),
+        validateModelAndGetAvailableLanguages: jest.fn(),
         findParents: jest.fn(),
         findChildren: jest.fn(),
         getHistory: jest.fn(),

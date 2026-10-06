@@ -489,7 +489,7 @@ export class SkillRepository implements ISkillRepository {
       // localized sub documents, so the search targets their fallback language path (e.g. preferredLabel.en);
       // $regex matches altLabels element-wise on that same path, handling arrays and scalars uniformly.
       if (search) {
-        andConditions.push(buildSearchCondition(search, TRANSLATABLE_FIELDS));
+        andConditions.push(buildSearchCondition(search, TRANSLATABLE_FIELDS, lang));
       }
 
       // If a cursor is provided, add it to the match stage to get results after the cursor.

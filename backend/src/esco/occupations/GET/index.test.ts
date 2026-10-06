@@ -121,7 +121,7 @@ describe("Test for occupation List GET handler", () => {
       // GIVEN a request with a search query and explicit searchFields
       const givenModelId = getMockStringId(1);
       const givenSearchValue = "software";
-      const givenCursor = encodeSearchCursor(5);
+      const givenCursor = encodeSearchCursor(5, "en");
       const givenEvent = {
         httpMethod: "GET",
         path: `/models/${givenModelId}/occupations`,

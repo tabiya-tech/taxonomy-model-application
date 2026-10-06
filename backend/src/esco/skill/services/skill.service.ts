@@ -172,7 +172,8 @@ export class SkillService implements ISkillService {
     limit: number,
     language?: string
   ): Promise<{ items: ISkill[]; nextCursor: string | null }> {
-    const offset = cursor ? decodeSearchCursor(cursor) : 0;
+    const lang = language ?? getFallbackLanguageConfig().dbKeyName;
+    const offset = cursor ? decodeSearchCursor(cursor, lang) : 0;
 
     const embeddingService = this.embeddingModelServiceFactory(embeddingServiceId);
     const queryVector = await embeddingService.generateEmbedding(searchValue);
@@ -181,7 +182,7 @@ export class SkillService implements ISkillService {
       indexName: SkillsEmbeddingsVectorSearchIndexName,
       modelId,
       embeddingServiceId,
-      language: language ?? getFallbackLanguageConfig().dbKeyName,
+      language: lang,
       queryVector,
       searchFields,
       limit: limit + 1,
@@ -197,7 +198,7 @@ export class SkillService implements ISkillService {
     const skillById = new Map(skills.map((skill) => [skill.id, skill]));
     const items = ids.map((id) => skillById.get(id)).filter((skill): skill is ISkill => skill !== undefined);
 
-    const nextCursor = hasMore ? encodeSearchCursor(offset + limit) : null;
+    const nextCursor = hasMore ? encodeSearchCursor(offset + limit, lang) : null;
 
     return { items, nextCursor };
   }
