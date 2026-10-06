@@ -26,6 +26,11 @@ import {
   populateOccupationRequiresSkillsOptions,
 } from "esco/occupations/_shared/populate/occupationToSkillRelationOptions";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import {
+  bulkSetTranslatedFields,
+  IBulkTranslationUpdateResult,
+  ITranslationUpdateOperation,
+} from "esco/common/bulkTranslationUpdate";
 import { Readable, Transform } from "node:stream";
 import stream from "stream";
 import { createTranslationStream, DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
@@ -132,6 +137,14 @@ export interface IOccupationRepository extends IEmbeddableEntityRepository {
    * @return {Readable} - A Readable stream of IOccupationWithTranslations
    */
   findAllWithTranslations(modelId: string): Readable;
+
+  /**
+   * Merges a new language's values into matching documents by importId. Never creates or upserts.
+   */
+  bulkSetTranslatedFields(
+    modelId: string,
+    operations: ITranslationUpdateOperation[]
+  ): Promise<IBulkTranslationUpdateResult>;
 
   /**
    * Returns paginated Occupations, ordered by _id. When a `search` is provided, only Occupations whose
@@ -488,6 +501,13 @@ export class OccupationRepository implements IOccupationRepository {
       () => this.Model.find({ modelId: { $eq: modelId } }).cursor(),
       "OccupationRepository.findAllWithTranslations"
     );
+  }
+
+  async bulkSetTranslatedFields(
+    modelId: string,
+    operations: ITranslationUpdateOperation[]
+  ): Promise<IBulkTranslationUpdateResult> {
+    return bulkSetTranslatedFields(this.Model, modelId, operations);
   }
 
   async findPaginated(

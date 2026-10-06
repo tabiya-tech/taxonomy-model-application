@@ -48,6 +48,11 @@ import {
 import { getFallbackLanguageConfig } from "common/language/fallbackLanguage";
 import { unwrapOccupationTranslatableFields } from "esco/occupations/_shared/occupation.reference";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import {
+  bulkSetTranslatedFields,
+  IBulkTranslationUpdateResult,
+  ITranslationUpdateOperation,
+} from "esco/common/bulkTranslationUpdate";
 import { Readable } from "node:stream";
 import stream from "stream";
 import { createTranslationStream, DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
@@ -137,6 +142,14 @@ export interface ISkillRepository extends IEmbeddableEntityRepository {
    * @return {Readable} - A Readable stream of ISkillWithTranslations
    */
   findAllWithTranslations(modelId: string): Readable;
+
+  /**
+   * Merges a new language's values into matching documents by importId. Never creates or upserts.
+   */
+  bulkSetTranslatedFields(
+    modelId: string,
+    operations: ITranslationUpdateOperation[]
+  ): Promise<IBulkTranslationUpdateResult>;
 
   /**
    * Returns paginated Skills with parents, children, requiresSkills, requiredBySkills and requiredByOccupations
@@ -469,6 +482,13 @@ export class SkillRepository implements ISkillRepository {
       () => this.Model.find({ modelId: { $eq: modelId } }).cursor(),
       "SkillRepository.findAllWithTranslations"
     );
+  }
+
+  async bulkSetTranslatedFields(
+    modelId: string,
+    operations: ITranslationUpdateOperation[]
+  ): Promise<IBulkTranslationUpdateResult> {
+    return bulkSetTranslatedFields(this.Model, modelId, operations);
   }
 
   async findPaginated(

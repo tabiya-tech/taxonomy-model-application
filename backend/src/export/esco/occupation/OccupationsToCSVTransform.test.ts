@@ -68,6 +68,7 @@ function setupOccupationRepositoryMock(findAllWithTranslationsImpl: () => Readab
     findByIds: jest.fn().mockResolvedValue([]),
     findAll: jest.fn(),
     findAllWithTranslations: jest.fn().mockImplementationOnce(findAllWithTranslationsImpl),
+    bulkSetTranslatedFields: jest.fn(),
     findPaginated: jest.fn().mockResolvedValue({}),
     getOccupationByUUID: jest.fn().mockResolvedValue(null),
     findHistoryReferencesByUUIDs: jest.fn(),

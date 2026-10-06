@@ -19,6 +19,11 @@ import {
 import { getSkillGroupDocReference, SkillGroupDocument } from "../_shared/skillGroupReference";
 import { toObjectInLanguage } from "../model/SkillGroup.model";
 import { handleInsertManyError } from "esco/common/handleInsertManyErrors";
+import {
+  bulkSetTranslatedFields,
+  IBulkTranslationUpdateResult,
+  ITranslationUpdateOperation,
+} from "esco/common/bulkTranslationUpdate";
 import { buildSearchCondition } from "esco/common/searchCondition";
 import { Readable } from "node:stream";
 import { createTranslationStream, DocumentToObjectTransformer } from "esco/common/documentToObjectTransformer";
@@ -91,6 +96,14 @@ export interface ISkillGroupRepository extends IEmbeddableEntityRepository {
    * @return {Readable} - A Readable stream of ISkillGroupWithTranslations
    */
   findAllWithTranslations(modelId: string): Readable;
+
+  /**
+   * Merges a new language's values into matching documents by importId. Never creates or upserts.
+   */
+  bulkSetTranslatedFields(
+    modelId: string,
+    operations: ITranslationUpdateOperation[]
+  ): Promise<IBulkTranslationUpdateResult>;
 
   findPaginated(
     modelId: string,
@@ -486,6 +499,13 @@ export class SkillGroupRepository implements ISkillGroupRepository {
       () => this.Model.find({ modelId: { $eq: modelId } }).cursor(),
       "SkillGroupRepository.findAllWithTranslations"
     );
+  }
+
+  async bulkSetTranslatedFields(
+    modelId: string,
+    operations: ITranslationUpdateOperation[]
+  ): Promise<IBulkTranslationUpdateResult> {
+    return bulkSetTranslatedFields(this.Model, modelId, operations);
   }
 
   async findParents(
