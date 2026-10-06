@@ -1,12 +1,13 @@
 import LanguageAPISpecs from "api-specifications/language";
 
 export type LanguageOption = {
-  shortCode: string;
+  shortCode: LanguageAPISpecs.Types.LanguageShortCode;
   name: string;
 };
 
 /** The language used when nothing else has been selected yet. */
-export const DEFAULT_LANGUAGE: string = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
+export const DEFAULT_LANGUAGE: LanguageAPISpecs.Types.LanguageShortCode =
+  LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
 
 /**
  * Asks the browser for a language's name written in that language itself, e.g. "français" for "fr".
@@ -44,7 +45,9 @@ export const getLanguageName = (shortCode: string): string => {
 /**
  * Resolves a model's available languages into display options, in the model's own order.
  * @param availableLanguages the short codes of the languages a model has
- * @returns the short code and human readable name of each available language
+ * @returns the short code and human readable name of each available language that is in the registry
  */
 export const getLanguageOptions = (availableLanguages: string[]): LanguageOption[] =>
-  availableLanguages.map((shortCode) => ({ shortCode, name: getLanguageName(shortCode) }));
+  availableLanguages
+    .filter(LanguageAPISpecs.Helpers.isSupportedLanguage)
+    .map((shortCode) => ({ shortCode, name: getLanguageName(shortCode) }));

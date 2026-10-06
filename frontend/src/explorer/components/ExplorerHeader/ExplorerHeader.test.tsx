@@ -257,7 +257,7 @@ describe("ExplorerHeader", () => {
         render(
           <ExplorerHeader
             isLoading={false}
-            language={givenSelectedModel.availableLanguages[0]}
+            language="en"
             models={givenModels}
             selectedModel={givenSelectedModel}
             onModelChange={jest.fn()}
@@ -291,7 +291,7 @@ describe("ExplorerHeader", () => {
         render(
           <ExplorerHeader
             isLoading={false}
-            language={givenSelectedModel.availableLanguages[0]}
+            language="en"
             models={givenModels}
             selectedModel={givenSelectedModel}
             onModelChange={jest.fn()}

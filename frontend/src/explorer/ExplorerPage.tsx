@@ -10,7 +10,9 @@ import {
   useExplorerItemHistory,
   useExplorerTree,
 } from "src/explorer/useExplorerQueries";
+import LanguageAPISpecs from "api-specifications/language";
 import { useLanguage } from "src/language/LanguageProvider";
+import { DEFAULT_LANGUAGE } from "src/language/languages.service";
 import { ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
 import { getLatestSuccessfulExport } from "src/modeldirectory/components/ModelsCardList/components/VersionRow/VersionRow";
@@ -87,16 +89,24 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
 
   const selectedModel = models.find((m) => m.id === modelId) ?? null;
 
-  const urlLanguage = searchParams.get(LANGUAGE_QUERY_PARAM);
+  // The URL comes from the outside world, so a value that is not a language of the registry is ignored, and never
+  // reaches the Accept-Language header of a request.
+  const rawUrlLanguage = searchParams.get(LANGUAGE_QUERY_PARAM);
+  const urlLanguage =
+    rawUrlLanguage !== null && LanguageAPISpecs.Helpers.isSupportedLanguage(rawUrlLanguage) ? rawUrlLanguage : null;
   // Resolved during render so the first fetch is already in the right language. Priority: URL, preferred, current, then
   // the model's first language. While models load, the best guess is used and corrected once they load if unavailable.
-  const resolveLanguage = (): string => {
+  const resolveLanguage = (): LanguageAPISpecs.Types.LanguageShortCode => {
     if (isLoadingModels) return urlLanguage ?? preferredLanguage ?? language;
     // Without a model there are no available languages to check against.
     if (!selectedModel) return language;
-    const isAvailable = (shortCode: string | null): shortCode is string =>
-      !!shortCode && selectedModel.availableLanguages.includes(shortCode);
-    return [urlLanguage, preferredLanguage, language].find(isAvailable) ?? selectedModel.availableLanguages[0];
+    const isAvailable = (
+      shortCode: LanguageAPISpecs.Types.LanguageShortCode | null
+    ): shortCode is LanguageAPISpecs.Types.LanguageShortCode =>
+      shortCode !== null && selectedModel.availableLanguages.includes(shortCode);
+    const firstAvailableLanguage =
+      selectedModel.availableLanguages.find(LanguageAPISpecs.Helpers.isSupportedLanguage) ?? DEFAULT_LANGUAGE;
+    return [urlLanguage, preferredLanguage, language].find(isAvailable) ?? firstAvailableLanguage;
   };
   const resolvedLanguage = resolveLanguage();
 
@@ -119,7 +129,7 @@ const ExplorerPage = ({ initialTab = "occupations" }: ExplorerPageProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedModel?.id, resolvedLanguage, urlLanguage]);
 
-  const handleLanguageChange = (newLanguage: string) => {
+  const handleLanguageChange = (newLanguage: LanguageAPISpecs.Types.LanguageShortCode) => {
     setPreferredLanguage(newLanguage);
     setLanguage(newLanguage);
     setSearchParams((prev) => {

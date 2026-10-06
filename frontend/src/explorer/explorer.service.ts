@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes/";
 import SkillAPISpecs from "api-specifications/esco/skill";
 import OccupationAPISpecs from "api-specifications/esco/occupation";
+import LanguageAPISpecs from "api-specifications/language";
 import { getServiceErrorFactory } from "src/error/error";
 import { ErrorCodes } from "src/error/errorCodes";
 import { fetchWithAuth } from "src/apiService/APIService";
@@ -131,7 +132,11 @@ export default class ExplorerService {
     this.apiServerUrl = apiServerUrl;
   }
 
-  private async getJSON<T>(url: string, serviceFunction: string, language: string): Promise<T> {
+  private async getJSON<T>(
+    url: string,
+    serviceFunction: string,
+    language: LanguageAPISpecs.Types.LanguageShortCode
+  ): Promise<T> {
     const serviceName = "ExplorerService";
     const errorFactory = getServiceErrorFactory(serviceName, serviceFunction, "GET", url);
     const response = await fetchWithAuth(url, {
@@ -158,7 +163,7 @@ export default class ExplorerService {
   private async getAllPages<T>(
     buildUrl: (cursor: string | null) => string,
     serviceFunction: string,
-    language: string
+    language: LanguageAPISpecs.Types.LanguageShortCode
   ): Promise<T[]> {
     const results: T[] = [];
     let cursor: string | null = null;
@@ -173,7 +178,7 @@ export default class ExplorerService {
   public async getRootItems(
     modelId: string,
     tab: "occupations" | "skills",
-    language: string
+    language: LanguageAPISpecs.Types.LanguageShortCode
   ): Promise<ExplorerTreeItem[]> {
     const collection = tab === "occupations" ? "occupationGroups" : "skillGroups";
     const url = `${this.apiServerUrl}/models/${modelId}/${collection}?root=true&limit=${PAGE_LIMIT}`;
@@ -186,7 +191,11 @@ export default class ExplorerService {
     return response.data.map((node) => toRootTreeItem(node, rootObjectType(tab, node)));
   }
 
-  public async getChildren(modelId: string, item: ExplorerTreeItem, language: string): Promise<ExplorerTreeItem[]> {
+  public async getChildren(
+    modelId: string,
+    item: ExplorerTreeItem,
+    language: LanguageAPISpecs.Types.LanguageShortCode
+  ): Promise<ExplorerTreeItem[]> {
     const collection = collectionForObjectType(item.objectType as ObjectType);
     const buildUrl = (cursor: string | null) =>
       `${this.apiServerUrl}/models/${modelId}/${collection}/${item.id}/children?limit=${PAGE_LIMIT}` +
@@ -201,7 +210,7 @@ export default class ExplorerService {
     searchFields: string,
     searchValue: string,
     serviceFunction: string,
-    language: string
+    language: LanguageAPISpecs.Types.LanguageShortCode
   ): Promise<ExplorerApiNode[]> {
     const url =
       `${this.apiServerUrl}/models/${modelId}/${collection}?query=${encodeURIComponent(searchValue)}` +
@@ -210,7 +219,11 @@ export default class ExplorerService {
     return response.data;
   }
 
-  public async searchSkills(modelId: string, searchValue: string, language: string): Promise<ExplorerTreeItem[]> {
+  public async searchSkills(
+    modelId: string,
+    searchValue: string,
+    language: LanguageAPISpecs.Types.LanguageShortCode
+  ): Promise<ExplorerTreeItem[]> {
     const nodes = await this.searchCollection(
       modelId,
       "skills",
@@ -222,7 +235,11 @@ export default class ExplorerService {
     return nodes.map((node) => toSearchResultTreeItem(node, ObjectType.Skill));
   }
 
-  public async searchOccupations(modelId: string, searchValue: string, language: string): Promise<ExplorerTreeItem[]> {
+  public async searchOccupations(
+    modelId: string,
+    searchValue: string,
+    language: LanguageAPISpecs.Types.LanguageShortCode
+  ): Promise<ExplorerTreeItem[]> {
     const nodes = await this.searchCollection(
       modelId,
       "occupations",
@@ -234,7 +251,11 @@ export default class ExplorerService {
     return nodes.map((node) => toSearchResultTreeItem(node, occupationObjectType(node)));
   }
 
-  public async getItemDetail(modelId: string, item: ExplorerTreeItem, language: string): Promise<ExplorerItemDetail> {
+  public async getItemDetail(
+    modelId: string,
+    item: ExplorerTreeItem,
+    language: LanguageAPISpecs.Types.LanguageShortCode
+  ): Promise<ExplorerItemDetail> {
     const collection = collectionForObjectType(item.objectType as ObjectType);
     const url = `${this.apiServerUrl}/models/${modelId}/${collection}/${item.id}`;
     const node = await this.getJSON<ExplorerApiDetailResponse>(url, "getItemDetail", language);
@@ -263,7 +284,7 @@ export default class ExplorerService {
   public async getItemHistory(
     modelId: string,
     item: ExplorerTreeItem,
-    language: string
+    language: LanguageAPISpecs.Types.LanguageShortCode
   ): Promise<ExplorerHistoryItem[]> {
     const collection = collectionForObjectType(item.objectType as ObjectType);
     const url = `${this.apiServerUrl}/models/${modelId}/${collection}/${item.id}/history`;
