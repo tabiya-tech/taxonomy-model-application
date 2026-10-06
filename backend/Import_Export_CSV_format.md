@@ -17,6 +17,52 @@ There are 9 CSV files in the format. Each file contains a different type of data
 
 ## General notes on the fields of the CSV files
 
+### Languages
+
+The platform supports multiple translation languages. Each language is identified by a short code (e.g. `en`, `fr`), and has a corresponding uppercase CSV column suffix (e.g. `EN`, `FR`). The registry of supported languages is compiled into the platform and is not configurable at runtime. The currently supported languages are:
+
+| Language   | Short code | CSV suffix |
+|------------|------------|------------|
+| English    | `en`       | `EN`       |
+| French     | `fr`       | `FR`       |
+| Spanish    | `es`       | `ES`       |
+| Portuguese | `pt`       | `PT`       |
+| Amharic    | `am`       | `AM`       |
+
+#### Translatable fields and language-suffixed columns
+
+Fields whose content can be translated (`PREFERREDLABEL`, `ALTLABELS`, `DESCRIPTION`, `DEFINITION`, `SCOPENOTE`, and `REGULATEDPROFESSIONNOTE` where applicable) carry one CSV column per language in the export format. The column name is the field name followed by `_` and the language's CSV suffix, for example `PREFERREDLABEL_EN`, `PREFERREDLABEL_FR`, `DESCRIPTION_EN`.
+
+The set of language columns present in a file exactly matches the languages listed in the model's `LANGUAGES` field (see [Model Info](#model-info)). For example, a model with `en` and `fr` in its `LANGUAGES` list will have `_EN` and `_FR` columns on every translatable field and no others.
+
+> An empty value in a language-suffixed column means no translation exists for that language.
+
+#### Alt-label positional alignment across languages
+
+Because `ALTLABELS` is a [list](#lists), the importer aligns labels by position across languages. Position 0 of `ALTLABELS_EN` pairs with position 0 of `ALTLABELS_FR`, and so on. Each language's list is deduplicated independently before pairing. If the lists have different lengths after deduplication, the shorter languages will have sparse entries at the trailing positions and a warning is logged.
+
+#### Legacy unsuffixed format
+
+The format used before multilingual support stored translatable values in unsuffixed columns, for example `PREFERREDLABEL` instead of `PREFERREDLABEL_EN`. This legacy format is still accepted on import for backwards compatibility. When the importer detects unsuffixed columns it logs a deprecation warning and maps the value to the model's fallback language (English).
+
+> The legacy format is never produced on export. All new archives should use the suffixed format. A file must use one format consistently for all translatable fields; mixing `PREFERREDLABEL` (unsuffixed) with `DESCRIPTION_EN` (suffixed) in the same file is rejected.
+
+#### Example skill row
+
+Legacy (unsuffixed) format, accepted on import only:
+
+```
+ID,ORIGINURI,UUIDHISTORY,DEFINITION,SCOPENOTE,REUSELEVEL,SKILLTYPE,PREFERREDLABEL,ALTLABELS,DESCRIPTION,ISLOCALIZED,CREATEDAT,UPDATEDAT
+skill-1,http://example.com/s1,uuid-1,,,sector-specific,skill/competence,Cook,"Chef\nCooker",Prepares food,false,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+```
+
+Current (suffixed) format, produced on export (model with `en` and `fr`):
+
+```
+ID,ORIGINURI,UUIDHISTORY,DEFINITION_EN,DEFINITION_FR,SCOPENOTE_EN,SCOPENOTE_FR,REUSELEVEL,SKILLTYPE,PREFERREDLABEL_EN,PREFERREDLABEL_FR,ALTLABELS_EN,ALTLABELS_FR,DESCRIPTION_EN,DESCRIPTION_FR,ISLOCALIZED,CREATEDAT,UPDATEDAT
+skill-1,http://example.com/s1,uuid-1,,,,,sector-specific,skill/competence,Cook,Cuisinier,"Chef\nCooker","Chef\nCuisinier",Prepares food,Prépare les aliments,false,2024-01-01T00:00:00Z,2024-01-01T00:00:00Z
+```
+
 ### UUID History
 
 A `UUIDHISTORY` field is a [list](#lists) of all the UUIDs that have been assigned to an entity during its lifecycle, e.g. when the entity is created, imported, exported or copied into our platform.
@@ -75,6 +121,7 @@ Contains information about the model. The export filename is `model_info.csv`
 - [`UUIDHISTORY`](#uuid-history): A list of [UUIDs](#uuid-history).
 - `NAME`: The name of the model. 
 - `LOCALE`: The short code of the model's locale.
+- `LANGUAGES`: A [list](#lists) of language short codes that this model has translations for (e.g. `en` and `fr` as two newline-separated entries). The order of entries determines the order of the language-suffixed columns in all entity CSV files. Only languages present in the platform's [language registry](#languages) are accepted.
 - `DESCRIPTION`: The description of the model.
 - `VERSION`: The version of the model.
 - `RELEASED`: A boolean value that indicates whether the model is released or not.
@@ -92,20 +139,21 @@ Contains the skills of the taxonomy. The export filename is `skills.csv`
   - Possible values: `skill/competence`,`knowledge`,`language`,`attitude` or empty (` `).
 - `REUSELEVEL`:  The skill reuse level. 
   - Possible values: `sector-specific`,`occupation-specific`,`cross-sector`,`transversal` or empty (` `).
-- `PREFERREDLABEL`: The preferred label of the skill.
-- `ALTLABELS`: A [list](#lists) of alternative labels for the skill.
+- `PREFERREDLABEL_<LANG>`: The preferred label of the skill. One column per language, e.g. `PREFERREDLABEL_EN`, `PREFERREDLABEL_FR`.
+  - Maximum length: `256` characters.
+- `ALTLABELS_<LANG>`: A [list](#lists) of alternative labels for the skill. One column per language. Labels are [aligned by position](#alt-label-positional-alignment-across-languages) across languages.
   - Maximum length per label: `256` characters.
-  - Maximum number of labels: `100`.
-- `DESCRIPTION`: The skill description. 
-  -  Maximum length:`6000` characters.
-- `DEFINITION`: The skill definition. 
-  -  Maximum length:`4000` characters.
-- `SCOPENOTE`: The skill scope note. 
-  -  Maximum length:`4000` characters.
+  - Maximum number of labels: `200`.
+- `DESCRIPTION_<LANG>`: The skill description. One column per language.
+  - Maximum length: `6000` characters.
+- `DEFINITION_<LANG>`: The skill definition. One column per language.
+  - Maximum length: `4000` characters.
+- `SCOPENOTE_<LANG>`: The skill scope note. One column per language.
+  - Maximum length: `4000` characters.
 - `ISLOCALIZED`: A boolean value that indicates whether the skill is localized or not.
   - Possible values: `true` or `false`.
 - `CREATEDAT`: The [date](#dates) the skill was created.
-- `UPDATEDAT`: The [date](#dates) the skill was last updated.\
+- `UPDATEDAT`: The [date](#dates) the skill was last updated.
 
 ### Skill Groups
 Contains the skill groups of the taxonomy. The export filename is `skill_groups.csv`
@@ -115,14 +163,15 @@ Contains the skill groups of the taxonomy. The export filename is `skill_groups.
 - [`ID`](#id): A [unique identifier](#id), used for referencing the skill group within the CSV dataset.
 - [`UUIDHISTORY`](#uuid-history): A list of [UUIDs](#uuid-history).
 - `CODE`: SkillGroup code as defined in ESCO. It has the general format `SX.X.X`, where `X` is a number.
-- `PREFERREDLABEL`: The preferred label of the skill group.
-- `ALTLABELS`: A [list](#lists) of alternative labels for the skill group.
+- `PREFERREDLABEL_<LANG>`: The preferred label of the skill group. One column per language, e.g. `PREFERREDLABEL_EN`, `PREFERREDLABEL_FR`.
+  - Maximum length: `256` characters.
+- `ALTLABELS_<LANG>`: A [list](#lists) of alternative labels for the skill group. One column per language. Labels are [aligned by position](#alt-label-positional-alignment-across-languages) across languages.
   - Maximum length per label: `256` characters.
-  - Maximum number of labels: `100`.
-- `DESCRIPTION`: The skill group description. 
-  -  Maximum length:`6000` characters.
-- `SCOPENOTE`: The skill group scope note. 
-  -  Maximum length:`4000` characters.
+  - Maximum number of labels: `200`.
+- `DESCRIPTION_<LANG>`: The skill group description. One column per language.
+  - Maximum length: `6000` characters.
+- `SCOPENOTE_<LANG>`: The skill group scope note. One column per language.
+  - Maximum length: `4000` characters.
 - `CREATEDAT`: The [date](#dates) the skill group was created.
 - `UPDATEDAT`: The [date](#dates) the skill group was last updated.
 
@@ -137,21 +186,22 @@ Contains the occupations of the taxonomy. The export filename is `occupations.cs
 - `CODE`: An occupation code assigned to the occupation.
   - For ESCO occupations, the code will be the parent code, followed by a `.` and any number of digits. Eg: `XXXX.1234`
   - For local occupations, the code will be the parent code, followed by an `_` and any number of digits. `XXXX_1234`
-- `PREFERREDLABEL`: The preferred label of the occupation.
-- `ALTLABELS`: A [list](#lists) of alternative labels for the occupation.
+- `PREFERREDLABEL_<LANG>`: The preferred label of the occupation. One column per language, e.g. `PREFERREDLABEL_EN`, `PREFERREDLABEL_FR`.
+  - Maximum length: `256` characters.
+- `ALTLABELS_<LANG>`: A [list](#lists) of alternative labels for the occupation. One column per language. Labels are [aligned by position](#alt-label-positional-alignment-across-languages) across languages.
   - Maximum length per label: `256` characters.
-  - Maximum number of labels: `100`.
-- `DESCRIPTION`: The occupation description.
-  -  Maximum length:`6000` characters.
-- `DEFINITION`: The occupation definition.
-  -  Maximum length:`4000` characters.
-- `SCOPENOTE`: The occupation scope note.
-  -  Maximum length:`4000` characters.
-- `REGULATEDPROFESSIONNOTE`: The regulated profession note.
-  -  Maximum length:`4000` characters.
+  - Maximum number of labels: `200`.
+- `DESCRIPTION_<LANG>`: The occupation description. One column per language.
+  - Maximum length: `6000` characters.
+- `DEFINITION_<LANG>`: The occupation definition. One column per language.
+  - Maximum length: `4000` characters.
+- `SCOPENOTE_<LANG>`: The occupation scope note. One column per language.
+  - Maximum length: `4000` characters.
+- `REGULATEDPROFESSIONNOTE_<LANG>`: The regulated profession note. One column per language.
+  - Maximum length: `4000` characters.
 - `OCCUPATIONTYPE`: The type of the occupation. 
   - Possible values: `escooccupation` or `localoccupation`.
-- `ISLOCALIZED`: A boolean value that indicates whether the occupation is localized or not. Only ocuppations of the type `escooccupation` can be localized.
+- `ISLOCALIZED`: A boolean value that indicates whether the occupation is localized or not. Only occupations of the type `escooccupation` can be localized.
   - Possible values: `true` or `false`.
 - `CREATEDAT`: The [date](#dates) the occupation was created.
 - `UPDATEDAT`: The [date](#dates) the occupation was last updated.
@@ -159,7 +209,7 @@ Contains the occupations of the taxonomy. The export filename is `occupations.cs
 ### Occupation Groups
 Contains the Occupation groups of the taxonomy. The export filename is `occupation_groups.csv`
 
-### Columns
+#### Columns
 - [`ORIGINURI`](#origin-uri): A [URI](#origin-uri) that points to the location where the Occupation group was originally defined.
 - [`ID`](#id): A [unique identifier](#id), used for referencing the Occupation group within the CSV dataset.
 - [`UUIDHISTORY`](#uuid-history): A list of [UUIDs](#uuid-history).
@@ -170,12 +220,13 @@ Contains the Occupation groups of the taxonomy. The export filename is `occupati
   - For local groups, if the parent occupation group is also a local group, the code should start with the parent group code and then have either an alphabetical character or a number. Eg: `1234AB` or `1234A1`
 - `GROUPTYPE`: The type of the Occupation group.
   - Possible values: `iscogroup` or `localgroup`.
-- `PREFERREDLABEL`: The preferred label of the Occupation group.
-- `ALTLABELS`: A [list](#lists) of alternative labels for the Occupation group.
+- `PREFERREDLABEL_<LANG>`: The preferred label of the Occupation group. One column per language, e.g. `PREFERREDLABEL_EN`, `PREFERREDLABEL_FR`.
+  - Maximum length: `256` characters.
+- `ALTLABELS_<LANG>`: A [list](#lists) of alternative labels for the Occupation group. One column per language. Labels are [aligned by position](#alt-label-positional-alignment-across-languages) across languages.
   - Maximum length per label: `256` characters.
-  - Maximum number of labels: `100`.
-- `DESCRIPTION`: The Occupation group description.
-  -  Maximum length:`6000` characters.
+  - Maximum number of labels: `200`.
+- `DESCRIPTION_<LANG>`: The Occupation group description. One column per language.
+  - Maximum length: `6000` characters.
 - `CREATEDAT`: The [date](#dates) the Occupation group was created.
 - `UPDATEDAT`: The [date](#dates) the Occupation group was last updated.
 
