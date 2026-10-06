@@ -8,12 +8,14 @@ import { ServiceError } from "src/error/error";
 import { writeServiceErrorToLog } from "src/error/logger";
 import ContentLayout from "src/theme/ContentLayout/ContentLayout";
 import { routerPaths } from "src/app/routerPaths";
+import AvailableLanguages from "src/modeldirectory/components/AvailableLanguages/AvailableLanguages";
 
 const uniqueId = "3f7c1a5b-9e42-4d8f-b6c0-1a2e3f4d5c6b";
 
 export const DATA_TEST_ID = {
   MODEL_SELECTION_PAGE: `model-selection-page-${uniqueId}`,
   MODEL_CARD: `model-selection-page-card-${uniqueId}`,
+  MODEL_CARD_AVAILABLE_LANGUAGES: `model-selection-page-card-available-languages-${uniqueId}`,
 };
 
 const ModelSelectionPage = () => {
@@ -86,6 +88,12 @@ const ModelSelectionPage = () => {
           <Typography variant="body2" color="text.secondary" noWrap>
             {m.locale?.name} ({m.locale?.shortCode})
           </Typography>
+          <Box marginTop={theme.tabiyaSpacing.xs}>
+            <AvailableLanguages
+              availableLanguages={m.availableLanguages}
+              data-testid={`${DATA_TEST_ID.MODEL_CARD_AVAILABLE_LANGUAGES}-${m.id}`}
+            />
+          </Box>
         </Box>
         {m.version && (
           <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "monospace", flexShrink: 0 }}>

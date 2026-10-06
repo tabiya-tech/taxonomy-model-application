@@ -2,7 +2,7 @@
 import "src/_test_utilities/consoleMock";
 
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { render, screen } from "src/_test_utilities/test-utils";
+import { render, screen, within } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import ModelSelectionPage, { DATA_TEST_ID } from "./ModelSelectionPage";
 import ModelInfoService from "src/modelInfo/modelInfo.service";
@@ -10,10 +10,21 @@ import { MODELS_QUERY_KEY } from "src/modelInfo/useModels";
 import { queryClient } from "src/app/providers/QueryProvider";
 import { getArrayOfFakeModels } from "src/modeldirectory/_test_utilities/mockModelData";
 import { routerPaths } from "src/app/routerPaths";
+import { DATA_TEST_ID as AVAILABLE_LANGUAGES_DATA_TEST_ID } from "src/modeldirectory/components/AvailableLanguages/AvailableLanguages";
 
 const givenModels = getArrayOfFakeModels(2);
-givenModels[0] = { ...givenModels[0], name: "Taxonomy for South Africa", version: "v1.0.1-rc.1" };
-givenModels[1] = { ...givenModels[1], name: "Tabiya esco-1.1.1", version: "v0.9.0" };
+givenModels[0] = {
+  ...givenModels[0],
+  name: "Taxonomy for South Africa",
+  version: "v1.0.1-rc.1",
+  availableLanguages: ["en"],
+};
+givenModels[1] = {
+  ...givenModels[1],
+  name: "Tabiya esco-1.1.1",
+  version: "v0.9.0",
+  availableLanguages: ["en", "fr", "es", "pt", "am"],
+};
 
 const renderModelSelectionPage = () =>
   render(
@@ -77,6 +88,34 @@ describe("ModelSelectionPage", () => {
       expect(card).toHaveTextContent(`${model.locale?.name} (${model.locale?.shortCode})`);
       expect(card).toHaveTextContent(model.version);
     }
+    // AND expect no errors or warnings to have been logged
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  test("should show the names of the available languages on each model card", async () => {
+    // GIVEN the models service resolves with a single language model and a model available in five languages
+    const [givenSingleLanguageModel, givenMultilingualModel] = givenModels;
+
+    // WHEN the page is rendered
+    renderModelSelectionPage();
+
+    // THEN expect the card of the multilingual model to show the names of its languages
+    const actualMultilingualLanguages = await screen.findByTestId(
+      `${DATA_TEST_ID.MODEL_CARD_AVAILABLE_LANGUAGES}-${givenMultilingualModel.id}`
+    );
+    expect(actualMultilingualLanguages).toHaveTextContent("English, French, Spanish, Portuguese, Amharic");
+    // AND the names to be inside the card of the multilingual model
+    expect(screen.getByTestId(`${DATA_TEST_ID.MODEL_CARD}-${givenMultilingualModel.id}`)).toContainElement(
+      actualMultilingualLanguages
+    );
+    // AND the card of the single language model to show the name of its language
+    const actualSingleLanguage = screen.getByTestId(
+      `${DATA_TEST_ID.MODEL_CARD_AVAILABLE_LANGUAGES}-${givenSingleLanguageModel.id}`
+    );
+    expect(
+      within(actualSingleLanguage).getByTestId(AVAILABLE_LANGUAGES_DATA_TEST_ID.AVAILABLE_LANGUAGES_NAMES)
+    ).toHaveTextContent(/^English$/);
     // AND expect no errors or warnings to have been logged
     expect(console.error).not.toHaveBeenCalled();
     expect(console.warn).not.toHaveBeenCalled();

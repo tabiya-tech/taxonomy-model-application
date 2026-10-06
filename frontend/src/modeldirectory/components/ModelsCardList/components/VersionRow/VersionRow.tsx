@@ -16,6 +16,7 @@ import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState";
 import { routerPaths } from "src/app/routerPaths";
 import { useNavigate } from "react-router-dom";
+import AvailableLanguages from "src/modeldirectory/components/AvailableLanguages/AvailableLanguages";
 
 export interface VersionRowProps {
   model: ModelInfoTypes.ModelInfo;
@@ -33,6 +34,7 @@ export const DATA_TEST_ID = {
   VERSION_TEXT: `version-text-${uniqueId}`,
   LATEST_CHIP: `latest-chip-${uniqueId}`,
   LOCALE_CHIP: `locale-chip-${uniqueId}`,
+  AVAILABLE_LANGUAGES: `available-languages-${uniqueId}`,
   RELEASE_CANDIDATE_CHIP: `release-candidate-chip-${uniqueId}`,
   IMPORT_STATE_ICON_CONTAINER: `import-state-icon-container-${uniqueId}`,
   EXPORT_STATE_ICON_CONTAINER: `export-state-icon-container-${uniqueId}`,
@@ -160,68 +162,74 @@ const VersionRow = (props: Readonly<VersionRowProps>) => {
       paddingRight={theme.fixedSpacing(theme.tabiyaSpacing.lg)}
       data-testid={DATA_TEST_ID.VERSION_ROW}
     >
-      <Box
-        display="flex"
-        flexDirection="row"
-        flexWrap="wrap"
-        alignItems="center"
-        gap={theme.tabiyaSpacing.sm}
-        minWidth={0}
-      >
-        <Typography
-          variant="body2"
-          sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: "bold" }}
-          data-testid={DATA_TEST_ID.VERSION_TEXT}
+      <Box display="flex" flexDirection="column" gap={theme.tabiyaSpacing.sm} minWidth={0}>
+        <Box
+          display="flex"
+          flexDirection="row"
+          flexWrap="wrap"
+          alignItems="center"
+          gap={theme.tabiyaSpacing.sm}
+          minWidth={0}
         >
-          {versionLabel}
-        </Typography>
-        {props.isLatest && (
+          <Typography
+            variant="body2"
+            sx={{ fontFamily: '"IBM Plex Mono", monospace', fontWeight: "bold" }}
+            data-testid={DATA_TEST_ID.VERSION_TEXT}
+          >
+            {versionLabel}
+          </Typography>
+          {props.isLatest && (
+            <Chip
+              size="small"
+              label={TEXT.LATEST_CHIP_LABEL}
+              sx={{
+                backgroundColor: alpha(theme.palette.success.main, 0.12),
+                color: theme.palette.success.dark,
+                fontWeight: 500,
+                fontSize: theme.typography.caption.fontSize,
+              }}
+              data-testid={DATA_TEST_ID.LATEST_CHIP}
+            />
+          )}
+          {!props.model.released && (
+            <Chip
+              size="small"
+              label={TEXT.RELEASE_CANDIDATE_CHIP_LABEL}
+              sx={{
+                backgroundColor: alpha(theme.palette.warning.main, 0.15),
+                color: theme.palette.warning.dark,
+                fontWeight: 500,
+                fontSize: theme.typography.caption.fontSize,
+              }}
+              data-testid={DATA_TEST_ID.RELEASE_CANDIDATE_CHIP}
+            />
+          )}
           <Chip
             size="small"
-            label={TEXT.LATEST_CHIP_LABEL}
+            label={props.model.locale.shortCode}
             sx={{
-              backgroundColor: alpha(theme.palette.success.main, 0.12),
-              color: theme.palette.success.dark,
+              backgroundColor: alpha(theme.palette.primary.main, 0.12),
+              color: theme.palette.primary.dark,
               fontWeight: 500,
               fontSize: theme.typography.caption.fontSize,
             }}
-            data-testid={DATA_TEST_ID.LATEST_CHIP}
+            data-testid={DATA_TEST_ID.LOCALE_CHIP}
           />
-        )}
-        {!props.model.released && (
-          <Chip
-            size="small"
-            label={TEXT.RELEASE_CANDIDATE_CHIP_LABEL}
-            sx={{
-              backgroundColor: alpha(theme.palette.warning.main, 0.15),
-              color: theme.palette.warning.dark,
-              fontWeight: 500,
-              fontSize: theme.typography.caption.fontSize,
-            }}
-            data-testid={DATA_TEST_ID.RELEASE_CANDIDATE_CHIP}
-          />
-        )}
-        <Chip
-          size="small"
-          label={props.model.locale.shortCode}
-          sx={{
-            backgroundColor: alpha(theme.palette.primary.main, 0.12),
-            color: theme.palette.primary.dark,
-            fontWeight: 500,
-            fontSize: theme.typography.caption.fontSize,
-          }}
-          data-testid={DATA_TEST_ID.LOCALE_CHIP}
+          {props.isModelManager && (
+            <Box display="flex" alignItems="center" data-testid={DATA_TEST_ID.IMPORT_STATE_ICON_CONTAINER}>
+              <ImportProcessStateIcon importProcessState={props.model.importProcessState} />
+            </Box>
+          )}
+          {props.isModelManager && !latestSuccessfulExport && latestExport && (
+            <Box display="flex" alignItems="center" data-testid={DATA_TEST_ID.EXPORT_STATE_ICON_CONTAINER}>
+              <ExportProcessStateIcon exportProcessState={latestExport} />
+            </Box>
+          )}
+        </Box>
+        <AvailableLanguages
+          availableLanguages={props.model.availableLanguages}
+          data-testid={DATA_TEST_ID.AVAILABLE_LANGUAGES}
         />
-        {props.isModelManager && (
-          <Box display="flex" alignItems="center" data-testid={DATA_TEST_ID.IMPORT_STATE_ICON_CONTAINER}>
-            <ImportProcessStateIcon importProcessState={props.model.importProcessState} />
-          </Box>
-        )}
-        {props.isModelManager && !latestSuccessfulExport && latestExport && (
-          <Box display="flex" alignItems="center" data-testid={DATA_TEST_ID.EXPORT_STATE_ICON_CONTAINER}>
-            <ExportProcessStateIcon exportProcessState={latestExport} />
-          </Box>
-        )}
       </Box>
       <Box
         display="flex"

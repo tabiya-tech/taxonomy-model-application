@@ -16,3 +16,9 @@ export default meta;
 type Story = StoryObj<typeof ModelPropertiesDescription>;
 
 export const Shown: Story = {};
+
+export const ShownWithMultipleLanguages: Story = {
+  args: {
+    model: { ...getOneFakeModel(1), availableLanguages: ["en", "am", "fr"] },
+  },
+};

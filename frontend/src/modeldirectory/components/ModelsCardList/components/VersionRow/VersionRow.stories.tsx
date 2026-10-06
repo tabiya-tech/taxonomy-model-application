@@ -64,3 +64,15 @@ export const ModelManagerUnreleasedModel: Story = {
     isModelManager: true,
   },
 };
+
+export const MultilingualModel: Story = {
+  args: {
+    model: (() => {
+      const model = getDownloadableModel();
+      model.availableLanguages = ["en", "am", "fr"];
+      return model;
+    })(),
+    isLatest: true,
+    isModelManager: false,
+  },
+};
