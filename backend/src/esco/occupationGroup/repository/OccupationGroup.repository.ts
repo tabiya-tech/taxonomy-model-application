@@ -51,6 +51,11 @@ import {
   wrapTranslatableFieldsFromObjects,
 } from "common/language/translatedFields";
 import { buildSearchCondition } from "esco/common/searchCondition";
+import {
+  bulkSetTranslatedFields,
+  IBulkTranslationUpdateResult,
+  ITranslationUpdateOperation,
+} from "esco/common/bulkTranslationUpdate";
 
 interface FindPaginatedFilter {
   root?: boolean;
@@ -136,6 +141,14 @@ export interface IOccupationGroupRepository extends IEmbeddableEntityRepository 
    * @return {Readable} - A Readable stream of IOccupationGroupWithTranslations
    */
   findAllWithTranslations(modelId: string): Readable;
+
+  /**
+   * Merges a new language's values into matching documents by importId. Never creates or upserts.
+   */
+  bulkSetTranslatedFields(
+    modelId: string,
+    operations: ITranslationUpdateOperation[]
+  ): Promise<IBulkTranslationUpdateResult>;
 
   /**
    * Returns paginated OccupationGroups. The OccupationGroups are transformed to objects (via .lean()), however
@@ -635,6 +648,13 @@ export class OccupationGroupRepository implements IOccupationGroupRepository {
       () => this.Model.find({ modelId: { $eq: modelId } }).cursor(),
       "OccupationGroupRepository.findAllWithTranslations"
     );
+  }
+
+  async bulkSetTranslatedFields(
+    modelId: string,
+    operations: ITranslationUpdateOperation[]
+  ): Promise<IBulkTranslationUpdateResult> {
+    return bulkSetTranslatedFields(this.Model, modelId, operations);
   }
 
   async findPaginated(

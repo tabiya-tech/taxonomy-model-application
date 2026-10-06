@@ -61,6 +61,7 @@ function setupSkillGroupRepositoryMock(findAllWithTranslationsImpl: () => Readab
     findById: jest.fn().mockResolvedValue(null),
     findAll: jest.fn(),
     findAllWithTranslations: jest.fn().mockImplementationOnce(findAllWithTranslationsImpl),
+    bulkSetTranslatedFields: jest.fn(),
     findParents: jest.fn().mockResolvedValue([]),
     findChildren: jest.fn().mockResolvedValue([]),
     findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),

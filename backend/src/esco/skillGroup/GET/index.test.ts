@@ -737,6 +737,7 @@ describe("SkillGroupListController", () => {
       findById: jest.fn().mockResolvedValue(null),
       findAll: jest.fn().mockResolvedValue(null),
       findAllWithTranslations: jest.fn(),
+      bulkSetTranslatedFields: jest.fn(),
       findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
       findByIds: jest.fn().mockResolvedValue([]),
       findParents: jest.fn().mockResolvedValue({ items: [], nextCursor: null }),

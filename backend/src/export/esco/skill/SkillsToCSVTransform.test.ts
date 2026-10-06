@@ -93,6 +93,7 @@ function setupSkillRepositoryMock(findAllWithTranslationsImpl: () => Readable) {
     findById: jest.fn().mockResolvedValue(null),
     findAll: jest.fn(),
     findAllWithTranslations: jest.fn().mockImplementationOnce(findAllWithTranslationsImpl),
+    bulkSetTranslatedFields: jest.fn(),
     findPaginated: jest.fn(),
     findByIds: jest.fn(),
     findParents: jest.fn(),

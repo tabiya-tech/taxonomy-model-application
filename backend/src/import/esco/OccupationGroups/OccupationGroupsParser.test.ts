@@ -95,6 +95,7 @@ describe("test parseOccupationGroups from", () => {
         findById: jest.fn().mockResolvedValue({}),
         findAll: jest.fn(),
         findAllWithTranslations: jest.fn(),
+        bulkSetTranslatedFields: jest.fn(),
         getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
         findHistoryReferencesByUUIDs: jest.fn().mockResolvedValue([]),
         findParent: jest.fn().mockResolvedValue(null),

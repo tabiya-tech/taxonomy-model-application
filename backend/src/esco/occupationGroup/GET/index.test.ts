@@ -606,6 +606,7 @@ describe("OccupationGroupListController", () => {
       findById: jest.fn().mockResolvedValue(null),
       findAll: jest.fn().mockResolvedValue(null),
       findAllWithTranslations: jest.fn(),
+      bulkSetTranslatedFields: jest.fn(),
       findPaginated: jest.fn().mockRejectedValue(new Error("foo")),
       findByIds: jest.fn().mockResolvedValue([]),
       getOccupationGroupByUUID: jest.fn().mockResolvedValue(null),
