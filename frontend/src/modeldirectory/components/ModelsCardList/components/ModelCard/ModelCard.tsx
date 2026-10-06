@@ -5,6 +5,7 @@ import { TaxonomyGroup } from "src/modeldirectory/components/ModelsCardList/grou
 import ImportProcessStateIcon from "src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon";
 import MarkdownPropertyField from "src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyField";
 import VersionRow from "../VersionRow/VersionRow";
+import AvailableLanguages from "src/modeldirectory/components/AvailableLanguages/AvailableLanguages";
 
 export interface ModelCardProps {
   group: TaxonomyGroup;
@@ -22,6 +23,7 @@ export const DATA_TEST_ID = {
   MODEL_CARD_STATUS_ICON_CONTAINER: `model-card-status-icon-container-${uniqueId}`,
   MODEL_CARD_TITLE: `model-card-title-${uniqueId}`,
   MODEL_CARD_SUBTITLE: `model-card-subtitle-${uniqueId}`,
+  MODEL_CARD_AVAILABLE_LANGUAGES: `model-card-available-languages-${uniqueId}`,
   MODEL_CARD_DESCRIPTION: `model-card-description-${uniqueId}`,
   MODEL_CARD_VERSIONS_COUNT: `model-card-versions-count-${uniqueId}`,
   MODEL_CARD_DETAILS: `model-card-details-${uniqueId}`,
@@ -81,8 +83,8 @@ export function getVersionsCountText(count: number): string {
 
 /**
  * An expandable card for a model (grouped by locale).
- * The collapsed header shows the status, title, subtitle (model name), description and number of versions,
- * the expanded card shows one row per version.
+ * The collapsed header shows the status, title, subtitle (model name), languages of the latest model,
+ * description and number of versions, the expanded card shows one row per version.
  */
 const ModelCard = (props: Readonly<ModelCardProps>) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -165,6 +167,13 @@ const ModelCard = (props: Readonly<ModelCardProps>) => {
             >
               {getCardSubtitle(props.group)}
             </Typography>
+            <Box marginTop={(theme) => theme.tabiyaSpacing.xs}>
+              <AvailableLanguages
+                availableLanguages={props.group.latestModel.availableLanguages}
+                showLabel
+                data-testid={DATA_TEST_ID.MODEL_CARD_AVAILABLE_LANGUAGES}
+              />
+            </Box>
             <Box
               marginTop={(theme) => theme.tabiyaSpacing.xs}
               // links in the description should not toggle the accordion when clicked

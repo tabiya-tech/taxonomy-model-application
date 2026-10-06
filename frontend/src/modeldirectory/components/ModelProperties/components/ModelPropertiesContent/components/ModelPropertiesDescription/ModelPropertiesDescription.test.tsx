@@ -33,6 +33,11 @@ jest.mock("src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyF
 });
 
 describe("ModelPropertiesDescription", () => {
+  beforeEach(() => {
+    (console.error as jest.Mock).mockClear();
+    (console.warn as jest.Mock).mockClear();
+  });
+
   test("should render correctly with the provided model props", () => {
     // GIVEN a model
     const givenModel = fakeModel;
@@ -72,6 +77,19 @@ describe("ModelPropertiesDescription", () => {
       },
       {}
     );
+    // AND the available languages property to be shown
+    const availableLanguagesComponent = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_AVAILABLE_LANGUAGES);
+    expect(availableLanguagesComponent).toBeInTheDocument();
+    // AND the TextPropertyField component to be called with the name of the language, under a singular label
+    expect(TextPropertyField).toHaveBeenCalledWith(
+      {
+        label: FIELD_LABEL_TEXT.LABEL_LANGUAGE,
+        text: "English",
+        "data-testid": DATA_TEST_ID.MODEL_PROPERTIES_AVAILABLE_LANGUAGES,
+        fieldId: FIELD_ID.AVAILABLE_LANGUAGES,
+      },
+      {}
+    );
     // AND the description property to be shown
     const descriptionItem = screen.getByTestId(DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION);
     expect(descriptionItem).toBeInTheDocument();
@@ -89,6 +107,29 @@ describe("ModelPropertiesDescription", () => {
     expect(modelPropertiesDescriptionContainer).toMatchSnapshot();
   });
 
+  test("should show the names of every available language of a multilingual model", () => {
+    // GIVEN a model available in English, Amharic and French
+    const givenModel = { ...fakeModel, availableLanguages: ["en", "am", "fr"] };
+
+    // WHEN the ModelPropertiesDescription is rendered with the given model
+    render(<ModelPropertiesDescription model={givenModel} />);
+
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the TextPropertyField component to be called with the names of the languages, in the model's order,
+    // under a plural label
+    expect(TextPropertyField).toHaveBeenCalledWith(
+      {
+        label: FIELD_LABEL_TEXT.LABEL_LANGUAGES,
+        text: "English, Amharic, French",
+        "data-testid": DATA_TEST_ID.MODEL_PROPERTIES_AVAILABLE_LANGUAGES,
+        fieldId: FIELD_ID.AVAILABLE_LANGUAGES,
+      },
+      {}
+    );
+  });
+
   describe(
     // eslint-disable-next-line jest/valid-describe-callback,jest/valid-title
     authorizationTests.defaultName,
@@ -100,6 +141,7 @@ describe("ModelPropertiesDescription", () => {
         DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION_CONTAINER,
         DATA_TEST_ID.MODEL_PROPERTIES_NAME,
         DATA_TEST_ID.MODEL_PROPERTIES_LOCALE,
+        DATA_TEST_ID.MODEL_PROPERTIES_AVAILABLE_LANGUAGES,
         DATA_TEST_ID.MODEL_PROPERTIES_DESCRIPTION,
       ],
     })

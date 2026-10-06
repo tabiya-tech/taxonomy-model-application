@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material";
 import TextPropertyField from "src/theme/PropertyFieldLayout/TextPropertyField/TextPropertyField";
 import MarkdownPropertyField from "src/theme/PropertyFieldLayout/MarkdownPropertyField/MarkdownPropertyField";
+import { getLanguageNames } from "src/modeldirectory/components/AvailableLanguages/AvailableLanguages";
 
 export interface ModelPropertiesDescriptionProps {
   model: ModelInfoTypes.ModelInfo;
@@ -15,18 +16,22 @@ export const DATA_TEST_ID = {
   MODEL_PROPERTIES_DESCRIPTION_CONTAINER: `model-properties-description-container-${uniqueId}`,
   MODEL_PROPERTIES_NAME: `model-properties-name-${uniqueId}`,
   MODEL_PROPERTIES_LOCALE: `model-properties-locale-${uniqueId}`,
+  MODEL_PROPERTIES_AVAILABLE_LANGUAGES: `model-properties-available-languages-${uniqueId}`,
   MODEL_PROPERTIES_DESCRIPTION: `model-properties-description-${uniqueId}`,
 };
 
 export const FIELD_ID = {
   NAME: `name-${uniqueId}`,
   LOCALE: `locale-${uniqueId}`,
+  AVAILABLE_LANGUAGES: `available-languages-${uniqueId}`,
   DESCRIPTION: `description-${uniqueId}`,
 };
 
 export const FIELD_LABEL_TEXT = {
   LABEL_NAME: "Name",
   LABEL_LOCALE: "Locale",
+  LABEL_LANGUAGE: "Language",
+  LABEL_LANGUAGES: "Languages",
   LABEL_DESCRIPTION: "Description",
 };
 
@@ -59,6 +64,16 @@ const ModelPropertiesDescription: React.FC<ModelPropertiesDescriptionProps> = (
         text={`${props.model.locale.name}(${props.model.locale.shortCode})`}
         data-testid={DATA_TEST_ID.MODEL_PROPERTIES_LOCALE}
         fieldId={FIELD_ID.LOCALE}
+      />
+      <TextPropertyField
+        label={
+          props.model.availableLanguages.length === 1
+            ? FIELD_LABEL_TEXT.LABEL_LANGUAGE
+            : FIELD_LABEL_TEXT.LABEL_LANGUAGES
+        }
+        text={getLanguageNames(props.model.availableLanguages)}
+        data-testid={DATA_TEST_ID.MODEL_PROPERTIES_AVAILABLE_LANGUAGES}
+        fieldId={FIELD_ID.AVAILABLE_LANGUAGES}
       />
       <MarkdownPropertyField
         label={FIELD_LABEL_TEXT.LABEL_DESCRIPTION}

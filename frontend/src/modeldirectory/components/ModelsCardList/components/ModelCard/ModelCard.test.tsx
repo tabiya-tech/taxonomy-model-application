@@ -115,6 +115,9 @@ describe("ModelCard", () => {
     // AND the subtitle to be shown
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_CARD_SUBTITLE)).toHaveTextContent(getCardSubtitle(givenGroup));
 
+    // AND the languages of the latest model to be shown
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_CARD_AVAILABLE_LANGUAGES)).toHaveTextContent("Language:English");
+
     // AND the description of the latest model to be shown
     expect(screen.getByTestId(DATA_TEST_ID.MODEL_CARD_DESCRIPTION)).toHaveTextContent(
       givenGroup.latestModel.description
@@ -125,6 +128,34 @@ describe("ModelCard", () => {
 
     // AND the card to match the snapshot
     expect(actualCard).toMatchSnapshot();
+  });
+
+  test("should render the languages of the latest model when the versions carry different languages", () => {
+    // GIVEN a group whose latest model is available in English and French
+    const locale = { UUID: getMockUUID(5002), name: "Kenya", shortCode: "KE" };
+    const givenLatestModel = getOneDeterministicFakeModel(1, {
+      locale,
+      availableLanguages: ["en", "fr"],
+      createdAt: new Date("2023-03-01T00:00:00.000Z"),
+    });
+    // AND an older model available only in English
+    const givenOlderModel = getOneDeterministicFakeModel(2, {
+      locale,
+      availableLanguages: ["en"],
+      createdAt: new Date("2023-02-01T00:00:00.000Z"),
+    });
+    const givenGroup = groupModelsByLocale([givenOlderModel, givenLatestModel])[0];
+
+    // WHEN the component is rendered
+    renderModelCard(givenGroup);
+
+    // THEN expect no errors or warning to have occurred
+    expect(console.error).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
+    // AND the languages of the latest model to be shown with their label
+    expect(screen.getByTestId(DATA_TEST_ID.MODEL_CARD_AVAILABLE_LANGUAGES)).toHaveTextContent(
+      "Languages:English, French"
+    );
   });
 
   test("should render one version row per model with the correct props", () => {

@@ -1,7 +1,7 @@
 // mute the console
 import "src/_test_utilities/consoleMock";
 
-import { render, screen } from "src/_test_utilities/test-utils";
+import { render, screen, within } from "src/_test_utilities/test-utils";
 import userEvent from "@testing-library/user-event";
 import VersionRow, {
   DATA_TEST_ID,
@@ -22,6 +22,7 @@ import ExportProcessStateAPISpecs from "api-specifications/exportProcessState";
 import { ModelInfoTypes } from "src/modelInfo/modelInfoTypes";
 import { DATA_TEST_ID as APPROVE_MODAL_DATA_TEST_ID } from "src/theme/ApproveModal/ApproveModal";
 import { routerPaths } from "src/app/routerPaths";
+import { DATA_TEST_ID as AVAILABLE_LANGUAGES_DATA_TEST_ID } from "src/modeldirectory/components/AvailableLanguages/AvailableLanguages";
 
 // mock the ImportProcessStateIcon component
 jest.mock("src/modeldirectory/components/ImportProcessStateIcon/ImportProcessStateIcon", () => {
@@ -158,6 +159,43 @@ describe("VersionRow", () => {
 
     // THEN expect no release candidate chip
     expect(screen.queryByTestId(DATA_TEST_ID.RELEASE_CANDIDATE_CHIP)).not.toBeInTheDocument();
+  });
+
+  describe("available languages", () => {
+    test("should render the names of the available languages below the version for a multilingual model", () => {
+      // GIVEN a model available in English, Amharic and French
+      const givenModel = getOneDeterministicFakeModel(1, { availableLanguages: ["en", "am", "fr"] });
+
+      // WHEN the component is rendered
+      setupVersionRow({ model: givenModel, isLatest: true });
+
+      // THEN expect no errors or warning to have occurred
+      expect(console.error).not.toHaveBeenCalled();
+      expect(console.warn).not.toHaveBeenCalled();
+      // AND the names of the available languages to be shown
+      expect(screen.getByTestId(DATA_TEST_ID.AVAILABLE_LANGUAGES)).toHaveTextContent("English, Amharic, French");
+      // AND the locale chip to still show only the locale short code
+      expect(screen.getByTestId(DATA_TEST_ID.LOCALE_CHIP)).toHaveTextContent(
+        new RegExp(`^${givenModel.locale.shortCode}$`)
+      );
+      // AND the row to match the snapshot
+      expect(screen.getByTestId(DATA_TEST_ID.VERSION_ROW)).toMatchSnapshot();
+    });
+
+    test("should render the name of the language of a single language model", () => {
+      // GIVEN a model available in a single language
+      const givenModel = getOneDeterministicFakeModel(1, { availableLanguages: ["en"] });
+
+      // WHEN the component is rendered
+      setupVersionRow({ model: givenModel });
+
+      // THEN expect the name of the language to be shown
+      expect(
+        within(screen.getByTestId(DATA_TEST_ID.AVAILABLE_LANGUAGES)).getByTestId(
+          AVAILABLE_LANGUAGES_DATA_TEST_ID.AVAILABLE_LANGUAGES_NAMES
+        )
+      ).toHaveTextContent(/^English$/);
+    });
   });
 
   test("should notify on explore when the explore button is clicked", async () => {
