@@ -59,6 +59,8 @@ describe("Test for occupationGroup PATCH handler with a DB", () => {
     });
     const givenOccupationGroup = await getRepositoryRegistry().OccupationGroup.create({
       ...getNewISCOGroupSpecsWithoutImportId(),
+      // A fixed origin URI, as the random one has no scheme in some runs and then fails the response schema's uri format.
+      originUri: "https://example.com/managers",
       modelId: givenModel.id,
       preferredLabel: { en: "Managers", fr: "Directeurs" },
       description: { en: "A description", fr: "Une description" },
