@@ -43,7 +43,16 @@ the documents it changed, an immediate second run reports zero.
 - Run `0001` before `0003` and `0005`: both read `availableLanguages` to know which language the data of a model is
   in, and fall back to the fall back language for a model that does not declare any.
 - Run it against a copy first when the collection is large, and record the duration on the ticket.
-- Deploy code that tolerates both shapes before migrating, and the code that reads the new shape after.
+- Deploy code that tolerates both shapes before migrating, and the code that reads the new shape after, see
+  [Deploying a change that needs a data migration](../../../deployment-guidelines.md#deploying-a-change-that-needs-a-data-migration).
+
+## After running one
+
+- After `0006` up, recreate the vector search indexes. `yarn create:vector-index` leaves an index that already exists
+  untouched, and an index created before `0006` has no `language` filter, so drop the four
+  `*_embeddings_vector_index` indexes in Atlas first, then run it.
+- Before `0006` down, delete the embeddings of every language but the fall back language. `down` restores the unique
+  index without `language`, which fails on an entity that is embedded in two languages.
 
 ## Adding a migration
 
@@ -61,3 +70,4 @@ the documents it changed, an immediate second run reports zero.
 | `0003-occupation-groups-localized-fields` | Rewrites `preferredLabel`, `description` and `altLabels` of every occupation group into localized sub documents keyed by the first language its model declares, e.g. `"x"` into `{ "en": "x" }`. `down` flattens them back to the value of that language. `code` and `groupType` are monolingual and are left untouched. A group whose model no longer exists is left untouched and reported. |
 | `0004-skills-localized-fields`            | Rewrites the Skill collection's translatable fields into localized sub documents. `down` flattens them back to the fallback language.                                                                                                                                                                                                                                                         |
 | `0005-skill-groups-localized-fields`      | Rewrites `preferredLabel`, `description`, `scopeNote` and `altLabels` of every skill group into localized sub documents keyed by the first language its model declares, e.g. `"x"` into `{ "en": "x" }`. `down` flattens them back to the value of that language. `code` is monolingual and is left untouched. A group whose model no longer exists is left untouched and reported.           |
+| `0006-entity-embeddings-language`         | Sets `language: "en"` on every entity embedding that has no `language`, all of them having been generated from the English text, and rebuilds the unique index of the four embedding collections to include `language`. `down` removes the field and restores the index without it, see [After running one](#after-running-one).                                                              |

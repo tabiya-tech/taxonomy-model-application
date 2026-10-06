@@ -68,9 +68,27 @@ this module does not touch `locales/` or `iac/locales/`.
 4. Release `api-specifications`.
 5. Backend: the new `dbKeyName` widens `LanguageShortCode` and the translated sub-document keys. Check the Mongoose
    schemas that validate against the registry, and the import and export column builders that emit `csvSuffix`
-   columns. Configure the embeddings for the new language. Rebuild.
-6. Frontend: the new language becomes selectable wherever the registry is rendered. Rebuild.
-7. Run `./run-before-merge.sh` from the repository root.
+   columns. Rebuild.
+6. Embeddings: there is no per language embedding configuration to add, but there is a check to make.
+   - Every embedding service of [`embeddings/constants.ts`](../embeddings/constants.ts) embeds every language a model
+     has. Confirm that its `modelName` supports the new language. If it does not, the language needs a new embedding
+     service entry, which is a change of its own.
+   - The embedding process pushes one task per entity per language of the model's `availableLanguages`, and the vector
+     search indexes already filter on `language`, so neither needs a change.
+7. Data: no script adds a language to the data of an existing model. A model gets the language by being imported with
+   it:
+   - export the model, or start from the source CSV files,
+   - add the language to the `LANGUAGES` column of `model_info.csv`, and a `_<csvSuffix>` column to every translatable
+     field, see [Languages](../../../backend/Import_Export_CSV_format.md#languages) in the CSV format documentation,
+   - import the files as a new model, with the language selected in the import dialog,
+   - trigger an embedding process for the new model, `POST /models/{modelId}/embedding-processes`, so that it is
+     embedded in every language it has.
+8. Frontend: the new language becomes selectable in the import dialog, `ModelLanguagesSelectField` renders the registry
+   as `name (shortCode)`. No frontend copy names a language by hand, the only language specific copy is derived from
+   `FALLBACK_LANGUAGE.name`, so there is no copy to translate. Review the snapshots that render the list of languages,
+   and add the language to the table of [Languages](../../../backend/Import_Export_CSV_format.md#languages) in the CSV
+   format documentation. Rebuild.
+9. Run `./run-before-merge.sh` from the repository root.
 
 ## Shape validation versus registry membership
 
