@@ -52,10 +52,16 @@ const mergeChildrenIntoTree = (
   childrenByItemId: Map<string, { data?: ExplorerTreeItem[]; isLoading: boolean }>
 ): ExplorerTreeItem[] =>
   items.map((item) => {
-    const expanded = childrenByItemId.get(item.id);
-    if (!expanded) return item;
-    const children = expanded.data ? mergeChildrenIntoTree(expanded.data, childrenByItemId) : item.children;
-    return { ...item, isLoadingChildren: expanded.isLoading, children };
+    const fetchState = childrenByItemId.get(item.id);
+
+    // Use the newly fetched children if we have them. If not, keep the ones this item already had.
+    const children = fetchState ? fetchState.data : item.children;
+
+    const mergedChildren = children ? mergeChildrenIntoTree(children, childrenByItemId) : undefined;
+
+    const isLoadingChildren = fetchState ? fetchState.isLoading : item.isLoadingChildren;
+
+    return { ...item, isLoadingChildren, children: mergedChildren };
   });
 
 type ExplorerPageProps = {
