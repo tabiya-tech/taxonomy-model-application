@@ -5,6 +5,7 @@ import { useTheme } from "@mui/material";
 import { useModels } from "src/modelInfo/useModels";
 import { ObjectType } from "src/explorer/explorer.types";
 import {
+  byCodeAscending,
   useExplorerChildren,
   useExplorerItemDetail,
   useExplorerItemHistory,
@@ -57,7 +58,9 @@ const mergeChildrenIntoTree = (
     // Use the newly fetched children if we have them. If not, keep the ones this item already had.
     const children = fetchState ? fetchState.data : item.children;
 
-    const mergedChildren = children ? mergeChildrenIntoTree(children, childrenByItemId) : undefined;
+    const mergedChildren = children
+      ? mergeChildrenIntoTree([...children].sort(byCodeAscending), childrenByItemId)
+      : undefined;
 
     const isLoadingChildren = fetchState ? fetchState.isLoading : item.isLoadingChildren;
 

@@ -213,6 +213,27 @@ describe("ExplorerPage", () => {
     expect(getItemHistorySpy).not.toHaveBeenCalled();
   });
 
+  test("should default-select the root item with the lowest code, matching the sorted tree order", async () => {
+    // GIVEN root occupation groups returned out of order by the API
+    const givenGroup9: ExplorerTreeItem = {
+      ...givenRootGroup,
+      id: "grp-9",
+      code: "9",
+      title: "Elementary occupations",
+    };
+    const givenGroup2: ExplorerTreeItem = { ...givenRootGroup, id: "grp-2", code: "2", title: "Professionals" };
+    getRootItemsSpy.mockResolvedValueOnce([givenGroup9, givenGroup2]);
+    getItemDetailSpy.mockResolvedValueOnce({ ...givenDetail, id: givenGroup2.id, code: givenGroup2.code });
+
+    // WHEN the explorer page is rendered with no item selected in the URL
+    renderExplorerPage("occupations");
+
+    // THEN expect the lowest-code item (2, not 9) to be the one fetched as the selected item's detail,
+    // matching the first row rendered in the (ascending, code-sorted) tree panel
+    await waitFor(() => expect(getItemDetailSpy).toHaveBeenCalled());
+    expect(getItemDetailSpy).toHaveBeenCalledWith(givenModelId, givenGroup2, "en");
+  });
+
   test("should fetch an item's history only when the History tab is opened", async () => {
     // GIVEN the root items include an occupation as a directly embedded child, and its detail has been fetched
     getRootItemsSpy.mockResolvedValueOnce([{ ...givenRootGroup, children: [givenChildOccupation] }]);
