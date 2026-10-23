@@ -6,6 +6,11 @@ import { getApiUrl } from "src/envService";
 
 const explorerService = new ExplorerService(getApiUrl());
 
+// Natural sort: codes are mixed alphanumeric (e.g. "I1") and multi-digit ("10"), so a
+// plain string sort would misorder them.
+export const byCodeAscending = (a: ExplorerTreeItem, b: ExplorerTreeItem) =>
+  a.code.localeCompare(b.code, undefined, { numeric: true });
+
 export const explorerTreeQueryKey = (
   modelId: string | undefined,
   tab: "occupations" | "skills",
@@ -49,10 +54,11 @@ const keepPreviousDataOnLanguageChange =
   };
 
 // Search results are always leaves, sorted by relevance; root items are grouped so local
-// groups (unseen economy) come after ESCO/ISCO groups (seen economy).
+// groups (unseen economy) come after ESCO/ISCO groups (seen economy), and ordered
+// ascending by code within each group.
 const localGroupsLast = (items: ExplorerTreeItem[]) => [
-  ...items.filter((item) => item.objectType !== "localgroup"),
-  ...items.filter((item) => item.objectType === "localgroup"),
+  ...items.filter((item) => item.objectType !== "localgroup").sort(byCodeAscending),
+  ...items.filter((item) => item.objectType === "localgroup").sort(byCodeAscending),
 ];
 
 export const useExplorerTree = (
