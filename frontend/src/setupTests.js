@@ -14,8 +14,12 @@ import "jest-extended/all";
 // The TanStack Query client is a module-level singleton shared across the whole app (and thus
 // across all test files that render components using it). Clear its cache after every test so
 // cached model data from one test doesn't leak into the next.
+// Unmount first: this hook runs before testing-library's own cleanup, and a component that is still
+// mounted re-creates (and refetches) its query on its next render, refilling the cache after the clear.
+import { cleanup } from "@testing-library/react";
 import { queryClient } from "src/app/providers/QueryProvider";
 afterEach(() => {
+  cleanup();
   queryClient.clear();
 });
 
