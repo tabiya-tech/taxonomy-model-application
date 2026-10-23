@@ -68,7 +68,7 @@ export function setupEmbeddingsFn(environment: string, config: SetupEmbeddingsFn
     role: embeddingsLambdaRole.arn,
     code: embeddingsFileArchive,
     handler: "index.handler",
-    runtime: 'nodejs20.x',
+    runtime: 'nodejs22.x',
     timeout: LAMBDA_TIMEOUT_IN_SECONDS,
     memorySize: LAMBDA_MEMORY_IN_MB,
     reservedConcurrentExecutions: LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS,

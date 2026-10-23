@@ -60,7 +60,7 @@ export function setupAsyncImportApi(environment: string, config: {
     role: asyncImportLambdaRole.arn,
     code: asyncFileArchive,
     handler: "index.handler",
-    runtime: 'nodejs20.x',
+    runtime: 'nodejs22.x',
     timeout: LAMBDA_TIMEOUT_IN_SECONDS,
     memorySize: LAMBDA_MEMORY_IN_MB,
     reservedConcurrentExecutions: LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS,
