@@ -1,6 +1,7 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import {asset, Output} from "@pulumi/pulumi";
+import {LAMBDA_NODEJS_RUNTIME} from "./lambdaRuntime";
 
 // The async-publish-embeddings-task lambda is bundled by esbuild from
 // backend/src/embeddings/asyncPublishEmbeddingsTask/index.ts
@@ -101,7 +102,7 @@ export function setupAsyncPublishEmbeddingsTaskFn(
     role: asyncPublishEmbeddingsTaskLambdaRole.arn,
     code: asyncFileArchive,
     handler: "index.handler",
-    runtime: 'nodejs20.x',
+    runtime: LAMBDA_NODEJS_RUNTIME,
     timeout: LAMBDA_TIMEOUT_IN_SECONDS,
     memorySize: LAMBDA_MEMORY_IN_MB,
     reservedConcurrentExecutions: LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS,

@@ -1,6 +1,7 @@
 import * as aws from "@pulumi/aws";
 import {asset} from "@pulumi/pulumi";
 import * as pulumi from "@pulumi/pulumi";
+import {LAMBDA_NODEJS_RUNTIME} from "./lambdaRuntime";
 
 const buildFolderPath = "../../backend/build/auth/authenticator";
 
@@ -58,7 +59,7 @@ export function setupAuthorizer(environment: string, config: AuthorizerConfig): 
     role: authorizerLambdaRole.arn,
     code: authorizerFileArchive,
     handler: "index.handler",
-    runtime: 'nodejs20.x',
+    runtime: LAMBDA_NODEJS_RUNTIME,
     timeout: LAMBDA_TIMEOUT_IN_SECONDS,
     memorySize: LAMBDA_MEMORY_IN_MB,
     reservedConcurrentExecutions: LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS,
