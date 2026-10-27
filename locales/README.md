@@ -9,7 +9,7 @@ This repository contains the locales configurations for the application.
 
 To set up locales project locally, you must install the following:
 
-* [Node.js ^16.0](https://nodejs.org/dist/latest-v16.x/)
+* [Node.js](https://nodejs.org), the version in the [.nvmrc](../.nvmrc) at the root of the repository (`nvm use` picks it up)
 * [Yarn ^1.22](https://classic.yarnpkg.com/en/)
 * A recent version of [git](https://git-scm.com/) (e.g. ^2.37 )
 

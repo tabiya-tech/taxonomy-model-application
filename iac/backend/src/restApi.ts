@@ -3,6 +3,7 @@ import * as pulumi from "@pulumi/pulumi";
 import {asset, Output} from "@pulumi/pulumi";
 import {RestApi, Stage} from "@pulumi/aws/apigateway";
 import {randomUUID} from "crypto";
+import {LAMBDA_NODEJS_RUNTIME} from "./lambdaRuntime";
 
 const buildFolderPath = "../../backend/build/rest";
 
@@ -175,7 +176,7 @@ export function setupBackendRESTApi(environment: string, config: SetupBackendRES
     role: lambdaRole.arn,
     code: fileArchive,
     handler: "index.handler",
-    runtime: 'nodejs22.x',
+    runtime: LAMBDA_NODEJS_RUNTIME,
     timeout: LAMBDA_TIMEOUT_IN_SECONDS,
     memorySize: LAMBDA_MEMORY_IN_MB,
     reservedConcurrentExecutions: LAMBDA_MAXIMUM_CONCURRENT_EXECUTIONS,

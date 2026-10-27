@@ -32,10 +32,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-      - name: Use Node.js 20.x
+      - name: Use Node.js (version from .nvmrc)
         uses: actions/setup-node@v5
         with:
-          node-version: 24.x
+          node-version-file: .nvmrc
           cache: 'yarn'
           cache-dependency-path: iac/yarn.lock
       - name: Install dependencies

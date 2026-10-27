@@ -9,7 +9,7 @@ Infrastructure as Code (IaC) is a method to provision and manage IT infrastructu
 
 To work IaC locally, you have to install the following:
 
-* [Node.js ^16.0](https://nodejs.org/dist/latest-v16.x/)
+* [Node.js](https://nodejs.org), the version in the [.nvmrc](../.nvmrc) at the root of the repository (`nvm use` picks it up)
 * [Yarn ^1.22](https://classic.yarnpkg.com/en/) 
 * A recent version of [git](https://git-scm.com/) (e.g. ^2.37 )
 * [Pulumi CLI](https://www.pulumi.com/docs/install/)
@@ -118,6 +118,7 @@ The image below shows the solution architecture and how it relates to the IaC.
         - `SENTRY_AUTH_TOKEN`: The Sentry auth token.
         - `SENTRY_BACKEND_DSN`: The Sentry backend DSN. [** from the output of the sentry stack **]
     - The sentry stack is shared across all environments. This means that any changes to the sentry stack will affect all environments. Special care should be taken when making changes to the sentry stack.
+- `@pulumi/pulumi` is also pinned in the `resolutions` of the `package.json`, to force the packages that depend on it (`@pulumi/aws`, `@pulumi/synced-folder`, `@pulumiverse/sentry`, ...) onto the same copy as the programs. Several copies of it in one program fail at runtime with errors like `Request message serialization failure: b.Va is not a function`. When upgrading `@pulumi/pulumi`, update both entries.
 
 ## Contribution
 Your input in this project is greatly appreciated.
