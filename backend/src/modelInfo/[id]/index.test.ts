@@ -6,6 +6,11 @@ const mockHandle = jest.fn();
 jest.mock("./PATCH", () => ({
   ModelPATCHHandler: jest.fn().mockImplementation(() => ({ handle: mockHandle })),
 }));
+// Mock the GET handler the same way, so we can observe whether the router delegates to it
+const mockHandleGET = jest.fn();
+jest.mock("./GET", () => ({
+  ModelGETHandler: jest.fn().mockImplementation(() => ({ handle: mockHandleGET })),
+}));
 
 import * as ModelInstanceHandler from "./index";
 import { HTTP_VERBS, response, StatusCodes, STD_ERRORS_RESPONSES } from "server/httpUtils";
@@ -33,21 +38,39 @@ describe("Test the ModelInstance handler", () => {
     expect(actualResponse).toEqual(givenResponse);
   });
 
-  testMethodsNotAllowed(
-    [HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.OPTIONS, HTTP_VERBS.POST, HTTP_VERBS.GET],
-    ModelInstanceHandler.handler
-  );
-
-  test("should not delegate to the PATCH handler for non-PATCH methods", async () => {
+  test("GET should delegate to the ModelGETHandler", async () => {
     // GIVEN a GET event
     const givenEvent = { httpMethod: HTTP_VERBS.GET } as APIGatewayProxyEvent;
+    // AND the GET handler will return a response
+    const givenResponse = response(StatusCodes.OK, {});
+    mockHandleGET.mockResolvedValueOnce(givenResponse);
 
     // WHEN the handler is invoked with the given event
     const actualResponse = await ModelInstanceHandler.handler(givenEvent);
 
-    // THEN expect the PATCH handler to not be invoked
+    // THEN expect the GET handler to be invoked with the given event
+    expect(mockHandleGET).toHaveBeenCalledWith(givenEvent);
+    // AND the handler to return the response from the GET handler
+    expect(actualResponse).toEqual(givenResponse);
+  });
+
+  // GET is no longer in this list because it is now a supported method
+  testMethodsNotAllowed(
+    [HTTP_VERBS.PUT, HTTP_VERBS.DELETE, HTTP_VERBS.OPTIONS, HTTP_VERBS.POST],
+    ModelInstanceHandler.handler
+  );
+
+  test("should not delegate to any handler for unsupported methods", async () => {
+    // GIVEN an event with an unsupported method (PUT, since GET and PATCH are supported)
+    const givenEvent = { httpMethod: HTTP_VERBS.PUT } as APIGatewayProxyEvent;
+
+    // WHEN the handler is invoked with the given event
+    const actualResponse = await ModelInstanceHandler.handler(givenEvent);
+
+    // THEN expect neither the PATCH nor the GET handler to be invoked
     expect(mockHandle).not.toHaveBeenCalled();
-    // AND expect a METHOD_NOT_ALLOWED response
+    expect(mockHandleGET).not.toHaveBeenCalled();
+    // AND the handler to respond with METHOD_NOT_ALLOWED
     expect(actualResponse).toEqual(STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED);
   });
 });
