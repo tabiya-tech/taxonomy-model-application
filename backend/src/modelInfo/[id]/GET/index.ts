@@ -40,7 +40,7 @@ import { transform } from "modelInfo/transform";
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ModelInfoResponseSchemaGET'
+ *               $ref: '#/components/schemas/ModelInfoResponseSchemaGETById'
  *       '401':
  *         $ref: '#/components/responses/UnAuthorizedResponse'
  *       '404':
