@@ -20,6 +20,8 @@ const ErrorSchemaGET: SchemaObject = {
           ...Object.values(ErrorConstants.Common.ErrorCodes),
           ...Object.values(ErrorConstants.GET.ErrorCodes),
           ...Object.values(ModelInfoAPI.Enums.GET.Response.ErrorCodes),
+          ...Object.values(ModelInfoAPI.ModelInfo.GET.Enums.Response.Status404.ErrorCodes),
+          ...Object.values(ModelInfoAPI.ModelInfo.GET.Enums.Response.Status500.ErrorCodes),
           ...Object.values(OccupationGroupAPI.GET.Enums.Response.Status400.ErrorCodes),
           ...Object.values(OccupationGroupAPI.GET.Enums.Response.Status404.ErrorCodes),
           ...Object.values(OccupationGroupAPI.GET.Enums.Response.Status500.ErrorCodes),

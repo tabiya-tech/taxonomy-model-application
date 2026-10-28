@@ -140,6 +140,8 @@ namespace ErrorTypes {
       | ErrorConstants.Common.ErrorCodes
       | ErrorConstants.GET.ErrorCodes
       | ModelInfo.Enums.GET.Response.ErrorCodes
+      | ModelInfo.ModelInfo.GET.Enums.Response.Status404.ErrorCodes
+      | ModelInfo.ModelInfo.GET.Enums.Response.Status500.ErrorCodes
       | OccupationGroupAPI.GET.Enums.Response.Status400.ErrorCodes
       | OccupationGroupAPI.GET.Enums.Response.Status404.ErrorCodes
       | OccupationGroupAPI.GET.Enums.Response.Status500.ErrorCodes
