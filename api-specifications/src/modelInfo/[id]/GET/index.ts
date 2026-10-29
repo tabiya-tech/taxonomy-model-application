@@ -6,7 +6,7 @@ import GETModelEnums from "./enums";
 // It groups the response schema, the TypeScript types and the enums in one place,
 // so other code can reach them as ModelInfoAPISpecs.ModelInfo.GET.*
 namespace GETModelOperation {
-  // JSON schema of the response body 
+  // JSON schema of the response body
   export namespace Schemas {
     export namespace Response {
       export const Payload = SchemaGETResponse;
