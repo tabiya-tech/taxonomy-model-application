@@ -25,6 +25,8 @@ ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref =
   "#" + ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref;
 ModelInfo.ModelInfo.PATCH.Schemas.Response.Payload.properties.locale.$ref =
   "#" + ModelInfo.ModelInfo.PATCH.Schemas.Response.Payload.properties.locale.$ref;
+ModelInfo.ModelInfo.GET.Schemas.Response.Payload.properties.locale.$ref =
+  "#" + ModelInfo.ModelInfo.GET.Schemas.Response.Payload.properties.locale.$ref
 OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
   "#" + OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
 Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
@@ -44,6 +46,7 @@ delete ModelInfo.Schemas.POST.Request.Payload.$id;
 delete ModelInfo.Schemas.GET.Response.Payload.$id;
 delete ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload.$id;
 delete ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Response.Payload.$id;
+delete ModelInfo.ModelInfo.GET.Schemas.Response.Payload.$id
 delete ModelInfo.ModelInfo.PATCH.Schemas.Request.Payload.$id;
 delete ModelInfo.ModelInfo.PATCH.Schemas.Response.Payload.$id;
 delete Locale.Schemas.Payload.$id;
@@ -588,6 +591,12 @@ function getOpenAPISpecification(
             409,
             Object.values(ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Enums.Response.Status409.ErrorCodes)
           ),
+          // Model get (GET) error schemas
+          GETModel404ErrorSchema: APIError.Schemas.getPayload(
+            "GET",
+            "Model",
+            404,
+            Object.values(ModelInfo.ModelInfo.GET.Enums.Response.Status404.ErrorCodes)),
           // Model patch (PATCH) error schemas
           PATCHModel400ErrorSchema: APIError.Schemas.getPayload(
             "PATCH",
@@ -611,6 +620,7 @@ function getOpenAPISpecification(
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
           ModelInfoResponseSchemaGET: ModelInfo.Schemas.GET.Response.Payload,
+          ModelInfoResponseSchemaGETById:ModelInfo.ModelInfo.GET.Schemas.Response.Payload,
           ModelInfoReferenceSchema: ModelInfo.Schemas.Reference,
           EmbeddingsRequestSchemaPOST: ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload,
           EmbeddingsResponseSchemaPOST: ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Response.Payload,

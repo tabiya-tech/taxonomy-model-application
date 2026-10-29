@@ -3,13 +3,14 @@
 
 import EmbeddingProcessStatesAPISpecs from "./embeddingProcessStates";
 import PATCHModelOperation from "./PATCH";
-
+import GETModelOperation from "./GET";
 // Concept aggregator for [id] (ModelInfo Instance)
 namespace ModelInfoInstanceAPISpecs {
   // Child API Paths
   export import EmbeddingProcessStates = EmbeddingProcessStatesAPISpecs;
   // Instance-level operations
   export import PATCH = PATCHModelOperation;
+  export import GET = GETModelOperation;
 }
 
 export default ModelInfoInstanceAPISpecs;
