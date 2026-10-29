@@ -79,6 +79,8 @@ exports[`Test the error module The export module matches the snapshot 1`] = `
               "FORBIDDEN",
               "INVALID_QUERY_PARAMETER",
               "DB_FAILED_TO_RETRIEVE_MODELS",
+              "MODEL_NOT_FOUND_BY_ID",
+              "DB_FAILED_TO_RETRIEVE_MODEL",
               "INVALID_LIMIT_PARAMETER",
               "INVALID_NEXT_CURSOR_PARAMETER",
               "OCCUPATION_GROUP_NOT_FOUND",
