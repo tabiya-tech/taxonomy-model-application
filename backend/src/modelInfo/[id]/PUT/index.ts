@@ -11,7 +11,7 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { getResourcesBaseUrl } from "server/config/config";
 import { Routes } from "routes.constant";
 import { transform } from "modelInfo/transform";
-import { IUpdateModelInfoSpec } from "modelInfo/modelInfo.types";
+import { IModelInfo, IUpdateModelInfoSpec } from "modelInfo/modelInfo.types";
 
 /**
  * @openapi
@@ -154,8 +154,27 @@ export class ModelPUTHandler {
         UUIDHistory: payload.UUIDHistory,
       };
 
-      const replacedModel = await modelRepository.replaceModel(modelId, update);
+      let replacedModel: IModelInfo | null = null;
+      let dbError: Error | null = null;
+
+      // const replacedModel = await modelRepository.replaceModel(modelId, update);
+      try {
+        replacedModel = await modelRepository.replaceModel(modelId, update);
+      } catch (error) {
+        dbError = error as Error;
+      }
+
       if (replacedModel === null) {
+        if (dbError) {
+          // A DB error occurred
+          return errorResponse(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_UPDATE_MODEL,
+            "Failed to update the model in the DB",
+            ""
+          );
+        }
+
         const existingModel = await modelRepository.getModelById(modelId);
         if (existingModel === null) {
           return this.modelNotFound(modelId);
