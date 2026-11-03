@@ -14,7 +14,7 @@ import { getTestConfiguration } from "_test_utilities/getTestConfiguration";
 import ModelInfoAPISpecs from "api-specifications/modelInfo";
 import LocaleAPISpecs from "api-specifications/locale";
 import LanguageAPISpecs from "api-specifications/language";
-import { IModelInfo, INewModelInfoSpec } from "./modelInfo.types";
+import { IModelInfo, INewModelInfoSpec, IUpdateModelInfoSpec } from "./modelInfo.types";
 import ImportProcessStateAPISpecs from "api-specifications/importProcessState/";
 import ExportProcessStateApiSpecs from "api-specifications/exportProcessState";
 import { TestDBConnectionFailureNoSetup } from "_test_utilities/testDBConnectionFaillure";
@@ -659,6 +659,102 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 
     TestDBConnectionFailureNoSetup((repository) => {
       return repository.modelInfo.releaseModel(getMockStringId(1));
+    });
+  });
+
+  describe("Test replaceModel()", () => {
+    function getUpdateSpec(existingModel: IModelInfo): IUpdateModelInfoSpec {
+      return {
+        name: getTestString(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH),
+        description: getTestString(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH),
+        locale: {
+          UUID: randomUUID(),
+          name: getTestString(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+          shortCode: getTestString(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+        },
+        availableLanguages: LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode),
+        license: getTestString(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH),
+        UUIDHistory: [existingModel.UUID],
+      };
+    }
+
+    test("Should replace the six editable fields of an unreleased model", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      const givenUpdate = getUpdateSpec(givenExistingModel);
+
+      const actualUpdatedModel = await repository.replaceModel(givenExistingModel.id, givenUpdate);
+
+      expect(actualUpdatedModel).toEqual({
+        ...givenExistingModel,
+        ...givenUpdate,
+        updatedAt: expect.any(Date),
+      });
+      const actualPersistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(actualPersistedModel).toEqual({
+        ...givenExistingModel,
+        ...givenUpdate,
+        updatedAt: expect.any(Date),
+      });
+    });
+
+    test("Should return null if the model does not exist", async () => {
+      const actualUpdatedModel = await repository.replaceModel(getMockStringId(999), {
+        name: getTestString(10),
+        description: getTestString(10),
+        locale: {
+          UUID: randomUUID(),
+          name: getTestString(10),
+          shortCode: getTestString(2),
+        },
+        availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
+        license: getTestString(10),
+        UUIDHistory: [randomUUID()],
+      });
+
+      expect(actualUpdatedModel).toBeNull();
+    });
+
+    test("Should return null and leave the model untouched if it is already released", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      const givenReleasedModel = await repository.releaseModel(givenExistingModel.id, getTestString(10));
+
+      const actualUpdatedModel = await repository.replaceModel(
+        givenExistingModel.id,
+        getUpdateSpec(givenExistingModel)
+      );
+
+      expect(actualUpdatedModel).toBeNull();
+      const actualPersistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(actualPersistedModel).toEqual(givenReleasedModel);
+    });
+
+    test.each([
+      ["a language that is not registered", ["not-a-registered-language"]],
+      ["no language at all", []],
+    ])("Should reject with an error and leave the model untouched when given %s", async (_description, givenValue) => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      const givenUpdate = { ...getUpdateSpec(givenExistingModel), availableLanguages: givenValue };
+
+      const actualPromise = repository.replaceModel(givenExistingModel.id, givenUpdate);
+
+      await expect(actualPromise).rejects.toThrow("ModelInfoRepository.replaceModel: replaceModel failed");
+      const actualPersistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(actualPersistedModel).toEqual(givenExistingModel);
+    });
+
+    TestDBConnectionFailureNoSetup((repositoryRegistryUnderTest) => {
+      return repositoryRegistryUnderTest.modelInfo.replaceModel(getMockStringId(1), {
+        name: getTestString(10),
+        description: getTestString(10),
+        locale: {
+          UUID: randomUUID(),
+          name: getTestString(10),
+          shortCode: getTestString(2),
+        },
+        availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
+        license: getTestString(10),
+        UUIDHistory: [randomUUID()],
+      });
     });
   });
 

@@ -112,6 +112,7 @@ describe("test for trigger ExportHandler", () => {
       getHistory: jest.fn().mockResolvedValue([]),
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
+      replaceModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
@@ -175,6 +176,7 @@ describe("test for trigger ExportHandler", () => {
       getHistory: jest.fn().mockResolvedValue(null),
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
+      replaceModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
@@ -222,6 +224,7 @@ describe("test for trigger ExportHandler", () => {
       getHistory: jest.fn().mockResolvedValue(null),
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
+      replaceModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);

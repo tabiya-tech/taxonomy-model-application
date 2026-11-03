@@ -320,6 +320,14 @@ ajvInstance.addSchema(
   ModelInfoAPISpecs.ModelInfo.PATCH.Schemas.Response.Payload.$id
 );
 ajvInstance.addSchema(
+  ModelInfoAPISpecs.ModelInfo.PUT.Schemas.Request.Payload,
+  ModelInfoAPISpecs.ModelInfo.PUT.Schemas.Request.Payload.$id
+);
+ajvInstance.addSchema(
+  ModelInfoAPISpecs.ModelInfo.PUT.Schemas.Response.Payload,
+  ModelInfoAPISpecs.ModelInfo.PUT.Schemas.Response.Payload.$id
+);
+ajvInstance.addSchema(
   ModelInfoAPISpecs.ModelInfo.GET.Schemas.Response.Payload,
   ModelInfoAPISpecs.ModelInfo.GET.Schemas.Response.Payload.$id
 );
