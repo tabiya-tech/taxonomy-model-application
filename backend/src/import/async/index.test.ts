@@ -151,6 +151,7 @@ describe("Test the main async handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       };
 

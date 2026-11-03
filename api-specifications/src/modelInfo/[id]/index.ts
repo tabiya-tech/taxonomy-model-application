@@ -3,6 +3,7 @@
 
 import EmbeddingProcessStatesAPISpecs from "./embeddingProcessStates";
 import PATCHModelOperation from "./PATCH";
+import PUTModelOperation from "./PUT";
 
 // Concept aggregator for [id] (ModelInfo Instance)
 namespace ModelInfoInstanceAPISpecs {
@@ -10,6 +11,7 @@ namespace ModelInfoInstanceAPISpecs {
   export import EmbeddingProcessStates = EmbeddingProcessStatesAPISpecs;
   // Instance-level operations
   export import PATCH = PATCHModelOperation;
+  export import PUT = PUTModelOperation;
 }
 
 export default ModelInfoInstanceAPISpecs;

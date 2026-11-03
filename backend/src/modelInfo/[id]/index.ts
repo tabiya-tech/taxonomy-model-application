@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent } from "aws-lambda";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import { HTTP_VERBS, STD_ERRORS_RESPONSES } from "server/httpUtils";
 import { ModelPATCHHandler } from "./PATCH";
+import { ModelPUTHandler } from "./PUT";
 
 export const handler: (
   event: APIGatewayProxyEvent /*, context: Context, callback: Callback*/
@@ -10,6 +11,8 @@ export const handler: (
 ) => {
   if (event?.httpMethod === HTTP_VERBS.PATCH) {
     return new ModelPATCHHandler().handle(event);
+  } else if (event?.httpMethod === HTTP_VERBS.PUT) {
+    return new ModelPUTHandler().handle(event);
   }
   return STD_ERRORS_RESPONSES.METHOD_NOT_ALLOWED;
 };

@@ -202,6 +202,7 @@ describe("Test the main async handler", () => {
       getHistory: jest.fn().mockResolvedValue([]),
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
+      replaceModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
@@ -426,6 +427,7 @@ describe("Test the main async handler", () => {
         getHistory: jest.fn().mockResolvedValue(null),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
@@ -491,6 +493,7 @@ describe("Test the main async handler", () => {
         getHistory: jest.fn().mockResolvedValue(null),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
@@ -588,6 +591,7 @@ describe("Test the main async handler", () => {
         getHistory: jest.fn(),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
         findHistoryReferencesByUUIDs: jest.fn(),
         findParent: jest.fn(),

@@ -25,6 +25,10 @@ ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref =
   "#" + ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref;
 ModelInfo.ModelInfo.PATCH.Schemas.Response.Payload.properties.locale.$ref =
   "#" + ModelInfo.ModelInfo.PATCH.Schemas.Response.Payload.properties.locale.$ref;
+ModelInfo.ModelInfo.PUT.Schemas.Request.Payload.properties.locale.$ref =
+  "#" + ModelInfo.ModelInfo.PUT.Schemas.Request.Payload.properties.locale.$ref;
+ModelInfo.ModelInfo.PUT.Schemas.Response.Payload.properties.locale.$ref =
+  "#" + ModelInfo.ModelInfo.PUT.Schemas.Response.Payload.properties.locale.$ref;
 OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
   "#" + OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
 Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
@@ -46,6 +50,8 @@ delete ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Request.Payload.$
 delete ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Response.Payload.$id;
 delete ModelInfo.ModelInfo.PATCH.Schemas.Request.Payload.$id;
 delete ModelInfo.ModelInfo.PATCH.Schemas.Response.Payload.$id;
+delete ModelInfo.ModelInfo.PUT.Schemas.Request.Payload.$id;
+delete ModelInfo.ModelInfo.PUT.Schemas.Response.Payload.$id;
 delete Locale.Schemas.Payload.$id;
 delete Presigned.Schemas.GET.Response.Payload.$id;
 delete Import.Schemas.POST.Request.Payload.$id;
@@ -607,6 +613,24 @@ function getOpenAPISpecification(
             409,
             Object.values(ModelInfo.ModelInfo.PATCH.Enums.Response.Status409.ErrorCodes)
           ),
+          PUTModel400ErrorSchema: APIError.Schemas.getPayload(
+            "PUT",
+            "Model",
+            400,
+            Object.values(ModelInfo.ModelInfo.PUT.Enums.Response.Status400.ErrorCodes)
+          ),
+          PUTModel404ErrorSchema: APIError.Schemas.getPayload(
+            "PUT",
+            "Model",
+            404,
+            Object.values(ModelInfo.ModelInfo.PUT.Enums.Response.Status404.ErrorCodes)
+          ),
+          PUTModel409ErrorSchema: APIError.Schemas.getPayload(
+            "PUT",
+            "Model",
+            409,
+            Object.values(ModelInfo.ModelInfo.PUT.Enums.Response.Status409.ErrorCodes)
+          ),
           PresignedSchema: Presigned.Schemas.GET.Response.Payload,
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,
           ModelInfoRequestSchemaPOST: ModelInfo.Schemas.POST.Request.Payload,
@@ -616,6 +640,8 @@ function getOpenAPISpecification(
           EmbeddingsResponseSchemaPOST: ModelInfo.ModelInfo.EmbeddingProcessStates.POST.Schemas.Response.Payload,
           ModelInfoRequestSchemaPATCH: ModelInfo.ModelInfo.PATCH.Schemas.Request.Payload,
           ModelInfoResponseSchemaPATCH: ModelInfo.ModelInfo.PATCH.Schemas.Response.Payload,
+          ModelInfoRequestSchemaPUT: ModelInfo.ModelInfo.PUT.Schemas.Request.Payload,
+          ModelInfoResponseSchemaPUT: ModelInfo.ModelInfo.PUT.Schemas.Response.Payload,
           LocaleSchema: Locale.Schemas.Payload,
           ImportSchema: Import.Schemas.POST.Request.Payload,
           ExportSchema: Export.Schemas.POST.Request.Payload,
