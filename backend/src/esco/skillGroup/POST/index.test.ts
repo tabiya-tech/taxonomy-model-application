@@ -204,6 +204,7 @@ describe("SkillGroupCreateController", () => {
       getHistory: jest.fn().mockResolvedValue([]),
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
+      replaceModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
     } as IModelRepository;
 
@@ -276,6 +277,7 @@ describe("SkillGroupCreateController", () => {
       getHistory: jest.fn().mockResolvedValue([]),
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
+      replaceModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
     };
 
@@ -378,6 +380,7 @@ describe("SkillGroupCreateController", () => {
       getHistory: jest.fn().mockResolvedValue([]),
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
+      replaceModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
     };
 

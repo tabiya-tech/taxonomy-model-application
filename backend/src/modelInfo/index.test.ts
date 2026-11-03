@@ -119,6 +119,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue(givenUuidHistoryDetails),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
@@ -184,6 +185,7 @@ describe("Test for model handler", () => {
           getHistory: jest.fn().mockResolvedValue([]),
           getModelsByIds: jest.fn(),
           releaseModel: jest.fn(),
+          replaceModel: jest.fn(),
           updateAvailableLanguages: jest.fn(),
         };
       }
@@ -284,6 +286,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       } as never;
 
@@ -391,6 +394,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       };
 
@@ -450,6 +454,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       };
 
@@ -504,6 +509,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
@@ -574,6 +580,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockResolvedValue([]),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
@@ -604,6 +611,7 @@ describe("Test for model handler", () => {
         getHistory: jest.fn().mockRejectedValue(new Error("foo")),
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
