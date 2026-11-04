@@ -57,6 +57,16 @@ export interface IOccupationGroupPOSTParentRequest {
   objectType: OccupationGroupEnums.Relations.Parent.ObjectTypes;
 }
 
+export interface IOccupationGroupPUTParentRequest {
+  id: string;
+  objectType: OccupationGroupEnums.Relations.Parent.ObjectTypes;
+}
+
+export interface IOccupationGroupPATCHParentRequest {
+  id: string;
+  objectType: OccupationGroupEnums.Relations.Parent.ObjectTypes;
+}
+
 export interface IOccupationGroupChildResponse {
   id: string;
   parentId: string;
@@ -100,8 +110,10 @@ export interface IOccupationGroupRequest {
 }
 
 // Within a present translatable field, a language may be null to delete that translation.
-export interface IOccupationGroupPATCHRequest
-  extends Omit<Partial<IOccupationGroupRequest>, "description" | "preferredLabel"> {
+export interface IOccupationGroupPATCHRequest extends Omit<
+  Partial<IOccupationGroupRequest>,
+  "description" | "preferredLabel"
+> {
   description?: LanguageAPISpecs.Types.IPartialTranslatedString;
   preferredLabel?: LanguageAPISpecs.Types.IPartialTranslatedString;
 }
@@ -152,6 +164,40 @@ namespace OccupationGroupTypes {
     }
     export namespace Response {
       export type Payload = IOccupationGroupResponse;
+    }
+  }
+
+  export namespace Detail.DELETE {
+    export namespace Request {
+      export namespace Param {
+        export type Payload = IOccupationGroupDetailParam;
+      }
+    }
+  }
+
+  export namespace Detail.parent.PUT {
+    export namespace Request {
+      export type Payload = IOccupationGroupPUTParentRequest;
+    }
+    export namespace Response {
+      export type Payload = OccupationGroupTypes.Response.IOccupationGroup | null;
+    }
+  }
+
+  export namespace Detail.parent.PATCH {
+    export namespace Request {
+      export type Payload = IOccupationGroupPATCHParentRequest;
+    }
+    export namespace Response {
+      export type Payload = OccupationGroupTypes.Response.IOccupationGroup | null;
+    }
+  }
+
+  export namespace Detail.parent.DELETE {
+    export namespace Request {
+      export namespace Param {
+        export type Payload = IOccupationGroupDetailParam;
+      }
     }
   }
 }

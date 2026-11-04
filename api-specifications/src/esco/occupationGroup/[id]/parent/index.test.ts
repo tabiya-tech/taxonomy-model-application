@@ -27,6 +27,38 @@ describe("Test the occupationGroup parent module", () => {
     expect(occupationGroupPOSTParentModule.default.POST.Schemas.Request.Payload).toBeDefined();
     expect(occupationGroupPOSTParentModule.default.POST.Schemas.Response.Payload).toBeDefined();
   });
+
+  test("The occupationGroup PUT parent module can be required via the index", async () => {
+    // GIVEN the module
+    // WHEN the module is required via the index
+    expect(async () => await import("./")).not.toThrow();
+    const occupationGroupPUTParentModule = await import("./");
+
+    // THEN check if Schemas is defined in it
+    expect(occupationGroupPUTParentModule.default.PUT.Schemas.Request.Payload).toBeDefined();
+    expect(occupationGroupPUTParentModule.default.PUT.Schemas.Response.Payload).toBeDefined();
+  });
+
+  test("The occupationGroup PATCH parent module can be required via the index", async () => {
+    // GIVEN the module
+    // WHEN the module is required via the index
+    expect(async () => await import("./")).not.toThrow();
+    const occupationGroupPATCHParentModule = await import("./");
+
+    // THEN check if Schemas is defined in it
+    expect(occupationGroupPATCHParentModule.default.PATCH.Schemas.Request.Payload).toBeDefined();
+    expect(occupationGroupPATCHParentModule.default.PATCH.Schemas.Response.Payload).toBeDefined();
+  });
+
+  test("The occupationGroup DELETE parent module can be required via the index", async () => {
+    // GIVEN the module
+    // WHEN the module is required via the index
+    expect(async () => await import("./")).not.toThrow();
+    const occupationGroupDELETEParentModule = await import("./");
+
+    // THEN check if Schemas is defined in it
+    expect(occupationGroupDELETEParentModule.default.DELETE.Schemas.Request.Param.Payload).toBeDefined();
+  });
   test("The export module matches the snapshot", () => {
     // GIVEN the module
     // WHEN the module is required via the index

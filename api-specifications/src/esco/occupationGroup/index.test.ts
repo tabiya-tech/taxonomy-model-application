@@ -12,6 +12,11 @@ describe("Test the occupationGroup module", () => {
     expect(occupationGroupModule.default.OccupationGroup.Children.GET.Schemas.Response.Child).toBeDefined();
     expect(occupationGroupModule.default.OccupationGroup.Children.GET.Schemas.Response.Children.Payload).toBeDefined();
     expect(occupationGroupModule.default.OccupationGroup.Parent.GET.Schemas.Response.Payload).toBeDefined();
+    expect(occupationGroupModule.default.OccupationGroup.Parent.POST.Schemas.Request.Payload).toBeDefined();
+    expect(occupationGroupModule.default.OccupationGroup.Parent.PUT.Schemas.Request.Payload).toBeDefined();
+    expect(occupationGroupModule.default.OccupationGroup.Parent.PATCH.Schemas.Request.Payload).toBeDefined();
+    expect(occupationGroupModule.default.OccupationGroup.Parent.DELETE.Schemas.Request.Param.Payload).toBeDefined();
+    expect(occupationGroupModule.default.OccupationGroup.DELETE.Schemas.Request.Param.Payload).toBeDefined();
     expect(occupationGroupModule.default.OccupationGroup.History.GET.Schemas.Response.Payload).toBeDefined();
 
     // AND check if constants are defined in it
