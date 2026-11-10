@@ -1082,8 +1082,8 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
     "PUT": {
       "Constants": {
         "MAX_JSON_OVERHEAD": 1000,
-        "MAX_PUT_PAYLOAD_LENGTH": 467652,
-        "TOTAL_UUID_HISTORY_MAX_LENGTH": 360000,
+        "MAX_PUT_PAYLOAD_LENGTH": 497653,
+        "TOTAL_UUID_HISTORY_MAX_LENGTH": 390001,
         "UUID_HISTORY_ITEM_MAX_LENGTH": 36,
         "UUID_HISTORY_MAX_ITEMS": 10000,
       },
@@ -1102,6 +1102,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
           },
           "Status409": {
             "ErrorCodes": {
+              "MODEL_CHANGED_CONCURRENTLY": "MODEL_CHANGED_CONCURRENTLY",
               "MODEL_IS_RELEASED": "MODEL_IS_RELEASED",
             },
           },

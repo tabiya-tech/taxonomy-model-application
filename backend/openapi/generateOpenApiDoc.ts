@@ -626,7 +626,11 @@ function getOpenAPISpecification(
             "PUT",
             "Model",
             400,
-            Object.values(ModelInfo.ModelInfo.PUT.Enums.Response.Status400.ErrorCodes)
+            [
+              ...Object.values(ModelInfo.ModelInfo.PUT.Enums.Response.Status400.ErrorCodes),
+              APIError.Constants.ErrorCodes.MALFORMED_BODY,
+              APIError.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+            ]
           ),
           PUTModel404ErrorSchema: APIError.Schemas.getPayload(
             "PUT",

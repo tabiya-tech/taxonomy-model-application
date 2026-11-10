@@ -20,4 +20,13 @@ describe("Test the PUTModelOperation index", () => {
     expect(PUTModelOperation.Constants.MAX_PUT_PAYLOAD_LENGTH).toBeDefined();
     expect(PUTModelOperation.Constants.UUID_HISTORY_MAX_ITEMS).toBeDefined();
   });
+
+  test("UUID history payload length includes JSON quotes, commas, and brackets", () => {
+    const maxUUID = "a".repeat(PUTModelOperation.Constants.UUID_HISTORY_ITEM_MAX_LENGTH);
+    const serializedUUIDHistory = JSON.stringify(
+      Array(PUTModelOperation.Constants.UUID_HISTORY_MAX_ITEMS).fill(maxUUID)
+    );
+
+    expect(PUTModelOperation.Constants.TOTAL_UUID_HISTORY_MAX_LENGTH).toEqual(serializedUUIDHistory.length);
+  });
 });

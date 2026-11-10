@@ -137,6 +137,26 @@ describe("Test for the PUT model handler with a DB", () => {
     });
   });
 
+  test("PUT should allow empty description and license values", async () => {
+    const givenModel = await createModelInDB();
+    const givenBody = getValidPutBody(givenModel, { description: "", license: "" });
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, givenBody);
+
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    const actualPayload = JSON.parse(actualResponse.body);
+    validatePUTResponse(actualPayload);
+    expect(validatePUTResponse.errors).toBeNull();
+    expect(actualPayload.description).toEqual("");
+    expect(actualPayload.license).toEqual("");
+
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.description).toEqual("");
+    expect(actualPersistedModel?.license).toEqual("");
+  });
+
   test("PUT should respond with the BAD_REQUEST status code when the request drops a language of the model", async () => {
     const givenAvailableLanguages = LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode);
     const givenModel = await createModelInDB();

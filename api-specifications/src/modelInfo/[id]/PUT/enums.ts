@@ -14,6 +14,7 @@ namespace PUTModelEnums {
     export namespace Status409 {
       export enum ErrorCodes {
         MODEL_IS_RELEASED = "MODEL_IS_RELEASED",
+        MODEL_CHANGED_CONCURRENTLY = "MODEL_CHANGED_CONCURRENTLY",
       }
     }
     export namespace Status500 {
