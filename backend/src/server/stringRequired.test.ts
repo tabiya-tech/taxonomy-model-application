@@ -15,6 +15,15 @@ function callValidator(validator: () => boolean, context: unknown): boolean {
   return (validator as unknown as RequiredValidator).call(context);
 }
 
+function getQueryContext(values: Record<string, unknown>) {
+  return {
+    getUpdate: () => ({ $set: values }),
+    get(path: string) {
+      return Object.prototype.hasOwnProperty.call(values, path) ? values[path] : undefined;
+    },
+  };
+}
+
 describe("Test the stringRequired function", () => {
   describe("When called with a document as `this` (save / validate)", () => {
     test.each([
@@ -52,9 +61,36 @@ describe("Test the stringRequired function", () => {
   });
 
   describe("When called with a Query as `this` (update validators)", () => {
-    // On findOneAndUpdate() with runValidators, `this` is the Query and cannot resolve the
-    // document's nested paths. The predicate must not throw; Mongoose itself checks whether
-    // the value is present in the update, so reporting `true` (required) is the correct result.
+    test.each([
+      { description: "an empty string", value: "", expected: false },
+      { description: "a non-empty string", value: "text", expected: false },
+      { description: "a non-string value", value: undefined, expected: true },
+    ])("Should return $expected for a top-level update value that is $description", ({ value, expected }) => {
+      const givenValidator = stringRequired("description");
+      const context = getQueryContext({ description: value });
+
+      expect(callValidator(givenValidator, context)).toEqual(expected);
+    });
+
+    test.each([
+      { description: "an empty string", value: "", expected: false },
+      { description: "a non-empty string", value: "English", expected: false },
+      { description: "a non-string value", value: undefined, expected: true },
+    ])("Should return $expected for a nested update value that is $description", ({ value, expected }) => {
+      const givenValidator = stringRequired("locale", "name");
+      const context = getQueryContext({ locale: { name: value } });
+
+      expect(callValidator(givenValidator, context)).toEqual(expected);
+    });
+
+    test("Should read a nested value set using a dotted update path", () => {
+      const givenValidator = stringRequired("locale", "name");
+      const context = getQueryContext({ "locale.name": "" });
+
+      expect(callValidator(givenValidator, context)).toEqual(false);
+    });
+
+    // If a path is absent from an update, Mongoose only validates the paths being updated.
     test.each([
       { description: "an object that lacks the parent path", context: {} },
       { description: "a null parent path", context: { locale: null } },
@@ -83,11 +119,11 @@ describe("Test the stringRequired function", () => {
       expect(run()).toEqual(true);
     });
 
-    test("Should report a top level field as required when `this` is a Query", () => {
+    test("Should report a top level field as required when the update omits it", () => {
       // GIVEN a validator for a top level field
       const givenValidator = stringRequired("description");
-      // WHEN it is called with a Query as `this`
-      const actual = callValidator(givenValidator, {});
+      // WHEN it is called with a Query whose update does not include that field
+      const actual = callValidator(givenValidator, getQueryContext({}));
       // THEN expect it to report the field as required
       expect(actual).toEqual(true);
     });

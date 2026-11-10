@@ -27,6 +27,21 @@ const givenValidModelInfoPUTRequest: ModelInfoAPISpecs.ModelInfo.PUT.Types.Reque
   availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
 };
 
+const givenMaximumModelInfoPUTRequest: ModelInfoAPISpecs.ModelInfo.PUT.Types.Request.Payload = {
+  name: "x".repeat(ModelInfoConstants.NAME_MAX_LENGTH),
+  description: "x".repeat(ModelInfoConstants.DESCRIPTION_MAX_LENGTH),
+  license: "x".repeat(ModelInfoConstants.LICENSE_MAX_LENGTH),
+  UUIDHistory: Array.from({ length: ModelInfoAPISpecs.ModelInfo.PUT.Constants.UUID_HISTORY_MAX_ITEMS }, () =>
+    randomUUID()
+  ),
+  locale: {
+    name: "x".repeat(LocaleAPISpecs.Constants.NAME_MAX_LENGTH),
+    UUID: randomUUID(),
+    shortCode: "x".repeat(LocaleAPISpecs.Constants.LOCALE_SHORTCODE_MAX_LENGTH),
+  },
+  availableLanguages: LanguageAPISpecs.Constants.Languages.map((language) => language.shortCode),
+};
+
 describe("Test the ModelInfo PUT Request Schema", () => {
   testValidSchema(
     "ModelInfoAPISpecs.ModelInfo.PUT.Schemas.Request.Payload",
@@ -42,6 +57,19 @@ describe("Validate JSON against the ModelInfo PUT Request Schema", () => {
     givenValidModelInfoPUTRequest,
     [LocaleAPISpecs.Schemas.Payload]
   );
+
+  testSchemaWithValidObject(
+    "ModelInfoAPISpecs.ModelInfo.PUT.Schemas.Request.Payload",
+    ModelInfoAPISpecs.ModelInfo.PUT.Schemas.Request.Payload,
+    givenMaximumModelInfoPUTRequest,
+    [LocaleAPISpecs.Schemas.Payload]
+  );
+
+  test("the payload limit accommodates the maximum schema-valid request", () => {
+    expect(JSON.stringify(givenMaximumModelInfoPUTRequest).length).toBeLessThanOrEqual(
+      ModelInfoAPISpecs.ModelInfo.PUT.Constants.MAX_PUT_PAYLOAD_LENGTH
+    );
+  });
 
   testSchemaWithAdditionalProperties(
     "ModelInfoAPISpecs.ModelInfo.PUT.Schemas.Request.Payload",

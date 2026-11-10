@@ -682,7 +682,11 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       const givenExistingModel = await repository.create(getNewModelInfoSpec());
       const givenUpdate = getUpdateSpec(givenExistingModel);
 
-      const actualUpdatedModel = await repository.replaceModel(givenExistingModel.id, givenUpdate);
+      const actualUpdatedModel = await repository.replaceModel(
+        givenExistingModel.id,
+        givenUpdate,
+        givenExistingModel.availableLanguages
+      );
 
       expect(actualUpdatedModel).toEqual({
         ...givenExistingModel,
@@ -697,19 +701,69 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       });
     });
 
-    test("Should return null if the model does not exist", async () => {
-      const actualUpdatedModel = await repository.replaceModel(getMockStringId(999), {
-        name: getTestString(10),
-        description: getTestString(10),
-        locale: {
-          UUID: randomUUID(),
-          name: getTestString(10),
-          shortCode: getTestString(2),
-        },
-        availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
-        license: getTestString(10),
-        UUIDHistory: [randomUUID()],
+    test("Should allow empty description and license when replacing a model", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      const givenUpdate = {
+        ...getUpdateSpec(givenExistingModel),
+        description: "",
+        license: "",
+      };
+
+      const actualUpdatedModel = await repository.replaceModel(
+        givenExistingModel.id,
+        givenUpdate,
+        givenExistingModel.availableLanguages
+      );
+
+      expect(actualUpdatedModel).toEqual({
+        ...givenExistingModel,
+        ...givenUpdate,
+        updatedAt: expect.any(Date),
       });
+    });
+
+    test("Should not replace languages if they changed after the caller read the model", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      const newlyAddedLanguage = LanguageAPISpecs.Constants.Languages.find(
+        (language) => !givenExistingModel.availableLanguages.includes(language.shortCode)
+      )?.shortCode;
+      if (newlyAddedLanguage === undefined) {
+        throw new Error("Expected at least one registered language not present in the new model");
+      }
+      const currentLanguages = [...givenExistingModel.availableLanguages, newlyAddedLanguage];
+      await repository.updateAvailableLanguages(givenExistingModel.id, currentLanguages);
+
+      const staleUpdate = {
+        ...getUpdateSpec(givenExistingModel),
+        availableLanguages: givenExistingModel.availableLanguages,
+      };
+      const actualUpdatedModel = await repository.replaceModel(
+        givenExistingModel.id,
+        staleUpdate,
+        givenExistingModel.availableLanguages
+      );
+
+      expect(actualUpdatedModel).toBeNull();
+      expect((await repository.getModelById(givenExistingModel.id))?.availableLanguages).toEqual(currentLanguages);
+    });
+
+    test("Should return null if the model does not exist", async () => {
+      const actualUpdatedModel = await repository.replaceModel(
+        getMockStringId(999),
+        {
+          name: getTestString(10),
+          description: getTestString(10),
+          locale: {
+            UUID: randomUUID(),
+            name: getTestString(10),
+            shortCode: getTestString(2),
+          },
+          availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
+          license: getTestString(10),
+          UUIDHistory: [randomUUID()],
+        },
+        [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode]
+      );
 
       expect(actualUpdatedModel).toBeNull();
     });
@@ -720,7 +774,8 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
 
       const actualUpdatedModel = await repository.replaceModel(
         givenExistingModel.id,
-        getUpdateSpec(givenExistingModel)
+        getUpdateSpec(givenExistingModel),
+        givenExistingModel.availableLanguages
       );
 
       expect(actualUpdatedModel).toBeNull();
@@ -735,7 +790,11 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
       const givenExistingModel = await repository.create(getNewModelInfoSpec());
       const givenUpdate = { ...getUpdateSpec(givenExistingModel), availableLanguages: givenValue };
 
-      const actualPromise = repository.replaceModel(givenExistingModel.id, givenUpdate);
+      const actualPromise = repository.replaceModel(
+        givenExistingModel.id,
+        givenUpdate,
+        givenExistingModel.availableLanguages
+      );
 
       await expect(actualPromise).rejects.toThrow("ModelInfoRepository.replaceModel: replaceModel failed");
       const actualPersistedModel = await repository.getModelById(givenExistingModel.id);
@@ -743,18 +802,22 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     });
 
     TestDBConnectionFailureNoSetup((repositoryRegistryUnderTest) => {
-      return repositoryRegistryUnderTest.modelInfo.replaceModel(getMockStringId(1), {
-        name: getTestString(10),
-        description: getTestString(10),
-        locale: {
-          UUID: randomUUID(),
+      return repositoryRegistryUnderTest.modelInfo.replaceModel(
+        getMockStringId(1),
+        {
           name: getTestString(10),
-          shortCode: getTestString(2),
+          description: getTestString(10),
+          locale: {
+            UUID: randomUUID(),
+            name: getTestString(10),
+            shortCode: getTestString(2),
+          },
+          availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
+          license: getTestString(10),
+          UUIDHistory: [randomUUID()],
         },
-        availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
-        license: getTestString(10),
-        UUIDHistory: [randomUUID()],
-      });
+        [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode]
+      );
     });
   });
 

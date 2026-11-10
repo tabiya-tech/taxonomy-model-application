@@ -76,7 +76,7 @@ import { IModelInfo, IUpdateModelInfoSpec } from "modelInfo/modelInfo.types";
  *               schema:
  *                 $ref: '#/components/schemas/PUTModel404ErrorSchema'
  *         '409':
- *           description: The model is released and cannot be replaced.
+ *           description: The model is released or changed during the update and cannot be replaced.
  *           content:
  *             application/json:
  *               schema:
@@ -124,26 +124,8 @@ export class ModelPUTHandler {
         return this.modelIsReleased(modelId);
       }
 
-      if (!payload.UUIDHistory.includes(currentModel.UUID)) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status400.ErrorCodes.UUID_HISTORY_MISSING_CURRENT_UUID,
-          "UUIDHistory must include the current UUID of the model",
-          `The UUIDHistory does not include the current UUID ${currentModel.UUID} of model ${modelId}`
-        );
-      }
-
-      const droppedLanguages = currentModel.availableLanguages.filter(
-        (shortCode) => !payload.availableLanguages.includes(shortCode)
-      );
-      if (droppedLanguages.length > 0) {
-        return errorResponse(
-          StatusCodes.BAD_REQUEST,
-          ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status400.ErrorCodes.AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED,
-          "Removing an available language of a model is not supported",
-          `The model still carries data for the languages: ${droppedLanguages.join(", ")}`
-        );
-      }
+      const validationError = this.validateUpdate(currentModel, payload, modelId);
+      if (validationError) return validationError;
 
       const update: IUpdateModelInfoSpec = {
         name: payload.name,
@@ -157,9 +139,8 @@ export class ModelPUTHandler {
       let replacedModel: IModelInfo | null = null;
       let dbError: Error | null = null;
 
-      // const replacedModel = await modelRepository.replaceModel(modelId, update);
       try {
-        replacedModel = await modelRepository.replaceModel(modelId, update);
+        replacedModel = await modelRepository.replaceModel(modelId, update, currentModel.availableLanguages);
       } catch (error) {
         dbError = error as Error;
       }
@@ -182,12 +163,9 @@ export class ModelPUTHandler {
         if (existingModel.released) {
           return this.modelIsReleased(modelId);
         }
-        return errorResponse(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_UPDATE_MODEL,
-          "Failed to update the model in the DB",
-          ""
-        );
+        const concurrentUpdateValidationError = this.validateUpdate(existingModel, payload, modelId);
+        if (concurrentUpdateValidationError) return concurrentUpdateValidationError;
+        return this.modelChangedConcurrently(modelId);
       }
 
       const uuidHistoryDetails = await modelRepository.getHistory(replacedModel.UUIDHistory);
@@ -199,6 +177,33 @@ export class ModelPUTHandler {
         ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status500.ErrorCodes.DB_FAILED_TO_UPDATE_MODEL,
         "Failed to update the model in the DB",
         ""
+      );
+    }
+  }
+
+  private validateUpdate(
+    currentModel: IModelInfo,
+    payload: ModelInfoAPISpecs.ModelInfo.PUT.Types.Request.Payload,
+    modelId: string
+  ): APIGatewayProxyResult | undefined {
+    if (!payload.UUIDHistory.includes(currentModel.UUID)) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status400.ErrorCodes.UUID_HISTORY_MISSING_CURRENT_UUID,
+        "UUIDHistory must include the current UUID of the model",
+        `The UUIDHistory does not include the current UUID ${currentModel.UUID} of model ${modelId}`
+      );
+    }
+
+    const droppedLanguages = currentModel.availableLanguages.filter(
+      (shortCode) => !payload.availableLanguages.includes(shortCode)
+    );
+    if (droppedLanguages.length > 0) {
+      return errorResponse(
+        StatusCodes.BAD_REQUEST,
+        ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status400.ErrorCodes.AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED,
+        "Removing an available language of a model is not supported",
+        `The model still carries data for the languages: ${droppedLanguages.join(", ")}`
       );
     }
   }
@@ -218,6 +223,15 @@ export class ModelPUTHandler {
       ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status409.ErrorCodes.MODEL_IS_RELEASED,
       "The model is released",
       `Model with id ${modelId} is released and cannot be replaced`
+    );
+  }
+
+  private modelChangedConcurrently(modelId: string): APIGatewayProxyResult {
+    return errorResponse(
+      StatusCodes.CONFLICT,
+      ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status409.ErrorCodes.MODEL_CHANGED_CONCURRENTLY,
+      "The model changed while the update was in progress",
+      `Reload model ${modelId} and retry the update`
     );
   }
 }

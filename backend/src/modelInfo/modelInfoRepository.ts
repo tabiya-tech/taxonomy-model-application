@@ -86,19 +86,25 @@ export interface IModelRepository {
   /**
    * Replaces the editable metadata of a ModelInfo entry.
    *
-   * The update is conditional on the model currently being unreleased. A released model is an immutable published
-   * snapshot, so this is safe to call concurrently with releaseModel(): a PUT that loses the race returns null.
-   * Whether the new availableLanguages list is an allowed transition (it must not drop a language the model already
-   * carries) and whether UUIDHistory includes the model's current UUID are rules of PUT /models/{modelId}.
+   * The update is conditional on the model currently being unreleased and its availableLanguages still matching the
+   * caller's last read. A released model is an immutable published snapshot, so this is safe to call concurrently with
+   * releaseModel(); a PUT that loses the race or sees a concurrent language change returns null. Whether the new
+   * availableLanguages list is an allowed transition (it must not drop a language the model already carries) and
+   * whether UUIDHistory includes the model's current UUID are rules of PUT /models/{modelId}.
    * Assumes modelId is already a valid ObjectId - the caller is responsible for that validation.
    *
    * @param {string} modelId - The id of the model to replace. Must be a valid ObjectId.
    * @param {IUpdateModelInfoSpec} update - The six editable fields to write.
+   * @param {string[]} expectedAvailableLanguages - The model's availableLanguages value from the caller's read.
    * @return {Promise<IModelInfo|null>} - A Promise that resolves to the updated ModelInfo entry, or null if no
-   * unreleased model exists with the given id (either it doesn't exist, or it is already released).
+   * unreleased model exists with the given id (it doesn't exist, is already released, or its languages changed).
    * Rejects with an error if the operation fails, including validation of the languages and UUIDHistory.
    */
-  replaceModel(modelId: string, update: IUpdateModelInfoSpec): Promise<IModelInfo | null>;
+  replaceModel(
+    modelId: string,
+    update: IUpdateModelInfoSpec,
+    expectedAvailableLanguages: string[]
+  ): Promise<IModelInfo | null>;
 
   /**
    * Replaces the languages a ModelInfo entry declares it carries data in.
@@ -278,10 +284,14 @@ export class ModelRepository implements IModelRepository {
     }
   }
 
-  async replaceModel(modelId: string, update: IUpdateModelInfoSpec): Promise<IModelInfo | null> {
+  async replaceModel(
+    modelId: string,
+    update: IUpdateModelInfoSpec,
+    expectedAvailableLanguages: string[]
+  ): Promise<IModelInfo | null> {
     try {
       const modelInfo = await this.Model.findOneAndUpdate(
-        { _id: modelId, released: false },
+        { _id: modelId, released: false, availableLanguages: expectedAvailableLanguages },
         {
           $set: {
             name: update.name,

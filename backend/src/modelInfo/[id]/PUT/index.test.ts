@@ -113,7 +113,11 @@ describe("Test the ModelPUTHandler", () => {
 
     const actualResponse = await new ModelPUTHandler().handle(getEvent({ body: JSON.stringify(givenPayload) }));
 
-    expect(givenModelInfoRepositoryMock.replaceModel).toHaveBeenCalledWith(givenModelId, givenPayload);
+    expect(givenModelInfoRepositoryMock.replaceModel).toHaveBeenCalledWith(
+      givenModelId,
+      givenPayload,
+      givenModel.availableLanguages
+    );
     expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
     expect(JSON.parse(actualResponse.body)).toEqual(
       transform(givenUpdatedModel, givenResourcesBaseUrl, givenUuidHistoryDetails)
@@ -208,6 +212,69 @@ describe("Test the ModelPUTHandler", () => {
     expect(actualResponse.statusCode).toEqual(StatusCodes.CONFLICT);
     expect(JSON.parse(actualResponse.body).errorCode).toEqual(
       ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status409.ErrorCodes.MODEL_IS_RELEASED
+    );
+  });
+
+  test("should reject an update that would drop a language added concurrently", async () => {
+    const givenModel: IModelInfo = { ...getIModelInfoMockData(), id: givenModelId, released: false };
+    const concurrentLanguage = LanguageAPISpecs.Constants.Languages.find(
+      (language) => !givenModel.availableLanguages.includes(language.shortCode)
+    )?.shortCode;
+    if (concurrentLanguage === undefined) {
+      throw new Error("Expected at least one registered language not present in the model");
+    }
+    const givenUpdatedModel: IModelInfo = {
+      ...givenModel,
+      availableLanguages: [...givenModel.availableLanguages, concurrentLanguage],
+    };
+    const givenPayload = getValidPutPayload(givenModel);
+    const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+    givenModelInfoRepositoryMock.getModelById
+      .mockResolvedValueOnce(givenModel)
+      .mockResolvedValueOnce(givenUpdatedModel);
+    givenModelInfoRepositoryMock.replaceModel.mockResolvedValue(null);
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+    const actualResponse = await new ModelPUTHandler().handle(getEvent({ body: JSON.stringify(givenPayload) }));
+
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+      ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status400.ErrorCodes.AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED
+    );
+    expect(givenModelInfoRepositoryMock.replaceModel).toHaveBeenCalledWith(
+      givenModelId,
+      expect.objectContaining({ availableLanguages: givenPayload.availableLanguages }),
+      givenModel.availableLanguages
+    );
+  });
+
+  test("should respond with CONFLICT when a compatible concurrent model update occurred", async () => {
+    const givenModel: IModelInfo = { ...getIModelInfoMockData(), id: givenModelId, released: false };
+    const concurrentlyAddedLanguage = LanguageAPISpecs.Constants.Languages.find(
+      (language) => !givenModel.availableLanguages.includes(language.shortCode)
+    )?.shortCode;
+    if (concurrentlyAddedLanguage === undefined) {
+      throw new Error("Expected at least one registered language not present in the model");
+    }
+    const givenUpdatedModel: IModelInfo = {
+      ...givenModel,
+      availableLanguages: [...givenModel.availableLanguages, concurrentlyAddedLanguage],
+    };
+    const givenPayload = getValidPutPayload(givenModel, {
+      availableLanguages: givenUpdatedModel.availableLanguages,
+    });
+    const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+    givenModelInfoRepositoryMock.getModelById
+      .mockResolvedValueOnce(givenModel)
+      .mockResolvedValueOnce(givenUpdatedModel);
+    givenModelInfoRepositoryMock.replaceModel.mockResolvedValue(null);
+    jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+    const actualResponse = await new ModelPUTHandler().handle(getEvent({ body: JSON.stringify(givenPayload) }));
+
+    expect(actualResponse.statusCode).toEqual(StatusCodes.CONFLICT);
+    expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+      ModelInfoAPISpecs.ModelInfo.PUT.Enums.Response.Status409.ErrorCodes.MODEL_CHANGED_CONCURRENTLY
     );
   });
 
