@@ -83,6 +83,14 @@ export type INewModelInfoSpec = Pick<IModelInfoDoc, "name" | "locale" | "license
   Partial<Pick<IModelInfoDoc, "availableLanguages">>;
 
 /**
+ * The six editable metadata fields of a model. PUT /models/{modelId} replaces all of them.
+ */
+export type IUpdateModelInfoSpec = Pick<
+  IModelInfoDoc,
+  "name" | "description" | "locale" | "availableLanguages" | "license" | "UUIDHistory"
+>;
+
+/**
  * Describes how a reference to a model is returned from the API
  */
 
