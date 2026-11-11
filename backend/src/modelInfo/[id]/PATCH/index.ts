@@ -11,7 +11,7 @@ import { getRepositoryRegistry } from "server/repositoryRegistry/repositoryRegis
 import { getResourcesBaseUrl } from "server/config/config";
 import { Routes } from "routes.constant";
 import { transform } from "modelInfo/transform";
-import { IModelInfo, IUpdateModelInfoSpec } from "modelInfo/modelInfo.types";
+import { IUpdateModelInfoSpec } from "modelInfo/modelInfo.types";
 
 /**
  * @openapi
@@ -177,8 +177,7 @@ export class ModelPATCHHandler {
       if (payload.UUIDHistory !== undefined && !payload.UUIDHistory.includes(currentModel.UUID)) {
         return errorResponse(
           StatusCodes.BAD_REQUEST,
-          ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status400.ErrorCodes
-            .UUID_HISTORY_MUST_INCLUDE_CURRENT_UUID,
+          ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status400.ErrorCodes.UUID_HISTORY_MUST_INCLUDE_CURRENT_UUID,
           "UUIDHistory must include the current model UUID",
           `The current model UUID '${currentModel.UUID}' was not found in the provided UUIDHistory`
         );

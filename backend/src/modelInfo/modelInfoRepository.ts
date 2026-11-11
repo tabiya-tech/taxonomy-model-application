@@ -326,11 +326,7 @@ export class ModelRepository implements IModelRepository {
     }
   }
 
-  async patchModel(
-    modelId: string,
-    currentModel: IModelInfo,
-    spec: IUpdateModelInfoSpec
-  ): Promise<IModelInfo | null> {
+  async patchModel(modelId: string, currentModel: IModelInfo, spec: IUpdateModelInfoSpec): Promise<IModelInfo | null> {
     try {
       const $set: Record<string, unknown> = {};
       if (spec.name !== undefined) $set.name = spec.name;
@@ -358,11 +354,7 @@ export class ModelRepository implements IModelRepository {
         filter.availableLanguages = currentModel.availableLanguages;
       }
 
-      const modelInfo = await this.Model.findOneAndUpdate(
-        filter,
-        { $set },
-        { new: true, runValidators: true }
-      )
+      const modelInfo = await this.Model.findOneAndUpdate(filter, { $set }, { new: true, runValidators: true })
         .populate([
           populateImportProcessStateOptions,
           populateExportProcessStateOptions,

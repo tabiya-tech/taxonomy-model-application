@@ -133,12 +133,18 @@ describe("Test the ModelPATCHHandler", () => {
       ["there is an unknown property", { released: true, foo: "bar" }],
       ["name is empty", { name: "" }],
       ["name exceeds max length", { name: "a".repeat(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH + 1) }],
-      ["description exceeds max length", { description: "a".repeat(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH + 1) }],
+      [
+        "description exceeds max length",
+        { description: "a".repeat(ModelInfoAPISpecs.Constants.DESCRIPTION_MAX_LENGTH + 1) },
+      ],
       ["license exceeds max length", { license: "a".repeat(ModelInfoAPISpecs.Constants.LICENSE_MAX_LENGTH + 1) }],
       ["locale is missing required properties", { locale: { shortCode: "en" } }],
       ["UUIDHistory is empty", { UUIDHistory: [] }],
       ["UUIDHistory has invalid UUID", { UUIDHistory: ["not-a-uuid"] }],
-      ["UUIDHistory has duplicate UUIDs", { UUIDHistory: ["a56b6214-5d5e-4c54-9457-41a4a4d6f830", "a56b6214-5d5e-4c54-9457-41a4a4d6f830"] }],
+      [
+        "UUIDHistory has duplicate UUIDs",
+        { UUIDHistory: ["a56b6214-5d5e-4c54-9457-41a4a4d6f830", "a56b6214-5d5e-4c54-9457-41a4a4d6f830"] },
+      ],
     ])("should respond with BAD_REQUEST when %s", async (_description, givenBody) => {
       const actualResponse = await new ModelPATCHHandler().handle(getEvent({ body: JSON.stringify(givenBody) }));
 
@@ -153,7 +159,9 @@ describe("Test the ModelPATCHHandler", () => {
       givenModelInfoRepositoryMock.getModelById.mockResolvedValue(null);
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
-      const actualResponse = await new ModelPATCHHandler().handle(getEvent({ body: JSON.stringify({ name: "New Name" }) }));
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ name: "New Name" }) })
+      );
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
@@ -211,25 +219,28 @@ describe("Test the ModelPATCHHandler", () => {
       ["license", { license: "MIT" }],
       ["UUIDHistory", { UUIDHistory: ["a56b6214-5d5e-4c54-9457-41a4a4d6f830"] }],
       ["released: true", { released: true }],
-    ])("should respond with CONFLICT when attempting to update %s on an already released model", async (_desc, payload) => {
-      const givenModel: IModelInfo = {
-        ...getIModelInfoMockData(),
-        id: givenModelId,
-        UUID: "a56b6214-5d5e-4c54-9457-41a4a4d6f830",
-        released: true,
-      };
-      const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
-      givenModelInfoRepositoryMock.getModelById.mockResolvedValue(givenModel);
-      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+    ])(
+      "should respond with CONFLICT when attempting to update %s on an already released model",
+      async (_desc, payload) => {
+        const givenModel: IModelInfo = {
+          ...getIModelInfoMockData(),
+          id: givenModelId,
+          UUID: "a56b6214-5d5e-4c54-9457-41a4a4d6f830",
+          released: true,
+        };
+        const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+        givenModelInfoRepositoryMock.getModelById.mockResolvedValue(givenModel);
+        jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
-      const actualResponse = await new ModelPATCHHandler().handle(getEvent({ body: JSON.stringify(payload) }));
+        const actualResponse = await new ModelPATCHHandler().handle(getEvent({ body: JSON.stringify(payload) }));
 
-      expect(actualResponse.statusCode).toEqual(StatusCodes.CONFLICT);
-      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
-        ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status409.ErrorCodes.MODEL_ALREADY_RELEASED
-      );
-      expect(givenModelInfoRepositoryMock.patchModel).not.toHaveBeenCalled();
-    });
+        expect(actualResponse.statusCode).toEqual(StatusCodes.CONFLICT);
+        expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+          ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status409.ErrorCodes.MODEL_ALREADY_RELEASED
+        );
+        expect(givenModelInfoRepositoryMock.patchModel).not.toHaveBeenCalled();
+      }
+    );
 
     test("should respond with OK when updating availableLanguages only on an already released model", async () => {
       const fallback = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
@@ -319,9 +330,7 @@ describe("Test the ModelPATCHHandler", () => {
       givenModelInfoRepositoryMock.getHistory.mockResolvedValue([]);
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
-      const actualResponse = await new ModelPATCHHandler().handle(
-        getEvent({ body: JSON.stringify({ license: "" }) })
-      );
+      const actualResponse = await new ModelPATCHHandler().handle(getEvent({ body: JSON.stringify({ license: "" }) }));
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       expect(givenModelInfoRepositoryMock.patchModel).toHaveBeenCalledWith(givenModelId, givenModel, {
@@ -389,7 +398,9 @@ describe("Test the ModelPATCHHandler", () => {
       givenModelInfoRepositoryMock.getHistory.mockResolvedValue([]);
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
-      const actualResponse = await new ModelPATCHHandler().handle(getEvent({ body: JSON.stringify({ released: true }) }));
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ released: true }) })
+      );
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       expect(givenModelInfoRepositoryMock.patchModel).toHaveBeenCalledWith(givenModelId, givenModel, {
@@ -463,9 +474,7 @@ describe("Test the ModelPATCHHandler", () => {
       givenModelInfoRepositoryMock.getHistory.mockResolvedValue(givenUuidHistoryDetails);
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
-      const actualResponse = await new ModelPATCHHandler().handle(
-        getEvent({ body: JSON.stringify(requestPayload) })
-      );
+      const actualResponse = await new ModelPATCHHandler().handle(getEvent({ body: JSON.stringify(requestPayload) }));
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
       expect(givenModelInfoRepositoryMock.patchModel).toHaveBeenCalledTimes(1);
@@ -533,7 +542,9 @@ describe("Test the ModelPATCHHandler", () => {
 
       const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
       // First read: [fallback]; patchModel misses because db filter { availableLanguages: [fallback] } doesn't match [fallback, 'es']
-      givenModelInfoRepositoryMock.getModelById.mockResolvedValueOnce(givenModel).mockResolvedValueOnce(concurrentlyUpdatedModel);
+      givenModelInfoRepositoryMock.getModelById
+        .mockResolvedValueOnce(givenModel)
+        .mockResolvedValueOnce(concurrentlyUpdatedModel);
       givenModelInfoRepositoryMock.patchModel.mockResolvedValue(null);
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
@@ -576,7 +587,9 @@ describe("Test the ModelPATCHHandler", () => {
       givenModelInfoRepositoryMock.patchModel.mockRejectedValue(new Error("DB failure"));
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
-      const actualResponse = await new ModelPATCHHandler().handle(getEvent({ body: JSON.stringify({ released: true }) }));
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ released: true }) })
+      );
 
       expect(actualResponse.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
       expect(JSON.parse(actualResponse.body).errorCode).toEqual(
@@ -639,7 +652,9 @@ describe("Test the ModelPATCHHandler", () => {
     test("should respond with INTERNAL_SERVER_ERROR when diagnostic getModelById fails on filter miss", async () => {
       const givenModel: IModelInfo = { ...getIModelInfoMockData(), id: givenModelId, released: false };
       const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
-      givenModelInfoRepositoryMock.getModelById.mockResolvedValueOnce(givenModel).mockRejectedValueOnce(new Error("DB failure"));
+      givenModelInfoRepositoryMock.getModelById
+        .mockResolvedValueOnce(givenModel)
+        .mockRejectedValueOnce(new Error("DB failure"));
       givenModelInfoRepositoryMock.patchModel.mockResolvedValue(null);
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 

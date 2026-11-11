@@ -3,30 +3,34 @@
  * @param fieldName
  */
 export function stringRequired(...fieldName: string[]) {
-  return function () {
-    // Determine the root object. When running during Query.findOneAndUpdate with runValidators: true,
-    // `this` is the Query instance, whose update payload is accessible via getUpdate().
-    // @ts-ignore
-    let target = this;
-    // @ts-ignore
-    if (target && typeof target.getUpdate === "function") {
-      // @ts-ignore
-      const update = target.getUpdate();
-      target = update?.$set || update || target;
+  return function (this: unknown): boolean {
+    const context = this as {
+      get?: (path: string) => unknown;
+      getUpdate?: () => unknown;
+    } | null;
+
+    if (context != null && typeof context.getUpdate === "function" && typeof context.get === "function") {
+      const path = fieldName.join(".");
+      let value = context.get(path);
+
+      if (value === undefined && fieldName.length > 1) {
+        value = context.get(fieldName[0]);
+        for (const segment of fieldName.slice(1)) {
+          if (value === null || typeof value !== "object") {
+            value = undefined;
+            break;
+          }
+          value = (value as Record<string, unknown>)[segment];
+        }
+      }
+
+      return typeof value !== "string";
     }
 
-    // Check for flattened path first (e.g. "locale.name") which Mongoose may set in update objects
-    const flatKey = fieldName.join(".");
-    if (target && typeof target === "object" && flatKey in target) {
-      return typeof target[flatKey] !== "string";
-    }
-
-    // the reduce value return the nth level of the object,
-    // i.e. for stringRequired("a", "b", "c"), it will return target["a"]["b"]["c"]
-    // @ts-ignore
-    const value = fieldName.reduce((acc, cur) => {
-      return acc != null ? acc[cur] : undefined;
-    }, target);
+    const value = fieldName.reduce((acc: unknown, cur) => {
+      if (acc === null || (typeof acc !== "object" && typeof acc !== "function")) return undefined;
+      return (acc as Record<string, unknown>)[cur];
+    }, this);
 
     return typeof value !== "string";
   };

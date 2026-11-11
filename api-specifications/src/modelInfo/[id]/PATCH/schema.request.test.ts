@@ -338,9 +338,7 @@ describe("Validate JSON against the ModelInfo PATCH Request Schema", () => {
       // Validate it passes schema first
       expect(validate(maxPayload)).toBe(true);
       // Then verify its serialized size is within the declared limit
-      expect(JSON.stringify(maxPayload).length).toBeLessThanOrEqual(
-        PATCHModelConstants.MAX_PATCH_PAYLOAD_LENGTH
-      );
+      expect(JSON.stringify(maxPayload).length).toBeLessThanOrEqual(PATCHModelConstants.MAX_PATCH_PAYLOAD_LENGTH);
     });
   });
 });
