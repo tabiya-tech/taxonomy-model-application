@@ -266,4 +266,238 @@ describe("Test for the PATCH model handler with a DB", () => {
     const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
     expect(actualPersistedModel?.released).toBe(false);
   });
+
+  test("PATCH should respond with OK and update name alone, leaving other fields untouched in DB and matching response schema", async () => {
+    // GIVEN an unreleased model in the DB
+    const givenModel = await createModelInDB();
+    const newName = "Brand New Integration Model Name";
+
+    // WHEN patching name alone
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, {
+      name: newName,
+    });
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect 200 OK
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    const actualPayload = JSON.parse(actualResponse.body);
+    validatePATCHResponse(actualPayload);
+    expect(validatePATCHResponse.errors).toBeNull();
+    expect(actualPayload.name).toEqual(newName);
+
+    // AND other fields remain unchanged in DB
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.name).toEqual(newName);
+    expect(actualPersistedModel?.description).toEqual(givenModel.description);
+    expect(actualPersistedModel?.license).toEqual(givenModel.license);
+    expect(actualPersistedModel?.locale).toEqual(givenModel.locale);
+    expect(actualPersistedModel?.UUIDHistory).toEqual(givenModel.UUIDHistory);
+    expect(actualPersistedModel?.availableLanguages).toEqual(givenModel.availableLanguages);
+    expect(actualPersistedModel?.released).toBe(false);
+  });
+
+  test("PATCH should respond with OK and update description and license to empty strings", async () => {
+    // GIVEN an unreleased model in the DB
+    const givenModel = await createModelInDB();
+    expect(givenModel.description.length).toBeGreaterThan(0);
+    expect(givenModel.license.length).toBeGreaterThan(0);
+
+    // WHEN patching description and license to empty strings
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, {
+      description: "",
+      license: "",
+    });
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect 200 OK
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    const actualPayload = JSON.parse(actualResponse.body);
+    validatePATCHResponse(actualPayload);
+    expect(validatePATCHResponse.errors).toBeNull();
+    expect(actualPayload.description).toEqual("");
+    expect(actualPayload.license).toEqual("");
+
+    // AND empty strings are persisted in DB
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.description).toEqual("");
+    expect(actualPersistedModel?.license).toEqual("");
+  });
+
+  test("PATCH should respond with OK and update locale", async () => {
+    // GIVEN an unreleased model in the DB
+    const givenModel = await createModelInDB();
+    const newLocale = {
+      UUID: randomUUID(),
+      name: "French",
+      shortCode: "fr",
+    };
+
+    // WHEN patching locale
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, {
+      locale: newLocale,
+    });
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect 200 OK
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    const actualPayload = JSON.parse(actualResponse.body);
+    validatePATCHResponse(actualPayload);
+    expect(validatePATCHResponse.errors).toBeNull();
+    expect(actualPayload.locale).toEqual(newLocale);
+
+    // AND locale is updated in DB
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.locale).toEqual(newLocale);
+  });
+
+  test("PATCH should respond with OK and update UUIDHistory when it includes current model UUID", async () => {
+    // GIVEN an unreleased model in the DB
+    const givenModel = await createModelInDB();
+    const newUUIDHistory = [givenModel.UUID, randomUUID()];
+
+    // WHEN patching UUIDHistory
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, {
+      UUIDHistory: newUUIDHistory,
+    });
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect 200 OK
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    const actualPayload = JSON.parse(actualResponse.body);
+    validatePATCHResponse(actualPayload);
+    expect(validatePATCHResponse.errors).toBeNull();
+
+    // AND UUIDHistory is updated in DB
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.UUIDHistory).toEqual(newUUIDHistory);
+  });
+
+  test("PATCH should respond with BAD_REQUEST when UUIDHistory does not include current model UUID", async () => {
+    // GIVEN an unreleased model in the DB
+    const givenModel = await createModelInDB();
+    const invalidHistory = [randomUUID()]; // does not contain givenModel.UUID
+
+    // WHEN patching UUIDHistory without current UUID
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, {
+      UUIDHistory: invalidHistory,
+    });
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect 400 BAD_REQUEST
+    expect(actualResponse.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+      ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status400.ErrorCodes.UUID_HISTORY_MUST_INCLUDE_CURRENT_UUID
+    );
+
+    // AND model in DB remains unchanged
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.UUIDHistory).toEqual(givenModel.UUIDHistory);
+  });
+
+  test("PATCH should respond with CONFLICT when attempting to update metadata on a released model", async () => {
+    // GIVEN a released model in the DB
+    const givenModel = await createModelInDB();
+    await getRepositoryRegistry().modelInfo.releaseModel(givenModel.id, "initial notes");
+
+    // WHEN attempting to patch metadata
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, {
+      name: "Should Not Be Updated",
+    });
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect 409 CONFLICT
+    expect(actualResponse.statusCode).toEqual(StatusCodes.CONFLICT);
+    expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+      ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status409.ErrorCodes.MODEL_ALREADY_RELEASED
+    );
+
+    // AND name in DB is unchanged
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.name).toEqual(givenModel.name);
+  });
+
+  test("PATCH should respond with OK when updating availableLanguages on an already released model", async () => {
+    // GIVEN a released model in the DB
+    const givenModel = await createModelInDB();
+    await getRepositoryRegistry().modelInfo.releaseModel(givenModel.id, "initial notes");
+    const allRegistered = LanguageAPISpecs.Constants.Languages.map((l) => l.shortCode);
+
+    // WHEN updating availableLanguages on the released model
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, {
+      availableLanguages: allRegistered,
+    });
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect 200 OK
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    const actualPayload = JSON.parse(actualResponse.body);
+    validatePATCHResponse(actualPayload);
+    expect(validatePATCHResponse.errors).toBeNull();
+    expect(actualPayload.availableLanguages).toEqual(allRegistered);
+    expect(actualPayload.released).toBe(true);
+
+    // AND availableLanguages is updated in DB
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.availableLanguages).toEqual(allRegistered);
+    expect(actualPersistedModel?.released).toBe(true);
+  });
+
+  test("PATCH should respond with OK and apply metadata, availableLanguages, and release atomically", async () => {
+    // GIVEN an unreleased model in the DB
+    const givenModel = await createModelInDB();
+    const allRegistered = LanguageAPISpecs.Constants.Languages.map((l) => l.shortCode);
+    const newLocale = {
+      UUID: randomUUID(),
+      name: "Spanish",
+      shortCode: "es",
+    };
+    const newUUIDHistory = [givenModel.UUID, randomUUID()];
+
+    const requestPayload = {
+      name: "Atomic Full Integration Model",
+      description: "Full Atomic Description",
+      license: "Apache-2.0",
+      locale: newLocale,
+      UUIDHistory: newUUIDHistory,
+      availableLanguages: allRegistered,
+      released: true,
+      releaseNotes: "Full atomic integration release notes",
+    };
+
+    // WHEN sending atomic PATCH
+    const givenEvent = getEvent(givenModel.id, usersRequestContext.MODEL_MANAGER, requestPayload);
+    // @ts-ignore
+    const actualResponse = await modelInstanceHandler(givenEvent);
+
+    // THEN expect 200 OK
+    expect(actualResponse.statusCode).toEqual(StatusCodes.OK);
+    const actualPayload = JSON.parse(actualResponse.body);
+    validatePATCHResponse(actualPayload);
+    expect(validatePATCHResponse.errors).toBeNull();
+    expect(actualPayload.name).toEqual(requestPayload.name);
+    expect(actualPayload.description).toEqual(requestPayload.description);
+    expect(actualPayload.license).toEqual(requestPayload.license);
+    expect(actualPayload.locale).toEqual(requestPayload.locale);
+    expect(actualPayload.availableLanguages).toEqual(allRegistered);
+    expect(actualPayload.released).toBe(true);
+    expect(actualPayload.releaseNotes).toEqual(requestPayload.releaseNotes);
+
+    // AND all fields are persisted atomically in DB
+    const actualPersistedModel = await getRepositoryRegistry().modelInfo.getModelById(givenModel.id);
+    expect(actualPersistedModel?.name).toEqual(requestPayload.name);
+    expect(actualPersistedModel?.description).toEqual(requestPayload.description);
+    expect(actualPersistedModel?.license).toEqual(requestPayload.license);
+    expect(actualPersistedModel?.locale).toEqual(requestPayload.locale);
+    expect(actualPersistedModel?.UUIDHistory).toEqual(newUUIDHistory);
+    expect(actualPersistedModel?.availableLanguages).toEqual(allRegistered);
+    expect(actualPersistedModel?.released).toBe(true);
+    expect(actualPersistedModel?.releaseNotes).toEqual(requestPayload.releaseNotes);
+  });
 });

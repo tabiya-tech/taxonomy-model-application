@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { IModelInfo, IModelInfoDoc, IModelInfoReference, INewModelInfoSpec } from "./modelInfo.types";
+import {
+  IModelInfo,
+  IModelInfoDoc,
+  IModelInfoReference,
+  INewModelInfoSpec,
+  IUpdateModelInfoSpec,
+} from "./modelInfo.types";
 import { populateImportProcessStateOptions } from "./populateImportProcessStateOptions";
 import { populateExportProcessStateOptions } from "./populateExportProcessStateOptions";
 import { populateEmbeddingProcessStateOptions } from "./populateEmbeddingProcessStateOptions";
@@ -91,6 +97,26 @@ export interface IModelRepository {
    * Rejects with an error if the operation fails, the validation of the languages included.
    */
   updateAvailableLanguages(modelId: string, availableLanguages: string[]): Promise<IModelInfo | null>;
+
+  /**
+   * Partially updates a ModelInfo entry with only the fields supplied in spec.
+   *
+   * The update is conditional:
+   * - If any metadata field (name, description, locale, license, UUIDHistory) or released:true
+   *   is being updated, the update only succeeds if the model is currently unreleased (released: false).
+   *   This ensures metadata cannot mutate a released snapshot and release is atomic with any field changes.
+   * - If availableLanguages is being updated, the filter matches the exact previously observed language list
+   *   (currentModel.availableLanguages) as an optimistic concurrency guard against concurrent language additions.
+   * - If only availableLanguages is being updated on an already released model, the update is allowed to proceed.
+   *
+   * @param {string} modelId - The id of the model to update. Must be a valid ObjectId.
+   * @param {IModelInfo} currentModel - The model state previously loaded by the caller.
+   * @param {IUpdateModelInfoSpec} spec - The fields to update on the model.
+   * @return {Promise<IModelInfo|null>} - A Promise that resolves to the updated ModelInfo entry, or null if the
+   * filter missed (e.g. model does not exist, model is already released for a metadata update, or concurrent language addition occurred).
+   * Rejects with an error if the operation fails.
+   */
+  patchModel(modelId: string, currentModel: IModelInfo, spec: IUpdateModelInfoSpec): Promise<IModelInfo | null>;
 }
 
 export class ModelRepository implements IModelRepository {
@@ -295,6 +321,57 @@ export class ModelRepository implements IModelRepository {
       return modelInfo != null ? modelInfo.toObject() : null;
     } catch (e: unknown) {
       const err = new Error("ModelInfoRepository.releaseModel: releaseModel failed", { cause: e });
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async patchModel(
+    modelId: string,
+    currentModel: IModelInfo,
+    spec: IUpdateModelInfoSpec
+  ): Promise<IModelInfo | null> {
+    try {
+      const $set: Record<string, unknown> = {};
+      if (spec.name !== undefined) $set.name = spec.name;
+      if (spec.description !== undefined) $set.description = spec.description;
+      if (spec.locale !== undefined) $set.locale = spec.locale;
+      if (spec.license !== undefined) $set.license = spec.license;
+      if (spec.UUIDHistory !== undefined) $set.UUIDHistory = spec.UUIDHistory;
+      if (spec.availableLanguages !== undefined) $set.availableLanguages = spec.availableLanguages;
+      if (spec.released !== undefined) $set.released = spec.released;
+      if (spec.releaseNotes !== undefined) $set.releaseNotes = spec.releaseNotes;
+
+      const hasMetadataOrRelease =
+        spec.name !== undefined ||
+        spec.description !== undefined ||
+        spec.locale !== undefined ||
+        spec.license !== undefined ||
+        spec.UUIDHistory !== undefined ||
+        spec.released !== undefined;
+
+      const filter: Record<string, unknown> = { _id: modelId };
+      if (hasMetadataOrRelease) {
+        filter.released = false;
+      }
+      if (spec.availableLanguages !== undefined) {
+        filter.availableLanguages = currentModel.availableLanguages;
+      }
+
+      const modelInfo = await this.Model.findOneAndUpdate(
+        filter,
+        { $set },
+        { new: true, runValidators: true }
+      )
+        .populate([
+          populateImportProcessStateOptions,
+          populateExportProcessStateOptions,
+          populateEmbeddingProcessStateOptions,
+        ])
+        .exec();
+      return modelInfo != null ? modelInfo.toObject() : null;
+    } catch (e: unknown) {
+      const err = new Error("ModelInfoRepository.patchModel: patchModel failed", { cause: e });
       console.error(err);
       throw err;
     }
