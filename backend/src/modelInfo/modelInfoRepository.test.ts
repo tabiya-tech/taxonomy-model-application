@@ -730,6 +730,303 @@ describe("Test the Model Repository with an in-memory mongodb", () => {
     });
   });
 
+  describe("Test patchModel()", () => {
+    test("Should update only supplied metadata fields and leave omitted fields untouched", async () => {
+      // GIVEN an unreleased model exists in the database
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+
+      // WHEN patching only the name
+      const givenNewName = "New Unique Model Name";
+      const actualModel = await repository.patchModel(givenExistingModel.id, givenExistingModel, {
+        name: givenNewName,
+      });
+
+      // THEN expect the returned model to have the updated name
+      expect(actualModel).toBeDefined();
+      expect(actualModel?.name).toEqual(givenNewName);
+      // AND omitted fields remain unchanged
+      expect(actualModel?.description).toEqual(givenExistingModel.description);
+      expect(actualModel?.license).toEqual(givenExistingModel.license);
+      expect(actualModel?.locale).toEqual(givenExistingModel.locale);
+      expect(actualModel?.UUIDHistory).toEqual(givenExistingModel.UUIDHistory);
+      expect(actualModel?.availableLanguages).toEqual(givenExistingModel.availableLanguages);
+      expect(actualModel?.released).toEqual(givenExistingModel.released);
+      expect(actualModel?.releaseNotes).toEqual(givenExistingModel.releaseNotes);
+
+      // AND the change is persisted in the database
+      const persistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(persistedModel?.name).toEqual(givenNewName);
+      expect(persistedModel?.description).toEqual(givenExistingModel.description);
+    });
+
+    test("Should preserve and persist empty string for description", async () => {
+      // GIVEN an unreleased model exists with non-empty description
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      expect(givenExistingModel.description.length).toBeGreaterThan(0);
+
+      // WHEN patching description with empty string
+      const actualModel = await repository.patchModel(givenExistingModel.id, givenExistingModel, {
+        description: "",
+      });
+
+      // THEN expect description to be empty string
+      expect(actualModel).toBeDefined();
+      expect(actualModel?.description).toEqual("");
+
+      // AND empty string is persisted in the database
+      const persistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(persistedModel?.description).toEqual("");
+    });
+
+    test("Should preserve and persist empty string for license", async () => {
+      // GIVEN an unreleased model exists with non-empty license
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      expect(givenExistingModel.license.length).toBeGreaterThan(0);
+
+      // WHEN patching license with empty string
+      const actualModel = await repository.patchModel(givenExistingModel.id, givenExistingModel, {
+        license: "",
+      });
+
+      // THEN expect license to be empty string
+      expect(actualModel).toBeDefined();
+      expect(actualModel?.license).toEqual("");
+
+      // AND empty string is persisted in the database
+      const persistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(persistedModel?.license).toEqual("");
+    });
+
+    test("Should update locale", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      const newLocale = {
+        UUID: randomUUID(),
+        name: "French",
+        shortCode: "fr",
+      };
+
+      const actualModel = await repository.patchModel(givenExistingModel.id, givenExistingModel, {
+        locale: newLocale,
+      });
+
+      expect(actualModel?.locale).toEqual(newLocale);
+      const persistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(persistedModel?.locale).toEqual(newLocale);
+    });
+
+    test("Should update UUIDHistory", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      const newUUIDHistory = [givenExistingModel.UUID, randomUUID()];
+
+      const actualModel = await repository.patchModel(givenExistingModel.id, givenExistingModel, {
+        UUIDHistory: newUUIDHistory,
+      });
+
+      expect(actualModel?.UUIDHistory).toEqual(newUUIDHistory);
+      const persistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(persistedModel?.UUIDHistory).toEqual(newUUIDHistory);
+    });
+
+    test("Should return null when updating metadata on an already released model", async () => {
+      // GIVEN a released model
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      await repository.releaseModel(givenExistingModel.id, "initial release");
+      const releasedModel = (await repository.getModelById(givenExistingModel.id))!;
+      expect(releasedModel.released).toBe(true);
+
+      // WHEN attempting to patch metadata on the released model
+      const actualModel = await repository.patchModel(releasedModel.id, releasedModel, {
+        name: "Forbidden Update",
+      });
+
+      // THEN expect null
+      expect(actualModel).toBeNull();
+      // AND model in database remains untouched
+      const persistedModel = await repository.getModelById(releasedModel.id);
+      expect(persistedModel?.name).toEqual(givenExistingModel.name);
+    });
+
+    test("Should return null when attempting to re-release an already released model", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      await repository.releaseModel(givenExistingModel.id, "initial release");
+      const releasedModel = (await repository.getModelById(givenExistingModel.id))!;
+
+      const actualModel = await repository.patchModel(releasedModel.id, releasedModel, {
+        released: true,
+      });
+
+      expect(actualModel).toBeNull();
+    });
+
+    test("Should succeed when updating availableLanguages only on an already released model", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      await repository.releaseModel(givenExistingModel.id, "initial release");
+      const releasedModel = (await repository.getModelById(givenExistingModel.id))!;
+
+      const allRegistered = LanguageAPISpecs.Constants.Languages.map((l) => l.shortCode);
+      const actualModel = await repository.patchModel(releasedModel.id, releasedModel, {
+        availableLanguages: allRegistered,
+      });
+
+      expect(actualModel).toBeDefined();
+      expect(actualModel?.availableLanguages).toEqual(allRegistered);
+      expect(actualModel?.released).toBe(true);
+
+      const persistedModel = await repository.getModelById(releasedModel.id);
+      expect(persistedModel?.availableLanguages).toEqual(allRegistered);
+    });
+
+    test("Should atomically update metadata, availableLanguages, and release the model", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      const allRegistered = LanguageAPISpecs.Constants.Languages.map((l) => l.shortCode);
+      const newLocale = {
+        UUID: randomUUID(),
+        name: "Spanish",
+        shortCode: "es",
+      };
+      const newUUIDHistory = [givenExistingModel.UUID, randomUUID()];
+
+      const actualModel = await repository.patchModel(givenExistingModel.id, givenExistingModel, {
+        name: "Atomic Release Model",
+        description: "Atomic Description",
+        license: "MIT",
+        locale: newLocale,
+        UUIDHistory: newUUIDHistory,
+        availableLanguages: allRegistered,
+        released: true,
+        releaseNotes: "Atomically released",
+      });
+
+      expect(actualModel).toBeDefined();
+      expect(actualModel?.name).toEqual("Atomic Release Model");
+      expect(actualModel?.description).toEqual("Atomic Description");
+      expect(actualModel?.license).toEqual("MIT");
+      expect(actualModel?.locale).toEqual(newLocale);
+      expect(actualModel?.UUIDHistory).toEqual(newUUIDHistory);
+      expect(actualModel?.availableLanguages).toEqual(allRegistered);
+      expect(actualModel?.released).toBe(true);
+      expect(actualModel?.releaseNotes).toEqual("Atomically released");
+
+      const persistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(persistedModel?.released).toBe(true);
+      expect(persistedModel?.name).toEqual("Atomic Release Model");
+      expect(persistedModel?.availableLanguages).toEqual(allRegistered);
+    });
+
+    test("Should protect availableLanguages with concurrency condition and return null on stale languages", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+      const fallback = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
+
+      // Simulate a concurrent write in DB adding 'fr'
+      await repository.Model.updateOne(
+        { _id: givenExistingModel.id },
+        { $set: { availableLanguages: [fallback, "fr"] } }
+      );
+
+      // Caller attempts to update availableLanguages with stale currentModel (which had only [fallback])
+      const actualModel = await repository.patchModel(givenExistingModel.id, givenExistingModel, {
+        availableLanguages: [fallback, "es"],
+      });
+
+      // THEN update fails with null because availableLanguages filter missed
+      expect(actualModel).toBeNull();
+
+      // AND DB retains the concurrently written languages [fallback, 'fr']
+      const persistedModel = await repository.getModelById(givenExistingModel.id);
+      expect(persistedModel?.availableLanguages).toEqual([fallback, "fr"]);
+    });
+
+    test("Should return null when modelId does not exist", async () => {
+      const dummyModel: IModelInfo = {
+        ...getNewModelInfoSpec(),
+        id: getMockStringId(999),
+        UUID: randomUUID(),
+        availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
+        released: false,
+        releaseNotes: "",
+        version: "",
+        importProcessState: {
+          id: getMockStringId(101),
+          status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
+          result: { errored: false, parsingErrors: false, parsingWarnings: false },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        exportProcessState: [],
+        embeddingProcessState: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const actualModel = await repository.patchModel(getMockStringId(999), dummyModel, {
+        name: "Non-existent",
+      });
+
+      expect(actualModel).toBeNull();
+    });
+
+    test("Should throw wrapped error when Mongoose validation fails", async () => {
+      const givenExistingModel = await repository.create(getNewModelInfoSpec());
+
+      // Attempting to patch name with string exceeding NAME_MAX_LENGTH
+      const tooLongName = "a".repeat(ModelInfoAPISpecs.Constants.NAME_MAX_LENGTH + 1);
+
+      await expect(
+        repository.patchModel(givenExistingModel.id, givenExistingModel, {
+          name: tooLongName,
+        })
+      ).rejects.toThrow();
+    });
+
+    testEmbeddingProcessStatePopulation(
+      async () => {
+        return [await repository.create(getNewModelInfoSpec())];
+      },
+      async (givenModels: IModelInfo[]) => {
+        const patched = await repository.patchModel(givenModels[0].id, givenModels[0], { name: "Populated Model" });
+        return patched ? [patched] : [];
+      }
+    );
+
+    testExportProcessStatePopulation(
+      async () => {
+        return [await repository.create(getNewModelInfoSpec())];
+      },
+      async (givenModels: IModelInfo[]) => {
+        const patched = await repository.patchModel(givenModels[0].id, givenModels[0], { name: "Populated Model" });
+        return patched ? [patched] : [];
+      }
+    );
+
+    TestDBConnectionFailureNoSetup((repository) => {
+      const dummyModel: IModelInfo = {
+        id: getMockStringId(1),
+        UUID: randomUUID(),
+        UUIDHistory: [randomUUID()],
+        name: "Dummy",
+        locale: { UUID: randomUUID(), name: "English", shortCode: "en" },
+        license: "MIT",
+        description: "Desc",
+        availableLanguages: [LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode],
+        released: false,
+        releaseNotes: "",
+        version: "",
+        importProcessState: {
+          id: getMockStringId(101),
+          status: ImportProcessStateAPISpecs.Enums.Status.PENDING,
+          result: { errored: false, parsingErrors: false, parsingWarnings: false },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        exportProcessState: [],
+        embeddingProcessState: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      return repository.modelInfo.patchModel(getMockStringId(1), dummyModel, { name: "New Name" });
+    });
+  });
+
   function testEmbeddingProcessStatePopulation(
     setupFn: () => Promise<IModelInfo[]>,
     getActualModelsFn: (givenModels: IModelInfo[]) => Promise<IModelInfo[]>

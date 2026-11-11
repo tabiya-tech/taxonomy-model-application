@@ -3,6 +3,7 @@ namespace PATCHModelEnums {
     export namespace Status400 {
       export enum ErrorCodes {
         AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED = "AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED",
+        UUID_HISTORY_MUST_INCLUDE_CURRENT_UUID = "UUID_HISTORY_MUST_INCLUDE_CURRENT_UUID",
       }
     }
     export namespace Status404 {
@@ -13,12 +14,14 @@ namespace PATCHModelEnums {
     export namespace Status409 {
       export enum ErrorCodes {
         MODEL_ALREADY_RELEASED = "MODEL_ALREADY_RELEASED",
+        MODEL_CONCURRENTLY_MODIFIED = "MODEL_CONCURRENTLY_MODIFIED",
       }
     }
     export namespace Status500 {
       export enum ErrorCodes {
         DB_FAILED_TO_RELEASE_MODEL = "DB_FAILED_TO_RELEASE_MODEL",
         DB_FAILED_TO_UPDATE_AVAILABLE_LANGUAGES = "DB_FAILED_TO_UPDATE_AVAILABLE_LANGUAGES",
+        DB_FAILED_TO_PATCH_MODEL = "DB_FAILED_TO_PATCH_MODEL",
       }
     }
   }

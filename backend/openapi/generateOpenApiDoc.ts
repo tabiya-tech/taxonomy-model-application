@@ -25,8 +25,17 @@ ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref =
   "#" + ModelInfo.Schemas.GET.Response.Payload.items.properties.locale.$ref;
 ModelInfo.ModelInfo.PATCH.Schemas.Response.Payload.properties.locale.$ref =
   "#" + ModelInfo.ModelInfo.PATCH.Schemas.Response.Payload.properties.locale.$ref;
+ModelInfo.ModelInfo.PATCH.Schemas.Request.Payload.properties.locale.$ref =
+  "#" + ModelInfo.ModelInfo.PATCH.Schemas.Request.Payload.properties.locale.$ref;
+const patchRequestLocaleAnyOfBranch = ModelInfo.ModelInfo.PATCH.Schemas.Request.Payload.anyOf?.find(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (branch: any) => branch.properties?.locale?.$ref
+);
+if (patchRequestLocaleAnyOfBranch) {
+  patchRequestLocaleAnyOfBranch.properties.locale.$ref = "#" + patchRequestLocaleAnyOfBranch.properties.locale.$ref;
+}
 ModelInfo.ModelInfo.GET.Schemas.Response.Payload.properties.locale.$ref =
-  "#" + ModelInfo.ModelInfo.GET.Schemas.Response.Payload.properties.locale.$ref
+  "#" + ModelInfo.ModelInfo.GET.Schemas.Response.Payload.properties.locale.$ref;
 OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
   "#" + OccupationGroup.OccupationGroup.History.GET.Schemas.Response.Payload.items.properties.model.$ref;
 Occupation.Occupation.History.GET.Schemas.Response.Payload.items.properties.model.$ref =
@@ -598,12 +607,11 @@ function getOpenAPISpecification(
             404,
             Object.values(ModelInfo.ModelInfo.GET.Enums.Response.Status404.ErrorCodes)),
           // Model patch (PATCH) error schemas
-          PATCHModel400ErrorSchema: APIError.Schemas.getPayload(
-            "PATCH",
-            "Model",
-            400,
-            Object.values(ModelInfo.ModelInfo.PATCH.Enums.Response.Status400.ErrorCodes)
-          ),
+          PATCHModel400ErrorSchema: APIError.Schemas.getPayload("PATCH", "Model", 400, [
+            APIError.Constants.ErrorCodes.MALFORMED_BODY,
+            APIError.Constants.ErrorCodes.INVALID_JSON_SCHEMA,
+            ...Object.values(ModelInfo.ModelInfo.PATCH.Enums.Response.Status400.ErrorCodes),
+          ]),
           PATCHModel404ErrorSchema: APIError.Schemas.getPayload(
             "PATCH",
             "Model",
@@ -615,6 +623,12 @@ function getOpenAPISpecification(
             "Model",
             409,
             Object.values(ModelInfo.ModelInfo.PATCH.Enums.Response.Status409.ErrorCodes)
+          ),
+          PATCHModel500ErrorSchema: APIError.Schemas.getPayload(
+            "PATCH",
+            "Model",
+            500,
+            Object.values(ModelInfo.ModelInfo.PATCH.Enums.Response.Status500.ErrorCodes)
           ),
           PresignedSchema: Presigned.Schemas.GET.Response.Payload,
           ModelInfoResponseSchemaPOST: ModelInfo.Schemas.POST.Response.Payload,

@@ -44,6 +44,7 @@ function getModelInfoRepositoryMock() {
     getModelsByIds: jest.fn(),
     releaseModel: jest.fn(),
     updateAvailableLanguages: jest.fn(),
+    patchModel: jest.fn(),
   };
 }
 

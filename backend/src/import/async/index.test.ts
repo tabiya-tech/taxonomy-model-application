@@ -152,6 +152,7 @@ describe("Test the main async handler", () => {
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
+        patchModel: jest.fn(),
       };
 
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);

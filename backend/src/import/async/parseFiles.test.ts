@@ -203,6 +203,7 @@ describe("Test the main async handler", () => {
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
+      patchModel: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
     // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
@@ -427,6 +428,7 @@ describe("Test the main async handler", () => {
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
+        patchModel: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
       // AND the importProcessState will be successfully created with an id that doesn't already exist in the db
@@ -492,6 +494,7 @@ describe("Test the main async handler", () => {
         getModelsByIds: jest.fn(),
         releaseModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
+        patchModel: jest.fn(),
       };
       jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
       // AND an occupation repository
