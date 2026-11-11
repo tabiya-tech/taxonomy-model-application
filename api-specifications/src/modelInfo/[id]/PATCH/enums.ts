@@ -14,6 +14,7 @@ namespace PATCHModelEnums {
     export namespace Status409 {
       export enum ErrorCodes {
         MODEL_ALREADY_RELEASED = "MODEL_ALREADY_RELEASED",
+        MODEL_CONCURRENTLY_MODIFIED = "MODEL_CONCURRENTLY_MODIFIED",
       }
     }
     export namespace Status500 {

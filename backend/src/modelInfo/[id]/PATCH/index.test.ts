@@ -559,6 +559,36 @@ describe("Test the ModelPATCHHandler", () => {
       );
     });
 
+    test("should respond with CONFLICT when patchModel misses because available languages changed concurrently", async () => {
+      const fallback = LanguageAPISpecs.Constants.FALLBACK_LANGUAGE.shortCode;
+      const givenModel: IModelInfo = {
+        ...getIModelInfoMockData(),
+        id: givenModelId,
+        released: false,
+        availableLanguages: [fallback],
+      };
+      const concurrentlyUpdatedModel: IModelInfo = {
+        ...givenModel,
+        availableLanguages: [fallback, "es"],
+      };
+
+      const givenModelInfoRepositoryMock = getModelInfoRepositoryMock();
+      givenModelInfoRepositoryMock.getModelById
+        .mockResolvedValueOnce(givenModel)
+        .mockResolvedValueOnce(concurrentlyUpdatedModel);
+      givenModelInfoRepositoryMock.patchModel.mockResolvedValue(null);
+      jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
+
+      const actualResponse = await new ModelPATCHHandler().handle(
+        getEvent({ body: JSON.stringify({ availableLanguages: [fallback, "es", "fr"] }) })
+      );
+
+      expect(actualResponse.statusCode).toEqual(StatusCodes.CONFLICT);
+      expect(JSON.parse(actualResponse.body).errorCode).toEqual(
+        ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status409.ErrorCodes.MODEL_CONCURRENTLY_MODIFIED
+      );
+    });
+
     test("should respond with INTERNAL_SERVER_ERROR when patchModel misses for an unexplained concurrent conflict", async () => {
       const givenModel: IModelInfo = { ...getIModelInfoMockData(), id: givenModelId, released: false };
 

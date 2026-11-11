@@ -602,6 +602,7 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
           "Status409": {
             "ErrorCodes": {
               "MODEL_ALREADY_RELEASED": "MODEL_ALREADY_RELEASED",
+              "MODEL_CONCURRENTLY_MODIFIED": "MODEL_CONCURRENTLY_MODIFIED",
             },
           },
           "Status500": {

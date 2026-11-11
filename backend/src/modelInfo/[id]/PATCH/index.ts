@@ -89,7 +89,9 @@ import { IUpdateModelInfoSpec } from "modelInfo/modelInfo.types";
  *               schema:
  *                 $ref: '#/components/schemas/PATCHModel404ErrorSchema'
  *         '409':
- *           description: The model is already released.
+ *           description: |
+ *             The model is already released, or it was concurrently modified while updating available languages.
+ *             In the latter case, fetch the model's current state and retry the request.
  *           content:
  *             application/json:
  *               schema:
@@ -237,6 +239,13 @@ export class ModelPATCHHandler {
               `The model still carries data for the languages: ${droppedLanguages.join(", ")}`
             );
           }
+
+          return errorResponse(
+            StatusCodes.CONFLICT,
+            ModelInfoAPISpecs.ModelInfo.PATCH.Enums.Response.Status409.ErrorCodes.MODEL_CONCURRENTLY_MODIFIED,
+            "The model was concurrently modified",
+            "Available languages changed while processing the request. Fetch the model's current state and retry."
+          );
         }
         throw new Error("Failed to patch model due to concurrent modification");
       }
