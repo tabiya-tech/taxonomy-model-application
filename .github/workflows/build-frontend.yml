@@ -98,7 +98,10 @@ jobs:
           path: frontend/coverage/lcov.info
           retention-days: 1
   accessibility:
-    runs-on: ubuntu-latest
+    # Pinned: Playwright 1.49.1 does not support Ubuntu 26.04 (now ubuntu-latest) and its
+    # `install --with-deps` falls back to Ubuntu 24.04 package names (libicu74, libvpx9, ...),
+    # which do not exist on 26.04. Unpin once Playwright is upgraded to a version that supports 26.04.
+    runs-on: ubuntu-24.04
     name: Frontend - Accessibility tests
     steps:
       - name: Checkout code
