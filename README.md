@@ -19,8 +19,8 @@ The Taxonomy Model App is a crucial component of our platform, allowing users to
 
 The Taxonomy Model App is the code of Tabiya's Open Taxonomy Platform
 ([taxonomy.tabiya.tech](https://taxonomy.tabiya.tech)). [Compass Connect](https://github.com/tabiya-tech/compass-connect), Tabiya's
-open-source career guidance platform, downloads a taxonomy export from the platform on its first start and builds
-its occupation and skill search from it. The Compass Connect README lists the other components of the platform.
+open-source career guidance platform, downloads a taxonomy export from the Open Taxonomy Platform on its first start
+and builds its occupation and skill search from it. The Compass Connect README lists the other Tabiya tools it uses.
 
 ## Table of Contents
 
