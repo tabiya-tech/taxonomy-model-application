@@ -15,6 +15,13 @@ Welcome to the Taxonomy Model App! This open-source project enables users to sea
 
 The Taxonomy Model App is a crucial component of our platform, allowing users to interact with and enhance taxonomy models. Taxonomy models play a pivotal role in organizing and categorizing data effectively. By contributing to this project, you'll be helping improve data organization and accessibility.
 
+## Related Repositories
+
+The Taxonomy Model App is the code of Tabiya's Open Taxonomy Platform
+([taxonomy.tabiya.tech](https://taxonomy.tabiya.tech)). [Compass Connect](https://github.com/tabiya-tech/compass-connect), Tabiya's
+open-source career guidance platform, downloads a taxonomy export from the platform on its first start and builds
+its occupation and skill search from it. The Compass Connect README lists the other components of the platform.
+
 ## Table of Contents
 
 - **[API Specifications](api-specifications)**: Explore the API Specifications directory for detailed insights into the API documentation.
