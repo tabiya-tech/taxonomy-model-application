@@ -57,6 +57,11 @@ export interface IOccupationGroupPOSTParentRequest {
   objectType: OccupationGroupEnums.Relations.Parent.ObjectTypes;
 }
 
+export interface IOccupationGroupPUTParentRequest {
+  id: string;
+  objectType: OccupationGroupEnums.Relations.Parent.ObjectTypes;
+}
+
 export interface IOccupationGroupChildResponse {
   id: string;
   parentId: string;
@@ -152,6 +157,15 @@ namespace OccupationGroupTypes {
     }
     export namespace Response {
       export type Payload = IOccupationGroupResponse;
+    }
+  }
+
+  export namespace Detail.parent.PUT {
+    export namespace Request {
+      export type Payload = IOccupationGroupPUTParentRequest;
+    }
+    export namespace Response {
+      export type Payload = OccupationGroupTypes.Response.IOccupationGroup | null;
     }
   }
 }
