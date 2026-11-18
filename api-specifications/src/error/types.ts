@@ -22,6 +22,10 @@ namespace ErrorTypes {
       | ImportAPI.Enums.POST.Response.ImportResponseErrorCodes
       | ExportAPI.Enums.POST.Response.ExportResponseErrorCodes
       | ModelInfo.Enums.POST.Response.ErrorCodes
+      | ModelInfo.ModelInfo.PUT.Enums.Response.Status400.ErrorCodes
+      | ModelInfo.ModelInfo.PUT.Enums.Response.Status404.ErrorCodes
+      | ModelInfo.ModelInfo.PUT.Enums.Response.Status409.ErrorCodes
+      | ModelInfo.ModelInfo.PUT.Enums.Response.Status500.ErrorCodes
       | OccupationGroupAPI.POST.Enums.Response.Status400.ErrorCodes
       | OccupationGroupAPI.POST.Enums.Response.Status404.ErrorCodes
       | OccupationGroupAPI.POST.Enums.Response.Status500.ErrorCodes
@@ -205,6 +209,17 @@ namespace ErrorTypes {
       | OccupationAPI.Occupation.PATCH.Errors.Status400.ErrorCodes
       | OccupationAPI.Occupation.PATCH.Errors.Status404.ErrorCodes
       | OccupationAPI.Occupation.PATCH.Errors.Status500.ErrorCodes;
+    message: string;
+    details: string;
+  }
+  export interface PUT {
+    errorCode:
+      | ErrorConstants.Common.ErrorCodes
+      | ErrorConstants.POST.ErrorCodes
+      | ModelInfo.ModelInfo.PUT.Enums.Response.Status400.ErrorCodes
+      | ModelInfo.ModelInfo.PUT.Enums.Response.Status404.ErrorCodes
+      | ModelInfo.ModelInfo.PUT.Enums.Response.Status409.ErrorCodes
+      | ModelInfo.ModelInfo.PUT.Enums.Response.Status500.ErrorCodes;
     message: string;
     details: string;
   }
