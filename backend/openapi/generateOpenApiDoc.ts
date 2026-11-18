@@ -74,6 +74,8 @@ delete OccupationGroup.OccupationGroup.PATCH.Schemas.Request.Payload.$id;
 delete OccupationGroup.OccupationGroup.PATCH.Schemas.Response.Payload.$id;
 delete OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload.$id;
 delete OccupationGroup.OccupationGroup.Parent.POST.Schemas.Response.Payload.$id;
+delete OccupationGroup.OccupationGroup.Parent.PUT.Schemas.Request.Payload.$id;
+delete OccupationGroup.OccupationGroup.Parent.PUT.Schemas.Response.Payload.$id;
 delete Occupation.POST.Schemas.Request.Payload.$id;
 delete Occupation.POST.Schemas.Response.Payload.$id;
 delete Occupation.GET.Schemas.Response.Payload.$id;
@@ -306,6 +308,18 @@ function getOpenAPISpecification(
             OccupationGroup.OccupationGroup.PUT.Errors.Response.Status400.ErrorCodes
               .OCCUPATION_GROUP_COULD_NOT_VALIDATE,
             OccupationGroup.OccupationGroup.PUT.Errors.Response.Status400.ErrorCodes.UNABLE_TO_ALTER_RELEASED_MODEL,
+          ]),
+          PUTOccupationGroupParent400ErrorSchema: APIError.Schemas.getPayload("PUT", "OccupationGroupParent", 400, [
+            OccupationGroup.OccupationGroup.Parent.PUT.Enums.Status400.ErrorCodes.INVALID_OCCUPATION_GROUP_ID,
+            OccupationGroup.OccupationGroup.Parent.PUT.Enums.Status400.ErrorCodes.INVALID_PARENT_ID,
+            OccupationGroup.OccupationGroup.Parent.PUT.Enums.Status400.ErrorCodes.INVALID_PARENT_TYPE,
+            OccupationGroup.OccupationGroup.Parent.PUT.Enums.Status400.ErrorCodes.PARENT_CHILD_CODE_INCONSISTENT,
+            OccupationGroup.OccupationGroup.Parent.PUT.Enums.Status400.ErrorCodes.MODEL_IS_RELEASED,
+          ]),
+          PUTOccupationGroupParent404ErrorSchema: APIError.Schemas.getPayload("PUT", "OccupationGroupParent", 404, [
+            OccupationGroup.OccupationGroup.Parent.PUT.Enums.Status404.ErrorCodes.OCCUPATION_GROUP_NOT_FOUND,
+            OccupationGroup.OccupationGroup.Parent.PUT.Enums.Status404.ErrorCodes.PARENT_NOT_FOUND,
+            OccupationGroup.OccupationGroup.Parent.PUT.Enums.Status404.ErrorCodes.MODEL_NOT_FOUND,
           ]),
           // Occupation-specific error schemas
           POSTOccupation400ErrorSchema: APIError.Schemas.getPayload(
@@ -641,6 +655,8 @@ function getOpenAPISpecification(
           OccupationGroupResponseSchemaGET: OccupationGroup.GET.Schemas.Response.Payload,
           OccupationGroupRequestByIdParamSchemaGET: OccupationGroup.OccupationGroup.Schemas.Request.Param.Payload,
           OccupationGroupParentRequestSchemaPOST: OccupationGroup.OccupationGroup.Parent.POST.Schemas.Request.Payload,
+          OccupationGroupParentRequestSchemaPUT: OccupationGroup.OccupationGroup.Parent.PUT.Schemas.Request.Payload,
+          OccupationGroupParentResponseSchemaPUT: OccupationGroup.OccupationGroup.Parent.PUT.Schemas.Response.Payload,
           OccupationRequestSchemaPOST: Occupation.POST.Schemas.Request.Payload,
           OccupationGroupRequestSchemaPUT: OccupationGroup.OccupationGroup.PUT.Schemas.Request.Payload,
           OccupationGroupResponseSchemaPUT: OccupationGroup.OccupationGroup.PUT.Schemas.Response.Payload,

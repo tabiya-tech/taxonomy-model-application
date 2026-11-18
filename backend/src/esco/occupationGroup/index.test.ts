@@ -21,6 +21,9 @@ jest.mock("./[id]/history/GET/index", () => ({
   handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "GET_HISTORY" }),
 }));
 jest.mock("./[id]/PUT/index", () => ({ handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "PUT" }) }));
+jest.mock("./[id]/parent/PUT/index", () => ({
+  handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "PUT_PARENT" }),
+}));
 jest.mock("./[id]/PATCH/index", () => ({ handler: jest.fn().mockResolvedValue({ statusCode: 200, body: "PATCH" }) }));
 import { handler as getHandler } from "./GET/index";
 import { handler as postHandler } from "./POST/index";
@@ -30,6 +33,7 @@ import { handler as postParentHandler } from "./[id]/parent/POST/index";
 import { handler as getChildrenHandler } from "./[id]/children/GET/index";
 import { handler as getHistoryHandler } from "./[id]/history/GET/index";
 import { handler as putHandler } from "./[id]/PUT/index";
+import { handler as putParentHandler } from "./[id]/parent/PUT/index";
 import { handler as patchHandler } from "./[id]/PATCH/index";
 describe("OccupationGroups Router", () => {
   beforeEach(() => {
@@ -86,6 +90,15 @@ describe("OccupationGroups Router", () => {
     const response = await handler(event);
     expect(putHandler).toHaveBeenCalledWith(event);
     expect(response.body).toBe("PUT");
+  });
+  test("should route PUT parent to putParentHandler", async () => {
+    const event = {
+      httpMethod: HTTP_VERBS.PUT,
+      path: "/models/1/occupationGroups/2/parent",
+    } as APIGatewayProxyEvent;
+    const response = await handler(event);
+    expect(putParentHandler).toHaveBeenCalledWith(event);
+    expect(response.body).toBe("PUT_PARENT");
   });
   test("should route PATCH to patchHandler", async () => {
     const event = { httpMethod: HTTP_VERBS.PATCH, path: "/models/1/occupationGroups/2" } as APIGatewayProxyEvent;

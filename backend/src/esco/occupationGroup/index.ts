@@ -10,6 +10,7 @@ import { handler as occupationGroupParentCreateHandler } from "./[id]/parent/POS
 import { handler as occupationGroupChildrenHandler } from "./[id]/children/GET";
 import { handler as occupationGroupDetailHandler } from "./[id]/GET";
 import { handler as occupationGroupPutHandler } from "./[id]/PUT";
+import { handler as occupationGroupParentPutHandler } from "./[id]/parent/PUT";
 import { handler as occupationGroupPatchHandler } from "./[id]/PATCH";
 import { handler as occupationGroupHistoryHandler } from "./[id]/history/GET";
 
@@ -40,6 +41,8 @@ export const handler: (
   } else if (event?.httpMethod === HTTP_VERBS.PUT) {
     if (pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(pathToMatch)) {
       return occupationGroupPutHandler(event);
+    } else if (pathToRegexp(Routes.OCCUPATION_GROUP_PARENT_ROUTE).regexp.exec(pathToMatch)) {
+      return occupationGroupParentPutHandler(event);
     }
   } else if (event?.httpMethod === HTTP_VERBS.PATCH) {
     if (pathToRegexp(Routes.OCCUPATION_GROUP_ROUTE).regexp.exec(pathToMatch)) {
