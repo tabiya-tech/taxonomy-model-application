@@ -584,13 +584,14 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
     "PATCH": {
       "Constants": {
         "MAX_JSON_OVERHEAD": 1000,
-        "MAX_PATCH_PAYLOAD_LENGTH": 101120,
+        "MAX_PATCH_PAYLOAD_LENGTH": 607652,
       },
       "Enums": {
         "Response": {
           "Status400": {
             "ErrorCodes": {
               "AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED": "AVAILABLE_LANGUAGES_REMOVAL_NOT_SUPPORTED",
+              "UUID_HISTORY_MUST_INCLUDE_CURRENT_UUID": "UUID_HISTORY_MUST_INCLUDE_CURRENT_UUID",
             },
           },
           "Status404": {
@@ -601,10 +602,12 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
           "Status409": {
             "ErrorCodes": {
               "MODEL_ALREADY_RELEASED": "MODEL_ALREADY_RELEASED",
+              "MODEL_CONCURRENTLY_MODIFIED": "MODEL_CONCURRENTLY_MODIFIED",
             },
           },
           "Status500": {
             "ErrorCodes": {
+              "DB_FAILED_TO_PATCH_MODEL": "DB_FAILED_TO_PATCH_MODEL",
               "DB_FAILED_TO_RELEASE_MODEL": "DB_FAILED_TO_RELEASE_MODEL",
               "DB_FAILED_TO_UPDATE_AVAILABLE_LANGUAGES": "DB_FAILED_TO_UPDATE_AVAILABLE_LANGUAGES",
             },
@@ -653,8 +656,108 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                   "availableLanguages",
                 ],
               },
+              {
+                "properties": {
+                  "name": {
+                    "description": "The name of the model",
+                    "maxLength": 256,
+                    "pattern": "\\S",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "name",
+                ],
+              },
+              {
+                "properties": {
+                  "description": {
+                    "description": "The description of the model",
+                    "maxLength": 6000,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "description",
+                ],
+              },
+              {
+                "properties": {
+                  "locale": {
+                    "$ref": "/components/schemas/LocaleSchema",
+                  },
+                },
+                "required": [
+                  "locale",
+                ],
+              },
+              {
+                "properties": {
+                  "license": {
+                    "description": "The license of the model",
+                    "maxLength": 100000,
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "license",
+                ],
+              },
+              {
+                "properties": {
+                  "UUIDHistory": {
+                    "description": "The full UUID history of the model. Must include the model's current UUID. Minimum 1 entry, maximum 10,000 entries, all valid UUIDv4, no duplicates.",
+                    "items": {
+                      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                      "type": "string",
+                    },
+                    "maxItems": 10000,
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true,
+                  },
+                },
+                "required": [
+                  "UUIDHistory",
+                ],
+              },
             ],
+            "not": {
+              "not": {
+                "properties": {
+                  "released": {
+                    "const": true,
+                    "description": "Releases the model. This endpoint can only be used to release a model (set it to true); it cannot be used to un-release one.",
+                    "type": "boolean",
+                  },
+                },
+                "required": [
+                  "released",
+                ],
+              },
+              "properties": {
+                "releaseNotes": {
+                  "description": "The release notes to record for this release of the model.",
+                  "maxLength": 100000,
+                  "type": "string",
+                },
+              },
+              "required": [
+                "releaseNotes",
+              ],
+            },
             "properties": {
+              "UUIDHistory": {
+                "description": "The full UUID history of the model. Must include the model's current UUID. Minimum 1 entry, maximum 10,000 entries, all valid UUIDv4, no duplicates.",
+                "items": {
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                  "type": "string",
+                },
+                "maxItems": 10000,
+                "minItems": 1,
+                "type": "array",
+                "uniqueItems": true,
+              },
               "availableLanguages": {
                 "description": "The full list of the languages the model carries data in. It may add languages to the ones the model already declares, it may not drop any of them: removing a language is out of scope and a request that does not carry every language of the model is rejected with a 400. It is orthogonal to the locale of the model, which this endpoint cannot change.",
                 "items": {
@@ -671,6 +774,25 @@ exports[`Test the modelInfo module The export module matches the snapshot 1`] = 
                 "minItems": 1,
                 "type": "array",
                 "uniqueItems": true,
+              },
+              "description": {
+                "description": "The description of the model",
+                "maxLength": 6000,
+                "type": "string",
+              },
+              "license": {
+                "description": "The license of the model",
+                "maxLength": 100000,
+                "type": "string",
+              },
+              "locale": {
+                "$ref": "/components/schemas/LocaleSchema",
+              },
+              "name": {
+                "description": "The name of the model",
+                "maxLength": 256,
+                "pattern": "\\S",
+                "type": "string",
               },
               "releaseNotes": {
                 "description": "The release notes to record for this release of the model.",

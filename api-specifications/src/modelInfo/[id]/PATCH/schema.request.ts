@@ -1,6 +1,25 @@
 import { SchemaObject } from "ajv";
 import ModelInfoConstants from "../../constants";
 import { _baseProperties } from "../../schemas.base";
+import { RegExp_Str_UUIDv4 } from "../../../regex";
+
+// UUIDHistory for PATCH uses stricter constraints than the base definition:
+// at least 1 entry (the model's current UUID must be present), at most 10,000,
+// all valid UUIDs, no duplicates. The membership check (must include the
+// model's current UUID) is a handler-level rule that JSON Schema cannot express.
+const _patchUUIDHistoryProperty = {
+  description:
+    "The full UUID history of the model. Must include the model's current UUID. " +
+    "Minimum 1 entry, maximum 10,000 entries, all valid UUIDv4, no duplicates.",
+  type: "array",
+  minItems: 1,
+  maxItems: 10_000,
+  uniqueItems: true,
+  items: {
+    type: "string",
+    pattern: RegExp_Str_UUIDv4,
+  },
+};
 
 const _patchProperties = {
   released: {
@@ -22,6 +41,11 @@ const _patchProperties = {
       "not carry every language of the model is rejected with a 400. It is orthogonal to the locale of the model, " +
       "which this endpoint cannot change.",
   },
+  name: JSON.parse(JSON.stringify(_baseProperties.name)),
+  description: JSON.parse(JSON.stringify(_baseProperties.description)),
+  locale: JSON.parse(JSON.stringify(_baseProperties.locale)),
+  license: JSON.parse(JSON.stringify(_baseProperties.license)),
+  UUIDHistory: JSON.parse(JSON.stringify(_patchUUIDHistoryProperty)),
 };
 
 const SchemaPATCHRequest: SchemaObject = {
@@ -31,8 +55,8 @@ const SchemaPATCHRequest: SchemaObject = {
   properties: {
     ...JSON.parse(JSON.stringify(_patchProperties)), // deep copy the patch properties
   },
-  // A request must ask for something: a release, a change of the available languages, or both. Every branch repeats
-  // the property it requires, as ajv's strict mode rejects a "required" that the branch itself does not define.
+  // A request must ask for at least one meaningful change. Every anyOf branch lists only the property it
+  // requires (ajv strict mode rejects a "required" for a property not declared in that branch's own schema).
   anyOf: [
     {
       properties: { released: JSON.parse(JSON.stringify(_patchProperties.released)) },
@@ -42,7 +66,38 @@ const SchemaPATCHRequest: SchemaObject = {
       properties: { availableLanguages: JSON.parse(JSON.stringify(_patchProperties.availableLanguages)) },
       required: ["availableLanguages"],
     },
+    {
+      properties: { name: JSON.parse(JSON.stringify(_patchProperties.name)) },
+      required: ["name"],
+    },
+    {
+      properties: { description: JSON.parse(JSON.stringify(_patchProperties.description)) },
+      required: ["description"],
+    },
+    {
+      properties: { locale: JSON.parse(JSON.stringify(_patchProperties.locale)) },
+      required: ["locale"],
+    },
+    {
+      properties: { license: JSON.parse(JSON.stringify(_patchProperties.license)) },
+      required: ["license"],
+    },
+    {
+      properties: { UUIDHistory: JSON.parse(JSON.stringify(_patchUUIDHistoryProperty)) },
+      required: ["UUIDHistory"],
+    },
   ],
+  // releaseNotes must only be supplied together with released: true.
+  // Expressed as: NOT (releaseNotes is present AND NOT (released is present)).
+  // Both subschemas declare the referenced properties so AJV's strictRequired mode is satisfied.
+  not: {
+    properties: { releaseNotes: JSON.parse(JSON.stringify(_patchProperties.releaseNotes)) },
+    required: ["releaseNotes"],
+    not: {
+      properties: { released: JSON.parse(JSON.stringify(_patchProperties.released)) },
+      required: ["released"],
+    },
+  },
 };
 
 export default SchemaPATCHRequest;

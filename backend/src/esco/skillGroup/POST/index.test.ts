@@ -205,6 +205,7 @@ describe("SkillGroupCreateController", () => {
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
+      patchModel: jest.fn(),
     } as IModelRepository;
 
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
@@ -277,6 +278,7 @@ describe("SkillGroupCreateController", () => {
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
+      patchModel: jest.fn(),
     };
 
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
@@ -379,6 +381,7 @@ describe("SkillGroupCreateController", () => {
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
+      patchModel: jest.fn(),
     };
 
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockClear().mockReturnValue(givenModelInfoRepositoryMock);
