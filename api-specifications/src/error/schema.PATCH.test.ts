@@ -9,6 +9,8 @@ import ErrorConstants from "./constants";
 import { assertCaseForProperty, CaseType, constructSchemaError } from "_test_utilities/assertCaseForProperty";
 import { RegExp_Str_NotEmptyString } from "regex";
 import { WHITESPACE } from "_test_utilities/specialCharacters";
+import ModelInfoAPI from "../modelInfo";
+import OccupationAPI from "../esco/occupation";
 
 describe("Test the Error Schema", () => {
   // GIVEN the APIError.Schemas.PATCH.Payload schema
@@ -41,10 +43,19 @@ describe("Validate JSON against the APIError PATCH Schema", () => {
 
   describe("Validate APIError.Schemas.Payload fields", () => {
     describe("Test validate of 'errorCode'", () => {
-      const allValidErrorCodes = [
-        ...Object.values(ErrorConstants.Common.ErrorCodes),
-        ...Object.values(ErrorConstants.PATCH.ErrorCodes),
-      ];
+      const allValidErrorCodes = Array.from(
+        new Set([
+          ...Object.values(ErrorConstants.Common.ErrorCodes),
+          ...Object.values(ErrorConstants.PATCH.ErrorCodes),
+          ...Object.values(OccupationAPI.Occupation.PATCH.Errors.Status400.ErrorCodes),
+          ...Object.values(OccupationAPI.Occupation.PATCH.Errors.Status404.ErrorCodes),
+          ...Object.values(OccupationAPI.Occupation.PATCH.Errors.Status500.ErrorCodes),
+          ...Object.values(ModelInfoAPI.ModelInfo.PATCH.Enums.Response.Status400.ErrorCodes),
+          ...Object.values(ModelInfoAPI.ModelInfo.PATCH.Enums.Response.Status404.ErrorCodes),
+          ...Object.values(ModelInfoAPI.ModelInfo.PATCH.Enums.Response.Status409.ErrorCodes),
+          ...Object.values(ModelInfoAPI.ModelInfo.PATCH.Enums.Response.Status500.ErrorCodes),
+        ])
+      );
 
       test.each([
         [

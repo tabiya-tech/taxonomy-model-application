@@ -113,6 +113,7 @@ describe("test for trigger ExportHandler", () => {
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
+      patchModel: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
@@ -176,6 +177,7 @@ describe("test for trigger ExportHandler", () => {
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
+      patchModel: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
 
@@ -223,6 +225,7 @@ describe("test for trigger ExportHandler", () => {
       getModelsByIds: jest.fn(),
       releaseModel: jest.fn(),
       updateAvailableLanguages: jest.fn(),
+      patchModel: jest.fn(),
     };
     jest.spyOn(getRepositoryRegistry(), "modelInfo", "get").mockReturnValue(givenModelInfoRepositoryMock);
     // AND the exportProcessState repository will throw an error

@@ -83,6 +83,21 @@ export type INewModelInfoSpec = Pick<IModelInfoDoc, "name" | "locale" | "license
   Partial<Pick<IModelInfoDoc, "availableLanguages">>;
 
 /**
+ * Describes the specification for partially updating an existing ModelInfo entry.
+ * All fields are optional; only supplied fields are updated.
+ */
+export interface IUpdateModelInfoSpec {
+  name?: string;
+  description?: string;
+  locale?: ILocale;
+  license?: string;
+  UUIDHistory?: string[];
+  availableLanguages?: string[];
+  released?: true;
+  releaseNotes?: string;
+}
+
+/**
  * Describes how a reference to a model is returned from the API
  */
 

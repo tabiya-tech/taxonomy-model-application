@@ -204,7 +204,11 @@ namespace ErrorTypes {
       | ErrorConstants.PATCH.ErrorCodes
       | OccupationAPI.Occupation.PATCH.Errors.Status400.ErrorCodes
       | OccupationAPI.Occupation.PATCH.Errors.Status404.ErrorCodes
-      | OccupationAPI.Occupation.PATCH.Errors.Status500.ErrorCodes;
+      | OccupationAPI.Occupation.PATCH.Errors.Status500.ErrorCodes
+      | ModelInfo.ModelInfo.PATCH.Enums.Response.Status400.ErrorCodes
+      | ModelInfo.ModelInfo.PATCH.Enums.Response.Status404.ErrorCodes
+      | ModelInfo.ModelInfo.PATCH.Enums.Response.Status409.ErrorCodes
+      | ModelInfo.ModelInfo.PATCH.Enums.Response.Status500.ErrorCodes;
     message: string;
     details: string;
   }
