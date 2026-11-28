@@ -1331,6 +1331,7 @@ describe("Test the OccupationGroupService", () => {
         modelInfo: {
           getModelsByIds: jest.fn().mockResolvedValue([]),
           releaseModel: jest.fn(),
+          replaceModel: jest.fn(),
           updateAvailableLanguages: jest.fn(),
           getHistory: jest.fn().mockResolvedValue([]),
           ...overrides,
@@ -1390,6 +1391,7 @@ describe("Test the OccupationGroupService", () => {
       mockModelInfoRepository({
         getModelsByIds: jest.fn().mockResolvedValue([givenModelB, givenModelA]),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       });
 
@@ -1425,6 +1427,7 @@ describe("Test the OccupationGroupService", () => {
       mockModelInfoRepository({
         getModelsByIds: jest.fn().mockResolvedValue([givenModel]),
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       });
 
@@ -1447,6 +1450,7 @@ describe("Test the OccupationGroupService", () => {
       mockModelInfoRepository({
         getModelsByIds: jest.fn().mockResolvedValue([]), // model not found
         releaseModel: jest.fn(),
+        replaceModel: jest.fn(),
         updateAvailableLanguages: jest.fn(),
       });
 
